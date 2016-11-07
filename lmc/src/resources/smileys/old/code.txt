@@ -1,0 +1,49 @@
+#define SMI_SMILE				":/smileys/smile"
+#define SMI_OPEN_MOUTHED		":/smileys/open_mouthed"
+#define SMI_WINK				":/smileys/wink"
+#define SMI_SURPRISED			":/smileys/surprised"
+#define SMI_TONGUE_OUT			":/smileys/tongue_out"
+#define SMI_HOT					":/smileys/hot"
+#define SMI_ANGRY				":/smileys/angry"
+#define SMI_CONFUSED			":/smileys/confused"
+#define SMI_EMBARRASSED			":/smileys/embarrassed"
+#define SMI_SAD					":/smileys/sad"
+#define SMI_CRYING				":/smileys/crying"
+#define SMI_DISAPPOINTED		":/smileys/disappointed"
+#define SMI_ANGEL				":/smileys/angel"
+#define SMI_RED_HEART			":/smileys/red_heart"
+#define SMI_BROKEN_HEART		":/smileys/broken_heart"
+#define SMI_BEER				":/smileys/beer"
+#define SMI_CAT_FACE			":/smileys/cat_face"
+#define SMI_DOG_FACE			":/smileys/dog_face"
+#define SMI_SLEEPING_HALF_MOON	":/smileys/sleeping_half-moon"
+#define SMI_STAR				":/smileys/star"
+#define SMI_LEFT_HUG			":/smileys/left_hug"
+#define SMI_RED_LIPS			":/smileys/red_lips"
+#define SMI_RED_ROSE			":/smileys/red_rose"
+#define SMI_WILTED_ROSE			":/smileys/wilted_rose"
+#define SMI_CLOCK				":/smileys/clock"
+#define SMI_GIFT_WITH_BOW		":/smileys/gift_with_bow"
+#define SMI_BIRTHDAY_CAKE		":/smileys/birthday_cake"
+#define SMI_CAMERA				":/smileys/camera"
+#define SMI_LIGHT_BULB			":/smileys/light_bulb"
+#define SMI_COFFEE				":/smileys/coffee"
+#define SMI_TELEPHONE_RECEIVER	":/smileys/telephone_receiver"
+#define SMI_FILMSTRIP			":/smileys/filmstrip"
+#define SMI_NOTE				":/smileys/note"
+#define SMI_EMAIL				":/smileys/e-mail"
+#define SMI_YES					":/smileys/yes"
+#define SMI_NO					":/smileys/no"
+#define SMI_MESSENGER			":/smileys/messenger"
+
+#define SM_COUNT		36
+#define SM_MAPCOUNT		46
+const QString smileyCode[] = {":-)", ":-D", ";-)", ":-O", ":-P", "(H)", ":-@", ":-S", ":-$", ":-(", ":'(", ":-|", "(A)",
+	"(L)", "(U)", "(B)", "(@)", "(&)", "(S)", "(*)", "({)", "(K)", "(F)", "(W)", "(O)", "(G)", "(^)", "(P)", "(I)", "(C)",
+	"(T)", "(~)", "(8)", "(E)", "(Y)", "(N)", ":)", ":D", ";)", ":O", ":P", ":@", ":S", ":$", ":(", ":|"};
+const QString smileyPic[] = {SMI_SMILE, SMI_OPEN_MOUTHED, SMI_WINK, SMI_SURPRISED, SMI_TONGUE_OUT, SMI_HOT, SMI_ANGRY, 
+	SMI_CONFUSED, SMI_EMBARRASSED, SMI_SAD, SMI_CRYING, SMI_DISAPPOINTED, SMI_ANGEL, SMI_RED_HEART, SMI_BROKEN_HEART,
+	SMI_BEER, SMI_CAT_FACE, SMI_DOG_FACE, SMI_SLEEPING_HALF_MOON, SMI_STAR, SMI_LEFT_HUG, SMI_RED_LIPS, SMI_RED_ROSE,
+	SMI_WILTED_ROSE, SMI_CLOCK, SMI_GIFT_WITH_BOW, SMI_BIRTHDAY_CAKE, SMI_CAMERA, SMI_LIGHT_BULB, SMI_COFFEE,
+	SMI_TELEPHONE_RECEIVER, SMI_FILMSTRIP, SMI_NOTE, SMI_EMAIL, SMI_YES, SMI_NO, SMI_SMILE, SMI_OPEN_MOUTHED,
+	SMI_WINK, SMI_SURPRISED, SMI_TONGUE_OUT, SMI_ANGRY, SMI_CONFUSED, SMI_EMBARRASSED, SMI_SAD, SMI_DISAPPOINTED};

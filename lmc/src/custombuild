@@ -1,0 +1,8 @@
+echo "Creating translation binaries..."
+lrelease lmc_en.ts -qm resources/lang/en_US.qm
+lrelease lmc_ml.ts -qm resources/lang/ml_IN.qm
+echo "Done."
+echo "Building resource binary..."
+rcc -binary resource.qrc -o $1/lmc.rcc
+echo "Done."
+exit 0

@@ -1,0 +1,67 @@
+smile			:-)	:)
+open_mouthed		:-D	:D
+wink			;-)	;)
+surprised		:-O	:O
+tongue out		:-P	:P
+hot			(H)	(h)
+angry			:-@	:@
+confused		:-S	:s
+embarrassed		:-$	:$
+sad			:-(	:(
+crying			:'(
+disappointed		:-|	:|
+stormy cloud		(ST)	(st)
+baring teeth		8o|
+nerd			8-|
+sick			+o(
+party			<:o)
+sleepy/yawning		|-)
+thinking		*-)
+don't tell anyone	:-#
+secret telling		:-*
+sarcastic		^o)
+eye rolling		8-)
+red heart		(L)	(l)
+broken heart		(U)	(u)
+drink			(D)	(d)
+beer			(B)	(b)
+cat face		(@)
+dog face		(&)
+snail			(SN)	(sn)
+black sheep		(BAH)	(bah)
+sleeping half-moon	(S)	(s)
+star			(*)
+sun			(#)
+rainbow			(R)	(r)
+left hug		({)
+right hug		(})
+red lips		(K)	(k)
+red rose		(F)	(f)
+wilted rose		(W)	(w)
+clock			(O)	(o)
+gift with a bow		(G)	(g)
+birthday cake		(^)
+camera			(P)	(p)
+light bulb		(I)	(i)
+coffee			(C)	(c)
+telephone receiver	(T)	(t)
+mobile phone		(MP)	(mp)
+auto			(AU)	(au)
+airplane		(AP)	(ap)
+computer		(CO)	(co)
+money			(MO)	(mo)
+filmstrip		(~)
+note			(8)
+pizza			(PI)	(pi)
+soccer ball		(SO)	(so)
+e-mail			(E)	(e)
+boy			(Z)	(z)
+girl			(X)	(x)
+island with a palm tree	(IP)	(ip)
+umbrella		(UM)	(um)
+agree			(OK)	(ok)
+stop			(ST)	(st)
+
+yes			(Y)	(y)
+no			(N)	(n)
+messenger		(M)	(m)

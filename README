@@ -1,0 +1,27 @@
+How to compile LAN Messenger
+============================
+
+You need Qt (http://qt.nokia.com/) to compile.
+I built LAN Messenger using Qt 4.7, so you probably 
+need that or a later version. 
+
+You also need OpenSSL (http://www.openssl.org/)
+I used version 1.0.0.e, so you know the drill.
+
+The application consists of two projects - lmc and lmcapp.
+lmcapp is just an extension of the qtsingleapplication
+project released by the Qt people. I have added a few
+functions to support multilanguage UI.
+
+The main project is lmc which contains the entire application.
+I have included the project files for both projects.
+
+Extract both folders. Make sure the dependency paths of lmc
+are set to the correct locations. It depends on lmcapp and
+openssl, in addition to the standard Qt libraries.
+
+Note: This source is from the Linux version of the project.
+The code is identical for all platforms, but there are a few
+differences in the way application is built and run on each
+platform. I will either give detailed steps or upload separate
+source codes for different branches soon.
