@@ -67,162 +67,6 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 lmcChatWindow::~lmcChatWindow(void) {
 }
 
-void lmcChatWindow::createSmileyMenu(void) {
-	pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-	connect(pSmileyAction, SIGNAL(triggered()), this, SLOT(smileyAction_triggered()));
-
-	pSmileyMenu = new QMenu(this);
-	pSmileyMenu->addAction(pSmileyAction);
-}
-
-void lmcChatWindow::createToolBar(void) {
-	QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
-	pLeftBar->setStyleSheet("QToolBar { border: 0px }");
-	pLeftBar->setIconSize(QSize(16, 16));
-	ui.toolBarLayout->addWidget(pLeftBar);
-
-	pFontAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONT, "PNG")), "Change Font...", this, SLOT(btnFont_clicked()));
-	pFontColorAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONTCOLOR, "PNG")), "Change Color...", this, SLOT(btnFontColor_clicked()));
-
-	pLeftBar->addSeparator();
-
-	pbtnSmiley = new lmcToolButton(pLeftBar);
-	pbtnSmiley->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
-	pbtnSmiley->setPopupMode(QToolButton::InstantPopup);
-	pbtnSmiley->setMenu(pSmileyMenu);
-	pLeftBar->addWidget(pbtnSmiley);
-
-	pLeftBar->addSeparator();
-
-	pFileAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send A &File...", this, SLOT(btnFile_clicked()));
-	pFileAction->setShortcut(QKeySequence::Open);
-	pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, SLOT(btnSave_clicked()));
-	pSaveAction->setShortcut(QKeySequence::Save);
-	pSaveAction->setEnabled(false);
-
-	QToolBar* pRightBar = new QToolBar(ui.wgtToolBar);
-	pRightBar->setStyleSheet("QToolBar { border: 0px }");
-	pRightBar->setIconSize(QSize(16, 16));
-	pRightBar->setLayoutDirection(Qt::RightToLeft);
-	ui.toolBarLayout->addWidget(pRightBar);
-
-	pHistoryAction = pRightBar->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", this, SLOT(btnHistory_clicked()));
-	pHistoryAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
-	pTransferAction = pRightBar->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", this, SLOT(btnTransfers_clicked()));
-	pTransferAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
-
-	ui.lblDividerTop->setBackgroundRole(QPalette::Light);
-	ui.lblDividerTop->setAutoFillBackground(true);
-	ui.lblDividerBottom->setBackgroundRole(QPalette::Dark);
-	ui.lblDividerBottom->setAutoFillBackground(true);
-}
-
-void lmcChatWindow::setUIText(void) {
-	ui.retranslateUi(this);
-
-	setWindowTitle(getWindowTitle());
-
-	pbtnSmiley->setToolTip(tr("Insert Smiley"));
-	pFileAction->setText(tr("Send A &File..."));
-	pSaveAction->setText(tr("&Save As..."));
-	pHistoryAction->setText(tr("&History"));
-	pTransferAction->setText(tr("File &Transfers"));
-	if(!groupMode) {
-		QString toolTip = tr("Send a file to %1");
-		pFileAction->setToolTip(toolTip.arg(peerNames.value(peerId)));
-	}
-	pSaveAction->setToolTip(tr("Save this conversation"));
-	pHistoryAction->setToolTip(tr("View History"));
-	pTransferAction->setToolTip(tr("View File Transfers"));
-	pFontAction->setText(tr("Change Font..."));
-	pFontAction->setToolTip(tr("Change message font"));
-	pFontColorAction->setText(tr("Change Color..."));
-	pFontColorAction->setToolTip(tr("Change message text color"));
-
-	showStatus(IT_Ok, true);	//	this will force the info label to retranslate
-}
-
-void lmcChatWindow::smileyAction_triggered(void) {
-	//	nSmiley contains index of smiley
-	if(showSmiley) {
-		QString htmlPic("<html><head></head><body><img src='" + smileyPic[nSmiley] + "' /></body></html>");
-		ui.txtMessage->insertHtml(htmlPic);
-	}
-	else
-		ui.txtMessage->insertPlainText(smileyCode[nSmiley]);
-}
-
-void lmcChatWindow::btnFont_clicked(void) {
-	bool ok;
-	QFont font = ui.txtMessage->font();
-	font.setPointSize(ui.txtMessage->fontPointSize());
-	QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
-	if(ok)
-		setMessageFont(newFont);
-}
-
-void lmcChatWindow::btnFontColor_clicked(void) {
-	QColor color = QColorDialog::getColor(messageColor, this, tr("Select Color"));
-	if(color.isValid()) {
-		messageColor = color;
-		ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
-	}
-}
-
-void lmcChatWindow::btnFile_clicked(void) {
-	QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
-	QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
-	if(!fileName.isEmpty()) {
-		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
-		sendFile(&fileName);
-	}
-}
-
-void lmcChatWindow::btnSave_clicked(void) {
-	QString dir = pSettings->value(IDS_SAVEPATH, IDS_SAVEPATH_VAL).toString();
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Conversation"), dir,
-		"HTML File (*.html);;Text File (*.txt)");
-	if(!fileName.isEmpty()) {
-		pSettings->setValue(IDS_SAVEPATH, QFileInfo(fileName).dir().absolutePath());
-		QFile file(fileName);
-		if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-			return;
-		QTextStream stream(&file);
-		stream.setCodec("UTF-8");
-		stream.setGenerateByteOrderMark(true);
-		if(fileName.endsWith(".html", Qt::CaseInsensitive))
-			stream << pMessageLog->prepareMessageLogForSave();
-		else
-			stream << pMessageLog->prepareMessageLogForSave(TextFormat);
-		file.close();
-	}
-}
-
-void lmcChatWindow::btnHistory_clicked(void) {
-	emit showHistory();
-}
-
-void lmcChatWindow::btnTransfers_clicked(void) {
-	emit showTransfers();
-}
-
-void lmcChatWindow::log_sendMessage(MessageType type, QString *lpszUserId, XmlMessage *pMessage) {
-	emit messageSent(type, lpszUserId, pMessage);
-}
-
-void lmcChatWindow::checkChatState(void) {
-	if(keyStroke > snapKeyStroke) {
-		snapKeyStroke = keyStroke;
-		QTimer::singleShot(pauseTime, this, SLOT(checkChatState()));
-		return;
-	}
-
-	if(ui.txtMessage->document()->isEmpty())
-		setChatState(CS_Active);
-	else
-		setChatState(CS_Paused);
-}
-
 void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 	localId = pLocalUser->id;
 	localName = pLocalUser->name;
@@ -252,7 +96,7 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 	bConnected = connected;
 	if(!bConnected)
 		showStatus(IT_Disconnected, true);
-	
+
 	int index = Helper::statusIndexFromCode(pRemoteUser->status);
 	if(index != -1) {
 		setWindowIcon(QIcon(bubblePic[index]));
@@ -271,6 +115,9 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 	pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
 	pMessageLog->messageTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
 	pMessageLog->messageDate = pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool();
+	pMessageLog->allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
+	pMessageLog->pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
+	pMessageLog->trimMessage = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
 	QFont font = QApplication::font();
 	font.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
 	messageColor = QApplication::palette().text().color();
@@ -295,134 +142,7 @@ void lmcChatWindow::stop(void) {
 			History::save(peerNames.value(peerId), QDateTime::currentDateTime(), &szMessageLog);
 		else
 			History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
-    }
-}
-
-bool lmcChatWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
-	if(pObject == ui.txtMessage && pEvent->type() == QEvent::KeyPress) {
-		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
-		if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
-			bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
-			if(keyMod == sendKeyMod) {
-				sendMessage();
-				setChatState(CS_Active);
-				return true;
-			}
-			// The TextEdit widget does not insert new line when Ctrl+Enter is pressed
-			// So we insert a new line manually
-			if(keyMod)
-				ui.txtMessage->insertPlainText("\n");
-		}
-		keyStroke++;
-		setChatState(CS_Composing);
 	}
-
-	return false;
-}
-
-void lmcChatWindow::changeEvent(QEvent* pEvent) {
-	switch(pEvent->type()) {
-	case QEvent::ActivationChange:
-		if(isActiveWindow())
-			setWindowTitle(getWindowTitle());
-		break;
-	case QEvent::LanguageChange:
-		setUIText();
-		pMessageLog->reloadMessageLog();
-		break;
-    default:
-        break;
-	}
-
-	QWidget::changeEvent(pEvent);
-}
-
-void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
-	setChatState(CS_Inactive);
-
-	QWidget::closeEvent(pEvent);
-}
-
-void lmcChatWindow::dragEnterEvent(QDragEnterEvent* pEvent) {
-	if(pEvent->mimeData()->hasFormat("text/uri-list"))
-		pEvent->acceptProposedAction();
-}
-
-void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
-	QList<QUrl> urls = pEvent->mimeData()->urls();
-	if(urls.isEmpty())
-		return;
-
-	QString fileName = urls.first().toLocalFile();
-	if(fileName.isEmpty())
-		return;
-
-	if(!QFile::exists(fileName))
-		return;
-
-	sendFile(&fileName);
-}
-
-void lmcChatWindow::sendMessage(void) {
-	if(ui.txtMessage->document()->isEmpty())
-		return;
-
-	if(bConnected) {
-		QString szHtmlMessage(ui.txtMessage->toHtml());
-		encodeMessage(&szHtmlMessage);
-		QTextDocument docMessage;
-		docMessage.setHtml(szHtmlMessage);
-		QString szMessage = docMessage.toPlainText().trimmed();
-	
-		QFont font = ui.txtMessage->font();
-		font.setPointSize(ui.txtMessage->fontPointSize());
-		
-		MessageType type = groupMode ? MT_GroupMessage : MT_Message;
-		XmlMessage xmlMessage;
-		xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-		xmlMessage.addData(XN_FONT, font.toString());
-		xmlMessage.addData(XN_COLOR, messageColor.name());
-		if(groupMode) {
-			xmlMessage.addData(XN_THREAD, threadId);
-			xmlMessage.addData(XN_GROUPMESSAGE, szMessage);
-		} else
-			xmlMessage.addData(XN_MESSAGE, szMessage);
-
-		appendMessageLog(MT_Message, &localId, &localName, &xmlMessage);
-
-		QHash<QString, QString>::const_iterator index = peerIds.constBegin();
-		while (index != peerIds.constEnd()) {
-			QString userId = index.value();
-			emit messageSent(type, &userId, &xmlMessage);
-			index++;
-		}
-	}
-	else
-		appendMessageLog(MT_Error, NULL, NULL, NULL);
-
-	ui.txtMessage->clear();
-	ui.txtMessage->setFocus();
-}
-
-void lmcChatWindow::sendFile(QString* lpszFilePath) {
-	if(bConnected) {
-		QFileInfo fileInfo(*lpszFilePath);
-
-		XmlMessage xmlMessage;
-		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
-		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
-		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
-		xmlMessage.addData(XN_FILEID, Helper::getUuid());
-		xmlMessage.addData(XN_FILEPATH, fileInfo.filePath());
-		xmlMessage.addData(XN_FILENAME, fileInfo.fileName());
-		xmlMessage.addData(XN_FILESIZE, QString::number(fileInfo.size()));
-
-		QString userId = peerIds.value(peerId);
-		QString userName = peerNames.value(peerId);
-		appendMessageLog(MT_LocalFile, NULL, &userName, &xmlMessage);
-		emit messageSent(MT_File, &userId, &xmlMessage);
-	} else
-		appendMessageLog(MT_Error, NULL, NULL, NULL);
 }
 
 void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
@@ -499,8 +219,8 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 			sendFile(&data);
 		}
 		break;
-    default:
-        break;
+	default:
+		break;
 	}
 }
 
@@ -516,24 +236,323 @@ void lmcChatWindow::settingsChanged(void) {
 	pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
 	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
 	pSoundPlayer->settingsChanged();
-	QString userName = pSettings->value(IDS_USERNAME, IDS_USERNAME_VAL).toString();
-	if(userName.isEmpty())
-		userName = Helper::getLogonName();
-	if(localName.compare(userName) != 0) {
-		localName = userName;
+	if(localName.compare(pLocalUser->name) != 0) {
+		localName = pLocalUser->name;
 		pMessageLog->updateUserName(&localId, &localName);
 	}
 
 	bool msgTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
 	bool msgDate = pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool();
+	bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
+	bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
+	bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
 	QString theme = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
 	if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
-			theme.compare(pMessageLog->themePath) != 0) {
+			allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
+			trim != pMessageLog->trimMessage || theme.compare(pMessageLog->themePath) != 0) {
 		pMessageLog->messageTime = msgTime;
 		pMessageLog->messageDate = msgDate;
+		pMessageLog->allowLinks = allowLinks;
+		pMessageLog->pathToLink = pathToLink;
+		pMessageLog->trimMessage = trim;
 		pMessageLog->themePath = theme;
 		pMessageLog->reloadMessageLog();
 	}
+}
+
+bool lmcChatWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+	if(pObject == ui.txtMessage && pEvent->type() == QEvent::KeyPress) {
+		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+		if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
+			bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
+			if(keyMod == sendKeyMod) {
+				sendMessage();
+				setChatState(CS_Active);
+				return true;
+			}
+			// The TextEdit widget does not insert new line when Ctrl+Enter is pressed
+			// So we insert a new line manually
+			if(keyMod)
+				ui.txtMessage->insertPlainText("\n");
+		}
+		keyStroke++;
+		setChatState(CS_Composing);
+	}
+
+	return false;
+}
+
+void lmcChatWindow::changeEvent(QEvent* pEvent) {
+	switch(pEvent->type()) {
+	case QEvent::ActivationChange:
+		if(isActiveWindow())
+			setWindowTitle(getWindowTitle());
+		break;
+	case QEvent::LanguageChange:
+		setUIText();
+		break;
+	default:
+		break;
+	}
+
+	QWidget::changeEvent(pEvent);
+}
+
+void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
+	setChatState(CS_Inactive);
+
+	QWidget::closeEvent(pEvent);
+}
+
+void lmcChatWindow::dragEnterEvent(QDragEnterEvent* pEvent) {
+	if(pEvent->mimeData()->hasFormat("text/uri-list")) {
+		QList<QUrl> urls = pEvent->mimeData()->urls();
+		if(urls.isEmpty())
+			return;
+
+		QString fileName = urls.first().toLocalFile();
+		if(fileName.isEmpty())
+			return;
+
+		QFileInfo fileInfo(fileName);
+		if(!fileInfo.isFile())
+			return;
+
+		pEvent->acceptProposedAction();
+	}
+}
+
+void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
+	QList<QUrl> urls = pEvent->mimeData()->urls();
+	if(urls.isEmpty())
+		return;
+
+	QString fileName = urls.first().toLocalFile();
+	if(fileName.isEmpty())
+		return;
+
+	if(!QFile::exists(fileName))
+		return;
+
+	sendFile(&fileName);
+}
+
+void lmcChatWindow::btnFont_clicked(void) {
+	bool ok;
+	QFont font = ui.txtMessage->font();
+	font.setPointSize(ui.txtMessage->fontPointSize());
+	QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
+	if(ok)
+		setMessageFont(newFont);
+}
+
+void lmcChatWindow::btnFontColor_clicked(void) {
+	QColor color = QColorDialog::getColor(messageColor, this, tr("Select Color"));
+	if(color.isValid()) {
+		messageColor = color;
+		ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+	}
+}
+
+void lmcChatWindow::btnFile_clicked(void) {
+	QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
+	QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
+	if(!fileName.isEmpty()) {
+		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
+		sendFile(&fileName);
+	}
+}
+
+void lmcChatWindow::btnSave_clicked(void) {
+	QString dir = pSettings->value(IDS_SAVEPATH, IDS_SAVEPATH_VAL).toString();
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Conversation"), dir,
+		"HTML File (*.html);;Text File (*.txt)");
+	if(!fileName.isEmpty()) {
+		pSettings->setValue(IDS_SAVEPATH, QFileInfo(fileName).dir().absolutePath());
+		QFile file(fileName);
+		if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+			return;
+		QTextStream stream(&file);
+		stream.setCodec("UTF-8");
+		stream.setGenerateByteOrderMark(true);
+		if(fileName.endsWith(".html", Qt::CaseInsensitive))
+			stream << pMessageLog->prepareMessageLogForSave();
+		else
+			stream << pMessageLog->prepareMessageLogForSave(TextFormat);
+		file.close();
+	}
+}
+
+void lmcChatWindow::btnHistory_clicked(void) {
+	emit showHistory();
+}
+
+void lmcChatWindow::btnTransfers_clicked(void) {
+	emit showTransfers();
+}
+
+void lmcChatWindow::smileyAction_triggered(void) {
+	//	nSmiley contains index of smiley
+	if(showSmiley) {
+		QString htmlPic("<html><head></head><body><img src='" + smileyPic[nSmiley] + "' /></body></html>");
+		ui.txtMessage->insertHtml(htmlPic);
+	}
+	else
+		ui.txtMessage->insertPlainText(smileyCode[nSmiley]);
+}
+
+void lmcChatWindow::log_sendMessage(MessageType type, QString *lpszUserId, XmlMessage *pMessage) {
+	emit messageSent(type, lpszUserId, pMessage);
+}
+
+void lmcChatWindow::checkChatState(void) {
+	if(keyStroke > snapKeyStroke) {
+		snapKeyStroke = keyStroke;
+		QTimer::singleShot(pauseTime, this, SLOT(checkChatState()));
+		return;
+	}
+
+	if(ui.txtMessage->document()->isEmpty())
+		setChatState(CS_Active);
+	else
+		setChatState(CS_Paused);
+}
+
+void lmcChatWindow::createSmileyMenu(void) {
+	pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
+	connect(pSmileyAction, SIGNAL(triggered()), this, SLOT(smileyAction_triggered()));
+
+	pSmileyMenu = new QMenu(this);
+	pSmileyMenu->addAction(pSmileyAction);
+}
+
+void lmcChatWindow::createToolBar(void) {
+	QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
+	pLeftBar->setStyleSheet("QToolBar { border: 0px }");
+	pLeftBar->setIconSize(QSize(16, 16));
+	ui.toolBarLayout->addWidget(pLeftBar);
+
+	pFontAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONT, "PNG")), "Change Font...", this, SLOT(btnFont_clicked()));
+	pFontColorAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONTCOLOR, "PNG")), "Change Color...", this, SLOT(btnFontColor_clicked()));
+
+	pLeftBar->addSeparator();
+
+	pbtnSmiley = new lmcToolButton(pLeftBar);
+	pbtnSmiley->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
+	pbtnSmiley->setPopupMode(QToolButton::InstantPopup);
+	pbtnSmiley->setMenu(pSmileyMenu);
+	pLeftBar->addWidget(pbtnSmiley);
+
+	pLeftBar->addSeparator();
+
+	pFileAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send A &File...", this, SLOT(btnFile_clicked()));
+	pFileAction->setShortcut(QKeySequence::Open);
+	pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, SLOT(btnSave_clicked()));
+	pSaveAction->setShortcut(QKeySequence::Save);
+	pSaveAction->setEnabled(false);
+
+	QToolBar* pRightBar = new QToolBar(ui.wgtToolBar);
+	pRightBar->setStyleSheet("QToolBar { border: 0px }");
+	pRightBar->setIconSize(QSize(16, 16));
+	pRightBar->setLayoutDirection(Qt::RightToLeft);
+	ui.toolBarLayout->addWidget(pRightBar);
+
+	pHistoryAction = pRightBar->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", this, SLOT(btnHistory_clicked()));
+	pHistoryAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+	pTransferAction = pRightBar->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", this, SLOT(btnTransfers_clicked()));
+	pTransferAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+
+	ui.lblDividerTop->setBackgroundRole(QPalette::Light);
+	ui.lblDividerTop->setAutoFillBackground(true);
+	ui.lblDividerBottom->setBackgroundRole(QPalette::Dark);
+	ui.lblDividerBottom->setAutoFillBackground(true);
+}
+
+void lmcChatWindow::setUIText(void) {
+	ui.retranslateUi(this);
+
+	setWindowTitle(getWindowTitle());
+
+	pbtnSmiley->setToolTip(tr("Insert Smiley"));
+	pFileAction->setText(tr("Send A &File..."));
+	pSaveAction->setText(tr("&Save As..."));
+	pHistoryAction->setText(tr("&History"));
+	pTransferAction->setText(tr("File &Transfers"));
+	if(!groupMode) {
+		QString toolTip = tr("Send a file to %1");
+		pFileAction->setToolTip(toolTip.arg(peerNames.value(peerId)));
+	}
+	pSaveAction->setToolTip(tr("Save this conversation"));
+	pHistoryAction->setToolTip(tr("View History"));
+	pTransferAction->setToolTip(tr("View File Transfers"));
+	pFontAction->setText(tr("Change Font..."));
+	pFontAction->setToolTip(tr("Change message font"));
+	pFontColorAction->setText(tr("Change Color..."));
+	pFontColorAction->setToolTip(tr("Change message text color"));
+
+	showStatus(IT_Ok, true);	//	this will force the info label to retranslate
+}
+
+void lmcChatWindow::sendMessage(void) {
+	if(ui.txtMessage->document()->isEmpty())
+		return;
+
+	if(bConnected) {
+		QString szHtmlMessage(ui.txtMessage->toHtml());
+		encodeMessage(&szHtmlMessage);
+		QTextDocument docMessage;
+		docMessage.setHtml(szHtmlMessage);
+		QString szMessage = docMessage.toPlainText();
+	
+		QFont font = ui.txtMessage->font();
+		font.setPointSize(ui.txtMessage->fontPointSize());
+		
+		MessageType type = groupMode ? MT_GroupMessage : MT_Message;
+		XmlMessage xmlMessage;
+		xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+		xmlMessage.addData(XN_FONT, font.toString());
+		xmlMessage.addData(XN_COLOR, messageColor.name());
+		if(groupMode) {
+			xmlMessage.addData(XN_THREAD, threadId);
+			xmlMessage.addData(XN_GROUPMESSAGE, szMessage);
+		} else
+			xmlMessage.addData(XN_MESSAGE, szMessage);
+
+		appendMessageLog(MT_Message, &localId, &localName, &xmlMessage);
+
+		QHash<QString, QString>::const_iterator index = peerIds.constBegin();
+		while (index != peerIds.constEnd()) {
+			QString userId = index.value();
+			emit messageSent(type, &userId, &xmlMessage);
+			index++;
+		}
+	}
+	else
+		appendMessageLog(MT_Error, NULL, NULL, NULL);
+
+	ui.txtMessage->clear();
+	ui.txtMessage->setFocus();
+}
+
+void lmcChatWindow::sendFile(QString* lpszFilePath) {
+	if(bConnected) {
+		QFileInfo fileInfo(*lpszFilePath);
+
+		XmlMessage xmlMessage;
+		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
+		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
+		xmlMessage.addData(XN_FILEID, Helper::getUuid());
+		xmlMessage.addData(XN_FILEPATH, fileInfo.filePath());
+		xmlMessage.addData(XN_FILENAME, fileInfo.fileName());
+		xmlMessage.addData(XN_FILESIZE, QString::number(fileInfo.size()));
+
+		QString userId = peerIds.value(peerId);
+		QString userName = peerNames.value(peerId);
+		appendMessageLog(MT_LocalFile, NULL, &userName, &xmlMessage);
+		emit messageSent(MT_File, &userId, &xmlMessage);
+	} else
+		appendMessageLog(MT_Error, NULL, NULL, NULL);
 }
 
 //	Called before sending message

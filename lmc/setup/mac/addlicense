@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "$1" = "" ]; then
+  echo "Usage: addlicense <Version>"
+  echo "Eg: addlicense 1.0.0"
+  exit 1
+fi
+  
+./licenseDMG.py lmc_$1_intel.dmg ./package/eula/license.txt
+
+mv -f -v lmc_$1_intel.dmg ../
+rm -r -v LAN-Messenger.app
+rm -f -v LAN-Messenger.dmg
+
+exit 0

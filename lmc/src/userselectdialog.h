@@ -1,11 +1,11 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** This file is part of LAN Messenger.
-** 
+**
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
-** 
+**
 ** Contact:  dilipvrk@gmail.com
-** 
+**
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
@@ -22,38 +22,39 @@
 ****************************************************************************/
 
 
-#ifndef USERINFODIALOG_H
-#define USERINFODIALOG_H
+#ifndef USERSELECTDIALOG_H
+#define USERSELECTDIALOG_H
 
 #include <QDialog>
-#include "ui_userinfodialog.h"
+#include "ui_userselectdialog.h"
 #include "shared.h"
-#include "settings.h"
-#include "stdlocation.h"
-#include "xmlmessage.h"
 
-class lmcUserInfoDialog : public QDialog
+class lmcUserSelectDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	lmcUserInfoDialog(QWidget *parent = 0);
-	~lmcUserInfoDialog();
+	lmcUserSelectDialog(QWidget *parent = 0);
+	~lmcUserSelectDialog();
 
-	void init(void);
-	void setInfo(XmlMessage* pMessage);
-	void settingsChanged(void);
+	void init(QList<QTreeWidgetItem*>* pContactsList);
+
+	QStringList selectedContacts;
 
 protected:
 	void changeEvent(QEvent* pEvent);
 
+private slots:
+	void btnOK_clicked(void);
+	void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
+
 private:
 	void setUIText(void);
-	void fillFields(void);
 
-	Ui::UserInfoDialog ui;
-	lmcSettings* pSettings;
-	XmlMessage userInfo;
+	Ui::UserSelectDialog ui;
+	bool parentToggling;
+	bool childToggling;
+	int selectedCount;
 };
 
-#endif // USERINFODIALOG_H
+#endif // USERSELECTDIALOG_H

@@ -52,7 +52,11 @@ lmcNetwork::~lmcNetwork(void) {
 void lmcNetwork::init(void) {
 	ipAddress = getIPAddress().toString();
 	subnetMask = getSubnetMask().toString();
+#ifndef Q_WS_MAC
 	isConnected = !ipAddress.isNull();
+#else
+	isConnected = true;
+#endif
 
 	pUdpNetwork->init();
 	pTcpNetwork->init();
@@ -151,11 +155,13 @@ void lmcNetwork::timer_timeout(void) {
 	ipAddress = getIPAddress().toString();
 	subnetMask = getSubnetMask().toString();
 
+#ifndef Q_WS_MAC
 	bool prev = isConnected;
 	isConnected = !ipAddress.isNull();
 
 	if(prev != isConnected)
 		emit connectionStateChanged();
+#endif
 }
 
 void lmcNetwork::udp_receiveBroadcast(DatagramHeader* pHeader, QString* lpszData) {
@@ -189,7 +195,9 @@ bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface) {
 	//	return the first interface which is active
 	for(int index = 0; index < allInterfaces.count(); index++)
 		if(allInterfaces[index].flags().testFlag(QNetworkInterface::IsUp) 
+		#ifdef Q_WS_X11
 			&& allInterfaces[index].flags().testFlag(QNetworkInterface::IsRunning)
+		#endif
 			&& !allInterfaces[index].flags().testFlag(QNetworkInterface::IsLoopBack)) {
 				*pNetworkInterface = allInterfaces[index];
 				return true;
@@ -206,11 +214,19 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
 		//	get a list of all associated ip addresses of the interface
 		QList<QNetworkAddressEntry> addressEntries = networkInterface.addressEntries();
 		//	return the first address which is an ipv4 address
-		for(int index = 0; index < addressEntries.count(); index++)
+		for(int index = 0; index < addressEntries.count(); index++) {
 			if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv4Protocol) {
 				*pAddressEntry = addressEntries[index];
 				return true;
 			}
+		}
+		// if ipv4 address is not present, check for ipv6 address
+		for(int index = 0; index < addressEntries.count(); index++) {
+			if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv6Protocol) {
+				*pAddressEntry = addressEntries[index];
+				return true;
+			}
+		}
 	}
 
 	return false;

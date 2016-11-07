@@ -33,6 +33,8 @@ lmcAboutDialog::lmcAboutDialog(QWidget *parent, Qt::WFlags flags) : QDialog(pare
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 lmcAboutDialog::~lmcAboutDialog(void) {

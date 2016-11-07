@@ -24,6 +24,76 @@
 
 #include "settings.h"
 
+//	migrate settings from older versions to new format
+bool lmcSettings::migrateSettings(void) {
+	QString version = value(IDS_VERSION, IDS_VERSION_VAL).toString();
+
+	//	Check if settings can be migrated, else reset settings and return false
+	//	If the settings are from a later version, its deemed non migratable
+	if(Helper::compareVersions(IDA_VERSION, version) < 0) {
+		QFile::remove(fileName());
+		sync();
+		return false;
+	}
+
+	//	Migrate settings from version 1.2.10
+	if(Helper::compareVersions(version, "1.2.10") == 0) {
+		QList<Group> groupList;
+		QHash<QString, QString> groupIdHash;
+		QMap<QString, QString> userGroupMap;
+
+		int size = beginReadArray(IDS_GROUPHDR);
+		for(int index = 0; index < size; index++) {
+			setArrayIndex(index);
+			QString groupName = value(IDS_GROUP).toString();
+			QString groupId = (groupName == GRP_DEFAULT) ? GRP_DEFAULT_ID : Helper::getUuid();
+			groupList.append(Group(groupId, groupName));
+			groupIdHash.insert(groupName, groupId);
+		}
+		endArray();
+
+		if(groupList.count() == 0)
+			groupList.append(Group(GRP_DEFAULT_ID, GRP_DEFAULT));
+
+		size = beginReadArray(IDS_GROUPMAPHDR);
+		for(int index = 0; index < size; index++)
+		{
+			setArrayIndex(index);
+			QString userId = value(IDS_USER).toString();
+			QString groupName = value(IDS_GROUP).toString();
+			QString groupId = groupIdHash.value(groupName);
+			userGroupMap.insert(userId, groupId);
+		}
+		endArray();
+
+		// now save settings in the new format
+		beginWriteArray(IDS_GROUPHDR);
+		for(int index = 0; index < groupList.count(); index++) {
+			setArrayIndex(index);
+			setValue(IDS_GROUP, groupList[index].id);
+			setValue(IDS_GROUPNAME, groupList[index].name);
+		}
+		endArray();
+
+		beginWriteArray(IDS_GROUPMAPHDR);
+		QMapIterator<QString, QString> i(userGroupMap);
+		int count = 0;
+		while(i.hasNext()) {
+			setArrayIndex(count);
+			i.next();
+			setValue(IDS_USER, i.key());
+			setValue(IDS_GROUP, i.value());
+			count++;
+		}
+		endArray();
+	}
+	// End of migration from 1.2.10
+
+	setValue(IDS_VERSION, IDA_VERSION);
+	sync();
+	return true;
+}
+
 void lmcSettings::setAutoStart(bool on) {
 #if defined Q_WS_WIN
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",

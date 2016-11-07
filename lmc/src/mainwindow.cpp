@@ -38,15 +38,12 @@ lmcMainWindow::lmcMainWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 		this, SLOT(tvUserList_itemDragDropped(QTreeWidgetItem*)));
 	connect(ui.tvUserList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
 		this, SLOT(tvUserList_currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
-	
-	pBroadcastWindow = NULL;
-	pAboutDialog = NULL;
 }
 
 lmcMainWindow::~lmcMainWindow(void) {
 }
 
-void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool connected) {
+void lmcMainWindow::init(User* pLocalUser, QList<Group>* pGroupList, bool connected) {
 	setWindowIcon(QIcon(IDR_APPICON));
 
 	this->pLocalUser = pLocalUser;
@@ -125,9 +122,6 @@ void lmcMainWindow::stop(void) {
 		pSettings->setValue(IDS_GROUP, ui.tvUserList->topLevelItem(index)->isExpanded());
 	}
 	pSettings->endArray();
-
-	if(pBroadcastWindow)
-		pBroadcastWindow->stop();
 
 	pTrayIcon->hide();
 
@@ -264,8 +258,6 @@ void lmcMainWindow::connectionStateChanged(bool connected) {
 		showTrayMessage(TM_Connection, tr("You are no longer connected."), lmcStrings::appName(), TMI_Warning);
 	}
 	bConnected = connected;
-	if(pBroadcastWindow)
-		pBroadcastWindow->connectionStateChanged(bConnected);
 }
 
 void lmcMainWindow::settingsChanged(bool init) {
@@ -284,10 +276,6 @@ void lmcMainWindow::settingsChanged(bool init) {
 	noDNDAlert = pSettings->value(IDS_NODNDALERT, IDS_NODNDALERT_VAL).toBool();
 	pSoundPlayer->settingsChanged();
 	ui.lblUserName->setText(pLocalUser->name);	// in case display name has been changed
-	if(pBroadcastWindow)
-		pBroadcastWindow->settingsChanged();
-	if(pAboutDialog)
-		pAboutDialog->settingsChanged();
 }
 
 void lmcMainWindow::showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle, TrayMessageIcon icon) {
@@ -327,6 +315,14 @@ void lmcMainWindow::showTrayMessage(TrayMessageType type, QString szMessage, QSt
 		lastTrayMessageType = type;
 		pTrayIcon->showMessage(szTitle, szMessage, trayIcon);
 	}
+}
+
+QList<QTreeWidgetItem*> lmcMainWindow::getContactsList() {
+	QList<QTreeWidgetItem*> contactsList;
+	for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++)
+		contactsList.append(ui.tvUserList->topLevelItem(index)->clone());
+
+	return contactsList;
 }
 
 void lmcMainWindow::closeEvent(QCloseEvent* pEvent) {
@@ -379,12 +375,7 @@ void lmcMainWindow::traySettingsAction_triggered(void) {
 }
 
 void lmcMainWindow::trayAboutAction_triggered(void) {
-	if(!pAboutDialog) {
-		pAboutDialog = new lmcAboutDialog(this);
-		pAboutDialog->init();
-	}
-	
-	pAboutDialog->exec();
+	emit showAbout();
 }
 
 void lmcMainWindow::trayExitAction_triggered(void) {
@@ -416,6 +407,18 @@ void lmcMainWindow::avatarBrowseAction_triggered(void) {
 		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
 		setAvatar(fileName);
 	}
+}
+
+void lmcMainWindow::chatRoomAction_triggered(void) {
+	// Generate a thread id which is a combination of the local user id and a guid
+	// This ensures that no other user will generate an identical thread id
+	QString threadId = Helper::getUuid();
+	threadId.prepend(pLocalUser->id);
+	emit chatRoomStarting(&threadId);
+}
+
+void lmcMainWindow::publicChatAction_triggered(void) {
+	emit showPublicChat();
 }
 
 void lmcMainWindow::refreshAction_triggered(void) {
@@ -483,8 +486,7 @@ void lmcMainWindow::tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoint& p
         for(int index = 0; index < pGroupMenu->actions().count(); index++)
             pGroupMenu->actions()[index]->setData(pItem->data(0, IdRole));
 
-        bool defGroup = (pItem->data(0, IdRole).toString().compare(GRP_DEFAULT) == 0);
-        pGroupMenu->actions()[2]->setEnabled(!defGroup);
+		bool defGroup = (pItem->data(0, IdRole).toString().compare(GRP_DEFAULT_ID) == 0);
         pGroupMenu->actions()[3]->setEnabled(!defGroup);
         pGroupMenu->exec(pos);
     } else if(pItem->data(0, TypeRole).toString().compare("User") == 0) {
@@ -505,8 +507,8 @@ void lmcMainWindow::tvUserList_itemDragDropped(QTreeWidgetItem* pItem) {
     }
 	else if(dynamic_cast<lmcUserTreeWidgetGroupItem*>(pItem)) {
 		int index = ui.tvUserList->indexOfTopLevelItem(pItem);
-		QString groupName = pItem->data(0, IdRole).toString();
-		emit groupUpdated(GO_Move, groupName, index);
+		QString groupId = pItem->data(0, IdRole).toString();
+		emit groupUpdated(GO_Move, groupId, index);
 	}
 }
 
@@ -523,15 +525,21 @@ void lmcMainWindow::groupAddAction_triggered(void) {
 	if(groupName.isNull())
 		return;
 
-	if(getGroupItem(&groupName)) {
+	if(getGroupItemByName(&groupName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
 		QMessageBox::warning(this, "", msg.arg(groupName));
 		return;
 	}
+
+	//generate a group id that is not assigned to any existing group
+	QString groupId;
+	do {
+		groupId = Helper::getUuid();
+	} while(getGroupItem(&groupId));
 	
-	emit groupUpdated(GO_New, groupName, QVariant());
+	emit groupUpdated(GO_New, groupId, groupName);
 	lmcUserTreeWidgetGroupItem *pItem = new lmcUserTreeWidgetGroupItem();
-	pItem->setData(0, IdRole, groupName);
+	pItem->setData(0, IdRole, groupId);
 	pItem->setData(0, TypeRole, "Group");
 	pItem->setText(0, groupName);
 	pItem->setSizeHint(0, QSize(0, 20));
@@ -542,29 +550,29 @@ void lmcMainWindow::groupAddAction_triggered(void) {
 
 void lmcMainWindow::groupRenameAction_triggered(void) {
 	QTreeWidgetItem* pGroupItem = ui.tvUserList->currentItem();
-	QString oldName = pGroupItem->data(0, IdRole).toString();
+	QString groupId = pGroupItem->data(0, IdRole).toString();
+	QString oldName = pGroupItem->data(0, Qt::DisplayRole).toString();
 	QString newName = QInputDialog::getText(this, tr("Rename Group"), 
 		tr("Enter a new name for the group"), QLineEdit::Normal, oldName);
 
 	if(newName.isNull() || newName.compare(oldName) == 0)
 		return;
 
-	if(getGroupItem(&newName)) {
+	if(getGroupItemByName(&newName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
 		QMessageBox::warning(this, "", msg.arg(newName));
 		return;
 	}
 
-	emit groupUpdated(GO_Rename, oldName, newName);
-	pGroupItem->setData(0, IdRole, newName);
+	emit groupUpdated(GO_Rename, groupId, newName);
 	pGroupItem->setText(0, newName);
 }
 
 void lmcMainWindow::groupDeleteAction_triggered(void) {
 	QTreeWidgetItem* pGroupItem = ui.tvUserList->currentItem();
-	QString groupName = pGroupItem->data(0, IdRole).toString();
-	QString defGroupName = GRP_DEFAULT;
-	QTreeWidgetItem* pDefGroupItem = getGroupItem(&defGroupName);
+	QString groupId = pGroupItem->data(0, IdRole).toString();
+	QString defGroupId = GRP_DEFAULT_ID;
+	QTreeWidgetItem* pDefGroupItem = getGroupItem(&defGroupId);
 	while(pGroupItem->childCount()) {
 		QTreeWidgetItem* pUserItem = pGroupItem->child(0);
 		pGroupItem->removeChild(pUserItem);
@@ -575,7 +583,7 @@ void lmcMainWindow::groupDeleteAction_triggered(void) {
 	}
 	pDefGroupItem->sortChildren(0, Qt::AscendingOrder);
 
-	emit groupUpdated(GO_Delete, groupName, QVariant());
+	emit groupUpdated(GO_Delete, groupId, QVariant());
 	ui.tvUserList->takeTopLevelItem(ui.tvUserList->indexOfTopLevelItem(pGroupItem));
 }
 
@@ -585,21 +593,7 @@ void lmcMainWindow::userConversationAction_triggered(void) {
 }
 
 void lmcMainWindow::userBroadcastAction_triggered(void) {
-	if(!pBroadcastWindow) {
-		pBroadcastWindow = new lmcBroadcastWindow();
-		connect(pBroadcastWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-			this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-		pBroadcastWindow->init(bConnected);
-	}
-	
-	if(pBroadcastWindow->isHidden()) {
-		QList<QTreeWidgetItem*> groupList;
-		for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++)
-			groupList.append(ui.tvUserList->topLevelItem(index));
-		pBroadcastWindow->show(&groupList);
-	} else {
-		pBroadcastWindow->show();
-	}
+	emit showBroadcast();
 }
 
 void lmcMainWindow::userFileAction_triggered(void) {
@@ -621,6 +615,11 @@ void lmcMainWindow::userInfoAction_triggered(void) {
 void lmcMainWindow::createMainMenu(void) {
 	pMainMenu = new QMenuBar(this);
 	pFileMenu = pMainMenu->addMenu("&Messenger");
+	chatRoomAction = pFileMenu->addAction("&New Chat Room", this,
+		SLOT(chatRoomAction_triggered()), QKeySequence::New);
+	publicChatAction = pFileMenu->addAction(QIcon(QPixmap(IDR_CHATROOM, "PNG")), "&Public Chat",
+		this, SLOT(publicChatAction_triggered()));
+	pFileMenu->addSeparator();
 	refreshAction = pFileMenu->addAction(QIcon(QPixmap(IDR_REFRESH, "PNG")), "&Refresh contacts list", 
 		this, SLOT(refreshAction_triggered()), QKeySequence::Refresh);
 	pFileMenu->addSeparator();
@@ -745,12 +744,17 @@ void lmcMainWindow::createToolBar(void) {
 	pToolBar->addSeparator();
 	toolBroadcastAction = pToolBar->addAction(QIcon(QPixmap(IDR_BROADCASTMSG, "PNG")), "Send &Broadcast Message",
 		this, SLOT(userBroadcastAction_triggered()));
+	pToolBar->addSeparator();
+	toolPublicChatAction = pToolBar->addAction(QIcon(QPixmap(IDR_CHATROOM, "PNG")), "&Public Chat",
+		this, SLOT(publicChatAction_triggered()));
 
 	QToolButton* pButton = (QToolButton*)pToolBar->widgetForAction(toolChatAction);
 	pButton->setAutoRaise(false);
 	pButton = (QToolButton*)pToolBar->widgetForAction(toolFileAction);
 	pButton->setAutoRaise(false);
 	pButton = (QToolButton*)pToolBar->widgetForAction(toolBroadcastAction);
+	pButton->setAutoRaise(false);
+	pButton = (QToolButton*)pToolBar->widgetForAction(toolPublicChatAction);
 	pButton->setAutoRaise(false);
 }
 
@@ -760,6 +764,8 @@ void lmcMainWindow::setUIText(void) {
 	setWindowTitle(lmcStrings::appName());
 
 	pFileMenu->setTitle(tr("&Messenger"));
+	chatRoomAction->setText(tr("&New Chat Room"));
+	publicChatAction->setText(tr("&Public Chat"));
 	refreshAction->setText(tr("&Refresh Contacts List"));
 	exitAction->setText(tr("E&xit"));
 	pToolsMenu->setTitle(tr("&Tools"));
@@ -791,6 +797,7 @@ void lmcMainWindow::setUIText(void) {
 	toolChatAction->setText(tr("&Conversation"));
 	toolFileAction->setText(tr("Send &File"));
 	toolBroadcastAction->setText(tr("Send &Broadcast Message"));
+	toolPublicChatAction->setText(tr("&Public Chat"));
 
 	for(int index = 0; index < statusGroup->actions().count(); index++)
 		statusGroup->actions()[index]->setText(lmcStrings::statusDesc()[index]);
@@ -808,12 +815,12 @@ void lmcMainWindow::showMinimizeMessage(void) {
 	}
 }
 
-void lmcMainWindow::initGroups(QList<QString>* pGroupList) {
+void lmcMainWindow::initGroups(QList<Group>* pGroupList) {
 	for(int index = 0; index < pGroupList->count(); index++) {
 		lmcUserTreeWidgetGroupItem *pItem = new lmcUserTreeWidgetGroupItem();
-		pItem->setData(0, IdRole, pGroupList->value(index));
+		pItem->setData(0, IdRole, pGroupList->value(index).id);
 		pItem->setData(0, TypeRole, "Group");
-		pItem->setText(0, pGroupList->value(index));
+		pItem->setText(0, pGroupList->value(index).name);
 		pItem->setSizeHint(0, QSize(0, 20));
 		ui.tvUserList->addTopLevelItem(pItem);
 	}
@@ -892,10 +899,20 @@ QTreeWidgetItem* lmcMainWindow::getUserItem(QString* lpszUserId) {
 	return NULL;
 }
 
-QTreeWidgetItem* lmcMainWindow::getGroupItem(QString* lpszGroupName) {
+QTreeWidgetItem* lmcMainWindow::getGroupItem(QString* lpszGroupId) {
 	for(int topIndex = 0; topIndex < ui.tvUserList->topLevelItemCount(); topIndex++) {
 		QTreeWidgetItem* pItem = ui.tvUserList->topLevelItem(topIndex);
-		if(pItem->data(0, IdRole).toString().compare(*lpszGroupName) == 0)
+		if(pItem->data(0, IdRole).toString().compare(*lpszGroupId) == 0)
+			return pItem;
+	}
+
+	return NULL;
+}
+
+QTreeWidgetItem* lmcMainWindow::getGroupItemByName(QString* lpszGroupName) {
+	for(int topIndex = 0; topIndex < ui.tvUserList->topLevelItemCount(); topIndex++) {
+		QTreeWidgetItem* pItem = ui.tvUserList->topLevelItem(topIndex);
+		if(pItem->data(0, Qt::DisplayRole).toString().compare(*lpszGroupName) == 0)
 			return pItem;
 	}
 

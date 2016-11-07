@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/Developer/Tools/SetFile -a V /Volumes/LAN-Messenger/images
+
+exit 0

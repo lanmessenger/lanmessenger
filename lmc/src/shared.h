@@ -55,6 +55,22 @@ struct User {
 	}
 };
 
+struct Group {
+	QString id;
+	QString name;
+
+	Group(void) {}
+	Group(QString szId) {
+		this->id = szId;
+	}
+	Group(QString szId, QString szName) {
+		this->id = szId;
+		this->name = szName;
+	}
+
+	bool operator == (const Group& v) const { return (this->id.compare(v.id) == 0); }
+};
+
 struct DatagramHeader {
 	DatagramType type;
 	QString userId;

@@ -1,0 +1,206 @@
+* {
+font-size: 9pt;
+}
+/* Ensure that our assumptions about the default browser colors are correct. */
+BODY { color: #000000; background-color: #FFFFFF; }
+BODY a:link { color: #0000FF; }
+BODY a:hover { color: #0000FF; }
+BODY a:active { color: #0000FF; }
+BODY a:visited { color: #800080; }
+
+BODY {
+  margin: 4px;
+}
+DIV#content {
+  font: 12px Arial;
+}
+DIV#insert {
+  display: none;
+}
+
+/* System messages */
+DIV.system {
+  padding: 2px 5px;
+  background: #EAEAFF;
+}
+DIV.system DIV.msg {
+  margin: 0px 0px 0px 0px;
+}
+DIV.system DIV.1st {
+  margin: 4px 0px 4px 0px;
+}
+DIV.system DIV.Nth {
+  margin: 4px 0px 4px 0px;
+}
+DIV.system SPAN.salutation {
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.system .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+}
+
+/* Two ways to do icons with these rules:
+   <img class='icon' src='%userIconPath%'>
+   <div class='icon'><div style='height:1px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="%userIconPath%")'></div></div>
+*/
+
+/* Borders */
+DIV.t-o {
+  background-color: #FFFEEB;
+}
+DIV.b-o {
+  background-color: #F1F3CB;
+}
+DIV.t-br {
+  background-color: #edffea;
+}
+DIV.b-br {
+  background-color: #d3f4cc;
+}
+DIV.b1 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 5px;
+  background-color: #938F5A;
+}
+DIV.b2 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 3px;
+  border-left: 2px solid #938F5A;
+  border-right: 2px solid #938F5A;
+}
+DIV.b3 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 2px;
+  border-left: 1px solid #938F5A;
+  border-right: 1px solid #938F5A;
+}
+DIV.b4 {
+  height: 2px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 1px;
+  border-left: 1px solid #938F5A;
+  border-right: 1px solid #938F5A;
+}
+
+/* Chat messages */
+DIV.chat {
+  border-left: 1px solid #938F5A;
+  border-right: 1px solid #938F5A;
+  padding: 0px 5px;
+}
+DIV.chat .icon {
+/*background-color: white;
+  border: 1px solid white;*/
+}
+DIV.chat DIV.msg {
+  margin: 0px 0px 0px 0px;
+}
+DIV.chat DIV.Nth {
+  margin: 5px 0px 0px 0px;
+}
+DIV.chat SPAN.salutation {
+  font-weight: bold;
+  display: block;
+  border-bottom: 1px solid #CDCDCD;
+  margin: 0px 0px 1px 40px;
+}
+
+DIV.out {
+  text-align: left;
+  background: #F2F4CC;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#FFFEEA',endColorStr='#F2F4CC');
+  zoom:1;
+  background: -moz-linear-gradient(top,  #FFFEEA,  #F2F4CC);
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFEEA), to(#F2F4CC));
+}
+
+DIV.out .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+  width:32px;
+  height:32px;
+}
+
+DIV.in {
+  text-align: left;
+}
+DIV.in .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+  width:32px;
+  height:32px;
+}
+
+/* Broadcast messages */
+DIV.public {
+  border-left: 1px solid #938F5A;
+  border-right: 1px solid #938F5A;
+  padding: 0px 5px;
+  background: #d3f4cc;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#edffea',endColorStr='#d3f4cc');
+  zoom:1;
+  background: -moz-linear-gradient(top,  #edffea,  #d3f4cc);
+  background: -webkit-gradient(linear, left top, left bottom, from(#edffea), to(#d3f4cc));
+}
+DIV.public DIV.msg {
+  margin: 0px 0px 0px 0px;
+  font-size: 9pt;
+}
+DIV.public SPAN.salutation {
+  font-weight: normal;
+  display: block;
+  border-bottom: 1px solid #CDCDCD;
+  margin: 0px 0px 4px 24px;
+}
+DIV.public .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+}
+
+/* File messages */
+DIV.request {
+  padding: 0px 5px;
+}
+DIV.request SPAN.salutation {
+  color: #606060;
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.details {
+  color: #0000FF;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.links {
+  color: #606060;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}  
+DIV.request .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+}
+
+/* Helper styles */
+DIV.clear {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+}
+
+DIV.break {
+  height: 1px;
+  margin: 3px 0px 0px 0px;
+  overflow: hidden;
+}

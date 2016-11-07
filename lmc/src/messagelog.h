@@ -44,7 +44,7 @@ public:
 	lmcMessageLog(QWidget *parent = 0);
 	~lmcMessageLog(void);
 
-	void initMessageLog(QString themePath);
+	void initMessageLog(QString themePath, bool clearLog = true);
 	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage,
 		bool bReload = false);
 	void updateFileMessage(FileMode mode, FileOp op, QString fileId);
@@ -64,13 +64,24 @@ public:
 	bool messageTime;
 	bool messageDate;
 	QString themePath;
+	bool allowLinks;
+	bool pathToLink;
+	bool trimMessage;
 
 signals:
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 
+protected:
+	void changeEvent(QEvent* event);
+
 private slots:
 	void log_linkClicked(QUrl url);
 	void log_contentsSizeChanged(QSize size);
+	void log_linkHovered(const QString& link, const QString& title, const QString& textContent);
+	void showContextMenu(const QPoint& pos);
+	void copyAction_triggered(void);
+	void copyLinkAction_triggered(void);
+	void selectAllAction_triggered(void);
 
 private:
 	void appendMessageLog(QString* lpszHtml);
@@ -78,18 +89,28 @@ private:
 	void appendBroadcast(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime);
 	void appendMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime,
 		QFont* pFont, QColor* pColor);
+	void appendPublicMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime,
+		QFont* pFont, QColor* pColor);
 	void appendFileMessage(MessageType type, QString* lpszUserName, XmlMessage* pMessage, bool bReload = false);
 	QString getFontStyle(QFont* pFont, QColor* pColor, bool size = false);
 	QString getFileStatusMessage(FileMode mode, FileOp op);
 	QString getChatStateMessage(ChatState chatState);
+	QString getChatRoomMessage(GroupMsgOp op);
 	void fileOperation(QString fileId, QString action);
 	void decodeMessage(QString* lpszMessage);
 	QString getTimeString(QDateTime* pTime);
+	void setUIText(void);
 
 	QMap<QString, XmlMessage> sendFileMap;
 	QMap<QString, XmlMessage> receiveFileMap;
 	QList<SingleMessage> messageLog;
 	ThemeData themeData;
+	QMenu* contextMenu;
+	QAction* copyAction;
+	QAction* copyLinkAction;
+	QAction* selectAllAction;
+	bool linkHovered;
+	bool outStyle;
 };
 
 #endif // MESSAGELOG_H

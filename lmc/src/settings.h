@@ -31,6 +31,8 @@
 #include "shared.h"
 
 //	Application settings definitions and default values
+#define IDS_VERSION				"Application/Version"
+#define IDS_VERSION_VAL			"1.2.10"
 #define IDS_OPENPATH			"Application/OpenPath"
 #define IDS_OPENPATH_VAL		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)
 #define IDS_SAVEPATH			"Application/SavePath"
@@ -40,8 +42,11 @@
 #define IDS_WINDOWHISTORY		"Window/History"
 #define IDS_WINDOWBROADCAST		"Window/Broadcast"
 #define IDS_WINDOWHELP			"Window/Help"
+#define IDS_WINDOWPUBLICCHAT	"Window/PublicChat"
 #define IDS_SPLITTERHISTORY		"Splitter/History"
 #define IDS_SPLITTERBROADCAST	"Splitter/Broadcast"
+#define IDS_SPLITTERPUBLICCHATH	"Splitter/PublicChatH"
+#define IDS_SPLITTERPUBLICCHATV	"Splitter/PublicChatV"
 #define IDS_AUTOSTART			"AutoStart"
 #define IDS_AUTOSTART_VAL		true
 #define IDS_AUTOSHOW			"AutoShow"
@@ -68,6 +73,12 @@
 #define IDS_MESSAGETIME_VAL		true
 #define IDS_MESSAGEDATE			"Messages/MessageDate"
 #define IDS_MESSAGEDATE_VAL		false
+#define IDS_ALLOWLINKS			"Messages/AllowLinks"
+#define IDS_ALLOWLINKS_VAL		true
+#define IDS_PATHTOLINK			"Messages/PathToLink"
+#define IDS_PATHTOLINK_VAL		false
+#define IDS_TRIMMESSAGE			"Messages/Trim"
+#define IDS_TRIMMESSAGE_VAL		true
 #define IDS_MESSAGETOP			"Messages/MessageTop"
 #define IDS_MESSAGETOP_VAL		false
 #define IDS_FONT				"Messages/Font"
@@ -135,6 +146,7 @@
 #define IDS_USERABOUT_VAL		""
 #define IDS_GROUPHDR			"Groups"
 #define IDS_GROUP				"Group"
+#define IDS_GROUPNAME			"GroupName"
 #define IDS_GROUPEXPHDR			"GroupExp"
 #define IDS_GROUPMAPHDR			"GroupMap"
 #define IDS_USER				"User"
@@ -143,6 +155,8 @@ class lmcSettings : public QSettings {
 public:
 	lmcSettings(void) : QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT) {}
 	~lmcSettings(void) {}
+
+	bool migrateSettings(void);
 
     static void setAutoStart(bool on);
 };

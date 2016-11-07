@@ -29,6 +29,7 @@
 #include <QSystemTrayIcon>
 #include <QMenuBar>
 #include <QMenu>
+#include <QToolBar>
 #include <QAction>
 #include <QActionGroup>
 #include <QIcon>
@@ -42,9 +43,7 @@
 #include "shared.h"
 #include "settings.h"
 #include "imagepickeraction.h"
-#include "aboutdialog.h"
 #include "soundplayer.h"
-#include "broadcastwindow.h"
 #include "stdlocation.h"
 #include "xmlmessage.h"
 
@@ -55,7 +54,7 @@ public:
 	lmcMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
 	~lmcMainWindow(void);
 
-	void init(User* pLocalUser, QList<QString>* pGroupList, bool connected);
+	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);
 	void start(void);
 	void restore(void);
 	void stop(void);
@@ -66,16 +65,21 @@ public:
 	void connectionStateChanged(bool connected);
 	void settingsChanged(bool init = false);
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
+	QList<QTreeWidgetItem*> getContactsList(void);
 
 signals:
 	void appExiting(void);
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void chatStarting(QString* lpszUserId);
+	void chatRoomStarting(QString* lpszThreadId);
 	void showTransfers(void);
 	void showHistory(void);
 	void showSettings(void);
 	void showHelp(QRect* pRect);
 	void showUpdate(QRect* pRect);
+	void showAbout(void);
+	void showBroadcast(void);
+	void showPublicChat(void);
 	void groupUpdated(GroupOp op, QVariant value1, QVariant value2);
 
 protected:
@@ -96,6 +100,8 @@ private slots:
 	void helpAction_triggered(void);
 	void homePageAction_triggered(void);
 	void updateAction_triggered(void);
+	void chatRoomAction_triggered(void);
+	void publicChatAction_triggered(void);
 	void refreshAction_triggered(void);
 	void trayIcon_activated(QSystemTrayIcon::ActivationReason reason);
 	void trayMessage_clicked(void);
@@ -122,11 +128,12 @@ private:
 	void createToolBar(void);
 	void setUIText(void);
 	void showMinimizeMessage(void);
-	void initGroups(QList<QString>* pGroupList);
+	void initGroups(QList<Group>* pGroupList);
 	void updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus);
 	void setAvatar(QString fileName = QString());
 	QTreeWidgetItem* getUserItem(QString* lpszUserId);
-	QTreeWidgetItem* getGroupItem(QString* lpszGroupName);
+	QTreeWidgetItem* getGroupItem(QString* lpszGroupId);
+	QTreeWidgetItem* getGroupItemByName(QString* lpszGroupName);
 	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
 	void sendAvatar(QString* lpszUserId);
 	void setUserAvatar(QString* lpszUserId);
@@ -146,6 +153,7 @@ private:
 	QAction* toolChatAction;
 	QAction* toolFileAction;
 	QAction* toolBroadcastAction;
+	QAction* toolPublicChatAction;
 	User* pLocalUser;
 	bool bConnected;
 	int nAvatar;
@@ -159,9 +167,9 @@ private:
 	bool noDNDAlert;
 	lmcSoundPlayer* pSoundPlayer;
 	TrayMessageType lastTrayMessageType;
-	lmcBroadcastWindow* pBroadcastWindow;
-	lmcAboutDialog* pAboutDialog;
 	QActionGroup* statusGroup;
+	QAction* chatRoomAction;
+	QAction* publicChatAction;
 	QAction* refreshAction;
 	QAction* exitAction;
 	QAction* historyAction;

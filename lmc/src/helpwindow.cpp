@@ -28,6 +28,9 @@
 lmcHelpWindow::lmcHelpWindow(QRect* pRect, QWidget *parent) : QWidget(parent) {
 	ui.setupUi(this);
 
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
+
 	move(pRect->center() - rect().center());
 	QRect screenRect = QApplication::desktop()->screenGeometry();
 	if(!screenRect.contains(geometry(), true)) {

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
-    <height>412</height>
+    <width>543</width>
+    <height>457</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,7 +117,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="currentIndex">
-        <number>8</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pageGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -567,6 +567,36 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_12">
             <item>
+             <widget class="QRadioButton" name="rdbMessageTop">
+              <property name="text">
+               <string>Set incoming messages foreground</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rdbMessageBottom">
+              <property name="text">
+               <string>Minimize incoming messages to taskbar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="QCheckBox" name="chkEmoticon">
               <property name="text">
                <string>Show emoticons in instant messages</string>
@@ -608,32 +638,43 @@
              </layout>
             </item>
             <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>5</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rdbMessageTop">
+             <widget class="QCheckBox" name="chkAllowLinks">
               <property name="text">
-               <string>Set incoming messages foreground</string>
+               <string>Allow hyperlinks in instant messages</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rdbMessageBottom">
+             <layout class="QHBoxLayout" name="horizontalLayout_28">
+              <item>
+               <spacer name="horizontalSpacer_26">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkPathToLink">
+                <property name="text">
+                 <string>Convert network paths to links</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="chkTrimMessage">
               <property name="text">
-               <string>Minimize incoming messages to taskbar</string>
+               <string>Remove whitespace from start and end of messages</string>
               </property>
              </widget>
             </item>
@@ -1765,14 +1806,14 @@
                 <item>
                  <widget class="QRadioButton" name="rdbEnter">
                   <property name="text">
-                   <string>Enter</string>
+                   <string>&lt;Enter&gt;</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="rdbCtlEnter">
+                 <widget class="QRadioButton" name="rdbCmdEnter">
                   <property name="text">
-                   <string>Ctrl + Enter</string>
+                   <string>&lt;Cmd + Enter&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -1889,11 +1930,14 @@
   <tabstop>txtLastName</tabstop>
   <tabstop>txtAbout</tabstop>
   <tabstop>spnRefreshTime</tabstop>
+  <tabstop>rdbMessageTop</tabstop>
+  <tabstop>rdbMessageBottom</tabstop>
   <tabstop>chkEmoticon</tabstop>
   <tabstop>chkMessageTime</tabstop>
   <tabstop>chkMessageDate</tabstop>
-  <tabstop>rdbMessageTop</tabstop>
-  <tabstop>rdbMessageBottom</tabstop>
+  <tabstop>chkAllowLinks</tabstop>
+  <tabstop>chkPathToLink</tabstop>
+  <tabstop>chkTrimMessage</tabstop>
   <tabstop>btnFont</tabstop>
   <tabstop>btnColor</tabstop>
   <tabstop>cboFontSize</tabstop>
@@ -1928,6 +1972,8 @@
   <tabstop>btnOK</tabstop>
   <tabstop>btnCancel</tabstop>
   <tabstop>btnReset</tabstop>
+  <tabstop>rdbEnter</tabstop>
+  <tabstop>rdbCmdEnter</tabstop>
  </tabstops>
  <resources/>
  <connections>

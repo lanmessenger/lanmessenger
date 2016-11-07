@@ -28,6 +28,9 @@
 //	constructor
 lmcBroadcastWindow::lmcBroadcastWindow(QWidget *parent) : QWidget(parent) {
 	ui.setupUi(this);
+
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
 	
 	//	set up the initial default size of splitter panels
 	//	left panel takes up 60% of total width, right panel the rest
@@ -105,7 +108,7 @@ void lmcBroadcastWindow::show(QList<QTreeWidgetItem*>* pGroupList) {
 	//	populate the user tree
 	ui.tvUserList->clear();
 	for(int index = 0; index < pGroupList->count(); index++) {
-		QTreeWidgetItem* pItem = pGroupList->value(index)->clone();
+		QTreeWidgetItem* pItem = pGroupList->value(index);
 		pItem->setCheckState(0, Qt::Unchecked);
 		for(int childIndex = 0; childIndex < pItem->childCount(); childIndex++)
 			pItem->child(childIndex)->setCheckState(0, Qt::Unchecked);

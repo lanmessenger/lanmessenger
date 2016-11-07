@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Copy the app bundle to the setup folder
+cp -v -r ../../release/LAN-Messenger.app LAN-Messenger.app
+
+# Remove plugins that were copied into the app bundle while building
+echo "Deleting old plugins..."
+rm -r -v LAN-Messenger.app/Contents/Plugins
+echo "Done."
+
+# Copy all the required dependencies into the app bundle, and set correct lookup paths
+macdeployqt LAN-Messenger.app -verbose=2
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+
+exit 0

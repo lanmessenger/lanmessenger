@@ -54,6 +54,8 @@
 #define IDR_CRITICALMSG		":/images/criticalmsg"
 #define IDR_BROADCASTMSG	":/images/broadcastmsg"
 #define IDR_FILEMSG			":/images/filemsg"
+#define IDR_CHATROOM		":/images/chatroom"
+#define IDR_ADDCONTACT		":/images/addcontact"
 #define IDR_GENERALSET		":/images/systemsettings"
 #define IDR_ACCOUNTSET		":/images/usersettings"
 #define IDR_MESSAGESET		":/images/messagesettings"

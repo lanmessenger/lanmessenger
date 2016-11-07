@@ -34,7 +34,7 @@
 #define IDA_PRODUCT		"lmc"
 #define IDA_COMPANY		"lmc"
 #endif
-#define IDA_VERSION		"1.2.10"
+#define IDA_VERSION		"1.2.16"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
 						"and does not require a server.\n"\
 						"LAN Messenger works on essentially every popular desktop platform."
@@ -91,6 +91,7 @@ enum MessageType {
 	MT_Ping,
 	MT_Message,
 	MT_GroupMessage,
+	MT_PublicMessage,
 	MT_File,
 	MT_Acknowledge,
 	MT_Failed,
@@ -99,13 +100,15 @@ enum MessageType {
 	MT_Query,
 	MT_Info,
 	MT_ChatState,
+	//	These are used only for local communication between layers
 	MT_Group,
 	MT_Version,
 	MT_WebFailed,
-	//	These are used only for local communication between layers
 	MT_LocalFile,
 	MT_LocalAvatar,
 	MT_Refresh,
+	MT_Join,
+	MT_Leave,
 	MT_Max
 };
 
@@ -121,6 +124,7 @@ const QString MessageTypeNames[] = {
 	"ping",
 	"message",
 	"groupmessage",
+	"publicmessage",
 	"file",
 	"acknowledge",
 	"failed",
@@ -129,13 +133,15 @@ const QString MessageTypeNames[] = {
 	"query",
 	"info",
 	"chatstate",
+	//	These are used only for local communication between layers
 	"group",
 	"version",
 	"webfailed",
-	//	These are used only for local communication between layers
 	"localfile",
 	"localavatar",
-	"refresh"
+	"refresh",
+	"join",
+	"leave"
 };
 
 enum FileMode {
@@ -180,35 +186,6 @@ const QString FileOpNames[] = {
 	"complete"
 };
 
-/*
-enum UserData {
-	UD_Id = 0,
-	UD_Name,
-	UD_Address,
-	UD_Version,
-	UD_Status,
-	UD_Avatar,
-	UD_Logon,
-	UD_Host,
-	UD_OS,
-	UD_FirstName,
-	UD_LastName,
-	UD_About,
-	UD_Max
-};
-
-enum FileData {
-	FD_Op = 0,
-	FD_Id,
-	FD_Path,
-	FD_Name,
-	FD_Size,
-	//	Defined for versions > 1.1.58
-	FD_Type,
-	FD_Max
-};
-*/
-
 /****************************************************************************
 **	File operation definitions
 **	The enum and the string array should always be synced
@@ -243,6 +220,27 @@ const QString QueryOpNames[] = {
 	"result"
 };
 
+/****************************************************************************
+**	Group Message operation definitions
+**	The enum and the string array should always be synced
+****************************************************************************/
+enum GroupMsgOp {
+	GMO_None = 0,
+	GMO_Request,
+	GMO_Join,
+	GMO_Message,
+	GMO_Leave,
+	GMO_Max
+};
+
+const QString GroupMsgOpNames[] = {
+	"",
+	"request",
+	"join",
+	"message",
+	"leave"
+};
+
 enum GroupOp {
 	GO_None = 0,
 	GO_New,
@@ -269,5 +267,8 @@ const QString statusCode[] = {"chat", "busy", "dnd", "brb", "away", "gone"};
 const int statusType[] = {StatusTypeOnline, StatusTypeBusy, StatusTypeBusy, StatusTypeAway, StatusTypeAway, StatusTypeOffline};
 
 #define GRP_DEFAULT		"General"
+#define GRP_DEFAULT_ID	"1CD75C10048C4E65F6082539A32DC111"
+
+#define GROUPMSGVERSION	"1.2.16"
 
 #endif // DEFINITIONS_H

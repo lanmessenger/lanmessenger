@@ -27,6 +27,10 @@
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent, flags) {
 	ui.setupUi(this);
+
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
+
 	QList<int> sizes;
 	sizes.append(width() * 0.35);
 	sizes.append(width() - width() * 0.35 - ui.splitter->handleWidth());

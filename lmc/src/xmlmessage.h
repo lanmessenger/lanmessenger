@@ -69,6 +69,7 @@
 #define XN_COLOR		"color"
 #define XN_TEMPID		"tempid"
 #define XN_ERROR		"error"
+#define XN_GROUPMSGOP	"groupmsgop"
 
 class XmlMessage : public QDomDocument
 {

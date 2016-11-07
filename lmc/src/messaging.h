@@ -93,8 +93,7 @@ public:
 
 	User* localUser;
 	QList<User> userList;
-	QList<QString> groupList;
-	QMap<QString, QString> groupMap;
+	QList<Group> groupList;
 
 signals:
 	void messageReceived(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
@@ -113,6 +112,7 @@ private slots:
 private:
 	QString createUserId(QString* lpszAddress, QString* lpszUserName);
 	QString getUserName(void);
+	void loadGroups(void);
 	void getUserInfo(XmlMessage* pMessage);
 	void sendUserData(MessageType type, QueryOp op, QString* lpszUserId, QString* lpszAddress);
 	void prepareBroadcast(MessageType type, XmlMessage* pMessage);
@@ -132,15 +132,16 @@ private:
 	void checkPendingMsg(void);
 	void resendMessage(MessageType type, qint64 msgId, QString* lpszUserId, XmlMessage* pMessage);
 
-	lmcNetwork*		pNetwork;
-	lmcSettings*	pSettings;
-	QTimer*			pTimer;
-	qint64			msgId;
-	QList<ReceivedMsg> receivedList;
-	QList<PendingMsg> pendingList;
-	int				nTimeout;
-	int				nMaxRetry;
-	bool			loopback;
+	lmcNetwork*			pNetwork;
+	lmcSettings*		pSettings;
+	QTimer*				pTimer;
+	qint64				msgId;
+	QList<ReceivedMsg>	receivedList;
+	QList<PendingMsg>	pendingList;
+	int					nTimeout;
+	int					nMaxRetry;
+	bool				loopback;
+	QMap<QString, QString> userGroupMap;
 };
 
 #endif // MESSAGING_H

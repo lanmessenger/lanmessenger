@@ -33,6 +33,8 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	ui.setupUi(this);
 	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
 
 	pMessageLog = new lmcMessageLog(ui.fraMessageLog);
 	ui.logLayout->addWidget(pMessageLog);
@@ -40,6 +42,7 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.lvCategories, SIGNAL(currentRowChanged(int)), this, SLOT(lvCategories_currentRowChanged(int)));
 	connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOk_clicked()));
 	connect(ui.chkMessageTime, SIGNAL(toggled(bool)), this, SLOT(chkMessageTime_toggled(bool)));
+	connect(ui.chkAllowLinks, SIGNAL(toggled(bool)), this, SLOT(chkAllowLinks_toggled(bool)));
 	connect(ui.rdbSysHistoryPath, SIGNAL(toggled(bool)), this, SLOT(rdbSysHistoryPath_toggled(bool)));
 	connect(ui.btnHistoryPath, SIGNAL(clicked()), this, SLOT(btnHistoryPath_clicked()));
 	connect(ui.btnFilePath, SIGNAL(clicked()), this, SLOT(btnFilePath_clicked()));
@@ -142,6 +145,12 @@ void lmcSettingsDialog::chkMessageTime_toggled(bool checked) {
 	ui.chkMessageDate->setEnabled(ui.chkMessageTime->isChecked());
 }
 
+void lmcSettingsDialog::chkAllowLinks_toggled(bool checked) {
+	Q_UNUSED(checked);
+
+	ui.chkPathToLink->setEnabled(ui.chkAllowLinks->isChecked());
+}
+
 void lmcSettingsDialog::rdbSysHistoryPath_toggled(bool checked) {
 	ui.txtHistoryPath->setEnabled(!checked);
 	ui.btnHistoryPath->setEnabled(!checked);
@@ -216,6 +225,7 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 
 	pMessageLog->fontSizeVal = FS_SMALL;
 	pMessageLog->localId = "Myself";
+	pMessageLog->peerId = "Jack";
 	pMessageLog->messageTime = true;
 	pMessageLog->initMessageLog(themePath);
 
@@ -289,6 +299,16 @@ void lmcSettingsDialog::setUIText(void) {
 	ui.lblUpdateLink->setText("<a href='" + updateLink + "'><span style='text-decoration: underline; color:#0000ff;'>" + 
 		tr("Check for updates") + "</span></a>");
 
+	cboTheme_currentIndexChanged(ui.cboTheme->currentIndex());
+
+#ifdef Q_WS_MAC
+	ui.rdbEnter->setText("Return");
+	ui.rdbCmdEnter->setText(QString(QChar(0x2318)) + " + Return"); // U+2318 is the hex code for Bowen Knot symbol
+#else
+	ui.rdbEnter->setText("Enter");
+	ui.rdbCmdEnter->setText("Ctrl + Enter");
+#endif
+
 	//	set minimum possible size
 	layout()->setSizeConstraint(QLayout::SetMinimumSize);
 }
@@ -324,6 +344,9 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkEmoticon->setChecked(pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool());
 	ui.chkMessageTime->setChecked(pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool());
 	ui.chkMessageDate->setChecked(pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool());
+	ui.chkAllowLinks->setChecked(pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool());
+	ui.chkPathToLink->setChecked(pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool());
+	ui.chkTrimMessage->setChecked(pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool());
 	ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
 	ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
 	font.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
@@ -373,10 +396,12 @@ void lmcSettingsDialog::loadSettings(void) {
 	}
 
 	ui.rdbEnter->setChecked(!pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
-	ui.rdbCtlEnter->setChecked(pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
+	ui.rdbCmdEnter->setChecked(pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
 }
 
 void lmcSettingsDialog::saveSettings(void) {
+	pSettings->setValue(IDS_VERSION, IDA_VERSION);
+
 	pSettings->setValue(IDS_AUTOSTART, ui.chkAutoStart->isChecked());
 	pSettings->setValue(IDS_AUTOSHOW, ui.chkAutoShow->isChecked());
 	pSettings->setValue(IDS_SYSTRAY, ui.chkSysTray->isChecked());
@@ -395,6 +420,9 @@ void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_EMOTICON, ui.chkEmoticon->isChecked());
 	pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked());
 	pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked());
+	pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked());
+	pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked());
+	pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked());
 	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked());
 	pSettings->setValue(IDS_FONT, font.toString());
 	pSettings->setValue(IDS_COLOR, color.name());
@@ -432,7 +460,7 @@ void lmcSettingsDialog::saveSettings(void) {
 	QString themePath = ui.cboTheme->itemData(ui.cboTheme->currentIndex(), Qt::UserRole).toString();
 	pSettings->setValue(IDS_THEME, themePath);
 
-	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCtlEnter->isChecked());
+	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCmdEnter->isChecked());
 
 	pSettings->sync();
 }

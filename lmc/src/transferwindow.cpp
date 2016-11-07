@@ -324,7 +324,15 @@ void lmcTransferWindow::btnClear_clicked(void) {
 void lmcTransferWindow::btnShowFolder_clicked(void) {
 	FileView* view = ui.lvTransferList->currentItem();
 
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(view->filePath).dir().path()));
+	QString path = QFileInfo(view->filePath).dir().path();
+	QUrl url;
+	// hack to make sure qdesktopservices open a network path
+	if(path.startsWith("\\\\") || path.startsWith("//"))
+		url.setUrl(QDir::toNativeSeparators(path));
+	else
+		url = QUrl::fromLocalFile(path);
+
+	QDesktopServices::openUrl(url);
 }
 
 void lmcTransferWindow::createToolBar(void) {

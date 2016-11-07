@@ -22,34 +22,38 @@
 ****************************************************************************/
 
 
-#include "userinfodialog.h"
+#include "userinfowindow.h"
 
-lmcUserInfoDialog::lmcUserInfoDialog(QWidget *parent) : QDialog(parent) {
+lmcUserInfoWindow::lmcUserInfoWindow(QWidget *parent) : QDialog(parent) {
 	ui.setupUi(this);
+	//	set fixed size
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
+	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-lmcUserInfoDialog::~lmcUserInfoDialog() {
+lmcUserInfoWindow::~lmcUserInfoWindow() {
 }
 
-void lmcUserInfoDialog::init(void) {
+void lmcUserInfoWindow::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
 
 	pSettings = new lmcSettings();
 	setUIText();
 }
 
-void lmcUserInfoDialog::setInfo(XmlMessage* pMessage) {
+void lmcUserInfoWindow::setInfo(XmlMessage* pMessage) {
 	userInfo = *pMessage;
 	setUIText();
 	ui.tabWidget->setCurrentIndex(0);
 }
 
-void lmcUserInfoDialog::settingsChanged(void) {
+void lmcUserInfoWindow::settingsChanged(void) {
 }
 
-void lmcUserInfoDialog::changeEvent(QEvent* pEvent) {
+void lmcUserInfoWindow::changeEvent(QEvent* pEvent) {
 	switch(pEvent->type()) {
 	case QEvent::LanguageChange:
 		setUIText();
@@ -61,7 +65,7 @@ void lmcUserInfoDialog::changeEvent(QEvent* pEvent) {
 	QDialog::changeEvent(pEvent);
 }
 
-void lmcUserInfoDialog::setUIText(void) {
+void lmcUserInfoWindow::setUIText(void) {
 	ui.retranslateUi(this);
 	setWindowTitle(tr("User Information"));
 

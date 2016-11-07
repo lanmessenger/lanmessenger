@@ -20,9 +20,10 @@ echo "Building resource binary..."
 rcc -binary resource.qrc -o $1/lmc.rcc
 echo "Done."
 
-if [ ! -d "$1/themes" ]; then
-  mkdir $1/themes
-fi
+echo "Copying themes..."
+cp -v -r ./resources/themes "$1"
+rm -r -v "$1/themes/Classic"
+echo "Done."
 
 cp -v ./resources/text/license.txt $1/COPYING
 

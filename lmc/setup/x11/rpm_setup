@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$1" = "" ]; then
+  echo "Usage: rpm_setup <App Version>"
+  echo "eg: rpm_setup 1.0.0"
+  exit 1
+fi
+
+sudo alien -r -c -v --test ../lmc_$1_i386.deb
+sudo mv -f -v lmc-$1-2.i386.rpm ../
+
+exit 0

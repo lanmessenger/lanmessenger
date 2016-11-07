@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UserInfoDialog</class>
- <widget class="QDialog" name="UserInfoDialog">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
+ <class>UserInfoWindow</class>
+ <widget class="QDialog" name="UserInfoWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -311,7 +308,7 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>UserInfoDialog</receiver>
+   <receiver>UserInfoWindow</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

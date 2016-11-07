@@ -41,7 +41,7 @@ lmcMessaging::lmcMessaging(void) {
 	connect(pNetwork, SIGNAL(connectionStateChanged()), this, SLOT(network_connectionStateChanged()));
 	userList.clear();
 	groupList.clear();
-	groupMap.clear();
+	userGroupMap.clear();
 	receivedList.clear();
 	pendingList.clear();
 	loopback = false;
@@ -70,25 +70,7 @@ void lmcMessaging::init(void) {
 	int nAvatar = pSettings->value(IDS_AVATAR, IDS_AVATAR_VAL).toInt();
 	localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus, QString::null, nAvatar);
 
-	int size = pSettings->beginReadArray(IDS_GROUPHDR);
-	for(int index = 0; index < size; index++) {
-		pSettings->setArrayIndex(index);
-		groupList.append(pSettings->value(IDS_GROUP).toString());
-	}
-	pSettings->endArray();
-
-	if(groupList.count() == 0)
-		groupList.append(GRP_DEFAULT);
-
-	size = pSettings->beginReadArray(IDS_GROUPMAPHDR);
-	for(int index = 0; index < size; index++)
-	{
-		pSettings->setArrayIndex(index);
-		QString user = pSettings->value(IDS_USER).toString();
-		QString group = pSettings->value(IDS_GROUP).toString();
-		groupMap.insert(user, group);
-	}
-	pSettings->endArray();
+	loadGroups();
 
 	nTimeout = pSettings->value(IDS_TIMEOUT, IDS_TIMEOUT_VAL).toInt() * 1000;
 	nMaxRetry = pSettings->value(IDS_MAXRETRIES, IDS_MAXRETRIES_VAL).toInt();
@@ -161,17 +143,31 @@ void lmcMessaging::settingsChanged(void) {
 void lmcMessaging::updateGroup(GroupOp op, QVariant value1, QVariant value2) {
 	switch(op) {
 	case GO_New:
-		groupList.append(value1.toString());
+		groupList.append(Group(value1.toString(), value2.toString()));
 		break;
 	case GO_Rename:
-		groupList.replace(groupList.indexOf(value1.toString()), value2.toString());
-		updateGroupMap(value1.toString(), value2.toString());
+		for(int index = 0; index < groupList.count(); index++) {
+			if(groupList[index].id.compare(value1.toString()) == 0) {
+				groupList[index].name = value2.toString();
+				break;
+			}
+		}
 		break;
 	case GO_Move:
-		groupList.move(groupList.indexOf(value1.toString()), value2.toInt());
+		for(int index = 0; index < groupList.count(); index++) {
+			if(groupList[index].id.compare(value1.toString()) == 0) {
+				groupList.move(index, value2.toInt());
+				break;
+			}
+		}
 		break;
 	case GO_Delete:
-		groupList.removeOne(value1.toString());
+		for(int index = 0; index < groupList.count(); index++) {
+			if(groupList[index].id.compare(value1.toString()) == 0) {
+				groupList.removeAt(index);
+				break;
+			}
+		}
 		break;
 	default:
 		break;
@@ -181,10 +177,10 @@ void lmcMessaging::updateGroup(GroupOp op, QVariant value1, QVariant value2) {
 }
 
 void lmcMessaging::updateGroupMap(QString oldGroup, QString newGroup) {
-	QMap<QString, QString>::const_iterator index = groupMap.constBegin();
-	while (index != groupMap.constEnd()) {
+	QMap<QString, QString>::const_iterator index = userGroupMap.constBegin();
+	while (index != userGroupMap.constEnd()) {
 		if(((QString)index.value()).compare(oldGroup) == 0)
-			groupMap.insert(index.key(), newGroup);
+			userGroupMap.insert(index.key(), newGroup);
 		++index;
 	}
 }
@@ -194,12 +190,13 @@ void lmcMessaging::saveGroups(void) {
 	pSettings->beginWriteArray(IDS_GROUPHDR);
 	for(int index = 0; index < groupList.count(); index++) {
 		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_GROUP, groupList[index]);
+		pSettings->setValue(IDS_GROUP, groupList[index].id);
+		pSettings->setValue(IDS_GROUPNAME, groupList[index].name);
 	}
 	pSettings->endArray();
 
 	pSettings->beginWriteArray(IDS_GROUPMAPHDR);
-	QMapIterator<QString, QString> i(groupMap);
+	QMapIterator<QString, QString> i(userGroupMap);
 	int count = 0;
 	while(i.hasNext()) {
 		pSettings->setArrayIndex(count);
@@ -209,6 +206,11 @@ void lmcMessaging::saveGroups(void) {
 		count++;
 	}
 	pSettings->endArray();
+
+	// make sure the correct version is set in the preferences file
+	// so the group settings will not be wrongly migrated next time
+	// application starts
+	pSettings->setValue(IDS_VERSION, IDA_VERSION);
 }
 
 void lmcMessaging::network_connectionStateChanged(void) {
@@ -237,8 +239,36 @@ QString lmcMessaging::getUserName(void) {
 	return userName;
 }
 
+void lmcMessaging::loadGroups(void) {
+	bool defaultFound = false;
+
+	int size = pSettings->beginReadArray(IDS_GROUPHDR);
+	for(int index = 0; index < size; index++) {
+		pSettings->setArrayIndex(index);
+		QString groupId = pSettings->value(IDS_GROUP).toString();
+		QString group = pSettings->value(IDS_GROUPNAME).toString();
+		groupList.append(Group(groupId, group));
+		// check if the default group is present in the group list
+		if(groupId.compare(GRP_DEFAULT_ID) == 0)
+			defaultFound = true;
+	}
+	pSettings->endArray();
+
+	if(groupList.count() == 0 || !defaultFound)
+		groupList.append(Group(GRP_DEFAULT_ID, GRP_DEFAULT));
+
+	size = pSettings->beginReadArray(IDS_GROUPMAPHDR);
+	for(int index = 0; index < size; index++)
+	{
+		pSettings->setArrayIndex(index);
+		QString user = pSettings->value(IDS_USER).toString();
+		QString group = pSettings->value(IDS_GROUP).toString();
+		userGroupMap.insert(user, group);
+	}
+	pSettings->endArray();
+}
+
 void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
-	QString info;
 	QString firstName = pSettings->value(IDS_USERFIRSTNAME, IDS_USERFIRSTNAME_VAL).toString();
 	QString lastName = pSettings->value(IDS_USERLASTNAME, IDS_USERLASTNAME_VAL).toString();
 	QString about = pSettings->value(IDS_USERABOUT, IDS_USERABOUT_VAL).toString();
@@ -264,12 +294,12 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
 		if(userList[index].id.compare(szUserId) == 0)
 			return false;
 
-	if(!groupMap.contains(szUserId) || !groupList.contains(groupMap.value(szUserId)))
-		groupMap.insert(szUserId, groupList[0]);
+	if(!userGroupMap.contains(szUserId) || !groupList.contains(Group(userGroupMap.value(szUserId))))
+		userGroupMap.insert(szUserId, GRP_DEFAULT_ID);
 
 	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();
 
-	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, groupMap[szUserId], nAvatar));
+	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId], nAvatar));
 	if(!szStatus.isNull()) {
 		XmlMessage xmlMessage;
 		xmlMessage.addHeader(XN_FROM, szUserId);
@@ -294,17 +324,23 @@ void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUser
 	switch(type) {
 	case MT_Status:
 		if(pUser->status.compare(szUserData) != 0) {
-			int statusIndex = Helper::statusIndexFromCode(pUser->status);
+			QString oldStatus = pUser->status;
+			pUser->status = szUserData;
+
+			int statusIndex = Helper::statusIndexFromCode(oldStatus);
 			if(statusType[statusIndex] == StatusTypeOffline) // old status is offline
 				emit messageReceived(MT_Announce, &szUserId, NULL);
 				
-			pUser->status = szUserData;
 			updateMsg.addData(XN_STATUS, pUser->status);
 			emit messageReceived(MT_Status, &szUserId, &updateMsg);
 
 			statusIndex = Helper::statusIndexFromCode(pUser->status);
-			if(statusType[statusIndex] == StatusTypeOffline) // new status is offline
-				emit messageReceived(MT_Depart, &szUserId, NULL);
+			if(statusType[statusIndex] == StatusTypeOffline) { // new status is offline
+				// Send a dummy xml message. A non null xml message implies that the
+				// user is only in offline status, and not actually offline.
+				XmlMessage xmlMessage;
+				emit messageReceived(MT_Depart, &szUserId, &xmlMessage);
+			}
 		}
 		break;
 	case MT_UserName:
@@ -316,7 +352,7 @@ void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUser
 		break;
 	case MT_Group:
 		pUser->group = szUserData;
-		groupMap.insert(pUser->id, pUser->group);
+		userGroupMap.insert(pUser->id, pUser->group);
 		break;
 	default:
 		break;

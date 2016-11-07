@@ -13,7 +13,6 @@ TEMPLATE = app
 
 SOURCES += \
     usertreewidget.cpp \
-    userinfodialog.cpp \
     udpnetwork.cpp \
     transferwindow.cpp \
     transferlistview.cpp \
@@ -47,11 +46,13 @@ SOURCES += \
     theme.cpp \
     messagelog.cpp \
     updatewindow.cpp \
-    webnetwork.cpp
+    webnetwork.cpp \
+    userinfowindow.cpp \
+    chatroomwindow.cpp \
+    userselectdialog.cpp
 
 HEADERS  += \
     usertreewidget.h \
-    userinfodialog.h \
     uidefinitions.h \
     udpnetwork.h \
     transferwindow.h \
@@ -90,10 +91,12 @@ HEADERS  += \
     theme.h \
     messagelog.h \
     updatewindow.h \
-    webnetwork.h
+    webnetwork.h \
+    userinfowindow.h \
+    chatroomwindow.h \
+    userselectdialog.h
 
 FORMS += \
-    userinfodialog.ui \
     transferwindow.ui \
     settingsdialog.ui \
     mainwindow.ui \
@@ -102,7 +105,10 @@ FORMS += \
     chatwindow.ui \
     broadcastwindow.ui \
     aboutdialog.ui \
-    updatewindow.ui
+    updatewindow.ui \
+    userinfowindow.ui \
+    chatroomwindow.ui \
+    userselectdialog.ui
 
 TRANSLATIONS += \
 	en_US.ts \
@@ -110,7 +116,9 @@ TRANSLATIONS += \
 	fr_FR.ts \
 	de_DE.ts \
 	tr_TR.ts \
-	es_ES.ts
+	es_ES.ts \
+	ko_KR.ts \
+	bg_BG.ts
 
 win32: RC_FILE = lmcwin32.rc
 macx: ICON = lmc.icns
@@ -128,8 +136,27 @@ unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-win32: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
+win32: LIBS += -L$$PWD/../../openssl/lib/ -leay32
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include
 DEPENDPATH += $$PWD/../../openssl/include
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

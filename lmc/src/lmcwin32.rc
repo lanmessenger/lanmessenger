@@ -3,8 +3,8 @@
 IDI_MAIN_ICON   ICON    DISCARDABLE "lmc.ico"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION		1,2,1,0
-PRODUCTVERSION	1,2,1,0
+FILEVERSION		1,2,1,6
+PRODUCTVERSION	1,2,1,6
 FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
 #ifdef DEBUG
 FILEFLAGS		VER_DEBUG
@@ -22,12 +22,12 @@ FILESUBTYPE     0x0L
             VALUE "Comments",         "\0"
             VALUE "CompanyName",      "LAN Messenger\0"
             VALUE "FileDescription",  "LAN Messenger\0"
-			VALUE "FileVersion",      "1.2.10\0"
+			VALUE "FileVersion",      "1.2.16\0"
             VALUE "InternalName",     "lanmsngr\0"
             VALUE "LegalCopyright",   "Copyright © 2010-2011 Dilip Radhakrishnan.\0"
             VALUE "OriginalFilename", "lmc.exe\0"
             VALUE "ProductName",      "LAN Messenger\0"
-			VALUE "ProductVersion",   "1.2.10\0"
+			VALUE "ProductVersion",   "1.2.16\0"
         }
     }
     BLOCK "VarFileInfo"

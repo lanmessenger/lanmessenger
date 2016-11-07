@@ -41,8 +41,18 @@ void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage
 		break;
 	case MT_Status:
 	case MT_UserName:
+	case MT_PublicMessage:
 		for(int index = 0; index < userList.count(); index++)
 			prepareMessage(type, msgId, false, &userList[index].id, pMessage);
+		msgId++;
+		break;
+	case MT_GroupMessage:
+		if(lpszUserId)
+			prepareMessage(type, msgId, false, lpszUserId, pMessage);
+		else {
+			for(int index = 0; index < userList.count(); index++)
+				prepareMessage(type, msgId, false, &userList[index].id, pMessage);
+		}
 		msgId++;
 		break;
 	case MT_Avatar:
@@ -209,6 +219,10 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 		if(!retry)
 			addPendingMsg(msgId, MT_Message, lpszUserId, pMessage);
 		break;
+	case MT_GroupMessage:
+		break;
+	case MT_PublicMessage:
+		break;
 	case MT_Broadcast:
 		break;
 	case MT_Acknowledge:
@@ -315,6 +329,12 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 		msgId = QString::number(pHeader->id);
 		reply.addData(XN_MESSAGEID, msgId);
 		sendMessage(MT_Acknowledge, &pHeader->userId, &reply);
+		break;
+	case MT_GroupMessage:
+		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
+		break;
+	case MT_PublicMessage:
+		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
 		break;
 	case MT_Ping:
 		//	send an acknowledgement

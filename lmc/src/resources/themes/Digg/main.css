@@ -1,0 +1,248 @@
+BODY {
+  margin: 4px;
+}
+DIV#content {
+  font: px Arial;
+}
+DIV#insert {
+  display: none;
+}
+
+/* System messages */
+DIV.system {
+  padding-top: 4px;
+}
+DIV.system DIV.msg {
+  margin: 0px 0px 0px 0px;
+}
+DIV.system DIV.1st {
+  padding-top: 4px;
+}
+DIV.system DIV.Nth {
+  padding-top: 4px;
+}
+DIV.system SPAN.salutation {
+  color: rgb(119,119,119);
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+  font-size: 9pt;
+}
+DIV.system .icon {
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+/* Two ways to do icons with these rules:
+   <img class='icon' src='%userIconPath%'>
+   <div class='icon'><div style='height:1px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="%userIconPath%")'></div></div>
+*/
+
+/* Borders */
+DIV.t-o {
+  position: float;
+  background-color: #ffffff;
+}
+DIV.b-o {
+  background-color: #ffffff;
+}
+DIV.tn-o {
+  position: float;
+  background-color: #224f79;
+}
+DIV.bn-o {
+  background-color: #577fa5;
+}
+DIV.t-i {
+  background-color: #ffffff;
+}
+DIV.b-i {
+  background-color: #ffffff;
+}
+DIV.tn-i {
+  background-color: #224f79;
+}
+DIV.bn-i {
+  background-color: #577fa5;
+}
+DIV.b1 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 5px;
+  background-color: #888888;
+}
+DIV.b2 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 3px;
+  border-left: 2px solid #888888;
+  border-right: 2px solid #888888;
+}
+DIV.b3 {
+  height: 1px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 2px;
+  border-left: 1px solid #888888;
+  border-right: 1px solid #888888;
+}
+DIV.b4 {
+  height: 2px;
+  font-size: 1px;
+  overflow: hidden;
+  margin: 0px 1px;
+  border-left: 1px solid #888888;
+  border-right: 1px solid #888888;
+}
+
+/* Chat messages */
+DIV.chat {
+  border-left: 1px solid #888888;
+  border-right: 1px solid #888888;
+  padding: 0px 5px;
+}
+DIV.chat .icon {
+/*background-color: white;
+  border: 1px solid white;*/
+}
+DIV.chat DIV.msg {
+  margin: 0px 0px 0px 0px;
+}
+DIV.chat DIV.Nth {
+  margin: 5px 0px 0px 0px;
+}
+DIV.chat SPAN.salutation {
+  font-weight: bold;
+  display: block;
+  
+  margin: 0px 0px 0px 0px;
+}
+
+DIV.outname {
+font-family: 04b_19;
+font-size: 25 px;
+text-align: left;
+color: #fafafa;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#224f79',endColorStr='#577fa5');
+  zoom:1;
+  background: -moz-linear-gradient(top,  #224f79,  #577fa5);
+  background: -webkit-gradient(linear, left top, left bottom, from(#224f79), to(#577fa5));
+}
+
+DIV.inname {
+font-family: 04b_19;
+font-size: 25 px;
+text-align: left;
+color: #fafafa;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#224f79',endColorStr='#577fa5');
+  zoom:1;
+    background: -moz-linear-gradient(top,  #224f79,  #577fa5);
+  background: -webkit-gradient(linear, left top, left bottom, from(#224f79), to(#577fa5));
+}
+
+DIV.out {
+  text-align: left;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#ffffff',endColorStr='#ffffff');
+  zoom:1;
+    background: -moz-linear-gradient(top,  #ffffff,  #eeeeee);
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#eeeeee));
+}
+
+DIV.out .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+  width:32px;
+  height:32px;
+}
+
+DIV.in {
+  text-align: left;
+  filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#ffffff',endColorStr='#eeeeee');
+  zoom:1;
+  background: -moz-linear-gradient(top,  #ffffff,  #eeeeee);
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#eeeeee));
+}
+DIV.in .icon {
+  float: left;
+  margin: 0px 5px 0px 0px;
+  width:32px;
+  height:32px;
+}
+
+/* Broadcast messages */
+DIV.public {
+  padding: 4px 2px;
+  margin: 2px 0px 4px 0px;
+  border-top: 1px solid #888888;
+  border-bottom: 1px solid #888888;
+}
+DIV.public DIV.msg {
+  margin: 0px 0px 0px 0px;
+  font-size: 9pt;
+}
+DIV.public SPAN.salutation {
+  padding-top: 4px;
+  width: 100%;
+  display:block;
+}
+DIV.public .icon {
+  padding:4px;
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+/* Request messages */
+DIV.request {
+  padding: 4px 2px;
+  font-size: 9pt;
+}
+DIV.request SPAN.salutation {
+  color: #606060;
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.details {
+  color: #0000FF;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.links {
+  display: block;
+  margin: 0px 0px 1px 24px;
+}  
+DIV.request .icon {
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+SPAN.time {
+  color: rgb(119,119,119);
+  font-weight: normal;
+  margin: 0px;
+}
+
+DIV.clear {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+}
+
+DIV.break {
+  height: 1px;
+  margin: 3px 0px 0px 0px;
+  overflow: hidden;
+}
+
+DIV.innertable {
+  font: 12px Arial;
+}
+
+.displaypics{
+border: 1px solid #888888;
+margin: 4px;
+width:32px;
+  height:32px;
+}
