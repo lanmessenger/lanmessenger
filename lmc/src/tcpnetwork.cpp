@@ -71,6 +71,11 @@ void lmcTcpNetwork::setCrypto(lmcCrypto* pCrypto) {
 }
 
 void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress) {
+    if(!isRunning) {
+        lmcTrace::write("Warning: TCP server not running. Unable to connect");
+        return;
+    }
+
 	lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress);
 
 	MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, tcpPort);
@@ -88,6 +93,11 @@ void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress) {
 }
 
 void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
+    if(!isRunning) {
+        lmcTrace::write("Warning: TCP server not running. Message not sent");
+        return;
+    }
+
 	MsgStream* msgStream;
 
 	if(lpszReceiverId->compare(localId) == 0)

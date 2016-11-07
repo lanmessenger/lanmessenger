@@ -42,8 +42,8 @@ void lmcTrace::init(XmlMessage* pInitParams) {
 		  "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 }
 
-void lmcTrace::write(const QString& string) {
-	if(!traceMode)
+void lmcTrace::write(const QString& string, bool verbose) {
+    if(!traceMode || !verbose)
 		return;
 
 	QDir logDir(StdLocation::logDir());

@@ -976,109 +976,109 @@
 <context>
     <name>lmcChatRoomWindow</name>
     <message>
-        <location filename="chatroomwindow.cpp" line="160"/>
+        <location filename="chatroomwindow.cpp" line="166"/>
         <source>Group Conversation</source>
         <translation>그룹 대화</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="295"/>
+        <location filename="chatroomwindow.cpp" line="301"/>
         <source>%1 says...</source>
         <translation>%1의 메세지...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="451"/>
+        <location filename="chatroomwindow.cpp" line="457"/>
         <source>Select Font</source>
         <translation>글꼴 고르기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="457"/>
+        <location filename="chatroomwindow.cpp" line="463"/>
         <source>Select Color</source>
         <translation>색상 고르기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="466"/>
+        <location filename="chatroomwindow.cpp" line="472"/>
         <source>Save Conversation</source>
         <translation>대화 내용 저장하기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="606"/>
+        <location filename="chatroomwindow.cpp" line="612"/>
         <source>Participants</source>
         <translation>참여자</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="608"/>
+        <location filename="chatroomwindow.cpp" line="614"/>
         <source>&amp;Conversation</source>
         <translation>대화하기(&amp;C)</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="609"/>
+        <location filename="chatroomwindow.cpp" line="615"/>
         <source>Send &amp;File</source>
         <translation>파일 보내기(&amp;F)</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="610"/>
+        <location filename="chatroomwindow.cpp" line="616"/>
         <source>Get &amp;Information</source>
         <translation>정보 얻기(&amp;I)</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="611"/>
+        <location filename="chatroomwindow.cpp" line="617"/>
         <source>Insert Smiley</source>
         <translation>이모티콘 넣기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="612"/>
+        <location filename="chatroomwindow.cpp" line="618"/>
         <source>&amp;Save As...</source>
         <translation>다른 이름으로 저장하기(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="613"/>
+        <location filename="chatroomwindow.cpp" line="619"/>
         <source>Save this conversation</source>
         <translation>현재 대화 내용 저장하기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="614"/>
+        <location filename="chatroomwindow.cpp" line="620"/>
         <source>Change Font...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="615"/>
+        <location filename="chatroomwindow.cpp" line="621"/>
         <source>Change message font</source>
         <translation>메세지 글꼴 바꾸기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="616"/>
+        <location filename="chatroomwindow.cpp" line="622"/>
         <source>Change Color...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="617"/>
+        <location filename="chatroomwindow.cpp" line="623"/>
         <source>Change message text color</source>
         <translation>메세지 글꼴 색상 바꾸기</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="620"/>
+        <location filename="chatroomwindow.cpp" line="626"/>
         <source>&amp;Add Contacts...</source>
         <oldsource>&amp;Add A Contact...</oldsource>
         <translation>대화상대 &amp;추가...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="621"/>
+        <location filename="chatroomwindow.cpp" line="627"/>
         <source>Add people to this conversation</source>
         <oldsource>Add contacts to this conversation</oldsource>
         <translation>현재 대화에 대화상대 추가</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="691"/>
+        <location filename="chatroomwindow.cpp" line="697"/>
         <source>You are no longer connected.</source>
         <translation>연결이 끊어졌습니다.</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="715"/>
+        <location filename="chatroomwindow.cpp" line="721"/>
         <source>Conversation</source>
         <translation>대화</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="717"/>
+        <location filename="chatroomwindow.cpp" line="723"/>
         <source>Public Chat</source>
         <translation>공개 대화</translation>
     </message>
@@ -1094,67 +1094,67 @@
         <translation type="obsolete">글꼴 크기 바꾸기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="486"/>
+        <location filename="chatwindow.cpp" line="492"/>
         <source>Insert Smiley</source>
         <translation>이모티콘 넣기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="487"/>
+        <location filename="chatwindow.cpp" line="493"/>
         <source>Send A &amp;File...</source>
         <translation>파일 전송하기(&amp;F)...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="488"/>
+        <location filename="chatwindow.cpp" line="494"/>
         <source>&amp;Save As...</source>
         <translation>다른 이름으로 저장하기(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="489"/>
+        <location filename="chatwindow.cpp" line="495"/>
         <source>&amp;History</source>
         <translation>히스토리(&amp;H)</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="490"/>
+        <location filename="chatwindow.cpp" line="496"/>
         <source>File &amp;Transfers</source>
         <translation>파일 전송(&amp;T)</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="492"/>
+        <location filename="chatwindow.cpp" line="498"/>
         <source>Send a file to %1</source>
         <translation>%1에게 파일 보내기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="495"/>
+        <location filename="chatwindow.cpp" line="501"/>
         <source>Save this conversation</source>
         <translation>현재 대화 내용 저장하기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="496"/>
+        <location filename="chatwindow.cpp" line="502"/>
         <source>View History</source>
         <translation>대화 내용 보기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="497"/>
+        <location filename="chatwindow.cpp" line="503"/>
         <source>View File Transfers</source>
         <translation>파일 전송 내용 보기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="498"/>
+        <location filename="chatwindow.cpp" line="504"/>
         <source>Change Font...</source>
         <translation>글꼴 바꾸기...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="499"/>
+        <location filename="chatwindow.cpp" line="505"/>
         <source>Change message font</source>
         <translation>메세지 글꼴 바꾸기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="500"/>
+        <location filename="chatwindow.cpp" line="506"/>
         <source>Change Color...</source>
         <translation>색상 바꾸기...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="501"/>
+        <location filename="chatwindow.cpp" line="507"/>
         <source>Change message text color</source>
         <translation>메세지 글꼴 색상 바꾸기</translation>
     </message>
@@ -1171,17 +1171,17 @@
         <translation type="obsolete">취소됨</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="354"/>
+        <location filename="chatwindow.cpp" line="359"/>
         <source>Select Font</source>
         <translation>글꼴 고르기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="360"/>
+        <location filename="chatwindow.cpp" line="365"/>
         <source>Select Color</source>
         <translation>색상 고르기</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="378"/>
+        <location filename="chatwindow.cpp" line="383"/>
         <source>Save Conversation</source>
         <translation>대화 내용 저장하기</translation>
     </message>
@@ -1254,27 +1254,27 @@
         <translation type="obsolete">거부</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="613"/>
+        <location filename="chatwindow.cpp" line="625"/>
         <source>You are no longer connected.</source>
         <translation>연결이 끊어졌습니다.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="616"/>
+        <location filename="chatwindow.cpp" line="628"/>
         <source>%1 is offline.</source>
         <translation>%1는 오프라인.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="620"/>
+        <location filename="chatwindow.cpp" line="632"/>
         <source>%1 is away.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="624"/>
+        <location filename="chatwindow.cpp" line="636"/>
         <source>%1 is busy. You may be interrupting.</source>
         <translation>%1는 바쁩니다. 당신을 무시할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="648"/>
+        <location filename="chatwindow.cpp" line="660"/>
         <source>Conversation</source>
         <translation>대화</translation>
     </message>
@@ -1282,23 +1282,30 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="143"/>
-        <location filename="lmc.cpp" line="182"/>
+        <location filename="lmc.cpp" line="149"/>
+        <source>Preferences could not be imported from &apos;%1&apos;.
+
+File may not exist, or may not be compatible with this version of %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lmc.cpp" line="156"/>
+        <location filename="lmc.cpp" line="196"/>
         <source>LAYOUT_DIRECTION</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="971"/>
+        <location filename="lmc.cpp" line="988"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>포트 주소가 충돌되었습니다. %1를 중지합니다.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="973"/>
+        <location filename="lmc.cpp" line="990"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%2가 포트를 사용하고 있어서 %1를 실행할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="138"/>
+        <location filename="lmc.cpp" line="143"/>
         <source>Your preferences file is corrupt or invalid.
 
 %1 is unable to recover your settings.</source>
@@ -1331,80 +1338,80 @@
 <context>
     <name>lmcMainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="181"/>
+        <location filename="mainwindow.cpp" line="191"/>
         <source>%1 is online.</source>
         <translation>%1와 연결됨.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="216"/>
+        <location filename="mainwindow.cpp" line="226"/>
         <source>%1 is offline.</source>
         <translation>%1외 연결이 끊어짐.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="272"/>
+        <location filename="mainwindow.cpp" line="282"/>
         <source>You are online.</source>
         <translation>당신은 온라인입니다.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1076"/>
+        <location filename="mainwindow.cpp" line="1086"/>
         <source>%1 - Not Connected</source>
         <translation>%1 - 연결되지 못함</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="274"/>
+        <location filename="mainwindow.cpp" line="284"/>
         <source>You are no longer connected.</source>
         <translation>연결이 끊어졌습니다.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="435"/>
+        <location filename="mainwindow.cpp" line="445"/>
         <source>Select avatar picture</source>
         <translation>아바타 그림 고르기</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="554"/>
+        <location filename="mainwindow.cpp" line="564"/>
         <source>Add New Group</source>
         <translation>새로운 그룹 만들기</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="554"/>
+        <location filename="mainwindow.cpp" line="564"/>
         <source>Enter a name for the group</source>
         <translation>그룹 이름 넣기</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="560"/>
-        <location filename="mainwindow.cpp" line="593"/>
+        <location filename="mainwindow.cpp" line="570"/>
+        <location filename="mainwindow.cpp" line="603"/>
         <source>A group named &apos;%1&apos; already exists. Please enter a different name.</source>
         <translation>%1이란 그룹은 있습니다. 다른 이름을 지어주세요.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="586"/>
+        <location filename="mainwindow.cpp" line="596"/>
         <source>Rename Group</source>
         <translation>그룹 이름 바꾸기</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="587"/>
+        <location filename="mainwindow.cpp" line="597"/>
         <source>Enter a new name for the group</source>
         <translation>새로운 그룹 이름 넣기</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="820"/>
+        <location filename="mainwindow.cpp" line="830"/>
         <source>&amp;Messenger</source>
         <translation>메신저(&amp;M)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="821"/>
-        <location filename="mainwindow.cpp" line="854"/>
+        <location filename="mainwindow.cpp" line="831"/>
+        <location filename="mainwindow.cpp" line="864"/>
         <source>&amp;New Chat Room</source>
         <translation>&amp;새로운 대화방</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="823"/>
+        <location filename="mainwindow.cpp" line="833"/>
         <source>&amp;Refresh Contacts List</source>
         <translation>대화 상대 새로고침(&amp;R)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="822"/>
-        <location filename="mainwindow.cpp" line="855"/>
+        <location filename="mainwindow.cpp" line="832"/>
+        <location filename="mainwindow.cpp" line="865"/>
         <source>&amp;Public Chat</source>
         <translation>&amp;공개 대화</translation>
     </message>
@@ -1413,111 +1420,111 @@
         <translation type="obsolete">새로운 대화방</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="824"/>
-        <location filename="mainwindow.cpp" line="842"/>
+        <location filename="mainwindow.cpp" line="834"/>
+        <location filename="mainwindow.cpp" line="852"/>
         <source>E&amp;xit</source>
         <translation>나가기(&amp;X)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="825"/>
+        <location filename="mainwindow.cpp" line="835"/>
         <source>&amp;Tools</source>
         <translation>도구(&amp;T)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="826"/>
-        <location filename="mainwindow.cpp" line="838"/>
+        <location filename="mainwindow.cpp" line="836"/>
+        <location filename="mainwindow.cpp" line="848"/>
         <source>&amp;History</source>
         <translation>히스토리(&amp;H)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="827"/>
-        <location filename="mainwindow.cpp" line="839"/>
+        <location filename="mainwindow.cpp" line="837"/>
+        <location filename="mainwindow.cpp" line="849"/>
         <source>File &amp;Transfers</source>
         <translation>파일 전송(&amp;T)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="828"/>
-        <location filename="mainwindow.cpp" line="840"/>
+        <location filename="mainwindow.cpp" line="838"/>
+        <location filename="mainwindow.cpp" line="850"/>
         <source>&amp;Preferences</source>
         <translation>환경 설정(&amp;P)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="829"/>
-        <location filename="mainwindow.cpp" line="830"/>
+        <location filename="mainwindow.cpp" line="839"/>
+        <location filename="mainwindow.cpp" line="840"/>
         <source>&amp;Help</source>
         <translation>도움말(&amp;H)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="831"/>
+        <location filename="mainwindow.cpp" line="841"/>
         <source>%1 &amp;online</source>
         <translation>%1 사이트에 연결(&amp;O)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="833"/>
+        <location filename="mainwindow.cpp" line="843"/>
         <source>Check for &amp;Updates...</source>
         <translation>업데이트 확인(&amp;U)...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="834"/>
-        <location filename="mainwindow.cpp" line="841"/>
+        <location filename="mainwindow.cpp" line="844"/>
+        <location filename="mainwindow.cpp" line="851"/>
         <source>&amp;About</source>
         <translation>정보(&amp;A)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="835"/>
+        <location filename="mainwindow.cpp" line="845"/>
         <source>&amp;Show %1</source>
         <translation>%1 보기(&amp;S)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="837"/>
+        <location filename="mainwindow.cpp" line="847"/>
         <source>&amp;Change Status</source>
         <translation>상태 바꾸기(&amp;C)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="843"/>
+        <location filename="mainwindow.cpp" line="853"/>
         <source>Add &amp;New Group</source>
         <translation>새 그룹 만들기(&amp;N)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="844"/>
+        <location filename="mainwindow.cpp" line="854"/>
         <source>&amp;Rename This Group</source>
         <translation>현재 그룹 이름 바꾸기(&amp;R)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="845"/>
+        <location filename="mainwindow.cpp" line="855"/>
         <source>&amp;Delete This Group</source>
         <translation>현재 그룹 지우기(&amp;D)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="846"/>
-        <location filename="mainwindow.cpp" line="851"/>
+        <location filename="mainwindow.cpp" line="856"/>
+        <location filename="mainwindow.cpp" line="861"/>
         <source>&amp;Conversation</source>
         <translation>대화하기(&amp;C)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="847"/>
-        <location filename="mainwindow.cpp" line="853"/>
+        <location filename="mainwindow.cpp" line="857"/>
+        <location filename="mainwindow.cpp" line="863"/>
         <source>Send &amp;Broadcast Message</source>
         <translation>전체 메세지 보내기(&amp;B)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="848"/>
-        <location filename="mainwindow.cpp" line="852"/>
+        <location filename="mainwindow.cpp" line="858"/>
+        <location filename="mainwindow.cpp" line="862"/>
         <source>Send &amp;File</source>
         <translation>파일 보내기(&amp;F)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="849"/>
+        <location filename="mainwindow.cpp" line="859"/>
         <source>Get &amp;Information</source>
         <translation>정보 얻기(&amp;I)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="850"/>
+        <location filename="mainwindow.cpp" line="860"/>
         <source>&amp;Browse for more pictures...</source>
         <translation>다른 그림 찾아보기(&amp;B)...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="878"/>
+        <location filename="mainwindow.cpp" line="888"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
         <translation>%1는 계속 실행중입니다. 창을 복원하려면 아이콘을 클릭하세요.</translation>
     </message>
@@ -1535,97 +1542,102 @@
         <translation>당신의 메세지는 전달되지 못했습니다.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="408"/>
+        <location filename="messagelog.cpp" line="433"/>
         <source>Broadcast message from %1:</source>
         <translation>%1가 보낸 전체 메세지:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="523"/>
+        <location filename="messagelog.cpp" line="548"/>
         <source>Sending &apos;%1&apos; to %2.</source>
         <translation>%2에게 %1를 보냅니다.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="533"/>
+        <location filename="messagelog.cpp" line="558"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="548"/>
+        <location filename="messagelog.cpp" line="575"/>
         <source>%1 is sending you a file:</source>
         <translation>%1가 보내는 파일:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="554"/>
+        <location filename="messagelog.cpp" line="581"/>
         <source>%1 sends you a file:</source>
         <translation>%1가 보낸 파일:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="567"/>
+        <location filename="messagelog.cpp" line="594"/>
         <source>File has been accepted automatically.</source>
         <translation>파일을 자동으로 수신합니다.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="569"/>
+        <location filename="messagelog.cpp" line="596"/>
         <source>Accept</source>
         <translation>허가</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="570"/>
+        <location filename="messagelog.cpp" line="597"/>
         <source>Decline</source>
         <translation>거부</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="621"/>
+        <location filename="messagelog.cpp" line="650"/>
         <source>Accepted</source>
         <translation>허가됨</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="621"/>
+        <location filename="messagelog.cpp" line="650"/>
         <source>You have accepted the file.</source>
         <translation>당신이 수신을 허가한 파일입니다.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="624"/>
+        <location filename="messagelog.cpp" line="653"/>
         <source>Declined</source>
         <translation>거부됨</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="624"/>
+        <location filename="messagelog.cpp" line="653"/>
         <source>You have declined the file.</source>
         <translation>당신이 수신을 거부한 파일입니다.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="627"/>
+        <location filename="messagelog.cpp" line="656"/>
         <source>Canceled</source>
         <translation>취소됨</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="641"/>
+        <location filename="messagelog.cpp" line="660"/>
+        <source>Interrupted</source>
+        <translation>거절됨</translation>
+    </message>
+    <message>
+        <location filename="messagelog.cpp" line="674"/>
         <source>%1 is typing...</source>
         <translation>%1가 메세지 작성중...</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="644"/>
+        <location filename="messagelog.cpp" line="677"/>
         <source>%1 has entered text</source>
         <translation>%1가 메세지를 작성함</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="658"/>
+        <location filename="messagelog.cpp" line="691"/>
         <source>%1 has joined this conversation</source>
         <translation>%1이 대화에 참여하였습니다</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="661"/>
+        <location filename="messagelog.cpp" line="694"/>
         <source>%1 has left this conversation</source>
         <translation>%1이 대화를 마쳤습니다</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="769"/>
+        <location filename="messagelog.cpp" line="806"/>
         <source>&amp;Copy</source>
         <translation>&amp;부</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="770"/>
+        <location filename="messagelog.cpp" line="807"/>
         <source>Select &amp;All</source>
         <translation>&amp;모두 선택</translation>
     </message>
@@ -1637,67 +1649,67 @@
         <translation type="obsolete">AaBbYyZz</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="194"/>
+        <location filename="settingsdialog.cpp" line="195"/>
         <source>Save History</source>
         <translation>대화 내용 저장</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="201"/>
+        <location filename="settingsdialog.cpp" line="202"/>
         <source>Select folder</source>
         <translation>폴더 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="232"/>
+        <location filename="settingsdialog.cpp" line="233"/>
         <source>Select Font</source>
         <translation>글꼴 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="238"/>
+        <location filename="settingsdialog.cpp" line="239"/>
         <source>Select Color</source>
         <translation>색상 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="244"/>
+        <location filename="settingsdialog.cpp" line="245"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
         <translation>%1의 환경 설정을 초기화 하겠습니까?</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="245"/>
+        <location filename="settingsdialog.cpp" line="246"/>
         <source>Reset Preferences</source>
         <translation>환경 설정 초기화</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="350"/>
+        <location filename="settingsdialog.cpp" line="351"/>
         <source>&lt;File Not Found&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="364"/>
+        <location filename="settingsdialog.cpp" line="365"/>
         <source>Select sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="392"/>
+        <location filename="settingsdialog.cpp" line="393"/>
         <source>Preferences</source>
         <translation>환경 설정</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="400"/>
+        <location filename="settingsdialog.cpp" line="401"/>
         <source>System Tray (Not Available)</source>
         <translation>알림 영역(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="404"/>
+        <location filename="settingsdialog.cpp" line="405"/>
         <source>Status Alerts (Not Available)</source>
         <translation>상태 알림(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="408"/>
+        <location filename="settingsdialog.cpp" line="409"/>
         <source>Sounds (Not Available)</source>
         <translation>효과음(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="422"/>
+        <location filename="settingsdialog.cpp" line="423"/>
         <source>Check for updates</source>
         <translation>업데이트 확인하기</translation>
     </message>

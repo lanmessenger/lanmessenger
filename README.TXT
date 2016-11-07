@@ -83,10 +83,13 @@ QTDIR that should contain the path where Qt libraries are installed. More
 specifically, it should point to the parent folder of the bin and lib folders
 where Qt binaries reside. Eg: C:\Qt\4.8.0 on Windows.
 
+Refer PLATFORM_SPECIFIC.TXT for additional details about setting up the build
+environment on respective platforms.
+
 
 Compiling LAN Messenger on Windows
 ==================================
-Its possible to compile using other build chains/IDEs. But its better 
+Its possible to compile using other build chains/IDEs, but its better 
 to stick to Qt Creator and gcc tool chain.
 
 OpenSSL should be built/installed first. I recommend using a folder at 
@@ -109,14 +112,14 @@ The libraries of OpenSSL should be in openssl\lib
 Note: OpenSSL paths may be different depending on how it was built/installed
 in your system.
 
-Once you have built lmc, run the "buildwin32.bat" batch file. This
-script compiles the translation files, builds the resources into a
-separate binary file and copies the application dependencies to the
-output folder. The path of output directory should be passed as a
-parameter for this script. The script depends on the QTDIR environment
-variable, so make sure it is set correctly. You can probably add the
-execution of this script as a custom build step in your IDE. That way
-it will be automatically called every time you build the project.
+Once you have built lmc, run the "buildwin32.bat" batch file found in
+the src\scripts folder. This script compiles the translation files, builds 
+the resources into a separate binary file and copies the application 
+dependencies to the output folder. The path of output directory should 
+be passed as a parameter for this script. The script depends on the QTDIR 
+environment variable, so make sure it is set correctly. You can probably 
+add the execution of this script as a custom build step in your IDE. That 
+way it will be automatically called every time you build the project.
 
 
 Compiling LAN Messenger on X11/Linux
@@ -125,49 +128,51 @@ OpenSSL should be built first. I recommend using a folder at the same
 level as "lmc" folder as the OpenSSL folder.
 
 Next build "lmcapp" project. All the files needed are present inside
-lmcapp\src folder. This project should be built as a shared library.
+lmcapp/src folder. This project should be built as a shared library.
 The outputs of this project is liblmcapp.1.0.0.so, which will be
-created in lmcapp\lib folder.
+created in lmcapp/lib folder.
 
 Finally build "lmc" project. This project references both OpenSSL and
 lmcapp, so the correct paths to headers and libraries should be set
 first.
-The headers of lmcapp should be in lmcapp\include
-The libraries of lmcapp should be in lmcapp\lib
-The headers of OpenSSL should be in openssl\include
-The libraries of OpenSSL should be in openssl\lib
+The headers of lmcapp should be in lmcapp/include
+The libraries of lmcapp should be in lmcapp/lib
+The headers of OpenSSL should be in openssl/include
+The libraries of OpenSSL should be in openssl/lib
 Note: OpenSSL paths may be different depending on how it was built/installed
 in your system.
 
-Once you have built lmc, run the "buildx11" shell script. This script 
-performs the same actions as its Windows counterpart. The script depends
-on the QTDIR environment variable, so make sure it is set correctly. You
-can add the execution of this script as a custom build step to automate 
-the whole process. If you get an error while executing the script, edit 
-the script to make sure that the Qt plugins path in the script is correct.
+Once you have built lmc, run the "buildx11" shell script found in the
+src/scripts folder. This script performs the same actions as its Windows 
+counterpart. The QTDIR variable defined in the script should contain the 
+correct path to Qt libraries. You can add the execution of this script as 
+a custom build step to automate the whole process. If you get an error 
+while executing the script, edit the script to make sure that the Qt 
+plugins path in the script is correct.
 
 
 Compiling LAN Messenger on Mac OS X
 ===================================
 Build "lmcapp" project. All the files needed are present inside
-lmcapp\src folder. This project should be built as a shared library.
+lmcapp/src folder. This project should be built as a shared library.
 The outputs of this project is liblmcapp.1.0.0.dylib, which will be
-created in lmcapp\lib folder.
+created in lmcapp/lib folder.
 
 Finally build "lmc" project. This project references lmcapp, so the 
 correct paths to headers and libraries should be set first.
-The headers of lmcapp should be in lmcapp\include
-The libraries of lmcapp should be in lmcapp\lib
+The headers of lmcapp should be in lmcapp/include
+The libraries of lmcapp should be in lmcapp/lib
 
 Note: There is no need to link to OpenSSL since it is present as a system
 library on Mac OS X.
 
-Once you have built lmc, run the "buildmacos" shell script. This script 
-performs the same actions as its Windows counterpart. The script depends 
-on the QTDIR environment variable, so make sure it is set correctly. 
-You can add the execution of this script as a custom build step to automate
-the whole process. If you get an error while executing the script, edit 
-the script to make sure that the Qt plugins path in the script is correct.
+Once you have built lmc, run the "buildmacos" shell script found in the
+src/scripts folder. This script performs the same actions as its Windows 
+counterpart. The script depends on the QTDIR environment variable, so make 
+sure it is set correctly. You can add the execution of this script as a 
+custom build step to automate the whole process. If you get an error while 
+executing the script, edit  the script to make sure that the Qt plugins 
+path in the script is correct.
 
 Note: On Mac OS X, option to start LAN Messenger on startup will not work.
 This is a platform dependent function and I have not implemented it.

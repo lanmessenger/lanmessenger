@@ -184,6 +184,8 @@ FileReceiver::FileReceiver(QString szId, QString szPeerId, QString szFilePath, Q
 		socket = NULL;
 		timer = NULL;
 		type = nType;
+        lastPosition = 0;
+        numTimeOuts = 0;
 }
 
 FileReceiver::~FileReceiver(void) {
@@ -250,6 +252,19 @@ void FileReceiver::readyRead(void) {
 void FileReceiver::timer_timeout(void) {
 	if(!active)
 		return;
+
+    if(lastPosition < file->pos()) {
+        lastPosition = file->pos();
+        numTimeOuts = 0;
+    } else {
+        numTimeOuts++;
+        if(numTimeOuts > 20) {
+            QString data;
+            emit progressUpdated(FM_Receive, FO_Error, type, &id, &peerId, &data);
+            stop();
+            return;
+        }
+    }
 
 	QString transferred = QString::number(file->pos());
 	emit progressUpdated(FM_Receive, FO_Progress, type, &id, &peerId, &transferred);

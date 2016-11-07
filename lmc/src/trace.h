@@ -38,7 +38,7 @@ public:
 	~lmcTrace(void);
 
 	static void init(XmlMessage* pInitParams);
-	static void write(const QString& string);
+    static void write(const QString& string, bool verbose = true);
 
 private:
 	static bool traceMode;

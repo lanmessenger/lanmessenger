@@ -201,6 +201,15 @@ void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserI
 }
 
 void lmcMessaging::prepareBroadcast(MessageType type, XmlMessage* pMessage) {
+    if(!isConnected()) {
+        lmcTrace::write("Warning: Not connected. Broadcast not sent");
+        return;
+    }
+    if(localUser->id.isNull()) {
+        lmcTrace::write("Warning: Local user not initialized. Broadcast not sent");
+        return;
+    }
+
 	lmcTrace::write("Sending broadcast type " + QString::number(type));
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, pMessage);
 	pNetwork->sendBroadcast(&szMessage);
@@ -213,6 +222,10 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 		lmcTrace::write("Warning: Not connected. Message not sent");
 		return;
 	}
+    if(localUser->id.isNull()) {
+        lmcTrace::write("Warning: Local user not initialized. Message not sent");
+        return;
+    }
 
 	User* receiver = getUser(lpszUserId);
 

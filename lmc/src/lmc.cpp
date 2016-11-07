@@ -343,7 +343,7 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 		if(data == FileOpNames[FO_Request]) {
 			// this request message was sent from chat window
 			initFileTransfer(FM_Send, lpszUserId, pMessage);
-		}
+        }
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Avatar:
@@ -577,6 +577,7 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 	case MT_Depart:
 		pMainWindow->removeUser(lpszUserId);
 		processPublicMessage(type, lpszUserId, pMessage);
+        routeMessage(type, lpszUserId, pMessage);
 		routeGroupMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Status:
@@ -651,7 +652,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 			chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 		}
 	} else {
-		QString threadId = pMessage->data(XN_THREAD);
+        QString threadId = pMessage ? pMessage->data(XN_THREAD) : QString::null;
 		
 		switch(type) {
 		case MT_LocalAvatar:

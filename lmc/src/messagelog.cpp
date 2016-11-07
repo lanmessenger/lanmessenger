@@ -296,6 +296,31 @@ void lmcMessageLog::setAutoScroll(bool enable) {
 	autoScroll = enable;
 }
 
+void lmcMessageLog::abortPendingFileOperations(void) {
+    QMap<QString, XmlMessage>::iterator sIndex = sendFileMap.begin();
+    while(sIndex != sendFileMap.end()) {
+        XmlMessage fileData = sIndex.value();
+        FileOp fileOp = (FileOp)Helper::indexOf(FileOpNames, FO_Max, fileData.data(XN_FILEOP));
+        if(fileOp == FO_Request) {
+            updateFileMessage(FM_Send, FO_Abort, fileData.data(XN_FILEID));
+            sIndex.value().removeData(XN_FILEOP);
+            sIndex.value().addData(XN_FILEOP, FileOpNames[FO_Abort]);
+        }
+        sIndex++;
+    }
+    QMap<QString, XmlMessage>::iterator rIndex = receiveFileMap.begin();
+    while(rIndex != receiveFileMap.end()) {
+        XmlMessage fileData = rIndex.value();
+        FileOp fileOp = (FileOp)Helper::indexOf(FileOpNames, FO_Max, fileData.data(XN_FILEOP));
+        if(fileOp == FO_Request) {
+            updateFileMessage(FM_Receive, FO_Abort, fileData.data(XN_FILEID));
+            rIndex.value().removeData(XN_FILEOP);
+            rIndex.value().addData(XN_FILEOP, FileOpNames[FO_Abort]);
+        }
+        rIndex++;
+    }
+}
+
 void lmcMessageLog::changeEvent(QEvent* event) {
 	switch(event->type()) {
 	case QEvent::LanguageChange:
@@ -347,7 +372,7 @@ void lmcMessageLog::log_linkClicked(QUrl url) {
 	//	Remove the link and show a confirmation message.
 	updateFileMessage(mode, op, linkData[2]);
 
-	fileOperation(linkData[2], linkData[1]);
+    fileOperation(linkData[2], linkData[1], mode);
 }
 
 void lmcMessageLog::log_contentsSizeChanged(QSize size) {
@@ -535,6 +560,8 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
 		case FO_Cancel:
 		case FO_Accept:
 		case FO_Decline:
+        case FO_Error:
+        case FO_Abort:
 			szStatus = getFileStatusMessage(FM_Send, fileOp);
 			htmlMsg.replace("%links%", szStatus);
 			break;
@@ -576,6 +603,8 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
 		case FO_Cancel:
 		case FO_Accept:
 		case FO_Decline:
+        case FO_Error:
+        case FO_Abort:
 			szStatus = getFileStatusMessage(FM_Receive, fileOp);
 			htmlMsg.replace("%links%", szStatus);
 			break;
@@ -626,6 +655,10 @@ QString lmcMessageLog::getFileStatusMessage(FileMode mode, FileOp op) {
 	case FO_Cancel:
 		message = (mode == FM_Send) ? tr("Canceled") : tr("Canceled");
 		break;
+    case FO_Error:
+    case FO_Abort:
+        message = (mode == FM_Send) ? tr("Interrupted") : tr("Interrupted");
+        break;
 	default:
 		break;
 	}
@@ -667,7 +700,7 @@ QString lmcMessageLog::getChatRoomMessage(GroupMsgOp op) {
 	return message;
 }
 
-void lmcMessageLog::fileOperation(QString fileId, QString action) {
+void lmcMessageLog::fileOperation(QString fileId, QString action, FileMode mode) {
 	XmlMessage xmlMessage;
 
 	if(action.compare("fileaccept", Qt::CaseInsensitive) == 0) {
@@ -688,11 +721,15 @@ void lmcMessageLog::fileOperation(QString fileId, QString action) {
 		xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
 	}
 	else if(action.compare("filecancel", Qt::CaseInsensitive) == 0) {
-		XmlMessage fileData = receiveFileMap.value(fileId);
-		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
-		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
-		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Cancel]);
-		xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
+        XmlMessage fileData;
+        if(mode == FM_Receive)
+            fileData = receiveFileMap.value(fileId);
+        else
+            fileData = sendFileMap.value(fileId);
+        xmlMessage.addData(XN_MODE, FileModeNames[mode]);
+        xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+        xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Cancel]);
+        xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
 	}
 
 	emit messageSent(MT_LocalFile, &peerId, &xmlMessage);

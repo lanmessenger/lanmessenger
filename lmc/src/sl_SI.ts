@@ -933,6 +933,12 @@
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%1 se ne more zagnati, ker drug program uporablja port, ki je nastavljen za uporabo %2.</translation>
     </message>
+    <message>
+        <source>Preferences could not be imported from &apos;%1&apos;.
+
+File may not exist, or may not be compatible with this version of %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcHelpWindow</name>
@@ -1180,6 +1186,10 @@
     <message>
         <source>Select &amp;All</source>
         <translation>Izberi &amp;Vse</translation>
+    </message>
+    <message>
+        <source>Interrupted</source>
+        <translation>Prekinjeno</translation>
     </message>
 </context>
 <context>

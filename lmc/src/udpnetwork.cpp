@@ -67,6 +67,7 @@ void lmcUdpNetwork::stop(void) {
 		lmcTrace::write("Leaving multicast group " + multicastAddress.toString() + " on interface " +
 			multicastInterface.humanReadableName());
 		bool left = pUdpReceiver->leaveMulticastGroup(multicastAddress, multicastInterface);
+        pUdpReceiver->close();
 		lmcTrace::write((left ? "Success" : "Failed"));
 	}
 	isRunning = false;
@@ -81,6 +82,11 @@ void lmcUdpNetwork::setCrypto(lmcCrypto* pCrypto) {
 }
 
 void lmcUdpNetwork::sendBroadcast(QString* lpszData) {
+    if(!isRunning) {
+        lmcTrace::write("Warning: UDP server not running. Broadcast not sent");
+        return;
+    }
+
 	QByteArray datagram = lpszData->toUtf8();
 	sendDatagram(multicastAddress, datagram);
 	for(int index = 0; index < broadcastList.count(); index++) {

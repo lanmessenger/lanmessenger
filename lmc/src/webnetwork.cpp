@@ -23,6 +23,7 @@
 
 
 #include "webnetwork.h"
+#include <QDebug>
 
 const QString ErrorTypeNames[] = {"busy", "error"};
 
@@ -87,10 +88,7 @@ void lmcWebNetwork::sendMessage(const QUrl &url) {
 
 	active = true;
 
-	QNetworkRequest request;
-	request.setUrl(url);
-
-	QNetworkReply* reply = manager->get(QNetworkRequest(url));
+    QNetworkReply* reply = manager->get(QNetworkRequest(url));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
 			this, SLOT(slotError(QNetworkReply::NetworkError)));
 }

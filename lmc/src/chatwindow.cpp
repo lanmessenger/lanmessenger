@@ -226,6 +226,9 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 			sendFile(&data);
 		}
 		break;
+    case MT_Depart:
+        pMessageLog->abortPendingFileOperations();
+        break;
 	default:
 		break;
 	}
@@ -337,14 +340,16 @@ void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
 	if(urls.isEmpty())
 		return;
 
-	QString fileName = urls.first().toLocalFile();
-	if(fileName.isEmpty())
-		return;
+    foreach(QUrl url, urls) {
+        QString fileName = url.toLocalFile();
+        if(fileName.isEmpty())
+            continue;
 
-	if(!QFile::exists(fileName))
-		return;
+        if(!QFile::exists(fileName))
+            continue;
 
-	sendFile(&fileName);
+        sendFile(&fileName);
+    }
 }
 
 void lmcChatWindow::btnFont_clicked(void) {
@@ -587,6 +592,12 @@ void lmcChatWindow::processFileOp(XmlMessage* pMessage) {
         break;
     case FO_Decline:
 		updateFileMessage(FM_Send, FO_Decline, fileId);
+        break;
+    case FO_Error:
+        updateFileMessage((FileMode)fileMode, FO_Error, fileId);
+        break;
+    case FO_Abort:
+        updateFileMessage((FileMode)fileMode, FO_Abort, fileId);
         break;
     default:
         break;

@@ -46,7 +46,7 @@ lmcNetwork::lmcNetwork(void) {
 	ipAddress = QString::null;
 	subnetMask = QString::null;
 	networkInterface = QNetworkInterface();
-	szInterfaceName = QString::null;
+    interfaceName = QString::null;
 	isConnected = false;
 	canReceive = false;
 }
@@ -60,7 +60,8 @@ void lmcNetwork::init(XmlMessage *pInitParams) {
 	pSettings = new lmcSettings();
 	isConnected = getIPAddress();
 
-	lmcTrace::write("IP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+    lmcTrace::write("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
+                    "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
 					"\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
 					"\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
@@ -99,13 +100,18 @@ void lmcNetwork::stop(void) {
 }
 
 QString lmcNetwork::physicalAddress(void) {
-	//	get the first active network interface
-	QNetworkInterface networkInterface;
+    if(networkInterface.isValid())
+        return networkInterface.hardwareAddress();
 
-	if(getNetworkInterface(&networkInterface))
-		return networkInterface.hardwareAddress();
+    return QString::null;
 
-	return QString::null;
+//	//	get the first active network interface
+//	QNetworkInterface networkInterface;
+
+//	if(getNetworkInterface(&networkInterface))
+//		return networkInterface.hardwareAddress();
+
+//	return QString::null;
 }
 
 void lmcNetwork::setLocalId(QString* lpszLocalId) {
@@ -149,10 +155,11 @@ void lmcNetwork::settingsChanged(void) {
 
 void lmcNetwork::timer_timeout(void) {
 	bool prev = isConnected;
-	isConnected = getIPAddress();
+    isConnected = getIPAddress(false);
 
 	if(prev != isConnected) {
-		lmcTrace::write("IP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+        lmcTrace::write("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
+            "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
 			"\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
 			"\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
@@ -167,7 +174,7 @@ void lmcNetwork::timer_timeout(void) {
 			pUdpNetwork->stop();
 			pTcpNetwork->stop();
 		}
-		emit connectionStateChanged();
+        emit connectionStateChanged();
 	}
 }
 
@@ -195,11 +202,12 @@ void lmcNetwork::web_receiveMessage(QString *lpszData) {
 	emit webMessageReceived(lpszData);
 }
 
-bool lmcNetwork::getIPAddress(void) {
+bool lmcNetwork::getIPAddress(bool verbose) {
 	// If an interface is already being used, get it. Ignore all others
+    networkInterface = QNetworkInterface::interfaceFromName(interfaceName);
 	if(networkInterface.isValid()) {
 		QNetworkAddressEntry addressEntry;
-		if(getIPAddress(&networkInterface, &addressEntry)) {
+        if(isInterfaceUp(&networkInterface) && getIPAddress(&networkInterface, &addressEntry)) {
 			ipAddress = addressEntry.ip().toString();
 			subnetMask = addressEntry.netmask().toString();
 			return true;
@@ -209,41 +217,46 @@ bool lmcNetwork::getIPAddress(void) {
 		return false;
 	}
 
+    // Currently, not using preferred connection, since using preferred connection is not
+    // working properly.
 	// Get the preferred interface name from settings if checking for the first time
-	if(szInterfaceName.isNull())
-		szInterfaceName = pSettings->value(IDS_CONNECTION, IDS_CONNECTION_VAL).toString();
+    //if(szInterfaceName.isNull())
+    //	szInterfaceName = pSettings->value(IDS_CONNECTION, IDS_CONNECTION_VAL).toString();
 
-	// Currently, hard coding usePreferred to False, since using preferred connection is not
-	// working properly.
 	//bool usePreferred = (szInterfaceName.compare(IDS_CONNECTION_VAL, Qt::CaseInsensitive) != 0);
 	bool usePreferred = false;
 
-	lmcTrace::write("Checking for active network interface...");
+    lmcTrace::write("Checking for active network interface...", verbose);
 
 	//	get a list of all network interfaces available in the system
 	QList<QNetworkInterface> allInterfaces = QNetworkInterface::allInterfaces();
+
+    bool activeFound = false;
 
 	//	return the preferred interface if it is active
 	for(int index = 0; index < allInterfaces.count(); index++) {
 		// Skip to the next interface if it is not the preferred one
 		// Checked only if searching for the preferred adapter
-		if(usePreferred && szInterfaceName.compare(allInterfaces[index].name()) != 0)
+        if(usePreferred && interfaceName.compare(allInterfaces[index].name()) != 0)
 			continue;
 
 		if(isInterfaceUp(&allInterfaces[index])) {
-			lmcTrace::write("Active network interface found: " + allInterfaces[index].humanReadableName());
+            activeFound = true;
+            lmcTrace::write("Active network interface found: " + allInterfaces[index].humanReadableName(),
+                verbose);
 			QNetworkAddressEntry addressEntry;
 			if(getIPAddress(&allInterfaces[index], &addressEntry)) {
 				ipAddress = addressEntry.ip().toString();
 				subnetMask = addressEntry.netmask().toString();
 				networkInterface = allInterfaces[index];
-				szInterfaceName = allInterfaces[index].name();
+                interfaceName = allInterfaces[index].name();
 				return true;
 			}
 		}
 	}
 
-	lmcTrace::write("Warning: No active network interface found");
+    lmcTrace::write(QString("Warning: ") + (activeFound ? "No IP address found" : "No active network interface found"),
+        verbose);
 	ipAddress = QString::null;
 	subnetMask = QString::null;
 	return false;
@@ -283,10 +296,10 @@ bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface) {
 	}
 
 	// Get the preferred interface name from settings if checking for the first time
-	if(szInterfaceName.isNull())
-		szInterfaceName = pSettings->value(IDS_CONNECTION, IDS_CONNECTION_VAL).toString();
+    if(interfaceName.isNull())
+        interfaceName = pSettings->value(IDS_CONNECTION, IDS_CONNECTION_VAL).toString();
 
-	QString szPreferred = szInterfaceName;
+    QString szPreferred = interfaceName;
 	// Currently, hard coding usePreferred to False, since using preferred connection is not
 	// working properly.
 	//bool usePreferred = (szPreferred.compare(IDS_CONNECTION_VAL, Qt::CaseInsensitive) != 0);
@@ -351,7 +364,7 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
 			if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv4Protocol) {
 				*pAddressEntry = addressEntries[index];
 				this->networkInterface = networkInterface;
-				this->szInterfaceName = networkInterface.name();
+                this->interfaceName = networkInterface.name();
 				//lmcTrace::write("IPv4 address found for network interface.");
 				return true;
 			}
@@ -361,7 +374,7 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
 			if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv6Protocol) {
 				*pAddressEntry = addressEntries[index];
 				this->networkInterface = networkInterface;
-				this->szInterfaceName = networkInterface.name();
+                this->interfaceName = networkInterface.name();
 				//lmcTrace::write("IPv6 address found for network interface.");
 				return true;
 			}

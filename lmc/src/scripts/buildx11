@@ -2,9 +2,11 @@
 
 if [ "$1" = "" ]; then
   echo "Error: Missing output folder path"
-  echo "Usage: custombuild /path/to/build/directory"
+  echo "Usage: buildx11 /path/to/build/directory"
   exit 1
 fi
+
+QTDIR=/usr/lib/i386-linux-gnu
 
 echo "Creating translation binaries..."
 if [ ! -d "$1/lang" ]; then
@@ -38,15 +40,23 @@ echo "Copying plugins..."
 if [ ! -d "$1/imageformats" ]; then
   mkdir $1/imageformats
 fi
-cp -v $QTDIR/plugins/imageformats/libqgif.so $1/imageformats/libqgif.so
-cp -v $QTDIR/plugins/imageformats/libqico.so $1/imageformats/libqico.so
-cp -v $QTDIR/plugins/imageformats/libqjpeg.so $1/imageformats/libqjpeg.so
-cp -v $QTDIR/plugins/imageformats/libqtiff.so $1/imageformats/libqtiff.so
+cp -v $QTDIR/qt4/plugins/imageformats/libqgif.so $1/imageformats/libqgif.so
+cp -v $QTDIR/qt4/plugins/imageformats/libqico.so $1/imageformats/libqico.so
+cp -v $QTDIR/qt4/plugins/imageformats/libqjpeg.so $1/imageformats/libqjpeg.so
+cp -v $QTDIR/qt4/plugins/imageformats/libqtiff.so $1/imageformats/libqtiff.so
 echo "Done."
 
 echo "Copying libraries..."
 cp -v ../../lmcapp/lib/liblmcapp.so.2 $1/liblmcapp.so.2
 cp -v -f ../../openssl/lib/libcrypto.so.1.0.0 $1/libcrypto.so.1.0.0
+cp -v -f ../../openssl/lib/libssl.so.1.0.0 $1/libssl.so.1.0.0
+echo "Done."
+
+echo "Copying launch scripts..."
+cp -v ./scripts/lan-messenger.sh $1/lan-messenger.sh
+cp -v ./scripts/whitelist $1/whitelist
+chmod 755 $1/lan-messenger.sh
+chmod 755 $1/whitelist
 echo "Done."
 
 exit 0

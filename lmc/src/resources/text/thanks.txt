@@ -11,11 +11,13 @@ Adli Amansouri - Arabic localization
 Andrei Moldovanu - Romanian localization
 Darko Vrsic - Slovenian localization
 Diego Ortiz - Spanish localization
+Francisco Davi Castello - Portuguese (Brazilian) localization
+Jhoseph Tusino - Italian localization
 Holger Gebhard - German localization
 Inanc Tanriover - Turkish localization
 Kim Chul-Hyun - Korean localization
 Krasen Borisov - Bulgarian localization
-Victor K H - Russian localization
+Victor Alekseevich Khokhlov - Russian localization
 
 
 Some of the images used were created by Mythique Design and used under the Creative Commons Public License.

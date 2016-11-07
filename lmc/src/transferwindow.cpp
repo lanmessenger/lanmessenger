@@ -189,14 +189,14 @@ void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, Xm
 			if(fileMode == FM_Send) {
 				//	sender has aborted due to error
 				view = ui.lvTransferList->item(id, FileView::TM_Send);
-				if(!view)
+                if(!view)
 					return;
 				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
 				view->state = FileView::TS_Abort;
 			} else {
 				//	receiver has aborted due to error
 				view = ui.lvTransferList->item(id, FileView::TM_Receive);
-				if(!view)
+                if(!view)
 					return;
 				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
 				view->state = FileView::TS_Abort;
@@ -206,14 +206,14 @@ void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, Xm
 			if(fileMode == FM_Send) {
 				//	sender has aborted due to error
 				view = ui.lvTransferList->item(id, FileView::TM_Receive);
-				if(!view)
+                if(!view)
 					return;
 				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
 				view->state = FileView::TS_Abort;
 			} else {
 				//	receiver has aborted due to error
 				view = ui.lvTransferList->item(id, FileView::TM_Send);
-				if(!view)
+                if(!view)
 					return;
 				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
 				view->state = FileView::TS_Abort;

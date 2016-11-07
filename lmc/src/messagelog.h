@@ -53,6 +53,7 @@ public:
 	void reloadMessageLog(void);
 	QString prepareMessageLogForSave(OutputFormat format = HtmlFormat);
 	void setAutoScroll(bool enable);
+    void abortPendingFileOperations(void);
 
 	QString localId;
 	QString peerId;
@@ -98,7 +99,7 @@ private:
 	QString getFileStatusMessage(FileMode mode, FileOp op);
 	QString getChatStateMessage(ChatState chatState);
 	QString getChatRoomMessage(GroupMsgOp op);
-	void fileOperation(QString fileId, QString action);
+    void fileOperation(QString fileId, QString action, FileMode mode = FM_Receive);
 	void decodeMessage(QString* lpszMessage, bool useDefaults = false);
 	void processMessageText(QString* lpszMessageText, bool useDefaults);
 	QString getTimeString(QDateTime* pTime);

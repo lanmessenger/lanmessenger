@@ -41,6 +41,7 @@ lmcMessaging::lmcMessaging(void) {
 	connect(pNetwork, SIGNAL(progressReceived(QString*, QString*)),
 		this, SLOT(receiveProgress(QString*, QString*)));
 	connect(pNetwork, SIGNAL(connectionStateChanged()), this, SLOT(network_connectionStateChanged()));
+    localUser = NULL;
 	userList.clear();
 	groupList.clear();
 	userGroupMap.clear();
@@ -57,9 +58,9 @@ void lmcMessaging::init(XmlMessage *pInitParams) {
 
 	pNetwork->init(pInitParams);
 
-	QString logonName = Helper::getLogonName();
-	QString szAddress = pNetwork->physicalAddress();
-	QString userId = createUserId(&szAddress, &logonName);
+    QString logonName = Helper::getLogonName();
+    QString szAddress = pNetwork->physicalAddress();
+    QString userId = createUserId(&szAddress, &logonName);
 
 	pNetwork->setLocalId(&userId);
 	
@@ -230,8 +231,16 @@ int lmcMessaging::userCount(void) {
 }
 
 void lmcMessaging::network_connectionStateChanged(void) {
-	if(isConnected())
+    if(isConnected()) {
 		localUser->address = pNetwork->ipAddress;
+        if(localUser->id.isNull()) {
+            QString logonName = Helper::getLogonName();
+            QString szAddress = pNetwork->physicalAddress();
+            QString userId = createUserId(&szAddress, &logonName);
+            localUser->id = userId;
+            pNetwork->setLocalId(&userId);
+        }
+    }
 	emit connectionStateChanged();
 }
 
@@ -242,9 +251,10 @@ void lmcMessaging::timer_timeout(void) {
 
 QString lmcMessaging::createUserId(QString* lpszAddress, QString* lpszUserName) {
 	QString userId = *lpszAddress;
-	userId.append(lpszUserName);
-	userId.remove(":");
-
+    if(!userId.isNull()) {
+        userId.append(lpszUserName);
+        userId.remove(":");
+    }
 	return userId;
 }
 

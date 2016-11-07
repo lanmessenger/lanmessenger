@@ -124,6 +124,8 @@ private:
 	qint64 milestone;
 	qint64 mile;
 	QTimer* timer;
+    int numTimeOuts;
+    qint64 lastPosition;
 };
 
 /****************************************************************************

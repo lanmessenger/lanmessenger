@@ -3,16 +3,16 @@
 IDI_MAIN_ICON   ICON    DISCARDABLE "lmc.ico"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION		1,2,3,0
-PRODUCTVERSION	1,2,3,0
+FILEVERSION	1,2,3,2
+PRODUCTVERSION	1,2,3,2
 FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
 #ifdef DEBUG
-FILEFLAGS		VER_DEBUG
+FILEFLAGS	VER_DEBUG
 #else
-FILEFLAGS		0x0L
+FILEFLAGS	0x0L
 #endif
-FILEOS			VOS__WINDOWS32
-FILETYPE		VFT_APP
+FILEOS          VOS__WINDOWS32
+FILETYPE	VFT_APP
 FILESUBTYPE     0x0L
 {
     BLOCK "StringFileInfo"
@@ -20,14 +20,14 @@ FILESUBTYPE     0x0L
         BLOCK "040904b0"
         {
             VALUE "Comments",         "\0"
-			VALUE "CompanyName",      "LAN Messenger\0"
+            VALUE "CompanyName",      "LAN Messenger\0"
             VALUE "FileDescription",  "LAN Messenger\0"
-			VALUE "FileVersion",      "1.2.30\0"
+            VALUE "FileVersion",      "1.2.32\0"
             VALUE "InternalName",     "lanmsngr\0"
-			VALUE "LegalCopyright",   "Copyright © 2010-2012 Qualia Digital Solutions.\0"
+            VALUE "LegalCopyright",   "Copyright © 2010-2012 Qualia Digital Solutions.\0"
             VALUE "OriginalFilename", "lmc.exe\0"
             VALUE "ProductName",      "LAN Messenger\0"
-			VALUE "ProductVersion",   "1.2.30\0"
+            VALUE "ProductVersion",   "1.2.32\0"
         }
     }
     BLOCK "VarFileInfo"
