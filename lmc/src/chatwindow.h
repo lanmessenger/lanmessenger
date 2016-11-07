@@ -34,24 +34,27 @@
 #include <QColorDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QWebFrame>
+#include <QWebElement>
 #include <qevent.h>
 #include "ui_chatwindow.h"
 #include "shared.h"
 #include "settings.h"
 #include "history.h"
+#include "messagelog.h"
 #include "toolbutton.h"
 #include "imagepickeraction.h"
 #include "soundplayer.h"
 #include "chatdefinitions.h"
+#include "chathelper.h"
 #include "stdlocation.h"
 #include "xmlmessage.h"
+#include "theme.h"
 
 class lmcChatWindow : public QWidget {
 	Q_OBJECT
 
 public:
-	enum OutputFormat{ HtmlFormat, TextFormat };
-
 	lmcChatWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
 	~lmcChatWindow(void);
 
@@ -61,8 +64,8 @@ public:
 	void connectionStateChanged(bool connected);
 	void settingsChanged(void);
 
-	QString localUserId;
-	QStringList remoteUserIds;
+	QString localId;
+	QHash<QString, QString> peerIds;
 	QString threadId;
 	bool groupMode;
 
@@ -74,6 +77,7 @@ signals:
 protected:
 	bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
+	void closeEvent(QCloseEvent* pEvent);
 	void dragEnterEvent(QDragEnterEvent* pEvent);
 	void dropEvent(QDropEvent* pEvent);
 
@@ -85,7 +89,8 @@ private slots:
 	void btnHistory_clicked(void);
 	void btnTransfers_clicked(void);
 	void smileyAction_triggered(void);
-	void anchorClicked(const QUrl& link);
+	void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+	void checkChatState(void);
 
 private:
 	void createSmileyMenu(void);
@@ -94,32 +99,24 @@ private:
 	void sendMessage(void);
 	void sendFile(QString* lpszFilePath);
 	void encodeMessage(QString* lpszMessage);
-	void decodeMessage(QString* lpszMessage);
     void processFileOp(XmlMessage* pMessage);
-	void updateMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QFont* pFont, QColor* pColor);
-	void updateMessageLog(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QFont* pFont, QColor* pColor);
-	void showInfoMessage(MessageType type, QString* lpszUserName, XmlMessage* pMessage);
-	void updateInfoMessage(int position, const QString szMessage);
-	void updateUserName(QString* lpszUserId, QString* lpszUserName);
+	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
+	void updateFileMessage(FileMode mode, FileOp op, QString fileId);
 	void showStatus(int flag, bool add);
-	QString prepareMessageLogForSave(OutputFormat format = HtmlFormat);
-	void fileOperation(QString id, QString action);
-	QString htmlHeader(void);
 	QString getWindowTitle(void);
-	void reloadMessageLog(void);
-	QString getFontStyle(QFont* pFont, QColor* pColor, bool size = false);
 	void setMessageFont(QFont& font);
+	void setChatState(ChatState newChatState);
 
-	QString localUserName;
-	QStringList remoteUserNames;
-	QStringList remoteUserStatuses;
-	QList<int> remoteUserAvatars;
+	QString peerId;
+	QString localName;
+	QHash<QString, QString> peerNames;
+	QHash<QString, QString> peerStatuses;
 	User* pLocalUser;
 	QString lastUserId;
 
 	Ui::ChatWindow ui;
 	lmcSettings* pSettings;
-	QToolBar *pToolBar;
+	lmcMessageLog* pMessageLog;
 	QAction* pFontAction;
 	QAction* pFontColorAction;
 	lmcToolButton* pbtnSmiley;
@@ -129,15 +126,16 @@ private:
 	QAction* pTransferAction;
 	QMenu* pSmileyMenu;
 	lmcImagePickerAction* pSmileyAction;
-	bool hasData;
-	int fontSizeVal;
 	int nSmiley;
 	bool bConnected;
 	int infoFlag;
 	bool showSmiley;
+	bool sendKeyMod;
 	lmcSoundPlayer* pSoundPlayer;
-	QMap<QString, XmlMessage> sendFileMap;
-	QMap<QString, XmlMessage> receiveFileMap;
+	QColor messageColor;
+	ChatState chatState;
+	qint64 keyStroke;
+	qint64 snapKeyStroke;
 };
 
 #endif // CHATWINDOW_H

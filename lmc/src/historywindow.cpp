@@ -44,6 +44,7 @@ lmcHistoryWindow::~lmcHistoryWindow() {
 
 void lmcHistoryWindow::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
+	ui.splitter->setStyleSheet("QSplitter::handle { image: url("IDR_HGRIP"); }");
 
 	pSettings = new lmcSettings();
 	restoreGeometry(pSettings->value(IDS_WINDOWHISTORY).toByteArray());
@@ -84,7 +85,7 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
 		qint64 offset = current->data(0, DataRole).toLongLong();
 		QString data = History::getMessage(offset);
 
-		ui.txtMessageLog->setHtml(data);
+		ui.wvMessageLog->setHtml(data);
 	}
 }
 
@@ -100,7 +101,7 @@ void lmcHistoryWindow::setUIText(void) {
 }
 
 void lmcHistoryWindow::displayList(void) {
-	ui.txtMessageLog->clear();
+	ui.wvMessageLog->setHtml("<html></html>");
 	ui.tvMsgList->clear();
 	msgList.clear();
 

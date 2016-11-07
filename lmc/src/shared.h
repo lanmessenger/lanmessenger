@@ -91,7 +91,7 @@ public:
 	static QString getOSName(void);
 	static QString escapeDelimiter(QString *lpszData);
 	static QString unescapeDelimiter(QString* lpszData);
-	static int compareVersions(QString& version1, QString& version2);
+	static int compareVersions(const QString& version1, const QString& version2);
 };
 
 #endif // SHARED_H

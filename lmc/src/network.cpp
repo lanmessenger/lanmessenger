@@ -27,6 +27,7 @@
 lmcNetwork::lmcNetwork(void) {
 	pUdpNetwork = new lmcUdpNetwork();
 	pTcpNetwork = new lmcTcpNetwork();
+	pWebNetwork = new lmcWebNetwork();
 	connect(pUdpNetwork, SIGNAL(broadcastReceived(DatagramHeader*, QString*)), 
 		this, SLOT(udp_receiveBroadcast(DatagramHeader*, QString*)));
 	connect(pTcpNetwork, SIGNAL(newConnection(QString*, QString*)),
@@ -37,6 +38,8 @@ lmcNetwork::lmcNetwork(void) {
 		this, SLOT(tcp_receiveMessage(DatagramHeader*, QString*)));
 	connect(pTcpNetwork, SIGNAL(progressReceived(QString*, QString*)),
 		this, SLOT(tcp_receiveProgress(QString*, QString*)));
+	connect(pWebNetwork, SIGNAL(messageReceived(QString*)),
+		this, SLOT(web_receiveMessage(QString*)));
 	pTimer = NULL;
 	pCrypto = new lmcCrypto();
 	ipAddress = QString::null;
@@ -135,6 +138,10 @@ void lmcNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* lpsz
 	pTcpNetwork->fileOperation(mode, lpszUserId, lpszData);
 }
 
+void lmcNetwork::sendWebMessage(QString *lpszUrl, QString *lpszData) {
+	pWebNetwork->sendMessage(lpszUrl, lpszData);
+}
+
 void lmcNetwork::settingsChanged(void) {
 	pUdpNetwork->settingsChanged();
 	pTcpNetwork->settingsChanged();
@@ -169,6 +176,10 @@ void lmcNetwork::tcp_receiveMessage(DatagramHeader* pHeader, QString* lpszData) 
 
 void lmcNetwork::tcp_receiveProgress(QString* lpszUserId, QString* lpszData) {
 	emit progressReceived(lpszUserId, lpszData);
+}
+
+void lmcNetwork::web_receiveMessage(QString *lpszData) {
+	emit webMessageReceived(lpszData);
 }
 
 bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface) {

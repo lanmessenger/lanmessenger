@@ -24,6 +24,7 @@
 
 #include "application.h"
 #include "lmc.h"
+#include "stdlocation.h"
 #include <QResource>
 #include <QMessageBox>
 
@@ -57,12 +58,22 @@ int showSwitches(void) {
 
 int main(int argc, char *argv[]) {
 	Application application(appId, argc, argv);
-	QDir::setCurrent(application.applicationDirPath());
-	QStringList libPaths;
-	libPaths.append(application.applicationDirPath());
-	QApplication::setLibraryPaths(libPaths);
-	QResource::registerResource("lmc.rcc");
-	QApplication::setWindowIcon(QIcon(IDR_APPICON));
+	QDir::setCurrent(QApplication::applicationDirPath());
+
+#ifdef Q_WS_MAC
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("Plugins");
+    QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+#else
+	QApplication::setLibraryPaths(QStringList(QApplication::applicationDirPath()));
+#endif
+	QResource::registerResource(StdLocation::resourceFile());
+
+	QApplication::setApplicationName(IDA_PRODUCT);
+	QApplication::setOrganizationName(IDA_COMPANY);
+    QApplication::setOrganizationDomain(IDA_DOMAIN);
+    QApplication::setWindowIcon(QIcon(IDR_APPICON));
 
 	QString messageList;
 	QString message;
@@ -80,7 +91,9 @@ int main(int argc, char *argv[]) {
 	if(application.sendMessage(messageList))
 		return 0;
 	
-	application.loadTranslations(application.applicationDirPath() + "/lang");
+	application.loadTranslations(StdLocation::resLangDir());
+	application.loadTranslations(StdLocation::sysLangDir());
+	application.loadTranslations(StdLocation::userLangDir());
 
 	lmcCore core;
 	core.init();

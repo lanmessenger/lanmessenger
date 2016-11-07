@@ -85,7 +85,11 @@ public:
 	User* getUser(QString* lpszUserId);
 	void sendBroadcast(MessageType type, XmlMessage* pMessage);
 	void sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+	void sendWebMessage(MessageType type, XmlMessage* pMessage);
 	void settingsChanged(void);
+	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
+	void updateGroupMap(QString oldGroup, QString newGroup);
+	void saveGroups(void);
 
 	User* localUser;
 	QList<User> userList;
@@ -99,6 +103,7 @@ signals:
 private slots:
 	void receiveBroadcast(DatagramHeader* pHeader, QString* lpszData);
 	void receiveMessage(DatagramHeader* pHeader, QString* lpszData);
+	void receiveWebMessage(QString* lpszData);
 	void newConnection(QString* lpszUserId, QString* lpszAddress);
 	void connectionLost(QString* lpszUserId);
 	void receiveProgress(QString* lpszUserId, QString* lpszData);
@@ -116,6 +121,7 @@ private:
 	void processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage);
 	void processMessage(MessageHeader* pHeader, XmlMessage* pMessage);
 	void processFile(MessageHeader* pHeader, XmlMessage* pMessage);
+	void processWebMessage(MessageHeader* pHeader, XmlMessage* pMessage);
 	bool addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar);
 	void updateUser(MessageType type, QString szUserId, QString szUserData);
 	void removeUser(QString szUserId);

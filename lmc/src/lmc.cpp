@@ -39,13 +39,17 @@ lmcCore::lmcCore(void) {
 	connect(pMainWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
 	connect(pMainWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
 	connect(pMainWindow, SIGNAL(showSettings()), this, SLOT(showSettings()));
-	connect(pMainWindow, SIGNAL(showHelp()), this, SLOT(showHelp()));
+	connect(pMainWindow, SIGNAL(showHelp(QRect*)), this, SLOT(showHelp(QRect*)));
+	connect(pMainWindow, SIGNAL(showUpdate(QRect*)), this, SLOT(showUpdate(QRect*)));
+	connect(pMainWindow, SIGNAL(groupUpdated(GroupOp, QVariant, QVariant)),
+			this, SLOT(updateGroup(GroupOp, QVariant, QVariant)));
 	chatWindows.clear();
 	pTransferWindow = NULL;
 	pHistoryWindow = NULL;
 	pSettingsDialog = NULL;
 	pUserInfoDialog = NULL;
 	pHelpWindow = NULL;
+	pUpdateWindow = NULL;
 	pTimer = NULL;
 }
 
@@ -55,9 +59,6 @@ lmcCore::~lmcCore(void) {
 void lmcCore::init(void) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
-
-	QApplication::setApplicationName(IDA_PRODUCT);
-	QApplication::setOrganizationName(IDA_COMPANY);
 
 	loadSettings();
 
@@ -156,6 +157,11 @@ void lmcCore::stop(void) {
 		delete pHelpWindow;
 	}
 
+	if(pUpdateWindow) {
+		pUpdateWindow->stop();
+		delete pUpdateWindow;
+	}
+
 	if(pTimer)
 		pTimer->stop();
 
@@ -183,7 +189,7 @@ void lmcCore::timer_timeout(void) {
 void lmcCore::startChat(QString* lpszUserId) {
 	//	return if a chat window is already open for this user
 	for(int index = 0; index < chatWindows.count(); index++)
-		if(!chatWindows[index]->groupMode && chatWindows[index]->remoteUserIds[0].compare(lpszUserId) == 0) {
+		if(!chatWindows[index]->groupMode && chatWindows[index]->peerIds.contains(*lpszUserId)) {
 			showChatWindow(chatWindows[index], true);
 			return;
 		}
@@ -203,6 +209,8 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 	case MT_GroupMessage:
 	case MT_Query:
 	case MT_Group:
+	case MT_ChatState:
+	case MT_Version:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Refresh:
@@ -316,7 +324,7 @@ void lmcCore::showHistory(void) {
 	if(pHistoryWindow->windowState().testFlag(Qt::WindowMinimized))
 		pHistoryWindow->setWindowState(pHistoryWindow->windowState() & ~Qt::WindowMinimized);
 	pHistoryWindow->setWindowState(pHistoryWindow->windowState() | Qt::WindowActive);
-	pHistoryWindow->raise();	// make main window the top most window of the application
+	pHistoryWindow->raise();	// make window the top most window of the application
 	pHistoryWindow->show();
 	pHistoryWindow->activateWindow();	// bring window to foreground
 }
@@ -332,9 +340,9 @@ void lmcCore::showSettings(void) {
 		settingsChanged();
 }
 
-void lmcCore::showHelp(void) {
+void lmcCore::showHelp(QRect* pRect) {
 	if(!pHelpWindow) {
-		pHelpWindow = new lmcHelpWindow();
+		pHelpWindow = new lmcHelpWindow(pRect);
 		pHelpWindow->init();
 	}
 
@@ -342,9 +350,26 @@ void lmcCore::showHelp(void) {
 	if(pHelpWindow->windowState().testFlag(Qt::WindowMinimized))
 		pHelpWindow->setWindowState(pHelpWindow->windowState() & ~Qt::WindowMinimized);
 	pHelpWindow->setWindowState(pHelpWindow->windowState() | Qt::WindowActive);
-	pHelpWindow->raise();	// make main window the top most window of the application
+	pHelpWindow->raise();	// make window the top most window of the application
 	pHelpWindow->show();
 	pHelpWindow->activateWindow();	// bring window to foreground
+}
+
+void lmcCore::showUpdate(QRect* pRect) {
+	if(!pUpdateWindow) {
+		pUpdateWindow = new lmcUpdateWindow(pRect);
+		connect(pUpdateWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
+			this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
+		pUpdateWindow->init();
+	}
+
+	//	if window is minimized it, restore it to previous state
+	if(pUpdateWindow->windowState().testFlag(Qt::WindowMinimized))
+		pUpdateWindow->setWindowState(pUpdateWindow->windowState() & ~Qt::WindowMinimized);
+	pUpdateWindow->setWindowState(pUpdateWindow->windowState() | Qt::WindowActive);
+	pUpdateWindow->raise();	// make window the top most window of the application
+	pUpdateWindow->show();
+	pUpdateWindow->activateWindow();	// bring window to foreground
 }
 
 void lmcCore::historyCleared(void) {
@@ -361,9 +386,11 @@ void lmcCore::showTrayMessage(TrayMessageType type, QString szMessage, QString s
 	pMainWindow->showTrayMessage(type, szMessage, szTitle, icon);
 }
 
-void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
-	QString data = QString::null;
+void lmcCore::updateGroup(GroupOp op, QVariant value1, QVariant value2) {
+	pMessaging->updateGroup(op, value1, value2);
+}
 
+void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	switch(type) {
 	case MT_Announce:
 		pMainWindow->addUser(pMessaging->getUser(lpszUserId));
@@ -394,9 +421,14 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 		showUserInfo(pMessage);
 		break;
 	case MT_ChatState:
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_File:
         processFile(type, lpszUserId, pMessage);
+		break;
+	case MT_Version:
+	case MT_WebFailed:
+		pUpdateWindow->receiveMessage(type, lpszUserId, pMessage);
 		break;
     default:
         break;
@@ -436,12 +468,12 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 		case MT_Status:
 		case MT_UserName:
 			for(int index = 0; index < chatWindows.count(); index++)
-				if(chatWindows[index]->remoteUserIds.contains(*lpszUserId))
+				if(chatWindows[index]->peerIds.contains(*lpszUserId))
 					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);		
 			break;
 		default:
 			for(int index = 0; index < chatWindows.count(); index++) {
-				if(chatWindows[index]->remoteUserIds.contains(*lpszUserId) && chatWindows[index]->threadId == threadId) {
+				if(chatWindows[index]->peerIds.contains(*lpszUserId) && chatWindows[index]->threadId == threadId) {
 					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 					if(needsNotice)
 						showChatWindow(chatWindows[index], messageTop, needsNotice);
@@ -453,7 +485,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 		}
 	}
 
-	//	create a new window if no chat window with this user exists, and also the
+	//	create a new window if no chat window with this user exists and the
 	//	incoming message is of type that needs notice
 	if(!windowExists && needsNotice) {
 		createChatWindow(lpszUserId);

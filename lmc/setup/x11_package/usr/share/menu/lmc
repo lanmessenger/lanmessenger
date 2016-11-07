@@ -1,6 +1,0 @@
-?package(lmc):needs="x11" \
-  section="Applications/Network/Communication" \
-  hints="InstantMessaging" \
-  title="LAN Messenger" \
-  command="/usr/bin/lmc" \
-  icon="/usr/share/pixmaps/lmc.xpm"

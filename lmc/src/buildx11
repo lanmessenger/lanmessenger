@@ -1,0 +1,43 @@
+#!/bin/sh
+
+if [ "$1" = "" ]; then
+  echo "Error: Missing output folder path"
+  echo "Usage: custombuild /path/to/build/directory"
+  exit 1
+fi
+
+echo "Creating translation binaries..."
+if [ ! -d "$1/lang" ]; then
+  mkdir $1/lang
+fi
+for file in *.ts; do
+  basename=`basename "$file" .ts`
+  lrelease "$file" -qm "$1/lang/$basename.qm"
+done
+echo "Done."
+
+echo "Building resource binary..."
+rcc -binary resource.qrc -o $1/lmc.rcc
+echo "Done."
+
+if [ ! -d "$1/themes" ]; then
+  mkdir $1/themes
+fi
+
+cp -v ./resources/text/license.txt $1/COPYING
+
+echo "Copying sound files..."
+cp -v -r ./resources/sounds $1
+echo "Done."
+
+echo "Copying plugins..."
+if [ ! -d "$1/imageformats" ]; then
+  mkdir $1/imageformats
+fi
+cp -v /usr/lib/i386-linux-gnu/qt4/plugins/imageformats/libqgif.so $1/imageformats/libqgif.so
+cp -v /usr/lib/i386-linux-gnu/qt4/plugins/imageformats/libqico.so $1/imageformats/libqico.so
+cp -v /usr/lib/i386-linux-gnu/qt4/plugins/imageformats/libqjpeg.so $1/imageformats/libqjpeg.so
+cp -v /usr/lib/i386-linux-gnu/qt4/plugins/imageformats/libqtiff.so $1/imageformats/libqtiff.so
+echo "Done."
+
+exit 0

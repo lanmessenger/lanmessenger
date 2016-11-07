@@ -35,6 +35,7 @@
 #include "imagepickeraction.h"
 #include "toolbutton.h"
 #include "chatdefinitions.h"
+#include "chathelper.h"
 #include "xmlmessage.h"
 
 class lmcBroadcastWindow : public QWidget
@@ -57,6 +58,7 @@ signals:
 protected:
 	bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
+	void closeEvent(QCloseEvent* pEvent);
 
 private slots:
 	void btnFontSize_clicked(void);
@@ -65,6 +67,7 @@ private slots:
 	void btnSelectAll_clicked(void);
 	void btnSelectNone_clicked(void);
 	void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
+	void btnSend_clicked(void);
 
 private:
 	void createToolBar(void);
@@ -83,6 +86,7 @@ private:
 	bool bConnected;
 	int infoFlag;
 	bool showSmiley;
+	bool sendKeyMod;
 	bool parentToggling;
 	bool childToggling;
 	QActionGroup* pFontGroup;

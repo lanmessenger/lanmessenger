@@ -72,11 +72,8 @@ void lmcUserInfoDialog::setUIText(void) {
 	QString fileName = "avt_" + userInfo.data(XN_USERID) + ".png";
 	QString filePath = cacheDir.absoluteFilePath(fileName);
 	//	if image not found, use the default avatar image for this user
-	if(!QFile::exists(filePath)) {
-		QPixmap avatar(AVT_DEFAULT);
-		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
-		avatar.save(filePath);
-	}
+	if(!QFile::exists(filePath))
+		filePath = AVT_DEFAULT;
 	ui.lblAvatar->setPixmap(QPixmap(filePath));
 	ui.lblUserName->setText(userInfo.data(XN_NAME));
 	ui.lblStatus->setText(lmcStrings::statusDesc()[Helper::statusIndexFromCode(userInfo.data(XN_STATUS))]);

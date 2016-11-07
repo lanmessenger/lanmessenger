@@ -34,6 +34,9 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+	pMessageLog = new lmcMessageLog(ui.fraMessageLog);
+	ui.logLayout->addWidget(pMessageLog);
+
 	connect(ui.lvCategories, SIGNAL(currentRowChanged(int)), this, SLOT(lvCategories_currentRowChanged(int)));
 	connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOk_clicked()));
 	connect(ui.chkMessageTime, SIGNAL(toggled(bool)), this, SLOT(chkMessageTime_toggled(bool)));
@@ -48,6 +51,7 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.btnFont, SIGNAL(clicked()), this, SLOT(btnFont_clicked()));
 	connect(ui.btnColor, SIGNAL(clicked()), this, SLOT(btnColor_clicked()));
 	connect(ui.btnReset, SIGNAL(clicked()), this, SLOT(btnReset_clicked()));
+	connect(ui.cboTheme, SIGNAL(currentIndexChanged(int)), this, SLOT(cboTheme_currentIndexChanged(int)));
 
 	QMap<QString, QString> languages;
 	//	Loop through available languages and add them to a map. This ensures that
@@ -71,6 +75,10 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 		pListItem->setCheckState(Qt::Checked);
 	}
 
+	Themes themes = lmcTheme::availableThemes();
+	for(int index = 0; index < themes.count(); index++)
+		ui.cboTheme->addItem(themes.at(index).name, themes.at(index).path);
+
 	fontSize = 0;
 	font = QApplication::font();
 	color = QApplication::palette().text().color();
@@ -92,6 +100,8 @@ void lmcSettingsDialog::init(void) {
 	ui.lvCategories->item(4)->setIcon(QIcon(QPixmap(IDR_ALERTSET, "PNG")));
 	ui.lvCategories->item(5)->setIcon(QIcon(QPixmap(IDR_NETWORKSET, "PNG")));
 	ui.lvCategories->item(6)->setIcon(QIcon(QPixmap(IDR_TRANSFERSET, "PNG")));
+	ui.lvCategories->item(7)->setIcon(QIcon(QPixmap(IDR_THEMESET, "PNG")));
+	ui.lvCategories->item(8)->setIcon(QIcon(QPixmap(IDR_HOTKEYSET, "PNG")));
 
 	pPortValidator = new QIntValidator(1, 65535, this);
 	ui.txtUDPPort->setValidator(pPortValidator);
@@ -201,6 +211,52 @@ void lmcSettingsDialog::btnReset_clicked(void) {
 	}
 }
 
+void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
+	QString themePath = ui.cboTheme->itemData(index, Qt::UserRole).toString();
+
+	pMessageLog->fontSizeVal = FS_SMALL;
+	pMessageLog->localId = "Myself";
+	pMessageLog->messageTime = true;
+	pMessageLog->initMessageLog(themePath);
+
+	XmlMessage msg;
+	msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+	msg.addData(XN_FONT, QFont().toString());
+	msg.addData(XN_COLOR, QColor::fromRgb(96, 96, 96).name());
+
+	QString userId = "Jack";
+	QString userName = "Jack";
+
+	msg.addData(XN_MESSAGE, "Hello, this is an incoming message.");
+	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+
+	msg.removeData(XN_MESSAGE);
+	msg.addData(XN_MESSAGE, "Hello, this is a consecutive incoming message.");
+	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+
+	msg.removeData(XN_MESSAGE);
+	msg.addData(XN_BROADCAST, "This is a broadcast message!");
+	pMessageLog->appendMessageLog(MT_Broadcast, &userId, &userName, &msg, true);
+
+	userId = "Myself";
+	userName = "Myself";
+
+	msg.removeData(XN_BROADCAST);
+	msg.addData(XN_MESSAGE, "Hi, this is an outgoing message.");
+	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+
+	msg.removeData(XN_MESSAGE);
+	msg.addData(XN_MESSAGE, "Hi, this is a consecutive outgoing message.");
+	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+
+	userId = "Jack";
+	userName = "Jack";
+
+	msg.removeData(XN_MESSAGE);
+	msg.addData(XN_MESSAGE, "This is another incoming message.");
+	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+}
+
 void lmcSettingsDialog::setUIText(void) {
 	ui.retranslateUi(this);
 
@@ -306,6 +362,18 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.rdbFileTop->setChecked(pSettings->value(IDS_FILETOP, IDS_FILETOP_VAL).toBool());
 	ui.rdbFileBottom->setChecked(!pSettings->value(IDS_FILETOP, IDS_FILETOP_VAL).toBool());
 	ui.txtFilePath->setText(StdLocation::fileStorageDir());
+
+	QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+	for(int index = 0; index < ui.cboTheme->count(); index ++) {
+		QString theme = ui.cboTheme->itemData(index, Qt::UserRole).toString();
+		if(themePath.compare(theme) == 0) {
+			ui.cboTheme->setCurrentIndex(index);
+			break;
+		}
+	}
+
+	ui.rdbEnter->setChecked(!pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
+	ui.rdbCtlEnter->setChecked(pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
 }
 
 void lmcSettingsDialog::saveSettings(void) {
@@ -360,6 +428,11 @@ void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_AUTOSHOWFILE, ui.chkAutoShowFile->isChecked());
 	pSettings->setValue(IDS_FILETOP, ui.rdbFileTop->isChecked());
 	pSettings->setValue(IDS_FILESTORAGEPATH, ui.txtFilePath->text());
+
+	QString themePath = ui.cboTheme->itemData(ui.cboTheme->currentIndex(), Qt::UserRole).toString();
+	pSettings->setValue(IDS_THEME, themePath);
+
+	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCtlEnter->isChecked());
 
 	pSettings->sync();
 }

@@ -1,0 +1,51 @@
+#!/bin/sh
+
+if [ "$1" = "" ]; then
+  echo "Error: Missing output folder path"
+  echo "Usage: custombuild /path/to/build/directory"
+  exit 1
+fi
+
+echo "Creating translation binaries..."
+if [ ! -d "$1/lang" ]; then
+  mkdir "$1/lang"
+fi
+for file in *.ts; do
+  basename=`basename "$file" .ts`
+  lrelease "$file" -qm "$1/lang/$basename.qm"
+done
+echo "Done."
+
+echo "Building resource binary..."
+rcc -binary resource.qrc -o "$1/lmc.rcc"
+echo "Done."
+
+if [ ! -d "$1/themes" ]; then
+  mkdir "$1/themes"
+fi
+
+cp -v ./resources/text/license.txt "$1/COPYING"
+
+echo "Copying sound files..."
+cp -v -r ./resources/sounds "$1"
+echo "Done."
+
+echo "Copying plugins..."
+if [ ! -d "$1/../Plugins/imageformats" ]; then
+  if [ ! -d "$1/../Plugins" ]; then
+    mkdir "$1/../Plugins"
+  fi
+  mkdir "$1/../Plugins/imageformats"
+fi
+cp -v /Developer/Applications/Qt/plugins/imageformats/libqgif.dylib "$1/../Plugins/imageformats/libqgif.dylib"
+cp -v /Developer/Applications/Qt/plugins/imageformats/libqico.dylib "$1/../Plugins/imageformats/libqico.dylib"
+cp -v /Developer/Applications/Qt/plugins/imageformats/libqjpeg.dylib "$1/../Plugins/imageformats/libqjpeg.dylib"
+cp -v /Developer/Applications/Qt/plugins/imageformats/libqtiff.dylib "$1/../Plugins/imageformats/libqtiff.dylib"
+echo "Done."
+
+echo "Copying libraries..."
+cp -v ../../lmcapp/lib/liblmcapp.1.dylib "$1/liblmcapp.1.dylib"
+install_name_tool -change liblmcapp.1.dylib @executable_path/liblmcapp.1.dylib "$1/LAN-Messenger"
+echo "Done."
+
+exit 0

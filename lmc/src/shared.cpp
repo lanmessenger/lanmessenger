@@ -69,7 +69,7 @@ QString Helper::getUuid(void) {
 }
 
 QString Helper::getLogonName(void) {
-#ifdef Q_WS_WIN	//	if platform is Windows
+#if defined Q_WS_WIN	//	if platform is Windows
 	TCHAR szUserName[UNLEN + 1];
 	DWORD nSize = sizeof(szUserName);
     GetUserName(szUserName, &nSize);
@@ -111,7 +111,37 @@ QString Helper::getOSName(void) {
 	case QSysInfo::WV_WINDOWS7:
 		osName = "Windows 7";
 		break;
+    default:
+        osName = "Windows";
+        break;
 	}
+#elif defined Q_WS_MAC
+    switch(QSysInfo::MacintoshVersion) {
+    case QSysInfo::MV_CHEETAH:
+        osName = "Mac OS X 10.0";
+        break;
+    case QSysInfo::MV_PUMA:
+        osName = "Mac OS X 10.1";
+        break;
+    case QSysInfo::MV_JAGUAR:
+        osName = "Mac OS X 10.2";
+        break;
+    case QSysInfo::MV_PANTHER:
+        osName = "Mac OS X 10.3";
+        break;
+    case QSysInfo::MV_TIGER:
+        osName = "Mac OS X 10.4";
+        break;
+    case QSysInfo::MV_LEOPARD:
+        osName = "Mac OS X 10.5";
+        break;
+    case QSysInfo::MV_SNOWLEOPARD:
+        osName = "Mac OS X 10.6";
+        break;
+    default:
+        osName = "Mac OS X";
+        break;
+    }
 #elif defined Q_WS_X11
 	osName = "Linux/X11";
 #endif
@@ -127,7 +157,11 @@ QString Helper::unescapeDelimiter(QString* lpszData) {
 	return lpszData->replace(DELIMITER_ESC, DELIMITER, Qt::CaseSensitive);
 }
 
-int Helper::compareVersions(QString& version1, QString& version2) {
+//	Returns:
+//	<0 if version 1 is older
+//	>0 if version 1 is newer
+//	0 if both versions are same
+int Helper::compareVersions(const QString& version1, const QString& version2) {
 	QStringList v1 = version1.split(".", QString::SkipEmptyParts);
 	QStringList v2 = version2.split(".", QString::SkipEmptyParts);
 

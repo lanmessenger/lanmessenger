@@ -1,0 +1,154 @@
+* {
+font-size: 9pt;
+}
+/* Ensure that our assumptions about the default browser colors are correct. */
+BODY { color: #000000; background-color: #FFFFFF; }
+BODY a:link { color: #0000FF; }
+BODY a:hover { color: #0000FF; }
+BODY a:active { color: #0000FF; }
+BODY a:visited { color: #800080; }
+
+BODY {
+  margin: 4px;
+}
+DIV#content {
+  font: 12px Arial;
+}
+DIV#insert {
+  display: none;
+}
+
+/* Two ways to do icons with these rules:
+   <img class='icon' src='%userIconPath%'>
+   <div class='icon'><div style='height:1px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="%userIconPath%")'></div></div>
+*/
+
+/* System messages */
+DIV.system {
+  padding-top: 4px;
+}
+DIV.system DIV.msg {
+  margin: 0px 0px 0px 0px;
+}
+DIV.system DIV.1st {
+  padding-top: 4px;
+}
+DIV.system DIV.Nth {
+  padding-top: 4px;
+}
+DIV.system SPAN.salutation {
+  color: rgb(119,119,119);
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.system .icon {
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+DIV.chat {
+  padding: 4px 2px;
+}
+DIV.chat .icon-o {
+  /*background-color: white;*/
+  border: 1px solid #6B2C29;
+  padding: 2px;
+  float: left;
+  margin: 0px 3px 0px 0px;
+  width:32px;
+  height:32px;
+}
+DIV.chat .icon-i {
+  /*background-color: white;*/
+  border: 1px solid #29416B;
+  padding: 2px;
+  float: left;
+  margin: 0px 3px 0px 0px;
+  width:32px;
+  height:32px;
+}
+DIV.chat SPAN.salutation-o {
+  padding-top: 4px;
+  width: 100%;
+  display:block;
+  border-top: 2px solid black;
+  font-weight: bold;
+}
+DIV.chat SPAN.salutation-i {
+  padding-top: 4px;
+  width: 100%;
+  display:block;
+  border-top: 2px solid black;
+  font-weight: bold;
+}
+DIV.chat DIV.Nth {
+  margin: 5px 0px 0px 0px;
+}
+DIV.out {
+  text-align: left;
+}
+DIV.in {
+  text-align: left;
+}
+
+/* Broadcast messages */
+DIV.public {
+  padding: 4px 2px;
+}
+DIV.public DIV.msg {
+  margin: 0px 0px 0px 0px;
+  font-size: 9pt;
+}
+DIV.public SPAN.salutation {
+  padding-top: 4px;
+  width: 100%;
+  display:block;
+  border-top: 2px solid black;
+}
+DIV.public .icon {
+  padding:4px;
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+/* File messages */
+DIV.request {
+  padding: 4px 2px;
+}
+DIV.request SPAN.salutation {
+  color: #606060;
+  font-weight: normal;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.details {
+  color: #0000FF;
+  display: block;
+  margin: 0px 0px 1px 24px;
+}
+DIV.request SPAN.links {
+  display: block;
+  margin: 0px 0px 1px 24px;
+}  
+DIV.request .icon {
+  float: left;
+  margin: 0px 3px 0px 0px;
+}
+
+SPAN.time {
+  color: rgb(119,119,119);
+  font-weight: normal;
+  margin: 0px;
+}
+DIV.clear {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+}
+
+DIV.break {
+  height: 1px;
+  margin: 3px 0px 0px 0px;
+  overflow: hidden;
+}

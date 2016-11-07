@@ -74,7 +74,9 @@ signals:
 	void showTransfers(void);
 	void showHistory(void);
 	void showSettings(void);
-	void showHelp(void);
+	void showHelp(QRect* pRect);
+	void showUpdate(QRect* pRect);
+	void groupUpdated(GroupOp op, QVariant value1, QVariant value2);
 
 protected:
 	void closeEvent(QCloseEvent* pEvent);
@@ -93,12 +95,14 @@ private slots:
 	void avatarBrowseAction_triggered(void);
 	void helpAction_triggered(void);
 	void homePageAction_triggered(void);
+	void updateAction_triggered(void);
 	void refreshAction_triggered(void);
 	void trayIcon_activated(QSystemTrayIcon::ActivationReason reason);
 	void trayMessage_clicked(void);
 	void tvUserList_itemActivated(QTreeWidgetItem* pItem, int column);
     void tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoint& pos);
 	void tvUserList_itemDragDropped(QTreeWidgetItem* pItem);
+	void tvUserList_currentItemChanged(QTreeWidgetItem* pCurrent, QTreeWidgetItem* pPrevious);
 	void groupAddAction_triggered(void);
 	void groupRenameAction_triggered(void);
 	void groupDeleteAction_triggered(void);
@@ -115,6 +119,7 @@ private:
 	void createAvatarMenu(void);
 	void createGroupMenu(void);
 	void createUserMenu(void);
+	void createToolBar(void);
 	void setUIText(void);
 	void showMinimizeMessage(void);
 	void initGroups(QList<QString>* pGroupList);
@@ -138,10 +143,12 @@ private:
 	QMenu* pAvatarMenu;
 	QMenu* pGroupMenu;
 	QMenu* pUserMenu;
+	QAction* toolChatAction;
+	QAction* toolFileAction;
+	QAction* toolBroadcastAction;
 	User* pLocalUser;
 	bool bConnected;
 	int nAvatar;
-	QList<QString>* pGroupList;
 	bool showSysTray;
 	bool showSysTrayMsg;
 	bool showMinimizeMsg;
@@ -162,6 +169,7 @@ private:
 	QAction* settingsAction;
 	QAction* helpAction;
 	QAction* onlineAction;
+	QAction* updateAction;
 	QAction* aboutAction;
 	QAction* trayShowAction;
 	QAction* trayStatusAction;

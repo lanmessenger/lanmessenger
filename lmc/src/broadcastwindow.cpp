@@ -40,6 +40,7 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget *parent) : QWidget(parent) {
 	connect(ui.btnSelectNone, SIGNAL(clicked()), this, SLOT(btnSelectNone_clicked()));
 	connect(ui.tvUserList, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
 		this, SLOT(tvUserList_itemChanged(QTreeWidgetItem*, int)));
+	connect(ui.btnSend, SIGNAL(clicked()), this, SLOT(btnSend_clicked()));
 
 	//	event filters for handling keyboard input
 	ui.txtMessage->installEventFilter(this);
@@ -59,6 +60,7 @@ void lmcBroadcastWindow::init(bool connected) {
 	createToolBar();
 
 	setWindowIcon(QIcon(IDR_APPICON));
+	ui.splitter->setStyleSheet("QSplitter::handle { image: url("IDR_HGRIP"); }");
 
 	ui.tvUserList->setIconSize(QSize(32, 32));
 	ui.tvUserList->header()->setMovable(false);
@@ -72,11 +74,13 @@ void lmcBroadcastWindow::init(bool connected) {
 	restoreGeometry(pSettings->value(IDS_WINDOWBROADCAST).toByteArray());
 	ui.splitter->restoreState(pSettings->value(IDS_SPLITTERBROADCAST).toByteArray());
 	showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
+	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
 	fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
 	pFontGroup->actions()[fontSizeVal]->setChecked(true);
 
 	//	show a message if not connected
 	bConnected = connected;
+	ui.btnSend->setEnabled(bConnected);
 	if(!bConnected)
 		showStatus(IT_Disconnected, true);
 
@@ -114,11 +118,13 @@ void lmcBroadcastWindow::show(QList<QTreeWidgetItem*>* pGroupList) {
 
 void lmcBroadcastWindow::connectionStateChanged(bool connected) {
 	bConnected = connected;
+	ui.btnSend->setEnabled(bConnected);
 	bConnected ? showStatus(IT_Disconnected, false) : showStatus(IT_Disconnected, true);
 }
 
 void lmcBroadcastWindow::settingsChanged(void) {
 	showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
+	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
 }
 
 //	this method receives keyboard events and check if Enter key or Escape key were pressed
@@ -127,12 +133,18 @@ bool lmcBroadcastWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
 	if(pEvent->type() == QEvent::KeyPress) {
 		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
 		if(pKeyEvent->key() == Qt::Key_Escape) {
-			ui.txtMessage->clear();
 			close();
 			return true;
 		} else if((pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) && pObject == ui.txtMessage) {
-			sendMessage();
-			return true;
+			bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
+			if(keyMod == sendKeyMod) {
+				sendMessage();
+				return true;
+			}
+			// The TextEdit widget does not insert new line when Ctrl+Enter is pressed
+			// So we insert a new line manually
+			if(keyMod)
+				ui.txtMessage->insertPlainText("\n");
 		}
 	}
 
@@ -149,6 +161,13 @@ void lmcBroadcastWindow::changeEvent(QEvent* pEvent) {
 	}
 
 	QWidget::changeEvent(pEvent);
+}
+
+void lmcBroadcastWindow::closeEvent(QCloseEvent* pEvent) {
+	ui.txtMessage->clear();
+	btnSelectNone_clicked();
+
+	QWidget::closeEvent(pEvent);
 }
 
 //	change the font size of the text box with toolbar button
@@ -214,6 +233,10 @@ void lmcBroadcastWindow::tvUserList_itemChanged(QTreeWidgetItem* item, int colum
 		parent->setCheckState(0, check);
 		childToggling = false;
 	}
+}
+
+void lmcBroadcastWindow::btnSend_clicked(void) {
+	sendMessage();
 }
 
 //	create toolbar and add buttons

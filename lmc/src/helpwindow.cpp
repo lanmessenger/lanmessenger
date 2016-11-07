@@ -25,10 +25,23 @@
 #include <QDesktopWidget>
 #include "helpwindow.h"
 
-lmcHelpWindow::lmcHelpWindow(QWidget *parent) : QWidget(parent) {
+lmcHelpWindow::lmcHelpWindow(QRect* pRect, QWidget *parent) : QWidget(parent) {
 	ui.setupUi(this);
-	QRect scr = QApplication::desktop()->screenGeometry();
-	move(scr.center() - rect().center());
+
+	move(pRect->center() - rect().center());
+	QRect screenRect = QApplication::desktop()->screenGeometry();
+	if(!screenRect.contains(geometry(), true)) {
+		QRect windowRect = geometry();
+		if(windowRect.right() > screenRect.right())
+			windowRect.translate(screenRect.right() - windowRect.right(), 0);
+		if(windowRect.left() < screenRect.left())
+			windowRect.translate(qAbs(windowRect.left() - screenRect.left()), 0);
+		if(windowRect.bottom() > screenRect.bottom())
+			windowRect.translate(0, screenRect.bottom() - windowRect.bottom());
+		if(windowRect.top() < screenRect.top())
+			windowRect.translate(0, qAbs(windowRect.top() - screenRect.top()));
+		setGeometry(windowRect);
+	}
 }
 
 lmcHelpWindow::~lmcHelpWindow() {

@@ -26,7 +26,7 @@
 #define XMLMESSAGE_H
 
 #include <QDomDocument>
-#include "shared.h"
+#include "definitions.h"
 
 #define XN_ROOT			APP_MARKER
 #define XN_HEAD			"head"
@@ -35,6 +35,7 @@
 #define XN_TO			"to"
 #define XN_MESSAGEID	"messageid"
 #define XN_TYPE			"type"
+#define XN_TIME			"time"
 #define XN_KEY			"key"
 #define XN_ADDRESS		"address"
 #define XN_USERID		"userid"
@@ -66,6 +67,8 @@
 #define XN_GROUP		"group"
 #define XN_FONT			"font"
 #define XN_COLOR		"color"
+#define XN_TEMPID		"tempid"
+#define XN_ERROR		"error"
 
 class XmlMessage : public QDomDocument
 {

@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-08-29T16:00:09
+# LAN Messenger Application project file
 #
 #-------------------------------------------------
 
@@ -45,4 +45,11 @@ unix:!symbian {
         target.path = /usr/local/lib
     }
     INSTALLS += target
+}
+
+CONFIG(debug, debug|release) {
+	DESTDIR = ../lib
+	win32: TARGET = $$join(TARGET,,,d)
+} else {
+	DESTDIR = ../lib
 }

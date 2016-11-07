@@ -32,6 +32,9 @@
 #define SL_TRANSFERHISTORY		"transfers.lst"
 #define SL_FILESTORAGEDIR		"Received Files"
 #define SL_CACHEDIR				"cache"
+#define SL_RESOURCE				"lmc.rcc"
+#define SL_LANGDIR				"lang"
+#define SL_THEMEDIR				"themes"
 
 class StdLocation {
 public:
@@ -52,6 +55,40 @@ public:
 	static QString cacheDir(void) {
 		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
 			QDesktopServices::DataLocation) + "/"SL_CACHEDIR);
+	}
+
+	static QString libDir(void) {
+		return QDir::toNativeSeparators(QDir::currentPath());
+	}
+
+	static QString resourceFile(void) {
+		return QDir::toNativeSeparators(QDir::current().absoluteFilePath(SL_RESOURCE));
+	}
+
+	static QString resLangDir(void) {
+		return ":/"SL_LANGDIR;
+	}
+
+	static QString sysLangDir(void) {
+		return QDir::toNativeSeparators(QDir::currentPath() + "/"SL_LANGDIR);
+	}
+
+	static QString userLangDir(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::DataLocation) + "/"SL_LANGDIR);
+	}
+
+	static QString resThemeDir(void) {
+		return ":/"SL_THEMEDIR;
+	}
+
+	static QString sysThemeDir(void) {
+		return QDir::toNativeSeparators(QDir::currentPath() + "/"SL_THEMEDIR);
+	}
+
+	static QString userThemeDir(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::DataLocation) + "/"SL_THEMEDIR);
 	}
 };
 

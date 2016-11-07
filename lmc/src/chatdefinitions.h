@@ -31,31 +31,6 @@ const int HTMLESC_COUNT = 4;
 const QString htmlSymbol[] = {"&", "\"", "<", ">"};
 const QString htmlEscape[] = {"&amp;", "&quot;", "&lt;", "&gt;"};
 
-const QString htmlLineHeader(
-	"<html>"\
-	"<head>"\
-	"<style type='text/css'>"\
-		"body {font-family:'Arial';}"\
-		"p{margin-top:0px;margin-bottom:0px;}"\
-		"a{font-size:9pt;}"\
-		"span.usr{font-size:9pt; font-weight:bold;}"\
-		"span.msg{margin-left:18px;}"\
-		"span.inf{font-size:9pt; color:rgb(96,96,96);}"\
-		"span.fil{font-size:9pt; color:rgb(0,0,232);}"\
-		"img.pic{float:left;}"\
-		"tr.inf{background-color:rgb(234,234,255);}"\
-		"tr.brd{background-color:rgb(248,252,214);}"\
-		"tr.cbk{background-color:rgb(234,255,254);}"\
-	"</style>"\
-	"</head>"\
-	"<body>");
-const QString htmlLineFooter("</body></html>");
-const QString htmlHeaderGap(htmlLineHeader + 
-	"<p><img width=1 height=8 src='' /></p><p><table width='100%' border='0' cellpadding='0' cellspacing='0'>");
-const QString htmlHeaderCont(htmlLineHeader + 
-	"<p><img width=1 height=2 src='' /></p><p><table width='100%' border='0' cellpadding='0' cellspacing='0'>");
-const QString htmlFooter("</table></p>" + htmlLineFooter);
-
 enum InfoType {
 	IT_Ok			= 0x00,
 	IT_Busy			= 0x01,
@@ -63,30 +38,27 @@ enum InfoType {
 	IT_Disconnected	= 0x04
 };
 
-class ChatHelper {
-public:
-	static void makeHtmlSafe(QString* lpszMessage) {
-		for(int index = 0; index < HTMLESC_COUNT; index++)
-			lpszMessage->replace(htmlSymbol[index], htmlEscape[index]);
-	}
+/****************************************************************************
+**	Chat state definitions
+**	The enum and the string array should always be synced
+****************************************************************************/
+enum ChatState {
+	CS_Blank = 0,
+	CS_Active,
+	CS_Composing,
+	CS_Paused,
+	CS_Inactive,
+	CS_Gone,
+	CS_Max
+};
 
-	static void encodeSmileys(QString* lpszMessage) {
-		//	replace all emoticon images with corresponding text code
-		for(int index = 0; index < SM_MAPCOUNT; index++) {
-			QString code = smileyCode[index];
-			makeHtmlSafe(&code);
-			lpszMessage->replace("<img src=\"" + smileyPic[index] + "\" />", code);
-		}
-	}
-
-	static void decodeSmileys(QString* lpszMessage) {
-		//	replace text emoticons with corresponding images
-		for(int index = 0; index < SM_MAPCOUNT; index++) {
-			QString code = smileyCode[index];
-			makeHtmlSafe(&code);
-			lpszMessage->replace(code, "<img src='" + smileyPic[index] + "' />", Qt::CaseInsensitive);
-		}
-	}
+const QString ChatStateNames[] = {
+	"",
+	"active",
+	"composing",
+	"paused",
+	"inactive",
+	"gone"
 };
 
 #endif // CHATDEFINITIONS_H

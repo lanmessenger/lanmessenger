@@ -34,7 +34,7 @@
 #define IDA_PRODUCT		"lmc"
 #define IDA_COMPANY		"lmc"
 #endif
-#define IDA_VERSION		"1.2.0"
+#define IDA_VERSION		"1.2.10"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
 						"and does not require a server.\n"\
 						"LAN Messenger works on essentially every popular desktop platform."
@@ -42,8 +42,12 @@
 #define IDA_CONTACT		"dilipvrk@gmail.com"
 #define IDA_DOMAIN		"http://lanmsngr.sourceforge.net"
 
-#ifdef Q_WS_WIN
-#define NULL			0
+#if defined Q_WS_WIN
+#define IDA_PLATFORM	"Windows"
+#elif defined Q_WS_MAC
+#define IDA_PLATFORM	"Macintosh"
+#elif defined Q_WS_X11
+#define IDA_PLATFORM	"Linux"
 #endif
 
 #define DELIMITER		"||"
@@ -96,7 +100,9 @@ enum MessageType {
 	MT_Info,
 	MT_ChatState,
 	MT_Group,
-	//	These are used for local communication between layers
+	MT_Version,
+	MT_WebFailed,
+	//	These are used only for local communication between layers
 	MT_LocalFile,
 	MT_LocalAvatar,
 	MT_Refresh,
@@ -119,13 +125,16 @@ const QString MessageTypeNames[] = {
 	"acknowledge",
 	"failed",
 	"error",
+	"oldversion",
 	"query",
 	"info",
-	"chatstate"
+	"chatstate",
 	"group",
-	//	These are used for local communication between layers
+	"version",
+	"webfailed",
+	//	These are used only for local communication between layers
 	"localfile",
-	"localavatar"
+	"localavatar",
 	"refresh"
 };
 
@@ -232,6 +241,15 @@ const QString QueryOpNames[] = {
 	"",
 	"get",
 	"result"
+};
+
+enum GroupOp {
+	GO_None = 0,
+	GO_New,
+	GO_Rename,
+	GO_Move,
+	GO_Delete,
+	GO_Max
 };
 
 enum TrayMessageType { TM_Connection, TM_Status, TM_Transfer, TM_Minimize, TM_Max };

@@ -36,6 +36,8 @@ lmcMainWindow::lmcMainWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
         this, SLOT(tvUserList_itemContextMenu(QTreeWidgetItem*, QPoint&)));
 	connect(ui.tvUserList, SIGNAL(itemDragDropped(QTreeWidgetItem*)),
 		this, SLOT(tvUserList_itemDragDropped(QTreeWidgetItem*)));
+	connect(ui.tvUserList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+		this, SLOT(tvUserList_currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
 	
 	pBroadcastWindow = NULL;
 	pAboutDialog = NULL;
@@ -50,6 +52,7 @@ void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool conn
 	this->pLocalUser = pLocalUser;
 
 	createMainMenu();
+	createToolBar();
 	createStatusMenu();
 	createAvatarMenu();
 
@@ -59,6 +62,9 @@ void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool conn
 
 	createGroupMenu();
 	createUserMenu();
+
+	ui.lblDividerTop->setBackgroundRole(QPalette::Highlight);
+	ui.lblDividerTop->setAutoFillBackground(true);
 
 	ui.tvUserList->setIconSize(QSize(32, 32));
 	ui.tvUserList->header()->setMovable(false);
@@ -82,7 +88,6 @@ void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool conn
 	settingsChanged(true);
 	setUIText();
 
-	this->pGroupList = pGroupList;
 	initGroups(pGroupList);
 }
 
@@ -125,6 +130,19 @@ void lmcMainWindow::stop(void) {
 		pBroadcastWindow->stop();
 
 	pTrayIcon->hide();
+
+	//	delete all temp files from cache
+	QDir cacheDir(StdLocation::cacheDir());
+	if(!cacheDir.exists())
+		return;
+	QString filter = "*.tmp";
+	QDir::Filters filters = QDir::Files | QDir::Readable;
+	QDir::SortFlags sort = QDir::Name;
+	QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
+	foreach (QString fileName, fileNames) {
+		QString filePath = cacheDir.absoluteFilePath(fileName);
+		QFile::remove(filePath);
+	}
 }
 
 void lmcMainWindow::addUser(User* pUser) {
@@ -189,13 +207,13 @@ void lmcMainWindow::removeUser(QString* lpszUserId) {
 }
 
 void lmcMainWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
-    QStringList fileData;
-	QString data;
 	QDir cacheDir;
 	QString fileName;
 	QString oldName;
+	QString tempName;
 	QString filePath;
 	QString oldPath;
+	QString tempPath;
 	XmlMessage reply;
 	int fileOp;
 	int fileMode;
@@ -225,7 +243,10 @@ void lmcMainWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 			oldPath = cacheDir.absoluteFilePath(oldName);
 			QFile::rename(oldPath, filePath);
 			setUserAvatar(lpszUserId);
-			sendMessage(MT_LocalAvatar, lpszUserId, (QString*)NULL);
+			tempName = Helper::getUuid() + ".tmp";
+			tempPath = cacheDir.absoluteFilePath(tempName);
+			QFile::copy(filePath, tempPath);
+			sendMessage(MT_LocalAvatar, lpszUserId, &tempPath);
 		}
 		break;
 	default:
@@ -405,11 +426,17 @@ void lmcMainWindow::refreshAction_triggered(void) {
 }
 
 void lmcMainWindow::helpAction_triggered(void) {
-	emit showHelp();
+	QRect rect = geometry();
+	emit showHelp(&rect);
 }
 
 void lmcMainWindow::homePageAction_triggered(void) {
 	QDesktopServices::openUrl(QUrl(IDA_DOMAIN));
+}
+
+void lmcMainWindow::updateAction_triggered(void) {
+	QRect rect = geometry();
+	emit showUpdate(&rect);
 }
 
 void lmcMainWindow::trayIcon_activated(QSystemTrayIcon::ActivationReason reason) {
@@ -477,10 +504,17 @@ void lmcMainWindow::tvUserList_itemDragDropped(QTreeWidgetItem* pItem) {
 		pGroupItem->sortChildren(0, Qt::AscendingOrder);
     }
 	else if(dynamic_cast<lmcUserTreeWidgetGroupItem*>(pItem)) {
-		pGroupList->clear();
-		for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++)
-			pGroupList->append(ui.tvUserList->topLevelItem(index)->data(0, IdRole).toString());
+		int index = ui.tvUserList->indexOfTopLevelItem(pItem);
+		QString groupName = pItem->data(0, IdRole).toString();
+		emit groupUpdated(GO_Move, groupName, index);
 	}
+}
+
+void lmcMainWindow::tvUserList_currentItemChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
+	Q_UNUSED(pPrevious);
+	bool bEnabled = (pCurrent && pCurrent->data(0, TypeRole).toString().compare("User") == 0);
+	toolChatAction->setEnabled(bEnabled);
+	toolFileAction->setEnabled(bEnabled);
 }
 
 void lmcMainWindow::groupAddAction_triggered(void) {
@@ -489,53 +523,46 @@ void lmcMainWindow::groupAddAction_triggered(void) {
 	if(groupName.isNull())
 		return;
 
-	if(pGroupList->contains(groupName)) {
+	if(getGroupItem(&groupName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
 		QMessageBox::warning(this, "", msg.arg(groupName));
 		return;
 	}
 	
-	pGroupList->append(groupName);
+	emit groupUpdated(GO_New, groupName, QVariant());
 	lmcUserTreeWidgetGroupItem *pItem = new lmcUserTreeWidgetGroupItem();
 	pItem->setData(0, IdRole, groupName);
 	pItem->setData(0, TypeRole, "Group");
 	pItem->setText(0, groupName);
 	pItem->setSizeHint(0, QSize(0, 20));
 	ui.tvUserList->addTopLevelItem(pItem);
+	//	set the item as expanded after adding it to the treeview, else wont work
+	pItem->setExpanded(true);
 }
 
 void lmcMainWindow::groupRenameAction_triggered(void) {
-	QAction* pAction = (QAction*)sender();
-
-	QString oldName = pAction->data().toString();
+	QTreeWidgetItem* pGroupItem = ui.tvUserList->currentItem();
+	QString oldName = pGroupItem->data(0, IdRole).toString();
 	QString newName = QInputDialog::getText(this, tr("Rename Group"), 
 		tr("Enter a new name for the group"), QLineEdit::Normal, oldName);
 
 	if(newName.isNull() || newName.compare(oldName) == 0)
 		return;
 
-	if(pGroupList->contains(newName)) {
+	if(getGroupItem(&newName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
 		QMessageBox::warning(this, "", msg.arg(newName));
 		return;
 	}
 
-	pGroupList->replace(pGroupList->indexOf(oldName), newName);
-	for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++) {
-		QTreeWidgetItem* pItem = ui.tvUserList->topLevelItem(index);
-		if(pItem->data(0, IdRole).toString().compare(oldName) == 0) {
-			pItem->setData(0, IdRole, newName);
-			pItem->setText(0, newName);
-			break;
-		}
-	}
+	emit groupUpdated(GO_Rename, oldName, newName);
+	pGroupItem->setData(0, IdRole, newName);
+	pGroupItem->setText(0, newName);
 }
 
 void lmcMainWindow::groupDeleteAction_triggered(void) {
-	QAction* pAction = (QAction*)sender();
-
-	QString groupName = pAction->data().toString();
-	QTreeWidgetItem* pGroupItem = getGroupItem(&groupName);
+	QTreeWidgetItem* pGroupItem = ui.tvUserList->currentItem();
+	QString groupName = pGroupItem->data(0, IdRole).toString();
 	QString defGroupName = GRP_DEFAULT;
 	QTreeWidgetItem* pDefGroupItem = getGroupItem(&defGroupName);
 	while(pGroupItem->childCount()) {
@@ -547,19 +574,14 @@ void lmcMainWindow::groupDeleteAction_triggered(void) {
         sendMessage(MT_Group, &szUserId, &szMessage);
 	}
 	pDefGroupItem->sortChildren(0, Qt::AscendingOrder);
+
+	emit groupUpdated(GO_Delete, groupName, QVariant());
 	ui.tvUserList->takeTopLevelItem(ui.tvUserList->indexOfTopLevelItem(pGroupItem));
-	pGroupList->removeOne(groupName);
 }
 
 void lmcMainWindow::userConversationAction_triggered(void) {
-	QAction* pAction = (QAction*)sender();
-
-	QString userId = pAction->data().toString();
-	QTreeWidgetItem* pItem = getUserItem(&userId);
-    if(pItem->data(0, TypeRole).toString().compare("User") == 0) {
-        QString szUserId = pItem->data(0, IdRole).toString();
-        emit chatStarting(&szUserId);
-    }
+	QString userId = ui.tvUserList->currentItem()->data(0, IdRole).toString();
+	emit chatStarting(&userId);
 }
 
 void lmcMainWindow::userBroadcastAction_triggered(void) {
@@ -581,27 +603,19 @@ void lmcMainWindow::userBroadcastAction_triggered(void) {
 }
 
 void lmcMainWindow::userFileAction_triggered(void) {
-	QAction* pAction = (QAction*)sender();
-
-	QString userId = pAction->data().toString();
-	QTreeWidgetItem* pItem = getUserItem(&userId);
-	if(pItem->data(0, TypeRole).toString().compare("User") == 0) {
-		QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
-		QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
-		if(!fileName.isEmpty()) {
-			pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
-            QString szUserId = pItem->data(0, IdRole).toString();
-			sendMessage(MT_LocalFile, &szUserId, &fileName);
-		}
+	QString userId = ui.tvUserList->currentItem()->data(0, IdRole).toString();
+	QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
+	QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
+	if(!fileName.isEmpty()) {
+		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
+		sendMessage(MT_LocalFile, &userId, &fileName);
 	}
 }
 
 void lmcMainWindow::userInfoAction_triggered(void) {
-	QAction* pAction = (QAction*)sender();
-
-    QString szUserId = pAction->data().toString();
-    QString szMessage;
-    sendMessage(MT_Query, &szUserId, &szMessage);
+	QString userId = ui.tvUserList->currentItem()->data(0, IdRole).toString();
+	QString message;
+	sendMessage(MT_Query, &userId, &message);
 }
 
 void lmcMainWindow::createMainMenu(void) {
@@ -627,6 +641,7 @@ void lmcMainWindow::createMainMenu(void) {
 	QString text = "%1 &online";
 	onlineAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_WEB, "PNG")), text.arg(lmcStrings::appName()), 
 		this, SLOT(homePageAction_triggered()));
+	updateAction = pHelpMenu->addAction("Check for &Updates", this, SLOT(updateAction_triggered()));
 	aboutAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_INFO, "PNG")), "&About", this, SLOT(trayAboutAction_triggered()));
 
 	layout()->setMenuBar(pMainMenu);
@@ -708,11 +723,35 @@ void lmcMainWindow::createUserMenu(void) {
 	pUserMenu = new QMenu(this);
 
 	userChatAction = pUserMenu->addAction("&Conversation", this, SLOT(userConversationAction_triggered()));
-	userBroadcastAction = pUserMenu->addAction("Send &Broadcast Message", this, SLOT(userBroadcastAction_triggered()));
-	pUserMenu->addSeparator();
 	userFileAction = pUserMenu->addAction("Send &File", this, SLOT(userFileAction_triggered()));
 	pUserMenu->addSeparator();
+	userBroadcastAction = pUserMenu->addAction("Send &Broadcast Message", this, SLOT(userBroadcastAction_triggered()));
+	pUserMenu->addSeparator();
 	userInfoAction = pUserMenu->addAction("Get &Information", this, SLOT(userInfoAction_triggered()));
+}
+
+void lmcMainWindow::createToolBar(void) {
+	QToolBar* pToolBar = new QToolBar(ui.wgtToolBar);
+	pToolBar->setIconSize(QSize(40, 20));
+	ui.toolBarLayout->addWidget(pToolBar);
+
+	pToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	toolChatAction = pToolBar->addAction(QIcon(QPixmap(IDR_CHAT, "PNG")), "&Conversation",
+		this, SLOT(userConversationAction_triggered()));
+	toolChatAction->setEnabled(false);
+	toolFileAction = pToolBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send &File",
+		this, SLOT(userFileAction_triggered()));
+	toolFileAction->setEnabled(false);
+	pToolBar->addSeparator();
+	toolBroadcastAction = pToolBar->addAction(QIcon(QPixmap(IDR_BROADCASTMSG, "PNG")), "Send &Broadcast Message",
+		this, SLOT(userBroadcastAction_triggered()));
+
+	QToolButton* pButton = (QToolButton*)pToolBar->widgetForAction(toolChatAction);
+	pButton->setAutoRaise(false);
+	pButton = (QToolButton*)pToolBar->widgetForAction(toolFileAction);
+	pButton->setAutoRaise(false);
+	pButton = (QToolButton*)pToolBar->widgetForAction(toolBroadcastAction);
+	pButton->setAutoRaise(false);
 }
 
 void lmcMainWindow::setUIText(void) {
@@ -731,6 +770,7 @@ void lmcMainWindow::setUIText(void) {
 	helpAction->setText(tr("&Help"));
 	QString text = tr("%1 &online");
 	onlineAction->setText(text.arg(lmcStrings::appName()));
+	updateAction->setText(tr("Check for &Updates..."));
 	aboutAction->setText(tr("&About"));
 	text = tr("&Show %1");
 	trayShowAction->setText(text.arg(lmcStrings::appName()));
@@ -748,6 +788,9 @@ void lmcMainWindow::setUIText(void) {
 	userFileAction->setText(tr("Send &File"));
 	userInfoAction->setText(tr("Get &Information"));
 	avatarBrowseAction->setText(tr("&Browse for more pictures..."));
+	toolChatAction->setText(tr("&Conversation"));
+	toolFileAction->setText(tr("Send &File"));
+	toolBroadcastAction->setText(tr("Send &Broadcast Message"));
 
 	for(int index = 0; index < statusGroup->actions().count(); index++)
 		statusGroup->actions()[index]->setText(lmcStrings::statusDesc()[index]);
@@ -776,7 +819,9 @@ void lmcMainWindow::initGroups(QList<QString>* pGroupList) {
 	}
 
 	ui.tvUserList->expandAll();
-	int size = pSettings->beginReadArray(IDS_GROUPEXPHDR);
+	// size will be either number of items in group expansion list or number of top level items in
+	// treeview control, whichever is less. This is to  eliminate arary out of bounds error.
+	int size = qMin(pSettings->beginReadArray(IDS_GROUPEXPHDR), ui.tvUserList->topLevelItemCount());
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
 		ui.tvUserList->topLevelItem(index)->setExpanded(pSettings->value(IDS_GROUP).toBool());
@@ -802,7 +847,7 @@ void lmcMainWindow::setAvatar(QString fileName) {
 	if(!fileName.isEmpty()) {
 		//	save a backup of the image in the cache folder
 		avatar = QPixmap(fileName);
-		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
+		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 		avatar.save(filePath);
 		nAvatar = -1;
 	} else {
@@ -825,7 +870,13 @@ void lmcMainWindow::setAvatar(QString fileName) {
 	ui.btnAvatar->setIcon(QIcon(QPixmap(filePath, "PNG")));
 	pLocalUser->avatar = nAvatar;
 
-	sendMessage(MT_LocalAvatar, NULL, (QString*)NULL);
+	QString tempName;
+	QString tempPath;
+	tempName = Helper::getUuid() + ".tmp";
+	tempPath = cacheDir.absoluteFilePath(tempName);
+	QFile::copy(filePath, tempPath);
+
+	sendMessage(MT_LocalAvatar, NULL, &tempPath);
 	sendAvatar(NULL);
 }
 
@@ -873,6 +924,7 @@ void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, QString* 
 		xmlMessage.addData(XN_QUERYOP, QueryOpNames[QO_Get]);
 		break;
 	case MT_LocalAvatar:
+		xmlMessage.addData(XN_FILEPATH, *lpszMessage);
 		break;
 	default:
 		break;
@@ -917,7 +969,7 @@ void lmcMainWindow::setUserAvatar(QString* lpszUserId) {
 	}
 
 	avatar.load(filePath);
-	avatar = avatar.scaled(QSize(32, 32));
+	avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
 	pUserItem->setIcon(1, QIcon(avatar));
 }

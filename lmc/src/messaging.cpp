@@ -30,6 +30,8 @@ lmcMessaging::lmcMessaging(void) {
 		this, SLOT(receiveBroadcast(DatagramHeader*, QString*)));
 	connect(pNetwork, SIGNAL(messageReceived(DatagramHeader*, QString*)), 
 		this, SLOT(receiveMessage(DatagramHeader*, QString*)));
+	connect(pNetwork, SIGNAL(webMessageReceived(QString*)),
+		this, SLOT(receiveWebMessage(QString*)));
 	connect(pNetwork, SIGNAL(newConnection(QString*, QString*)), 
 		this, SLOT(newConnection(QString*, QString*)));
 	connect(pNetwork, SIGNAL(connectionLost(QString*)),
@@ -119,24 +121,7 @@ void lmcMessaging::stop(void) {
 	pSettings->setValue(IDS_STATUS, localUser->status);
 	pSettings->setValue(IDS_AVATAR, localUser->avatar);
 
-	pSettings->beginWriteArray(IDS_GROUPHDR);
-	for(int index = 0; index < groupList.count(); index++) {
-		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_GROUP, groupList[index]);
-	}
-	pSettings->endArray();
-
-	pSettings->beginWriteArray(IDS_GROUPMAPHDR);
-	QMapIterator<QString, QString> i(groupMap);
-	int count = 0;
-	while(i.hasNext()) {
-		pSettings->setArrayIndex(count);
-		i.next();
-		pSettings->setValue(IDS_USER, i.key());
-		pSettings->setValue(IDS_GROUP, i.value());
-		count++;
-	}
-	pSettings->endArray();
+	saveGroups();
 }
 
 bool lmcMessaging::isConnected(void) {
@@ -171,6 +156,59 @@ void lmcMessaging::settingsChanged(void) {
 		xmlMessage.addData(XN_NAME, userName);
 		sendMessage(MT_UserName, NULL, &xmlMessage);
 	}
+}
+
+void lmcMessaging::updateGroup(GroupOp op, QVariant value1, QVariant value2) {
+	switch(op) {
+	case GO_New:
+		groupList.append(value1.toString());
+		break;
+	case GO_Rename:
+		groupList.replace(groupList.indexOf(value1.toString()), value2.toString());
+		updateGroupMap(value1.toString(), value2.toString());
+		break;
+	case GO_Move:
+		groupList.move(groupList.indexOf(value1.toString()), value2.toInt());
+		break;
+	case GO_Delete:
+		groupList.removeOne(value1.toString());
+		break;
+	default:
+		break;
+	}
+
+	saveGroups();
+}
+
+void lmcMessaging::updateGroupMap(QString oldGroup, QString newGroup) {
+	QMap<QString, QString>::const_iterator index = groupMap.constBegin();
+	while (index != groupMap.constEnd()) {
+		if(((QString)index.value()).compare(oldGroup) == 0)
+			groupMap.insert(index.key(), newGroup);
+		++index;
+	}
+}
+
+//	save groups and group mapping
+void lmcMessaging::saveGroups(void) {
+	pSettings->beginWriteArray(IDS_GROUPHDR);
+	for(int index = 0; index < groupList.count(); index++) {
+		pSettings->setArrayIndex(index);
+		pSettings->setValue(IDS_GROUP, groupList[index]);
+	}
+	pSettings->endArray();
+
+	pSettings->beginWriteArray(IDS_GROUPMAPHDR);
+	QMapIterator<QString, QString> i(groupMap);
+	int count = 0;
+	while(i.hasNext()) {
+		pSettings->setArrayIndex(count);
+		i.next();
+		pSettings->setValue(IDS_USER, i.key());
+		pSettings->setValue(IDS_GROUP, i.value());
+		count++;
+	}
+	pSettings->endArray();
 }
 
 void lmcMessaging::network_connectionStateChanged(void) {
@@ -226,7 +264,7 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
 		if(userList[index].id.compare(szUserId) == 0)
 			return false;
 
-	if(!groupMap.contains(szUserId))
+	if(!groupMap.contains(szUserId) || !groupList.contains(groupMap.value(szUserId)))
 		groupMap.insert(szUserId, groupList[0]);
 
 	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();

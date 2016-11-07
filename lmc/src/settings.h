@@ -117,6 +117,10 @@
 #define IDS_FILETOP				"FileTransfer/FileTop"
 #define IDS_FILETOP_VAL			false
 #define IDS_FILESTORAGEPATH		"FileTransfer/StoragePath"
+#define IDS_THEME				"Themes/Theme"
+#define IDS_THEME_VAL			":/themes/Classic"
+#define IDS_SENDKEYMOD			"Hotkeys/SendKeyMod"
+#define IDS_SENDKEYMOD_VAL		false
 #define IDS_STATUS				"User/Status"
 #define IDS_STATUS_VAL			statusCode[0]
 #define IDS_AVATAR				"User/Avatar"

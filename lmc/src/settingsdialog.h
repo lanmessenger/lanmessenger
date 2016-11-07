@@ -37,6 +37,8 @@
 #include "history.h"
 #include "stdlocation.h"
 #include "application.h"
+#include "messagelog.h"
+#include "theme.h"
 
 class lmcSettingsDialog : public QDialog {
 	Q_OBJECT
@@ -70,6 +72,7 @@ private slots:
 	void btnFont_clicked(void);
 	void btnColor_clicked(void);
 	void btnReset_clicked(void);
+	void cboTheme_currentIndexChanged(int index);
 
 private:
 	void setUIText(void);
@@ -82,6 +85,7 @@ private:
 	QFont font;
 	QColor color;
 	QIntValidator* pPortValidator;
+	lmcMessageLog* pMessageLog;
 };
 
 #endif // SETTINGSDIALOG_H

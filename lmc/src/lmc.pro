@@ -1,14 +1,15 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-09-28T15:09:29
+# LAN Messenger project file
 #
 #-------------------------------------------------
 
-QT       += core gui network xml
+QT       += core gui network xml webkit
 
-TARGET = lmc
+win32: TARGET = lmc
+unix: TARGET = lan-messenger
+macx: TARGET  = "LAN-Messenger"
 TEMPLATE = app
-
 
 SOURCES += \
     usertreewidget.cpp \
@@ -41,7 +42,12 @@ SOURCES += \
     chatwindow.cpp \
     broadcastwindow.cpp \
 	aboutdialog.cpp \
-	xmlmessage.cpp
+	xmlmessage.cpp \
+    chathelper.cpp \
+    theme.cpp \
+    messagelog.cpp \
+    updatewindow.cpp \
+    webnetwork.cpp
 
 HEADERS  += \
     usertreewidget.h \
@@ -79,7 +85,12 @@ HEADERS  += \
     datagram.h \
     crypto.h \
 	aboutdialog.h \
-	xmlmessage.h
+	xmlmessage.h \
+    chathelper.h \
+    theme.h \
+    messagelog.h \
+    updatewindow.h \
+    webnetwork.h
 
 FORMS += \
     userinfodialog.ui \
@@ -90,7 +101,8 @@ FORMS += \
     helpwindow.ui \
     chatwindow.ui \
     broadcastwindow.ui \
-    aboutdialog.ui
+    aboutdialog.ui \
+    updatewindow.ui
 
 TRANSLATIONS += \
 	en_US.ts \
@@ -100,14 +112,24 @@ TRANSLATIONS += \
 	tr_TR.ts \
 	es_ES.ts
 
-win32:RC_FILE = lmc.rc
+win32: RC_FILE = lmcwin32.rc
+macx: ICON = lmc.icns
 
-unix:!symbian|win32: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+CONFIG(debug, debug|release) {
+    DESTDIR = ../debug
+} else {
+    DESTDIR = ../release
+}
+
+win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd
+unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-unix:!symbian|win32: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
+win32: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
+unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include
 DEPENDPATH += $$PWD/../../openssl/include

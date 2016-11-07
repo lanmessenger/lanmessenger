@@ -40,6 +40,7 @@
 #include "settingsdialog.h"
 #include "userinfodialog.h"
 #include "helpwindow.h"
+#include "updatewindow.h"
 
 class lmcCore : public QObject {
 	Q_OBJECT
@@ -64,10 +65,12 @@ private slots:
 	void showTransfers(void);
 	void showHistory(void);
 	void showSettings(void);
-	void showHelp(void);
+	void showHelp(QRect* pRect);
+	void showUpdate(QRect* pRect);
 	void historyCleared(void);
 	void fileHistoryCleared(void);
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
+	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
 
 private:
 	void stop(void);
@@ -93,6 +96,7 @@ private:
 	lmcSettingsDialog*		pSettingsDialog;
 	lmcUserInfoDialog*		pUserInfoDialog;
 	lmcHelpWindow*			pHelpWindow;
+	lmcUpdateWindow*		pUpdateWindow;
 	bool					messageTop;
 	QString					lang;
 };

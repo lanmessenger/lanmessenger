@@ -28,6 +28,9 @@ QString Message::addHeader(MessageType type, qint64 id, QString* lpszLocalId, QS
 	if(!pMessage)
 		pMessage = new XmlMessage();
 
+	// remove time stamp from message
+	pMessage->removeHeader(XN_TIME);
+
 	pMessage->addHeader(XN_FROM, *lpszLocalId);
 	if(lpszPeerId)
 		pMessage->addHeader(XN_TO, *lpszPeerId);
@@ -41,6 +44,9 @@ bool Message::getHeader(QString* lpszMessage, MessageHeader** ppHeader, XmlMessa
 	*ppMessage = new XmlMessage(*lpszMessage);
 	if(!((*ppMessage)->isValid()))
 		return false;
+
+	// add time stamp to message
+	(*ppMessage)->addHeader(XN_TIME, QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()));
 
 	int type = Helper::indexOf(MessageTypeNames, MT_Max, (*ppMessage)->header(XN_TYPE));
 	if(type < 0)

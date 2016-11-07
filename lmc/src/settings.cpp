@@ -32,6 +32,8 @@ void lmcSettings::setAutoStart(bool on) {
         settings.setValue(IDA_TITLE, QDir::toNativeSeparators(QApplication::applicationFilePath()));
     else
         settings.remove(IDA_TITLE);
+#elif defined Q_WS_MAC
+	Q_UNUSED(on);
 #elif defined Q_WS_X11
     //  get the path of .desktop file
     QString autoStartDir;

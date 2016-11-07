@@ -42,6 +42,12 @@
         <file alias="web">resources/images/web.png</file>
         <file alias="refresh">resources/images/refresh.png</file>
         <file alias="question">resources/images/question.png</file>
+        <file alias="themesettings">resources/images/themesettings.png</file>
+        <file alias="chat">resources/images/chat.png</file>
+        <file alias="blank">resources/images/blank.png</file>
+        <file alias="vgrip">resources/images/vgrip.png</file>
+        <file alias="hgrip">resources/images/hgrip.png</file>
+        <file alias="hotkeysettings">resources/images/hotkeysettings.png</file>
     </qresource>
     <qresource prefix="/images/status">
         <file alias="away">resources/images/away.png</file>
@@ -148,5 +154,19 @@
     <qresource prefix="/text">
         <file alias="license">resources/text/license.txt</file>
         <file alias="thanks">resources/text/thanks.txt</file>
+    </qresource>
+    <qresource prefix="/lang">
+        <file alias="en_US.qm">resources/lang/en_US.qm</file>
+    </qresource>
+    <qresource prefix="/themes">
+        <file alias="Classic/Broadcast.html">resources/themes/Classic/Broadcast.html</file>
+        <file alias="Classic/Request.html">resources/themes/Classic/Request.html</file>
+        <file alias="Classic/main.css">resources/themes/Classic/main.css</file>
+        <file alias="Classic/NextStatus.html">resources/themes/Classic/NextStatus.html</file>
+        <file alias="Classic/Status.html">resources/themes/Classic/Status.html</file>
+        <file alias="Classic/Incoming/Content.html">resources/themes/Classic/Incoming/Content.html</file>
+        <file alias="Classic/Incoming/NextContent.html">resources/themes/Classic/Incoming/NextContent.html</file>
+        <file alias="Classic/Outgoing/Content.html">resources/themes/Classic/Outgoing/Content.html</file>
+        <file alias="Classic/Outgoing/NextContent.html">resources/themes/Classic/Outgoing/NextContent.html</file>
     </qresource>
 </RCC>

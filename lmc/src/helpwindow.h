@@ -35,7 +35,7 @@ class lmcHelpWindow : public QWidget
 	Q_OBJECT
 
 public:
-	lmcHelpWindow(QWidget *parent = 0);
+	lmcHelpWindow(QRect* pRect, QWidget *parent = 0);
 	~lmcHelpWindow();
 
 	void init(void);

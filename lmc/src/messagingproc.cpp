@@ -32,7 +32,6 @@ void lmcMessaging::sendBroadcast(MessageType type, XmlMessage* pMessage) {
 //	A message is to be sent
 void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	QString data = QString::null;
-	QStringList fileData;
 	XmlMessage message;
 
 	switch(type) {
@@ -61,9 +60,27 @@ void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage
 		}
 		msgId++;
 		break;
+	case MT_Version:
+		sendWebMessage(type, pMessage);
+		break;
 	default:
 		prepareMessage(type, msgId, false, lpszUserId, pMessage);
 		msgId++;
+		break;
+	}
+}
+
+void lmcMessaging::sendWebMessage(MessageType type, XmlMessage *pMessage) {
+	Q_UNUSED(pMessage);
+
+	QString szUrl;
+
+	switch(type) {
+	case MT_Version:
+		szUrl = QString(IDA_DOMAIN"/webservice.php?q=version&p="IDA_PLATFORM);
+		pNetwork->sendWebMessage(&szUrl, NULL);
+		break;
+	default:
 		break;
 	}
 }
@@ -86,6 +103,16 @@ void lmcMessaging::receiveMessage(DatagramHeader* pHeader, QString* lpszData) {
 		return;
 	pMsgHeader->address = pHeader->address;
 	processMessage(pMsgHeader, pMessage);
+}
+
+//	A web message has been received
+void lmcMessaging::receiveWebMessage(QString *lpszData) {
+	MessageHeader* pMsgHeader = NULL;
+	XmlMessage* pMessage = NULL;
+	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage))
+		return;
+
+	processWebMessage(pMsgHeader, pMessage);
 }
 
 //	Handshake procedure has been completed
@@ -160,7 +187,6 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 		return;
 
 	User* receiver = getUser(lpszUserId);
-	QString data;
 
 	switch(type) {
 	case MT_Status:
@@ -310,6 +336,7 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 		}
 		break;
 	case MT_ChatState:
+		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
 		break;
 	case MT_Acknowledge:
 		//	remove message from pending list
@@ -359,6 +386,19 @@ void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
 	case FO_Decline:
 	case FO_Progress:
 		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
+		break;
+	default:
+		break;
+	}
+}
+
+void lmcMessaging::processWebMessage(MessageHeader* pHeader, XmlMessage *pMessage) {
+	switch(pHeader->type) {
+	case MT_Version:
+		emit messageReceived(pHeader->type, NULL, pMessage);
+		break;
+	case MT_WebFailed:
+		emit messageReceived(pHeader->type, NULL, pMessage);
 		break;
 	default:
 		break;
