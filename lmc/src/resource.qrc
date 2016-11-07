@@ -144,10 +144,6 @@
         <file alias="18">resources/avatars/18.bmp</file>
         <file alias="19">resources/avatars/19.bmp</file>
     </qresource>
-    <qresource prefix="/lang">
-        <file alias="en_US">resources/lang/en_US.qm</file>
-        <file alias="ml_IN">resources/lang/ml_IN.qm</file>
-    </qresource>
     <qresource prefix="/text">
         <file alias="license">resources/text/license.txt</file>
         <file alias="thanks">resources/text/thanks.txt</file>

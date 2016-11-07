@@ -34,12 +34,12 @@
 #define IDA_PRODUCT		"lmc"
 #define IDA_COMPANY		"lmc"
 #endif
-#define IDA_VERSION		"1.1.52"
+#define IDA_VERSION		"1.1.58"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
 						"and does not require a server.\n"\
 						"LAN Messenger works on essentially every popular desktop platform."
 #define IDA_COPYRIGHT	"Copyright (C) 2010-2011 Dilip Radhakrishnan."
-#define IDA_CONTACT		"dilipvradhakrishnan@gmail.com"
+#define IDA_CONTACT		"dilipvrk@gmail.com"
 #define IDA_DOMAIN		"http://lanmsngr.sourceforge.net"
 
 #ifdef Q_WS_WIN

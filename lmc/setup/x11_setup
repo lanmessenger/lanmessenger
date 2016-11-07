@@ -15,6 +15,7 @@ sudo cp -v ../release/liblmcapp.so.1 ./x11_package/usr/lib/lmc/liblmcapp.so.1
 sudo cp -v ../release/lmc.rcc ./x11_package/usr/lib/lmc/lmc.rcc
 sudo cp -v ../release/lmc ./x11_package/usr/lib/lmc/lmc
 sudo cp -v ../release/COPYING ./x11_package/usr/lib/lmc/COPYING
+sudo cp -v -r ../release/lang ./x11_package/usr/lib/lmc/lang
 sudo cp -v -r ../release/sounds ./x11_package/usr/lib/lmc/sounds
 sudo cp -v -r ../release/imageformats ./x11_package/usr/lib/lmc/imageformats
 

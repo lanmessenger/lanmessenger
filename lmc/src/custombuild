@@ -1,8 +1,19 @@
 #!/bin/sh
 
+if [ "$1" = "" ]; then
+  echo "Error: Missing output folder path"
+  echo "Usage: custombuild /path/to/build/directory"
+  exit 1
+fi
+
 echo "Creating translation binaries..."
-lrelease lmc_en.ts -qm resources/lang/en_US.qm
-lrelease lmc_ml.ts -qm resources/lang/ml_IN.qm
+if [ ! -d "$1/lang" ]; then
+  mkdir $1/lang
+fi
+for file in *.ts; do
+  basename=`basename "$file" .ts`
+  lrelease "$file" -qm "$1/lang/$basename.qm"
+done
 echo "Done."
 
 echo "Building resource binary..."

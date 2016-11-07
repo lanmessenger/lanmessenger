@@ -3,5 +3,7 @@ The author would like to thank the users who gave their valuable suggestions and
 This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit.
 (http://www.openssl.org/)
 
+Special thanks to Inanc Tanriover for the Turkish translation.
+
 Some of the images used were created by Mythique Design and used under the Creative Commons Public License.
 (http://mythique-design.servhome.org)

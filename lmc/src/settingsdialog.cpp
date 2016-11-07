@@ -47,12 +47,18 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.chkSound, SIGNAL(toggled(bool)), this, SLOT(chkSound_toggled(bool)));
 	connect(ui.chkAutoShowFile, SIGNAL(toggled(bool)), this, SLOT(chkAutoShowFile_toggled(bool)));
 
+	QMap<QString, QString> languages;
+	//	Loop through available languages and add them to a map. This ensures that
+	//	the languages are sorted alphabetically. After that add the sorted items
+	//	to the combo box.
 	for(int index = 0; index < Application::availableLanguages().count(); index++) {
 		QString langCode = Application::availableLanguages().value(index);
 		QLocale locale(langCode);
 		QString language = QLocale::languageToString(locale.language());
-		ui.cboLanguage->addItem(language, langCode);
+		languages.insert(language, langCode);
 	}
+	for(int index = 0; index < languages.count(); index++)
+		ui.cboLanguage->addItem(languages.keys().value(index), languages.values().value(index));
 
 	for(int index = 0; index < SE_Max; index++) {
 		QListWidgetItem* pListItem = new QListWidgetItem(ui.lvSounds);
@@ -207,7 +213,13 @@ void lmcSettingsDialog::setUIText(void) {
 }
 
 void lmcSettingsDialog::loadSettings(void) {
+	//	Auto start function not implemented on Mac
+#ifdef Q_WS_MAC
+	ui.chkAutoStart->setChecked(false);
+	ui.chkAutoStart->setEnabled(false);
+#else
 	ui.chkAutoStart->setChecked(pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool());
+#endif
 	ui.chkAutoShow->setChecked(pSettings->value(IDS_AUTOSHOW, IDS_AUTOSHOW_VAL).toBool());
 	ui.chkSysTray->setChecked(pSettings->value(IDS_SYSTRAY, IDS_SYSTRAY_VAL).toBool());
 	ui.chkMinimizeTray->setChecked(pSettings->value(IDS_MINIMIZETRAY, IDS_MINIMIZETRAY_VAL).toBool());

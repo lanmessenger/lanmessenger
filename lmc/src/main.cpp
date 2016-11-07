@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 	if(application.sendMessage(messageList))
 		return 0;
 	
-	application.loadTranslations(IDR_LANG);
+	application.loadTranslations(application.applicationDirPath() + "/lang");
 
 	lmcCore core;
 	core.init();

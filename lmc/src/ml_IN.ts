@@ -103,10 +103,6 @@
         <translation>അയക്കുന്നത്: </translation>
     </message>
     <message>
-        <source>Declined</source>
-        <translation type="obsolete">നിരസ്കരിച്ചു</translation>
-    </message>
-    <message>
         <location filename="filemodelview.cpp" line="99"/>
         <source>Completed</source>
         <translation>പൂര്‍ത്തിയാക്കി</translation>
@@ -355,10 +351,6 @@
         <location filename="settingsdialog.ui" line="593"/>
         <source>Preview:</source>
         <translation>ഉദാഹരണം:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;span style=&quot; font-size:12px;&quot;&gt;AaBbYyZz&lt;/span&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;span style=&quot; font-size:12px;&quot;&gt;അആഇഈഉഊ&lt;/span&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="628"/>
@@ -612,25 +604,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation type="obsolete">വിശദാംശങ്ങള്‍</translation>
-    </message>
-    <message>
-        <location filename="userinfodialog.ui" line="246"/>
-        <source>IP Address:</source>
-        <translation>IP വിലാസം:</translation>
-    </message>
-    <message>
-        <location filename="userinfodialog.ui" line="291"/>
-        <source>Computer Name:</source>
-        <translation>കമ്പ്യൂട്ടര്‍ പേര്:</translation>
-    </message>
-    <message>
-        <location filename="userinfodialog.ui" line="204"/>
-        <source>Operating System:</source>
-        <translation>ഒപറേറ്റിംഗ് സിസ്റ്റം:</translation>
-    </message>
-    <message>
         <location filename="userinfodialog.ui" line="94"/>
         <source>Personal Information</source>
         <translation>വ്യക്തിയുടെ വിവരം</translation>
@@ -663,19 +636,9 @@
         <translation>സിസ്റ്റത്തിന്‍ വിവരം</translation>
     </message>
     <message>
-        <location filename="userinfodialog.ui" line="262"/>
-        <source>Messenger Version:</source>
-        <translation>വെര്‍ഷന്‍:</translation>
-    </message>
-    <message>
-        <location filename="userinfodialog.ui" line="307"/>
-        <source>&lt;IP Address&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="userinfodialog.ui" line="336"/>
-        <source>&lt;Computer Name&gt;</source>
-        <translation></translation>
+        <location filename="userinfodialog.ui" line="204"/>
+        <source>Operating System:</source>
+        <translation>ഒപറേറ്റിംഗ് സിസ്റ്റം:</translation>
     </message>
     <message>
         <location filename="userinfodialog.ui" line="220"/>
@@ -683,8 +646,33 @@
         <translation></translation>
     </message>
     <message>
+        <location filename="userinfodialog.ui" line="233"/>
+        <source>&lt;Logon Name&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="userinfodialog.ui" line="246"/>
+        <source>IP Address:</source>
+        <translation>IP വിലാസം:</translation>
+    </message>
+    <message>
+        <location filename="userinfodialog.ui" line="262"/>
+        <source>Messenger Version:</source>
+        <translation>വെര്‍ഷന്‍:</translation>
+    </message>
+    <message>
         <location filename="userinfodialog.ui" line="278"/>
         <source>&lt;Messenger Version&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="userinfodialog.ui" line="291"/>
+        <source>Computer Name:</source>
+        <translation>കമ്പ്യൂട്ടര്‍ പേര്:</translation>
+    </message>
+    <message>
+        <location filename="userinfodialog.ui" line="307"/>
+        <source>&lt;IP Address&gt;</source>
         <translation></translation>
     </message>
     <message>
@@ -693,8 +681,8 @@
         <translation>ലോഗിന്‍ പേര്:</translation>
     </message>
     <message>
-        <location filename="userinfodialog.ui" line="233"/>
-        <source>&lt;Logon Name&gt;</source>
+        <location filename="userinfodialog.ui" line="336"/>
+        <source>&lt;Computer Name&gt;</source>
         <translation></translation>
     </message>
     <message>
@@ -747,6 +735,12 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
+        <location filename="chatwindow.cpp" line="105"/>
+        <location filename="chatwindow.cpp" line="276"/>
+        <source>Chat with %1</source>
+        <translation>%1 - സംഭാഷണം</translation>
+    </message>
+    <message>
         <location filename="chatwindow.cpp" line="109"/>
         <source>Change Font Size</source>
         <translation>ലിപിയുടെ വലിപ്പം മാറ്റുക</translation>
@@ -755,55 +749,6 @@
         <location filename="chatwindow.cpp" line="110"/>
         <source>Insert Smiley</source>
         <translation>ഇമോട്ടിക്കോണ്‍ ഉള്‍പ്പെടുത്തുക</translation>
-    </message>
-    <message>
-        <source>Send A File...</source>
-        <translation type="obsolete">ഒരു ഫയല്‍ അയക്കുക...</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">ഇങ്ങനെ സൂക്ഷിക്കുക...</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="117"/>
-        <source>Save this conversation</source>
-        <translation>ഈ സംഭാഷണം സൂക്ഷിക്കുക</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="113"/>
-        <source>&amp;History</source>
-        <translation>&amp;ചരിത്രം</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="118"/>
-        <source>View History</source>
-        <translation>ചരിത്രം കാണുക</translation>
-    </message>
-    <message>
-        <source>&amp;File Transfers</source>
-        <translation type="obsolete">&amp;ഫയല്‍ കൈമാറ്റങ്ങള്‍</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="119"/>
-        <source>View File Transfers</source>
-        <translation>ഫയല്‍ കൈമാറ്റങ്ങള്‍ കാണുക</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="186"/>
-        <source>Save Conversation</source>
-        <translation>സംഭാഷണം സൂക്ഷിക്കുക</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="154"/>
-        <location filename="chatwindow.cpp" line="447"/>
-        <source>Canceled</source>
-        <translation>റദ്ദാക്കി</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="105"/>
-        <location filename="chatwindow.cpp" line="276"/>
-        <source>Chat with %1</source>
-        <translation>%1 - സംഭാഷണം</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="111"/>
@@ -816,6 +761,11 @@
         <translation>ഇങ്ങനെ &amp;സൂക്ഷിക്കുക...</translation>
     </message>
     <message>
+        <location filename="chatwindow.cpp" line="113"/>
+        <source>&amp;History</source>
+        <translation>&amp;ചരിത്രം</translation>
+    </message>
+    <message>
         <location filename="chatwindow.cpp" line="114"/>
         <source>File &amp;Transfers</source>
         <translation>ഫയല്‍ &amp;കൈമാറ്റങ്ങള്‍</translation>
@@ -826,6 +776,21 @@
         <translation>%1 എന്ന സുഹൃത്തിനു ഒരു ഫയല്‍ അയക്കുക</translation>
     </message>
     <message>
+        <location filename="chatwindow.cpp" line="117"/>
+        <source>Save this conversation</source>
+        <translation>ഈ സംഭാഷണം സൂക്ഷിക്കുക</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="118"/>
+        <source>View History</source>
+        <translation>ചരിത്രം കാണുക</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="119"/>
+        <source>View File Transfers</source>
+        <translation>ഫയല്‍ കൈമാറ്റങ്ങള്‍ കാണുക</translation>
+    </message>
+    <message>
         <location filename="chatwindow.cpp" line="150"/>
         <source>You have accepted the file.</source>
         <translation>ഫയല്‍ സ്വീകരിച്ചിരിക്കുന്നു.</translation>
@@ -834,6 +799,17 @@
         <location filename="chatwindow.cpp" line="152"/>
         <source>You have declined the file.</source>
         <translation>ഫയല്‍ നിരസിച്ചു.</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="154"/>
+        <location filename="chatwindow.cpp" line="447"/>
+        <source>Canceled</source>
+        <translation>റദ്ദാക്കി</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="186"/>
+        <source>Save Conversation</source>
+        <translation>സംഭാഷണം സൂക്ഷിക്കുക</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="354"/>
@@ -951,10 +927,6 @@
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Help&lt;/h3&gt;&lt;p&gt;You can find documentation on LAN Messenger&apos;s &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Before asking any question, please refer yourself to the &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You might then get (and give) help on the &lt;a href=&apos;%3&apos;&gt;Support Forums&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;ലാന്‍ മെസ്സഞ്ചറിന്റ്റെ സഹായത്തിലേക്ക് സ്വാഗതം&lt;/h2&gt;&lt;h3&gt;സഹായം&lt;/h3&gt;&lt;p&gt;ലാന്‍ മെസ്സഞ്ചറിന്റ്റെ എഴുത്തുകുത്തുകള്‍ &lt;a href=&apos;%1&apos;&gt;വിക്കി&lt;/a&gt; വെബ്‌ പേജില്‍ ലഭ്യമാണ്.&lt;/p&gt;&lt;p&gt;എന്തെങ്കിലും സംശയം ഉണ്ടെങ്കില്‍ ദയവായി ആദ്യം &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt; സന്ദര്‍ശിക്കുക.&lt;/p&gt;&lt;p&gt;അതിനു ശേഷം &lt;a href=&apos;%3&apos;&gt;ഫോറത്തില്‍&lt;/a&gt; സഹായം തേടാവുന്നതോ (കൊടുക്കവുന്നതോ) ആണ്.&lt;/p&gt;&lt;h3&gt;പങ്കാളിയാകുക&lt;/h3&gt;&lt;p&gt;മറ്റു ഉപഭോക്താക്കളെ സഹായിക്കാനോ, തര്‍ജ്ജമ ചെയ്യുവാനോ, പ്രോഗ്രാം പരീക്ഷിച്ചു നോക്കുവാനോ താങ്കളുടെ അല്‍പ സമയം ചിലവഴിച്ചു ലാന്‍ മെസ്സഞ്ചറിനെ സഹായിക്കാവുന്നതാണ്.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Help&lt;/h3&gt;&lt;p&gt;You can find documentation on LAN Messenger&apos;s &lt;a href=&apos;http://sourceforge.net/p/lanmsngr/wiki/Manual/&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Before asking any question, please refer yourself to the &lt;a href=&apos;http://sourceforge.net/p/lanmsngr/wiki/FAQ/&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You might then get (and give) help on the &lt;a href=&apos;http://sourceforge.net/projects/lanmsngr/support&apos;&gt;Support Forums&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;ലാന്‍ മെസ്സഞ്ചറിന്റ്റെ സഹായത്തിലേക്ക് സ്വാഗതം&lt;/h2&gt;&lt;h3&gt;സഹായം&lt;/h3&gt;&lt;p&gt;ലാന്‍ മെസ്സഞ്ചറിന്റ്റെ എഴുത്തുകുത്തുകള്‍ &lt;a href=&apos;http://sourceforge.net/p/lanmsngr/wiki/Manual/&apos;&gt;വിക്കി&lt;/a&gt; വെബ്‌ പേജില്‍ ലഭ്യമാണ്.&lt;/p&gt;&lt;p&gt;എന്തെങ്കിലും സംശയം ഉണ്ടെങ്കില്‍ ദയവായി ആദ്യം &lt;a href=&apos;http://sourceforge.net/p/lanmsngr/wiki/FAQ/&apos;&gt;FAQ&lt;/a&gt; സന്ദര്‍ശിക്കുക.&lt;/p&gt;&lt;p&gt;അതിനു ശേഷം &lt;a href=&apos;http://sourceforge.net/projects/lanmsngr/support&apos;&gt;ഫോറത്തില്‍&lt;/a&gt; സഹായം തേടാവുന്നതോ (കൊടുക്കവുന്നതോ) ആണ്.&lt;/p&gt;&lt;h3&gt;പങ്കാളിയാകുക&lt;/h3&gt;&lt;p&gt;മറ്റു ഉപഭോക്താക്കളെ സഹായിക്കാനോ, തര്‍ജ്ജമ ചെയ്യുവാനോ, പ്രോഗ്രാം പരീക്ഷിച്ചു നോക്കുവാനോ താങ്കളുടെ അല്‍പ സമയം ചിലവഴിച്ചു ലാന്‍ മെസ്സഞ്ചറിനെ സഹായിക്കാവുന്നതാണ്.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
 </context>
 <context>
     <name>lmcHistoryWindow</name>
@@ -1028,9 +1000,60 @@
         <translation>സുഹൃത്തുക്കളുടെ &amp;പട്ടിക പുതുക്കുക</translation>
     </message>
     <message>
+        <location filename="mainwindow.cpp" line="653"/>
+        <location filename="mainwindow.cpp" line="670"/>
+        <source>E&amp;xit</source>
+        <translation>&amp;നിര്‍ത്തലാക്കുക</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="654"/>
+        <source>&amp;Tools</source>
+        <translation>&amp;ഉപകരണങ്ങള്‍</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="655"/>
+        <location filename="mainwindow.cpp" line="666"/>
+        <source>&amp;History</source>
+        <translation>&amp;ചരിത്രം</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="656"/>
+        <location filename="mainwindow.cpp" line="667"/>
+        <source>File &amp;Transfers</source>
+        <translation>ഫയല്‍ &amp;കൈമാറ്റങ്ങള്‍</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="657"/>
+        <location filename="mainwindow.cpp" line="668"/>
+        <source>&amp;Preferences</source>
+        <translation>&amp;ഇഷ്ടങ്ങള്‍</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="658"/>
+        <location filename="mainwindow.cpp" line="659"/>
+        <source>&amp;Help</source>
+        <translation>&amp;സഹായം</translation>
+    </message>
+    <message>
         <location filename="mainwindow.cpp" line="660"/>
         <source>%1 &amp;online</source>
         <translation>%1 &amp;വെബ്‌ സൈറ്റ്</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="662"/>
+        <location filename="mainwindow.cpp" line="669"/>
+        <source>&amp;About</source>
+        <translation>&amp;അറിയുക</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="663"/>
+        <source>&amp;Show %1</source>
+        <translation>%1 &amp;കാണിക്കുക</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="665"/>
+        <source>&amp;Change Status</source>
+        <translation>&amp;സ്റ്റാറ്റസ് മാറ്റുക</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="671"/>
@@ -1068,104 +1091,29 @@
         <translation>&amp;വിവരം ശേഖരിക്കുക</translation>
     </message>
     <message>
-        <source>&amp;Refresh contacts list</source>
-        <translation type="obsolete">സുഹൃത്തുക്കളുടെ &amp;പട്ടിക പുതുക്കുക</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="653"/>
-        <location filename="mainwindow.cpp" line="670"/>
-        <source>E&amp;xit</source>
-        <translation>&amp;നിര്‍ത്തലാക്കുക</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="654"/>
-        <source>&amp;Tools</source>
-        <translation>&amp;ഉപകരണങ്ങള്‍</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="655"/>
-        <location filename="mainwindow.cpp" line="666"/>
-        <source>&amp;History</source>
-        <translation>&amp;ചരിത്രം</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="656"/>
-        <location filename="mainwindow.cpp" line="667"/>
-        <source>File &amp;Transfers</source>
-        <oldsource>&amp;File Transfers</oldsource>
-        <translation>ഫയല്‍ &amp;കൈമാറ്റങ്ങള്‍</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="657"/>
-        <location filename="mainwindow.cpp" line="668"/>
-        <source>&amp;Preferences</source>
-        <translation>&amp;ഇഷ്ടങ്ങള്‍</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="658"/>
-        <location filename="mainwindow.cpp" line="659"/>
-        <source>&amp;Help</source>
-        <translation>&amp;സഹായം</translation>
-    </message>
-    <message>
-        <source>Visit &amp;home page</source>
-        <translation type="obsolete">&amp;വെബ്‌ സൈറ്റ് സന്ദര്‍ശിക്കുക</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="662"/>
-        <location filename="mainwindow.cpp" line="669"/>
-        <source>&amp;About</source>
-        <translation>&amp;അറിയുക</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="663"/>
-        <source>&amp;Show %1</source>
-        <translation>%1 &amp;കാണിക്കുക</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="665"/>
-        <source>&amp;Change Status</source>
-        <translation>&amp;സ്റ്റാറ്റസ് മാറ്റുക</translation>
-    </message>
-    <message>
-        <source>Rename This Group</source>
-        <translation type="obsolete">പേര് മാറ്റുക</translation>
-    </message>
-    <message>
-        <source>Delete This Group</source>
-        <translation type="obsolete">ഇല്ലാതാക്കുക</translation>
-    </message>
-    <message>
-        <source>Conversation</source>
-        <translation type="obsolete">സംഭാഷണം</translation>
-    </message>
-    <message>
-        <source>Send Broadcast Message</source>
-        <translation type="obsolete">പ്രക്ഷേപണം ചെയ്യുക</translation>
-    </message>
-    <message>
-        <source>Send File</source>
-        <translation type="obsolete">ഫയല്‍ അയക്കുക</translation>
-    </message>
-    <message>
-        <source>Get Information</source>
-        <translation type="obsolete">വിവരം ശേഖരിക്കുക</translation>
-    </message>
-    <message>
         <location filename="mainwindow.cpp" line="689"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
         <translation>%1 പിന്നറയില്‍ പ്രവര്‍ത്തിച്ചു കൊണ്ടിരിക്കും. ജാലകം വീണ്ടും തുറക്കാന്‍ ഈ ഐക്കണ്‍ ഉപയോഗിക്കുക.</translation>
     </message>
 </context>
 <context>
-    <name>lmcMessaging</name>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">ലഭ്യമല്ല</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
+    <message>
+        <location filename="settingsdialog.cpp" line="132"/>
+        <location filename="settingsdialog.cpp" line="206"/>
+        <source>AaBbYyZz</source>
+        <translation>അആഇഈഉഊ</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="145"/>
+        <source>Save History</source>
+        <translation>ചരിത്രം സൂക്ഷിക്കുക</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="152"/>
+        <source>Select folder</source>
+        <translation>ഫോള്‍ഡര്‍ തിരഞ്ഞെടുക്കുക</translation>
+    </message>
     <message>
         <location filename="settingsdialog.cpp" line="184"/>
         <source>Preferences</source>
@@ -1186,22 +1134,6 @@
         <source>Sounds (Not Available)</source>
         <translation>ശബ്ദങ്ങള്‍ (ലഭ്യമല്ല)</translation>
     </message>
-    <message>
-        <location filename="settingsdialog.cpp" line="132"/>
-        <location filename="settingsdialog.cpp" line="206"/>
-        <source>AaBbYyZz</source>
-        <translation>അആഇഈഉഊ</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.cpp" line="145"/>
-        <source>Save History</source>
-        <translation>ചരിത്രം സൂക്ഷിക്കുക</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.cpp" line="152"/>
-        <source>Select folder</source>
-        <translation>ഫോള്‍ഡര്‍ തിരഞ്ഞെടുക്കുക</translation>
-    </message>
 </context>
 <context>
     <name>lmcStrings</name>
@@ -1215,9 +1147,6 @@
         <source>LAN Messenger is a free peer-to-peer messaging application for
 intra-network communication and does not require a server.
 LAN Messenger works on essentially every popular desktop platform.</source>
-        <oldsource>LAN Messenger is a free peer-to-peer messaging application for intra-network
-communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</oldsource>
         <translation>ലാന്‍ മെസ്സഞ്ചര്‍ സന്ദേശങ്ങള്‍ പരസ്പരം അയക്കാനുള്ള ഒരു സൌജന്യ പ്രോഗ്രാം ആണ്.
 ഒരു സര്‍വറിന്റ്റെ സഹായം ലാന്‍ മെസ്സഞ്ചറിന് ആവശ്യം ഇല്ല.
 എല്ലാ പ്രമുഖ ഡെസ്ക്ടോപ്പ് പ്ലാട്ഫോറത്തിലും ലാന്‍ മെസ്സഞ്ചര്‍ പ്രവര്‍ത്തിക്കും.</translation>
@@ -1336,19 +1265,6 @@ LAN Messenger works on essentially every popular desktop platform.</oldsource>
 <context>
     <name>lmcTransferWindow</name>
     <message>
-        <location filename="transferwindow.cpp" line="338"/>
-        <source>File Transfers</source>
-        <translation>ഫയല്‍ കൈമാറ്റങ്ങള്‍</translation>
-    </message>
-    <message>
-        <source>To: </source>
-        <translation type="obsolete">കൈപ്പറ്റുന്നത്:</translation>
-    </message>
-    <message>
-        <source>From: </source>
-        <translation type="obsolete">അയക്കുന്നത്:</translation>
-    </message>
-    <message>
         <location filename="transferwindow.cpp" line="224"/>
         <source>&apos;%1&apos; has been sent to %2.</source>
         <translation>&apos;%1&apos; %2 എന്ന സുഹൃത്തിനു അയച്ചിരിക്കുന്നു.</translation>
@@ -1363,6 +1279,11 @@ LAN Messenger works on essentially every popular desktop platform.</oldsource>
         <location filename="transferwindow.cpp" line="240"/>
         <source>&apos;%1&apos; has been received from %2.</source>
         <translation>&apos;%1&apos; %2 എന്ന സുഹൃത്തില്‍ നിന്നും ലഭിച്ചിരിക്കുന്നു.</translation>
+    </message>
+    <message>
+        <location filename="transferwindow.cpp" line="338"/>
+        <source>File Transfers</source>
+        <translation>ഫയല്‍ കൈമാറ്റങ്ങള്‍</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="340"/>
@@ -1392,10 +1313,6 @@ LAN Messenger works on essentially every popular desktop platform.</oldsource>
 </context>
 <context>
     <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Info: </source>
-        <translation type="obsolete">വിവരങ്ങള്‍:</translation>
-    </message>
     <message>
         <location filename="userinfodialog.cpp" line="66"/>
         <source>User Information</source>

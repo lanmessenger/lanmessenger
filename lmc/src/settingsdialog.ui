@@ -99,7 +99,7 @@
     <enum>QFrame::Plain</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="pageGeneral">
     <widget class="QLabel" name="lblGeneralPage">
@@ -244,7 +244,7 @@
        <x>0</x>
        <y>220</y>
        <width>371</width>
-       <height>51</height>
+       <height>55</height>
       </rect>
      </property>
      <property name="title">
@@ -254,7 +254,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
+        <y>24</y>
         <width>171</width>
         <height>16</height>
        </rect>
@@ -267,7 +267,7 @@
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>16</y>
+        <y>20</y>
         <width>181</width>
         <height>22</height>
        </rect>
@@ -317,9 +317,9 @@
      <widget class="QLineEdit" name="txtUserName">
       <property name="geometry">
        <rect>
-        <x>210</x>
+        <x>230</x>
         <y>18</y>
-        <width>151</width>
+        <width>131</width>
         <height>20</height>
        </rect>
       </property>
@@ -329,7 +329,7 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>201</width>
+        <width>221</width>
         <height>16</height>
        </rect>
       </property>
@@ -620,7 +620,7 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>82</width>
+        <width>111</width>
         <height>17</height>
        </rect>
       </property>
@@ -633,7 +633,7 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>82</width>
+        <width>111</width>
         <height>17</height>
        </rect>
       </property>
@@ -646,7 +646,7 @@
        <rect>
         <x>10</x>
         <y>60</y>
-        <width>82</width>
+        <width>111</width>
         <height>17</height>
        </rect>
       </property>

@@ -42,7 +42,7 @@ void Application::loadTranslations(const QString& dir) {
 
 void Application::loadTranslations(const QDir& dir) {
 	// <language>_<country>
-	QString filter = "*_*";
+	QString filter = "*_*.qm";
 	QDir::Filters filters = QDir::Files | QDir::Readable;
 	QDir::SortFlags sort = QDir::Name;
 	QFileInfoList entries = dir.entryInfoList(QStringList() << filter, filters, sort);
