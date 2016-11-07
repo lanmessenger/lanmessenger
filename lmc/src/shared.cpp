@@ -177,3 +177,11 @@ int Helper::compareVersions(const QString& version1, const QString& version2) {
 
 	return 0;
 }
+
+QString Helper::BoolToString(bool value) {
+	return value ? LMC_TRUE : LMC_FALSE;
+}
+
+bool Helper::StringToBool(const QString& value) {
+	return value.compare(LMC_TRUE) == 0 ? true : false;
+}

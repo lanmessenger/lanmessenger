@@ -39,6 +39,7 @@ public:
 private:
 	lmcSettings* pSettings;
 	int eventState[SE_Max];
+	QString sounds[SE_Max];
 	bool playSound;
 	bool noBusySound;
 	bool noDNDSound;

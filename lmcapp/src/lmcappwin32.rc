@@ -1,10 +1,8 @@
 #include <windows.h>
 
-IDI_MAIN_ICON   ICON    DISCARDABLE "lmc.ico"
-
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION		1,2,2,8
-PRODUCTVERSION	1,2,2,8
+FILEVERSION		2,0,0,0
+PRODUCTVERSION	2,0,0,0
 FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
 #ifdef DEBUG
 FILEFLAGS		VER_DEBUG
@@ -21,13 +19,13 @@ FILESUBTYPE     0x0L
         {
             VALUE "Comments",         "\0"
 			VALUE "CompanyName",      "LAN Messenger\0"
-            VALUE "FileDescription",  "LAN Messenger\0"
-			VALUE "FileVersion",      "1.2.28\0"
-            VALUE "InternalName",     "lanmsngr\0"
+			VALUE "FileDescription",  "LAN Messenger Application\0"
+			VALUE "FileVersion",      "2.0.0\0"
+			VALUE "InternalName",     "lmcapp\0"
 			VALUE "LegalCopyright",   "Copyright © 2010-2012 Qualia Digital Solutions.\0"
-            VALUE "OriginalFilename", "lmc.exe\0"
+			VALUE "OriginalFilename", "lmcapp2.dll\0"
             VALUE "ProductName",      "LAN Messenger\0"
-			VALUE "ProductVersion",   "1.2.28\0"
+			VALUE "ProductVersion",   "2.0.0\0"
         }
     }
     BLOCK "VarFileInfo"

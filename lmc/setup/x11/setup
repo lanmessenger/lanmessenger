@@ -15,7 +15,7 @@ sudo cp -v $QTDIR/lib/libQtNetwork.so.4 ./package/usr/lib/lmc/libQtNetwork.so.4
 sudo cp -v $QTDIR/lib/libQtXml.so.4 ./package/usr/lib/lmc/libQtXml.so.4
 sudo cp -v $QTDIR/lib/libQtWebKit.so.4 ./package/usr/lib/lmc/libQtWebKit.so.4
 sudo cp -v ../../release/libcrypto.so.1.0.0 ./package/usr/lib/lmc/libcrypto.so.1.0.0
-sudo cp -v ../../release/liblmcapp.so.1 ./package/usr/lib/lmc/liblmcapp.so.1
+sudo cp -v ../../release/liblmcapp.so.2 ./package/usr/lib/lmc/liblmcapp.so.2
 sudo cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc
 sudo cp -v ../../release/lan-messenger ./package/usr/lib/lmc/lan-messenger
 sudo cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING

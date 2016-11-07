@@ -15,6 +15,9 @@ for file in *.ts; do
   lrelease "$file" -qm "$1/lang/$basename.qm"
 done
 echo "Done."
+echo "Copying system translations..."
+cp -v -r ./resources/lang/system $1/lang
+echo "Done."
 
 echo "Building resource binary..."
 rcc -binary resource.qrc -o $1/lmc.rcc
@@ -42,7 +45,7 @@ cp -v $QTDIR/plugins/imageformats/libqtiff.so $1/imageformats/libqtiff.so
 echo "Done."
 
 echo "Copying libraries..."
-cp -v ../../lmcapp/lib/liblmcapp.so.1 $1/liblmcapp.so.1
+cp -v ../../lmcapp/lib/liblmcapp.so.2 $1/liblmcapp.so.2
 cp -v -f ../../openssl/lib/libcrypto.so.1.0.0 $1/libcrypto.so.1.0.0
 echo "Done."
 

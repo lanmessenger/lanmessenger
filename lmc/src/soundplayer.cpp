@@ -28,6 +28,7 @@ lmcSoundPlayer::lmcSoundPlayer(void) {
 	pSettings = new lmcSettings();
 	for(int index = 0; index < SE_Max; index++) {
 		eventState[index] = Qt::Checked;
+		sounds[index] = soundFile[index];
 	}
 	settingsChanged();
 }
@@ -40,14 +41,21 @@ void lmcSoundPlayer::play(SoundEvent event) {
 	if(!eventState[event])
 		return;
 
-	QSound::play(soundFile[event]);
+	QSound::play(sounds[event]);
 }
 
 void lmcSoundPlayer::settingsChanged(void) {
-	int size = pSettings->beginReadArray(IDS_SOUNDEVENTHDR);
+	int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), (int)SE_Max);
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
 		eventState[index] = pSettings->value(IDS_EVENT).toInt();
+	}
+	pSettings->endArray();
+
+	size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), (int)SE_Max);
+	for(int index = 0; index < size; index++) {
+		pSettings->setArrayIndex(index);
+		sounds[index] = pSettings->value(IDS_FILE).toString();
 	}
 	pSettings->endArray();
 

@@ -43,12 +43,10 @@ public:
 	lmcNetwork(void);
 	~lmcNetwork(void);
 
-	void init(void);
+	void init(XmlMessage* pInitParams);
 	void start(void);
 	void stop(void);
-	QHostAddress getIPAddress(void);
-	QHostAddress getSubnetMask(void);
-	QString getPhysicalAddress(void);
+	QString physicalAddress(void);
 	void setLocalId(QString* lpszLocalId);
 	void sendBroadcast(QString* lpszData);
 	void addConnection(QString* lpszUserId, QString* lpszAddress);
@@ -83,6 +81,8 @@ private slots:
 	void web_receiveMessage(QString* lpszData);
 
 private:
+	bool getIPAddress(void);
+	bool getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddressEntry* pAddressEntry);
 	bool getNetworkInterface(QNetworkInterface* pNetworkInterface);
 	bool getNetworkInterface(QNetworkInterface* pNetworkInterface, QString* lpszPreferred);
 	bool isInterfaceUp(QNetworkInterface* pNetworkInterface);

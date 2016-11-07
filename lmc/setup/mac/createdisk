@@ -11,9 +11,9 @@ echo "Done."
 # Copy all the required dependencies into the app bundle, and set correct lookup paths
 $QTDIR/bin/macdeployqt LAN-Messenger.app -verbose=2
 
-install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
-install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
-install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
 
 # create a blank disk with sufficient space
 hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+ -volname LAN-Messenger

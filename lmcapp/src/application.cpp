@@ -27,7 +27,9 @@
 #include "application.h"
 
 QTranslator* Application::current = 0;
+QTranslator* Application::sysCurrent = 0;
 Translators Application::translators;
+Translators Application::sysTranslators;
 
 Application::Application(const QString& id, int& argc, char** argv) 
 	: QtSingleApplication(id, argc, argv) {
@@ -59,6 +61,26 @@ void Application::loadTranslations(const QDir& dir) {
 			translators.insert(locale, translator);
 		}
 	}
+
+	// load system translations
+	QDir sysDir(dir.absolutePath() + "/system");
+	if(!sysDir.exists())
+		return;
+
+	entries = sysDir.entryInfoList(QStringList() << filter, filters, sort);
+	foreach (QFileInfo file, entries) {
+		// pick country and language out of the file name
+		QStringList parts = file.baseName().split("_");
+		QString language = parts.at(parts.count() - 2).toLower();
+		QString country  = parts.at(parts.count() - 1).toUpper();
+
+		// construct and load translator
+		QTranslator* translator = new QTranslator(instance());
+		if (translator->load(file.absoluteFilePath())) {
+			QString locale = language + "_" + country;
+			sysTranslators.insert(locale, translator);
+		}
+	}
 }
 
 const QStringList Application::availableLanguages() {
@@ -67,12 +89,21 @@ const QStringList Application::availableLanguages() {
 }
 
 void Application::setLanguage(const QString& locale) {
-	// remove previous
-	if (current)
+	// remove previous translator
+	if(current)
 		removeTranslator(current);
+	if(sysCurrent)
+		removeTranslator(sysCurrent);
 
-	// install new
+	// install new translator for the selected locale
+	// when multiple translators are included, translations are fetched
+	// in the reverse order. ie, last translator is searched first.
+	// install system translations first
+	sysCurrent = sysTranslators.value(locale, 0);
+	if(sysCurrent)
+		installTranslator(sysCurrent);
+	// now install application translations
 	current = translators.value(locale, 0);
-	if (current)
+	if(current)
 		installTranslator(current);
 }

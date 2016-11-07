@@ -24,22 +24,22 @@
         <translation>За програмата</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="68"/>
+        <location filename="aboutdialog.ui" line="81"/>
         <source>&lt;Description&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="81"/>
+        <location filename="aboutdialog.ui" line="107"/>
         <source>Thanks</source>
         <translation>Благодарности</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="110"/>
+        <location filename="aboutdialog.ui" line="136"/>
         <source>License</source>
         <translation>Лиценз</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="169"/>
+        <location filename="aboutdialog.ui" line="195"/>
         <source>Close</source>
         <translation>Затвори</translation>
     </message>
@@ -122,17 +122,17 @@
         <translation>От:</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="99"/>
+        <location filename="filemodelview.cpp" line="103"/>
         <source>Completed</source>
         <translation>Завършено</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="102"/>
+        <location filename="filemodelview.cpp" line="106"/>
         <source>Canceled</source>
         <translation>Отказано</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="105"/>
+        <location filename="filemodelview.cpp" line="109"/>
         <source>Interrupted</source>
         <translation>Прекъснато</translation>
     </message>
@@ -219,54 +219,85 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1602"/>
+        <location filename="settingsdialog.ui" line="1148"/>
+        <source>Reset All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1320"/>
+        <source>Broadcast address:</source>
+        <oldsource>Broadcast Address:</oldsource>
+        <translation>Броуткаст адрес:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1357"/>
+        <source>&lt;- Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1384"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1413"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1421"/>
+        <source>Multicast address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1782"/>
         <source>Chat Theme</source>
         <translation>Чат тема</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1662"/>
+        <location filename="settingsdialog.ui" line="1842"/>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1670"/>
+        <location filename="settingsdialog.ui" line="1850"/>
         <source>Contacts list view:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1695"/>
+        <location filename="settingsdialog.ui" line="1875"/>
         <source>Show status as tooltip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1761"/>
+        <location filename="settingsdialog.ui" line="1941"/>
         <source>Send messages using:</source>
         <translation>Изпращане на съобщения чрез:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1786"/>
+        <location filename="settingsdialog.ui" line="1966"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1793"/>
+        <location filename="settingsdialog.ui" line="1973"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1854"/>
+        <location filename="settingsdialog.ui" line="2034"/>
         <source>Reset Preferences</source>
         <translation> Нулирай настройките </translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1874"/>
+        <location filename="settingsdialog.ui" line="2054"/>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1884"/>
+        <location filename="settingsdialog.ui" line="2064"/>
         <source>Cancel</source>
         <translation>Откажи</translation>
     </message>
@@ -278,7 +309,7 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1595"/>
+        <location filename="settingsdialog.ui" line="1775"/>
         <source>Appearance</source>
         <translation>Външен вид</translation>
     </message>
@@ -381,7 +412,7 @@
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
-        <location filename="settingsdialog.ui" line="1750"/>
+        <location filename="settingsdialog.ui" line="1930"/>
         <source>Messages</source>
         <translation>Съобщения</translation>
     </message>
@@ -391,17 +422,17 @@
         <translation>Прозорец със съобщения</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="578"/>
+        <location filename="settingsdialog.ui" line="605"/>
         <source>Show emoticons in instant messages</source>
         <translation>Показвай емотикони в съобщенията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="585"/>
+        <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Показвай време (час) на съобщенията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="610"/>
+        <location filename="settingsdialog.ui" line="637"/>
         <source>Show date in time stamp</source>
         <translation>Показвай дата на съобщенията</translation>
     </message>
@@ -416,19 +447,19 @@
         <translation>Минимизирай идващите съобщения в таскбара</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="663"/>
+        <location filename="settingsdialog.ui" line="690"/>
         <source>Message Font</source>
         <translation>Шрифт за съобщенията</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
-        <location filename="settingsdialog.ui" line="792"/>
+        <location filename="settingsdialog.ui" line="819"/>
         <source>History</source>
         <translation>История</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
-        <location filename="settingsdialog.ui" line="1743"/>
+        <location filename="settingsdialog.ui" line="1923"/>
         <source>Hotkeys</source>
         <translation>Бързи клавиши</translation>
     </message>
@@ -438,221 +469,229 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="619"/>
+        <location filename="settingsdialog.ui" line="580"/>
+        <source>Apply to public messages</source>
+        <oldsource>Apply  to public messages</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Позволявай хиперлинкове в съобщенията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="644"/>
+        <location filename="settingsdialog.ui" line="671"/>
         <source>Convert network paths to links</source>
         <translation>Конвертирай мрежовите пътища към линкове</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="653"/>
+        <location filename="settingsdialog.ui" line="680"/>
         <source>Remove whitespace from start and end of messages</source>
         <translation>Изчиствай интервалите в началото и края на съобщенията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="671"/>
+        <location filename="settingsdialog.ui" line="698"/>
         <source>Change Font...</source>
         <translation>Шрифт...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="695"/>
+        <location filename="settingsdialog.ui" line="722"/>
         <source>Change Color...</source>
         <translation>Цвят...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="719"/>
+        <location filename="settingsdialog.ui" line="746"/>
         <source>Incoming message text size:</source>
         <translation>Размер на текста в идващите съобщения:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="799"/>
+        <location filename="settingsdialog.ui" line="826"/>
         <source>Message History</source>
         <translation>История на съобщенията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="805"/>
+        <location filename="settingsdialog.ui" line="832"/>
         <source>Keep a history of conversations</source>
         <translation>Пази история на кореспонденцията</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="814"/>
+        <location filename="settingsdialog.ui" line="841"/>
         <source>Clear Message History</source>
         <translation>Изчисти историята</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="839"/>
+        <location filename="settingsdialog.ui" line="866"/>
         <source>History File Location</source>
         <translation>Местоположения на файла за историята</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="845"/>
+        <location filename="settingsdialog.ui" line="872"/>
         <source>System default location</source>
         <translation>Позицията по подразбиране за системата</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="852"/>
+        <location filename="settingsdialog.ui" line="879"/>
         <source>Custom location</source>
         <translation>Друга позиция</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="890"/>
-        <location filename="settingsdialog.ui" line="1521"/>
+        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="1128"/>
+        <location filename="settingsdialog.ui" line="1701"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="902"/>
+        <location filename="settingsdialog.ui" line="929"/>
         <source>File Transfer History</source>
         <translation>История на файловите трансфери</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="908"/>
+        <location filename="settingsdialog.ui" line="935"/>
         <source>Keep a history of file transfers</source>
         <translation>Пази история за файловите трансфери</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="944"/>
         <source>Clear Transfer History</source>
         <translation>Изчисти историята</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="980"/>
+        <location filename="settingsdialog.ui" line="1007"/>
         <source>Alerts</source>
         <translation>Уведомяване</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="987"/>
+        <location filename="settingsdialog.ui" line="1014"/>
         <source>Status Alerts</source>
         <translation>Уведомяване за статуси</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="993"/>
+        <location filename="settingsdialog.ui" line="1020"/>
         <source>Display status alerts</source>
         <translation>Показвай уведомявания за статуси</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1000"/>
+        <location filename="settingsdialog.ui" line="1027"/>
         <source>Suspend alerts when my status is Busy</source>
         <translation>Спри уведомленията когато моят статус е Зает</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1007"/>
+        <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
         <translation>Спри уведомленията когато моят статус е Не ме безпокой</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1017"/>
+        <location filename="settingsdialog.ui" line="1044"/>
         <source>Sounds</source>
         <translation>Звуци</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1023"/>
+        <location filename="settingsdialog.ui" line="1050"/>
         <source>Provide feedback with sounds</source>
         <translation>Възпроизвеждай звуци</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1094"/>
+        <location filename="settingsdialog.ui" line="1161"/>
         <source>Suspend sounds when my status is Busy</source>
         <translation>Спри звуците когато моят статус е Зает</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1101"/>
+        <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
         <translation>Спри звуците когато моят статус е Не ме безпокой</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1050"/>
+        <location filename="settingsdialog.ui" line="1077"/>
         <source>Play sounds for these events:</source>
         <translation>Изпълнявай звуци при следните събития:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1149"/>
+        <location filename="settingsdialog.ui" line="1216"/>
         <source>Network</source>
         <translation>Мрежа</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1156"/>
+        <location filename="settingsdialog.ui" line="1223"/>
         <source>Connection</source>
         <translation>Връзка</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1164"/>
+        <location filename="settingsdialog.ui" line="1231"/>
         <source>Connection timeout (seconds):</source>
         <translation>Таймаут на връзката:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1198"/>
+        <location filename="settingsdialog.ui" line="1265"/>
         <source>Maximum number of retries:</source>
         <translation>Максимален брой повторни опити:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1233"/>
-        <source>Broadcast Settings</source>
+        <location filename="settingsdialog.ui" line="1300"/>
+        <source>Broadcast</source>
+        <oldsource>Broadcast Settings</oldsource>
         <translation>Броудкаст настройки</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1241"/>
-        <source>Broadcast address:</source>
-        <translation>Броуткаст адрес:</translation>
+        <location filename="settingsdialog.ui" line="1306"/>
+        <source>Broadcast list:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1284"/>
+        <location filename="settingsdialog.ui" line="1464"/>
         <source>UDP Port*:</source>
         <translation>UDP Порт*:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1327"/>
+        <location filename="settingsdialog.ui" line="1507"/>
         <source>TCP Port*:</source>
         <translation>TCP Порт*:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1371"/>
+        <location filename="settingsdialog.ui" line="1551"/>
         <source>* Takes effect after you restart %1.</source>
         <translation>* Влизат в сила след като рестартирате %1.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1416"/>
+        <location filename="settingsdialog.ui" line="1596"/>
         <source>File Transfer</source>
         <translation>Файлов трансфер</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1423"/>
+        <location filename="settingsdialog.ui" line="1603"/>
         <source>Incoming File Request</source>
         <translation>Входящи искания за файлов трансфер</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1461"/>
+        <location filename="settingsdialog.ui" line="1641"/>
         <source>Bring window to foreground</source>
         <translation>Покажи прозореца на преден план</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1488"/>
+        <location filename="settingsdialog.ui" line="1668"/>
         <source>Minimize window to taskbar</source>
         <translation>Минимизирай прозореца в таскбара</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1429"/>
+        <location filename="settingsdialog.ui" line="1609"/>
         <source>Accept and start receiving files automatically</source>
         <translation>Приемай и започвай трансфер на файлове автоматично</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1436"/>
+        <location filename="settingsdialog.ui" line="1616"/>
         <source>Show File Transfer window when sending or receiving files</source>
         <translation>Показвай прозорец когато изпращам или получавам файлове</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1500"/>
+        <location filename="settingsdialog.ui" line="1680"/>
         <source>Store Received Files in this Folder</source>
         <translation>Записвай получените файлове в тази директория</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1532"/>
+        <location filename="settingsdialog.ui" line="1712"/>
         <source>View Files</source>
         <translation>Виж файловете</translation>
     </message>
@@ -757,99 +796,99 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="50"/>
+        <location filename="userinfowindow.ui" line="43"/>
         <source>&lt;User Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="57"/>
+        <location filename="userinfowindow.ui" line="50"/>
         <source>&lt;Status&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="91"/>
+        <location filename="userinfowindow.ui" line="84"/>
         <source>Personal Information</source>
         <translation>Лична информация</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="94"/>
         <source>First Name:</source>
         <translation>Малко име:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="108"/>
-        <location filename="userinfowindow.ui" line="129"/>
-        <location filename="userinfowindow.ui" line="167"/>
+        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="160"/>
         <source>N/A</source>
         <translation>N / A</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="115"/>
         <source>Last Name:</source>
         <translation>Фамилно име:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="145"/>
+        <location filename="userinfowindow.ui" line="138"/>
         <source>About:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="177"/>
+        <location filename="userinfowindow.ui" line="170"/>
         <source>System Information</source>
         <translation>Системна информация</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="183"/>
+        <location filename="userinfowindow.ui" line="176"/>
         <source>IP Address:</source>
         <translation>IP Адрес:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="193"/>
+        <location filename="userinfowindow.ui" line="186"/>
         <source>&lt;IP Address&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="200"/>
+        <location filename="userinfowindow.ui" line="193"/>
         <source>Logon Name:</source>
         <translation>Потребител в ОС:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="210"/>
+        <location filename="userinfowindow.ui" line="203"/>
         <source>&lt;Logon Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="217"/>
+        <location filename="userinfowindow.ui" line="210"/>
         <source>Computer Name:</source>
         <translation>Име на компютъра:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="227"/>
+        <location filename="userinfowindow.ui" line="220"/>
         <source>&lt;Computer Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="234"/>
+        <location filename="userinfowindow.ui" line="227"/>
         <source>Operating System:</source>
         <translation>Операционна система:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="244"/>
+        <location filename="userinfowindow.ui" line="237"/>
         <source>&lt;Operating System&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="251"/>
+        <location filename="userinfowindow.ui" line="244"/>
         <source>Messenger Version:</source>
         <translation>Версия на месинджъра:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="261"/>
+        <location filename="userinfowindow.ui" line="254"/>
         <source>&lt;Messenger Version&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="287"/>
+        <location filename="userinfowindow.ui" line="280"/>
         <source>Close</source>
         <translation>Затвори</translation>
     </message>
@@ -1160,23 +1199,23 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="122"/>
-        <location filename="lmc.cpp" line="164"/>
+        <location filename="lmc.cpp" line="143"/>
+        <location filename="lmc.cpp" line="182"/>
         <source>LAYOUT_DIRECTION</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="944"/>
+        <location filename="lmc.cpp" line="971"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>Беше установен конфликт на портове. %1 ще бъде затворен сега.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="946"/>
+        <location filename="lmc.cpp" line="973"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%1 неможе да бъде стартиран защото друго приложение използва конфигурирания порт на %2.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="117"/>
+        <location filename="lmc.cpp" line="138"/>
         <source>Your preferences file is corrupt or invalid.
 
 %1 is unable to recover your settings.</source>
@@ -1201,7 +1240,7 @@
 <context>
     <name>lmcHistoryWindow</name>
     <message>
-        <location filename="historywindow.cpp" line="108"/>
+        <location filename="historywindow.cpp" line="110"/>
         <source>Message History</source>
         <translation>История на съобщенията</translation>
     </message>
@@ -1498,12 +1537,12 @@
         <translation>%1 напусна този разговор</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="740"/>
+        <location filename="messagelog.cpp" line="769"/>
         <source>&amp;Copy</source>
         <translation>&amp;Копиране</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="741"/>
+        <location filename="messagelog.cpp" line="770"/>
         <source>Select &amp;All</source>
         <translation>Избор &amp;на всичко</translation>
     </message>
@@ -1511,57 +1550,67 @@
 <context>
     <name>lmcSettingsDialog</name>
     <message>
-        <location filename="settingsdialog.cpp" line="178"/>
+        <location filename="settingsdialog.cpp" line="194"/>
         <source>Save History</source>
         <translation>Запази историята</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="185"/>
+        <location filename="settingsdialog.cpp" line="201"/>
         <source>Select folder</source>
         <translation>Избери папка</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="216"/>
+        <location filename="settingsdialog.cpp" line="232"/>
         <source>Select Font</source>
         <translation>Избери шрифт</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="222"/>
+        <location filename="settingsdialog.cpp" line="238"/>
         <source>Select Color</source>
         <translation>Избери цвят</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="228"/>
+        <location filename="settingsdialog.cpp" line="244"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
         <translation>Сугурни ли сте, че искате да нулирате вашите настройки за %1?</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="229"/>
+        <location filename="settingsdialog.cpp" line="245"/>
         <source>Reset Preferences</source>
         <translation>Нулирай настройките</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="296"/>
+        <location filename="settingsdialog.cpp" line="350"/>
+        <source>&lt;File Not Found&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="364"/>
+        <source>Select sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="392"/>
         <source>Preferences</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="304"/>
+        <location filename="settingsdialog.cpp" line="400"/>
         <source>System Tray (Not Available)</source>
         <translation>Системен трей (Не е на разположение)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="308"/>
+        <location filename="settingsdialog.cpp" line="404"/>
         <source>Status Alerts (Not Available)</source>
         <translation>Статус уведомления (Не е на разположение)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="312"/>
+        <location filename="settingsdialog.cpp" line="408"/>
         <source>Sounds (Not Available)</source>
         <translation>Звуци (Не е на разположение)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="326"/>
+        <location filename="settingsdialog.cpp" line="422"/>
         <source>Check for updates</source>
         <translation>Провери за обновления</translation>
     </message>
@@ -1800,7 +1849,7 @@ LAN Месинджър на практика работи на всякаква 
 <context>
     <name>lmcUserInfoWindow</name>
     <message>
-        <location filename="userinfowindow.cpp" line="70"/>
+        <location filename="userinfowindow.cpp" line="77"/>
         <source>User Information</source>
         <translation>Информация за потребител</translation>
     </message>

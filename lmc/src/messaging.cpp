@@ -52,13 +52,13 @@ lmcMessaging::lmcMessaging(void) {
 lmcMessaging::~lmcMessaging(void) {
 }
 
-void lmcMessaging::init(void) {
+void lmcMessaging::init(XmlMessage *pInitParams) {
 	lmcTrace::write("Messaging initialized");
 
-	pNetwork->init();
+	pNetwork->init(pInitParams);
 
 	QString logonName = Helper::getLogonName();
-	QString szAddress = pNetwork->getPhysicalAddress();
+	QString szAddress = pNetwork->physicalAddress();
 	QString userId = createUserId(&szAddress, &logonName);
 
 	pNetwork->setLocalId(&userId);

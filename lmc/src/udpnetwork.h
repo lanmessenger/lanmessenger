@@ -29,11 +29,11 @@
 #include <QUdpSocket>
 #include <QNetworkAddressEntry>
 #include <QHostAddress>
+#include <QList>
 #include "shared.h"
 #include "datagram.h"
 #include "settings.h"
 #include "crypto.h"
-#include "xmlmessage.h"
 
 class lmcUdpNetwork : public QObject {
 	Q_OBJECT
@@ -42,7 +42,7 @@ public:
 	lmcUdpNetwork(void);
 	~lmcUdpNetwork(void);
 
-	void init(void);
+	void init(int nPort = 0);
 	void start(void);
 	void stop(void);
 	void setLocalId(QString* lpszLocalId);
@@ -50,10 +50,8 @@ public:
 	void sendBroadcast(QString* lpszData);
 	void settingsChanged(void);
 	void setMulticastInterface(const QNetworkInterface& networkInterface);
-	void setListenAddress(const QString& szAddress);
+	void setIPAddress(const QString& szAddress, const QString& szSubnet);
 
-	QString ipAddress;
-	QString subnetMask;
 	bool isConnected;
 	bool canReceive;
 
@@ -68,17 +66,22 @@ private:
 	void sendDatagram(QHostAddress remoteAddress, QByteArray& baDatagram);
 	bool startReceiving(void);
 	void parseDatagram(QString* lpszAddress, QByteArray& baDatagram);
+	void setDefaultBroadcast(void);
 
 	lmcSettings*		pSettings;
-	QUdpSocket*			pUdpSocket;
+	QUdpSocket*			pUdpReceiver;
+	QUdpSocket*			pUdpSender;
 	lmcCrypto*			pCrypto;
 
 	bool				isRunning;
 	int					nUdpPort;
-	QHostAddress		broadcastAddress;
+	QHostAddress		multicastAddress;
 	QString				localId;
 	QNetworkInterface	multicastInterface;
-	QHostAddress		listenAddress;
+	QHostAddress		ipAddress;
+	QHostAddress		subnetMask;
+	QList<QHostAddress>	broadcastList;
+	QHostAddress		defBroadcast;
 };
 
 #endif // UDPNETWORK_H

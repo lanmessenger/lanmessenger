@@ -33,7 +33,7 @@ const QString docTemplate(
 		"%1"\
 	"</style>"\
 	"</head>"\
-	"<body>"\
+	"<body style='-webkit-nbsp-mode: space; word-wrap:break-word;'>"\
 	"</body>"\
 	"</html>");
 

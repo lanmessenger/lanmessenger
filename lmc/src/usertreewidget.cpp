@@ -194,12 +194,13 @@ void lmcUserTreeWidgetDelegate::drawCheckBox(QPainter *painter, const QPalette& 
 	painter->drawRect(checkBoxRect);
 
 	if(checkState == Qt::Checked) {
-		//painter->setPen(QPen(palette.text(), 2));
-		//painter->drawLine(checkBoxRect.left() + 3, checkBoxRect.top() + 3, checkBoxRect.right() - 2, checkBoxRect.bottom() - 2);
-		//painter->drawLine(checkBoxRect.left() + 3, checkBoxRect.bottom() - 2, checkBoxRect.right() - 2, checkBoxRect.top() + 3);
-		painter->setPen(QPen(palette.text(), 1.5));
-		painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 6, checkBoxRect.left() + 5, checkBoxRect.bottom() - 1);
-		painter->drawLine(checkBoxRect.left() + 5, checkBoxRect.bottom() - 1, checkBoxRect.right() - 1, checkBoxRect.top() + 2);
+		painter->setPen(QPen(palette.text(), 1));
+		painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 6, checkBoxRect.left() + 4, checkBoxRect.top() + 8);
+		painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 7, checkBoxRect.left() + 4, checkBoxRect.top() + 9);
+		painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 8, checkBoxRect.left() + 4, checkBoxRect.top() + 10);
+		painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 8, checkBoxRect.left() + 10, checkBoxRect.top() + 2);
+		painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 9, checkBoxRect.left() + 10, checkBoxRect.top() + 3);
+		painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 10, checkBoxRect.left() + 10, checkBoxRect.top() + 4);
 	}
 }
 

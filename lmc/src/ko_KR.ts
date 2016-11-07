@@ -24,22 +24,22 @@
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="68"/>
+        <location filename="aboutdialog.ui" line="81"/>
         <source>&lt;Description&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="81"/>
+        <location filename="aboutdialog.ui" line="107"/>
         <source>Thanks</source>
         <translation>도와주신 분</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="110"/>
+        <location filename="aboutdialog.ui" line="136"/>
         <source>License</source>
         <translation>저작권</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="169"/>
+        <location filename="aboutdialog.ui" line="195"/>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
@@ -122,17 +122,17 @@
         <translation>보내는 사람:</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="99"/>
+        <location filename="filemodelview.cpp" line="103"/>
         <source>Completed</source>
         <translation>완료됨</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="102"/>
+        <location filename="filemodelview.cpp" line="106"/>
         <source>Canceled</source>
         <translation>취소됨</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="105"/>
+        <location filename="filemodelview.cpp" line="109"/>
         <source>Interrupted</source>
         <translation>거절됨</translation>
     </message>
@@ -219,54 +219,85 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1602"/>
+        <location filename="settingsdialog.ui" line="1148"/>
+        <source>Reset All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1320"/>
+        <source>Broadcast address:</source>
+        <oldsource>Broadcast Address:</oldsource>
+        <translation>전달 주소:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1357"/>
+        <source>&lt;- Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1384"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1413"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1421"/>
+        <source>Multicast address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1782"/>
         <source>Chat Theme</source>
         <translation>대화창 테마</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1662"/>
+        <location filename="settingsdialog.ui" line="1842"/>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1670"/>
+        <location filename="settingsdialog.ui" line="1850"/>
         <source>Contacts list view:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1695"/>
+        <location filename="settingsdialog.ui" line="1875"/>
         <source>Show status as tooltip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1761"/>
+        <location filename="settingsdialog.ui" line="1941"/>
         <source>Send messages using:</source>
         <translation>메세지를 보낼 때 사용할 키:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1786"/>
+        <location filename="settingsdialog.ui" line="1966"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1793"/>
+        <location filename="settingsdialog.ui" line="1973"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1854"/>
+        <location filename="settingsdialog.ui" line="2034"/>
         <source>Reset Preferences</source>
         <translation>환경 설정 초기화</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1874"/>
+        <location filename="settingsdialog.ui" line="2054"/>
         <source>OK</source>
         <translation>확인</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1884"/>
+        <location filename="settingsdialog.ui" line="2064"/>
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
@@ -375,7 +406,7 @@
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
-        <location filename="settingsdialog.ui" line="1750"/>
+        <location filename="settingsdialog.ui" line="1930"/>
         <source>Messages</source>
         <translation>메세지</translation>
     </message>
@@ -385,17 +416,17 @@
         <translation>메세지창</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="578"/>
+        <location filename="settingsdialog.ui" line="605"/>
         <source>Show emoticons in instant messages</source>
         <translation>메세지창에 이모티콘 보이기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="585"/>
+        <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>도착한 시간 보이기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="610"/>
+        <location filename="settingsdialog.ui" line="637"/>
         <source>Show date in time stamp</source>
         <translation>날짜 표시하기</translation>
     </message>
@@ -410,7 +441,7 @@
         <translation>메세지가 오면 작업표시줄에 최소화하가</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="663"/>
+        <location filename="settingsdialog.ui" line="690"/>
         <source>Message Font</source>
         <translation>메세지 글꼴</translation>
     </message>
@@ -432,19 +463,19 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
-        <location filename="settingsdialog.ui" line="792"/>
+        <location filename="settingsdialog.ui" line="819"/>
         <source>History</source>
         <translation>히스토리</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1595"/>
+        <location filename="settingsdialog.ui" line="1775"/>
         <source>Appearance</source>
         <translation>시각 효과</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
-        <location filename="settingsdialog.ui" line="1743"/>
+        <location filename="settingsdialog.ui" line="1923"/>
         <source>Hotkeys</source>
         <translation>단축키</translation>
     </message>
@@ -454,221 +485,229 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="619"/>
+        <location filename="settingsdialog.ui" line="580"/>
+        <source>Apply to public messages</source>
+        <oldsource>Apply  to public messages</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>메세지의 하이퍼링크 허용</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="644"/>
+        <location filename="settingsdialog.ui" line="671"/>
         <source>Convert network paths to links</source>
         <translation>링크의 네트워크 경로 변환</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="653"/>
+        <location filename="settingsdialog.ui" line="680"/>
         <source>Remove whitespace from start and end of messages</source>
         <translation>메세지의 시작과 끝의 공백 제거</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="671"/>
+        <location filename="settingsdialog.ui" line="698"/>
         <source>Change Font...</source>
         <translation>글꼴 변경...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="695"/>
+        <location filename="settingsdialog.ui" line="722"/>
         <source>Change Color...</source>
         <translation>색상 변경...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="719"/>
+        <location filename="settingsdialog.ui" line="746"/>
         <source>Incoming message text size:</source>
         <translation>받는 메세지 글꼴 크기:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="799"/>
+        <location filename="settingsdialog.ui" line="826"/>
         <source>Message History</source>
         <translation>히스토리</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="805"/>
+        <location filename="settingsdialog.ui" line="832"/>
         <source>Keep a history of conversations</source>
         <translation>대화 내용 자동 저장</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="814"/>
+        <location filename="settingsdialog.ui" line="841"/>
         <source>Clear Message History</source>
         <translation>대화 내용 삭제</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="839"/>
+        <location filename="settingsdialog.ui" line="866"/>
         <source>History File Location</source>
         <translation>대화 내용을 저장 위치</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="845"/>
+        <location filename="settingsdialog.ui" line="872"/>
         <source>System default location</source>
         <translation>시스템 기본 위치</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="852"/>
+        <location filename="settingsdialog.ui" line="879"/>
         <source>Custom location</source>
         <translation>사용자 설정 위치</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="890"/>
-        <location filename="settingsdialog.ui" line="1521"/>
+        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="1128"/>
+        <location filename="settingsdialog.ui" line="1701"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="902"/>
+        <location filename="settingsdialog.ui" line="929"/>
         <source>File Transfer History</source>
         <translation>파일 전송</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="908"/>
+        <location filename="settingsdialog.ui" line="935"/>
         <source>Keep a history of file transfers</source>
         <translation>파일 전송 내용 자동 저장</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="944"/>
         <source>Clear Transfer History</source>
         <translation>파일 전송 내용 삭제</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="980"/>
+        <location filename="settingsdialog.ui" line="1007"/>
         <source>Alerts</source>
         <translation>알림</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="987"/>
+        <location filename="settingsdialog.ui" line="1014"/>
         <source>Status Alerts</source>
         <translation>상태 알림</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="993"/>
+        <location filename="settingsdialog.ui" line="1020"/>
         <source>Display status alerts</source>
         <translation>상태 알림 표시하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1000"/>
+        <location filename="settingsdialog.ui" line="1027"/>
         <source>Suspend alerts when my status is Busy</source>
         <translation>&apos;바쁨&apos;상태일 때 알림 해제</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1007"/>
+        <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
         <translation>&apos;방해 금지&apos;상태일 때 알림 해제</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1017"/>
+        <location filename="settingsdialog.ui" line="1044"/>
         <source>Sounds</source>
         <translation>효과음</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1023"/>
+        <location filename="settingsdialog.ui" line="1050"/>
         <source>Provide feedback with sounds</source>
         <translation>효과음 사용하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1094"/>
+        <location filename="settingsdialog.ui" line="1161"/>
         <source>Suspend sounds when my status is Busy</source>
         <translation>&apos;바쁨&apos;상태일 때 효과음을 사용하지 않기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1101"/>
+        <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
         <translation>&apos;방해 금지&apos;상태일 때 효과음을 사용하지 않기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1050"/>
+        <location filename="settingsdialog.ui" line="1077"/>
         <source>Play sounds for these events:</source>
         <translation>효과음을 사용할 때:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1149"/>
+        <location filename="settingsdialog.ui" line="1216"/>
         <source>Network</source>
         <translation>네트워크</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1156"/>
+        <location filename="settingsdialog.ui" line="1223"/>
         <source>Connection</source>
         <translation>연결</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1164"/>
+        <location filename="settingsdialog.ui" line="1231"/>
         <source>Connection timeout (seconds):</source>
         <translation>연결 시간 초과(초):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1198"/>
+        <location filename="settingsdialog.ui" line="1265"/>
         <source>Maximum number of retries:</source>
         <translation>최대 재연결 시도 횟수:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1233"/>
-        <source>Broadcast Settings</source>
+        <location filename="settingsdialog.ui" line="1300"/>
+        <source>Broadcast</source>
+        <oldsource>Broadcast Settings</oldsource>
         <translation>전달 설정</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1241"/>
-        <source>Broadcast address:</source>
-        <translation>전달 주소:</translation>
+        <location filename="settingsdialog.ui" line="1306"/>
+        <source>Broadcast list:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1284"/>
+        <location filename="settingsdialog.ui" line="1464"/>
         <source>UDP Port*:</source>
         <translation>UDP 포트 (*):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1327"/>
+        <location filename="settingsdialog.ui" line="1507"/>
         <source>TCP Port*:</source>
         <translation>TCP포트 (*):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1371"/>
+        <location filename="settingsdialog.ui" line="1551"/>
         <source>* Takes effect after you restart %1.</source>
         <translation>* 표사는 %1를 재시작한 다음에 적용됩니다.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1416"/>
+        <location filename="settingsdialog.ui" line="1596"/>
         <source>File Transfer</source>
         <translation>파일 전송</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1423"/>
+        <location filename="settingsdialog.ui" line="1603"/>
         <source>Incoming File Request</source>
         <translation>파일 전송 요청</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1461"/>
+        <location filename="settingsdialog.ui" line="1641"/>
         <source>Bring window to foreground</source>
         <translation>전송창을 화면에 표시하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1488"/>
+        <location filename="settingsdialog.ui" line="1668"/>
         <source>Minimize window to taskbar</source>
         <translation>전송창을 상태표시줄에 최소화하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1429"/>
+        <location filename="settingsdialog.ui" line="1609"/>
         <source>Accept and start receiving files automatically</source>
         <translation>자동으로 파일 전송을 시작하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1436"/>
+        <location filename="settingsdialog.ui" line="1616"/>
         <source>Show File Transfer window when sending or receiving files</source>
         <translation>파일을 주고 받을 때 전송창을 표시하기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1500"/>
+        <location filename="settingsdialog.ui" line="1680"/>
         <source>Store Received Files in this Folder</source>
         <translation>전송된 파일을 저장할 폴더</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1532"/>
+        <location filename="settingsdialog.ui" line="1712"/>
         <source>View Files</source>
         <translation>폴더 보기</translation>
     </message>
@@ -773,99 +812,99 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="50"/>
+        <location filename="userinfowindow.ui" line="43"/>
         <source>&lt;User Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="57"/>
+        <location filename="userinfowindow.ui" line="50"/>
         <source>&lt;Status&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="91"/>
+        <location filename="userinfowindow.ui" line="84"/>
         <source>Personal Information</source>
         <translation>개인 정보</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="94"/>
         <source>First Name:</source>
         <translation>이름:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="108"/>
-        <location filename="userinfowindow.ui" line="129"/>
-        <location filename="userinfowindow.ui" line="167"/>
+        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="160"/>
         <source>N/A</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="115"/>
         <source>Last Name:</source>
         <translation>성:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="145"/>
+        <location filename="userinfowindow.ui" line="138"/>
         <source>About:</source>
         <translation>정보:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="177"/>
+        <location filename="userinfowindow.ui" line="170"/>
         <source>System Information</source>
         <translation>시스템 정보</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="183"/>
+        <location filename="userinfowindow.ui" line="176"/>
         <source>IP Address:</source>
         <translation>IP주소:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="193"/>
+        <location filename="userinfowindow.ui" line="186"/>
         <source>&lt;IP Address&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="200"/>
+        <location filename="userinfowindow.ui" line="193"/>
         <source>Logon Name:</source>
         <translation>로그인 이름:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="210"/>
+        <location filename="userinfowindow.ui" line="203"/>
         <source>&lt;Logon Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="217"/>
+        <location filename="userinfowindow.ui" line="210"/>
         <source>Computer Name:</source>
         <translation>컴퓨터 이름:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="227"/>
+        <location filename="userinfowindow.ui" line="220"/>
         <source>&lt;Computer Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="234"/>
+        <location filename="userinfowindow.ui" line="227"/>
         <source>Operating System:</source>
         <translation>운영체제:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="244"/>
+        <location filename="userinfowindow.ui" line="237"/>
         <source>&lt;Operating System&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="251"/>
+        <location filename="userinfowindow.ui" line="244"/>
         <source>Messenger Version:</source>
         <translation>메신저 버전:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="261"/>
+        <location filename="userinfowindow.ui" line="254"/>
         <source>&lt;Messenger Version&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="287"/>
+        <location filename="userinfowindow.ui" line="280"/>
         <source>Close</source>
         <translation></translation>
     </message>
@@ -1243,23 +1282,23 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="122"/>
-        <location filename="lmc.cpp" line="164"/>
+        <location filename="lmc.cpp" line="143"/>
+        <location filename="lmc.cpp" line="182"/>
         <source>LAYOUT_DIRECTION</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="944"/>
+        <location filename="lmc.cpp" line="971"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>포트 주소가 충돌되었습니다. %1를 중지합니다.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="946"/>
+        <location filename="lmc.cpp" line="973"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%2가 포트를 사용하고 있어서 %1를 실행할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="117"/>
+        <location filename="lmc.cpp" line="138"/>
         <source>Your preferences file is corrupt or invalid.
 
 %1 is unable to recover your settings.</source>
@@ -1284,7 +1323,7 @@
 <context>
     <name>lmcHistoryWindow</name>
     <message>
-        <location filename="historywindow.cpp" line="108"/>
+        <location filename="historywindow.cpp" line="110"/>
         <source>Message History</source>
         <translation>대화 내용</translation>
     </message>
@@ -1581,12 +1620,12 @@
         <translation>%1이 대화를 마쳤습니다</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="740"/>
+        <location filename="messagelog.cpp" line="769"/>
         <source>&amp;Copy</source>
         <translation>&amp;부</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="741"/>
+        <location filename="messagelog.cpp" line="770"/>
         <source>Select &amp;All</source>
         <translation>&amp;모두 선택</translation>
     </message>
@@ -1598,57 +1637,67 @@
         <translation type="obsolete">AaBbYyZz</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="178"/>
+        <location filename="settingsdialog.cpp" line="194"/>
         <source>Save History</source>
         <translation>대화 내용 저장</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="185"/>
+        <location filename="settingsdialog.cpp" line="201"/>
         <source>Select folder</source>
         <translation>폴더 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="216"/>
+        <location filename="settingsdialog.cpp" line="232"/>
         <source>Select Font</source>
         <translation>글꼴 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="222"/>
+        <location filename="settingsdialog.cpp" line="238"/>
         <source>Select Color</source>
         <translation>색상 고르기</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="228"/>
+        <location filename="settingsdialog.cpp" line="244"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
         <translation>%1의 환경 설정을 초기화 하겠습니까?</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="229"/>
+        <location filename="settingsdialog.cpp" line="245"/>
         <source>Reset Preferences</source>
         <translation>환경 설정 초기화</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="296"/>
+        <location filename="settingsdialog.cpp" line="350"/>
+        <source>&lt;File Not Found&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="364"/>
+        <source>Select sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="392"/>
         <source>Preferences</source>
         <translation>환경 설정</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="304"/>
+        <location filename="settingsdialog.cpp" line="400"/>
         <source>System Tray (Not Available)</source>
         <translation>알림 영역(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="308"/>
+        <location filename="settingsdialog.cpp" line="404"/>
         <source>Status Alerts (Not Available)</source>
         <translation>상태 알림(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="312"/>
+        <location filename="settingsdialog.cpp" line="408"/>
         <source>Sounds (Not Available)</source>
         <translation>효과음(사용할 수 없음)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="326"/>
+        <location filename="settingsdialog.cpp" line="422"/>
         <source>Check for updates</source>
         <translation>업데이트 확인하기</translation>
     </message>
@@ -1885,7 +1934,7 @@ LAN Messenger works on essentially every popular desktop platform.</source>
 <context>
     <name>lmcUserInfoWindow</name>
     <message>
-        <location filename="userinfowindow.cpp" line="70"/>
+        <location filename="userinfowindow.cpp" line="77"/>
         <source>User Information</source>
         <translation>사용자 정보</translation>
     </message>

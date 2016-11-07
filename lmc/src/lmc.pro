@@ -124,7 +124,8 @@ TRANSLATIONS += \
 	bg_BG.ts \
 	ro_RO.ts \
 	ar_SA.ts \
-	sl_SI.ts
+	sl_SI.ts \
+	pt_BR.ts
 
 win32: RC_FILE = lmcwin32.rc
 macx: ICON = lmc.icns
@@ -135,8 +136,8 @@ CONFIG(debug, debug|release) {
     DESTDIR = ../release
 }
 
-win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
-else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd
+win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp2
+else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd2
 unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 
 INCLUDEPATH += $$PWD/../../lmcapp/include

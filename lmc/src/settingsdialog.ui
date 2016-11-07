@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>534</height>
+    <width>543</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,7 +110,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="pageGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -555,6 +555,33 @@
                <string>Minimize incoming messages to taskbar</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_32">
+              <item>
+               <spacer name="horizontalSpacer_30">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>10</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkPublicMessagePop">
+                <property name="text">
+                 <string>Apply to public messages</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <spacer name="verticalSpacer_3">
@@ -1036,7 +1063,7 @@
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>10</width>
+                  <width>13</width>
                   <height>20</height>
                  </size>
                 </property>
@@ -1052,25 +1079,58 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QListWidget" name="lvSounds">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>81</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_14">
                   <item>
-                   <widget class="QListWidget" name="lvSounds">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>16777215</width>
-                      <height>81</height>
-                     </size>
+                   <widget class="QLineEdit" name="txtSoundFile">
+                    <property name="readOnly">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_13">
+                   <widget class="QPushButton" name="btnPlaySound">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnSoundPath">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>31</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_31">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -1081,6 +1141,13 @@
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnResetSounds">
+                    <property name="text">
+                     <string>Reset All</string>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -1230,15 +1297,128 @@
          <item>
           <widget class="QGroupBox" name="grpBroadcast">
            <property name="title">
-            <string>Broadcast Settings</string>
+            <string>Broadcast</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_24">
+           <layout class="QVBoxLayout" name="verticalLayout_36">
+            <item>
+             <widget class="QLabel" name="lblBroadcastListDesc">
+              <property name="text">
+               <string>Broadcast list:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_31">
+              <item>
+               <widget class="QListWidget" name="lvBroadcasts"/>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_24">
+                <item>
+                 <widget class="QLabel" name="lblBroadcastDesc">
+                  <property name="text">
+                   <string>Broadcast address:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="txtBroadcast">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>130</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>130</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="inputMask">
+                   <string notr="true">000.000.000.000;_</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_29">
+                  <item>
+                   <widget class="QPushButton" name="btnAddBroadcast">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>&lt;- Add</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_28">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_30">
+                  <item>
+                   <widget class="QPushButton" name="btnDeleteBroadcast">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Delete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_29">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Advanced</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_38">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_18">
               <item>
-               <widget class="QLabel" name="lblBroadcastDesc">
+               <widget class="QLabel" name="lblMulticastDesc">
                 <property name="text">
-                 <string>Broadcast address:</string>
+                 <string>Multicast address:</string>
                 </property>
                </widget>
               </item>
@@ -1256,16 +1436,16 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLineEdit" name="txtBroadcast">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+               <widget class="QLineEdit" name="txtMulticast">
+                <property name="minimumSize">
+                 <size>
+                  <width>130</width>
+                  <height>0</height>
+                 </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>130</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -1907,6 +2087,7 @@
   <tabstop>spnRefreshTime</tabstop>
   <tabstop>rdbMessageTop</tabstop>
   <tabstop>rdbMessageBottom</tabstop>
+  <tabstop>chkPublicMessagePop</tabstop>
   <tabstop>chkEmoticon</tabstop>
   <tabstop>chkMessageTime</tabstop>
   <tabstop>chkMessageDate</tabstop>
@@ -1929,11 +2110,19 @@
   <tabstop>chkNoDNDAlert</tabstop>
   <tabstop>chkSound</tabstop>
   <tabstop>lvSounds</tabstop>
+  <tabstop>txtSoundFile</tabstop>
+  <tabstop>btnPlaySound</tabstop>
+  <tabstop>btnSoundPath</tabstop>
+  <tabstop>btnResetSounds</tabstop>
   <tabstop>chkNoBusySound</tabstop>
   <tabstop>chkNoDNDSound</tabstop>
   <tabstop>spnTimeout</tabstop>
   <tabstop>spnMaxRetries</tabstop>
+  <tabstop>lvBroadcasts</tabstop>
   <tabstop>txtBroadcast</tabstop>
+  <tabstop>btnAddBroadcast</tabstop>
+  <tabstop>btnDeleteBroadcast</tabstop>
+  <tabstop>txtMulticast</tabstop>
   <tabstop>txtUDPPort</tabstop>
   <tabstop>txtTCPPort</tabstop>
   <tabstop>chkAutoFile</tabstop>

@@ -33,16 +33,12 @@ lmcTrace::lmcTrace(void) {
 lmcTrace::~lmcTrace(void) {
 }
 
-void lmcTrace::init(void) {
-	lmcSettings settings;
-	traceMode = settings.value(IDS_TRACEMODE, IDS_TRACEMODE_VAL).toBool();
-	fileName = settings.value(IDS_LOGFILE).toString();
+void lmcTrace::init(XmlMessage* pInitParams) {
+	traceMode = Helper::StringToBool(pInitParams->data(XN_TRACEMODE));
+	fileName = pInitParams->data(XN_LOGFILE);
 }
 
 void lmcTrace::write(const QString& string) {
-	if(fileName.isEmpty())
-		init();
-
 	if(!traceMode)
 		return;
 

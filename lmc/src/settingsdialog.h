@@ -31,6 +31,7 @@
 #include <QFontDialog>
 #include <QColorDialog>
 #include <QDesktopServices>
+#include <QSound>
 #include "ui_settingsdialog.h"
 #include "shared.h"
 #include "settings.h"
@@ -39,6 +40,7 @@
 #include "application.h"
 #include "messagelog.h"
 #include "theme.h"
+#include "soundplayer.h"
 
 class lmcSettingsDialog : public QDialog {
 	Q_OBJECT
@@ -74,6 +76,14 @@ private slots:
 	void btnColor_clicked(void);
 	void btnReset_clicked(void);
 	void cboTheme_currentIndexChanged(int index);
+	void lvBroadcasts_currentRowChanged(int index);
+	void txtBroadcast_textEdited(const QString& text);
+	void btnAddBroadcast_clicked(void);
+	void btnDeleteBroadcast_clicked(void);
+	void lvSounds_currentRowChanged(int index);
+	void btnPlaySound_clicked(void);
+	void btnSoundPath_clicked(void);
+	void btnResetSounds_clicked(void);
 
 private:
     void setPageHeaderStyle(QLabel* pLabel);
@@ -87,6 +97,8 @@ private:
 	QFont font;
 	QColor color;
 	QIntValidator* pPortValidator;
+	QRegExp	ipRegExp;
+	QRegExpValidator* pIpValidator;
 	lmcMessageLog* pMessageLog;
 };
 

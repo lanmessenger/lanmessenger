@@ -49,7 +49,9 @@ public slots:
 
 private:
 	static QTranslator* current;
+	static QTranslator* sysCurrent;
 	static Translators translators;
+	static Translators sysTranslators;
 };
 
 #endif // APPLICATION_H

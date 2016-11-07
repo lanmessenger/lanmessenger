@@ -69,15 +69,37 @@ lmcCore::lmcCore(void) {
 lmcCore::~lmcCore(void) {
 }
 
-void lmcCore::init(bool silent, bool trace) {
+void lmcCore::init(const QString& szCommandArgs) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
 
-	loadSettings(silent, trace);
+	QStringList argList = szCommandArgs.split(" ", QString::SkipEmptyParts);
+	//	remove duplicates
+	argList = argList.toSet().toList();
 
-	lmcTrace::write("Application initilized\nSettings loaded");
+	pInitParams = new XmlMessage();
+	if(argList.contains("/silent"))
+		pInitParams->addData(XN_SILENTMODE, LMC_TRUE);
+	if(argList.contains("/trace")) {
+		pInitParams->addData(XN_TRACEMODE, LMC_TRUE);
+		pInitParams->addData(XN_LOGFILE, StdLocation::freeLogFile());
+	}
+	for(int index = 0; index < argList.count(); index++) {
+		if(argList.at(index).startsWith("/port:")) {
+			QString port = argList.at(index).mid(6); // 6 is length of string '/port:'
+			pInitParams->addData(XN_PORT, port);
+			break;
+		}
+	}
 
-	pMessaging->init();
+	lmcTrace::init(pInitParams);
+	lmcTrace::write("Application initialized");
+
+	loadSettings();
+
+	lmcTrace::write("Settings loaded");
+
+	pMessaging->init(pInitParams);
 	pMainWindow->init(pMessaging->localUser, &pMessaging->groupList, pMessaging->isConnected());
 	pPublicChatWindow->init(pMessaging->localUser, pMessaging->isConnected());
 }
@@ -108,8 +130,9 @@ bool lmcCore::start(void) {
 }
 
 //	This is the initial point where settings are used in the application
-void lmcCore::loadSettings(bool silent, bool trace) {
+void lmcCore::loadSettings(void) {
 	pSettings = new lmcSettings();
+	bool silent = Helper::StringToBool(pInitParams->data(XN_SILENTMODE));
 	if(!pSettings->migrateSettings() && !silent) {
 		// settings were reset. Show an alert if not in silent mode
 		QString message = tr("Your preferences file is corrupt or invalid.\n\n%1 is unable to recover your settings.");
@@ -119,11 +142,7 @@ void lmcCore::loadSettings(bool silent, bool trace) {
 	Application::setLanguage(lang);
 	Application::setLayoutDirection(tr("LAYOUT_DIRECTION") == RTL_LAYOUT ? Qt::RightToLeft : Qt::LeftToRight);
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
-
-	//	Set the values of internal values used by the application
-	pSettings->setValue(IDS_SILENTMODE, silent);
-	pSettings->setValue(IDS_TRACEMODE, trace);
-	pSettings->setValue(IDS_LOGFILE, StdLocation::freeLogFile());
+	pubMessagePop = pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool();
 }
 
 void lmcCore::settingsChanged(void) {
@@ -151,6 +170,7 @@ void lmcCore::settingsChanged(void) {
 		pBroadcastWindow->settingsChanged();
 
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
+	pubMessagePop = pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool();
 	int refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt();
 	pTimer->setInterval(refreshTime * 1000);
 	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
@@ -231,12 +251,6 @@ void lmcCore::aboutToExit(void) {
 
 	lmcTrace::write("Application exit");
 
-	//	Remove the internal values used by the application since they
-	//	need not be saved to persistent storage
-	pSettings->remove(IDS_SILENTMODE);
-	pSettings->remove(IDS_TRACEMODE);
-	pSettings->remove(IDS_LOGFILE);
-
 	pSettings->sync();
 }
 
@@ -244,13 +258,8 @@ void lmcCore::timer_timeout(void) {
 	//	Refresh the contacts list whenever the timer triggers
 	pMessaging->update();
 	if(adaptiveRefresh) {
-		//	If no users have yet been discovered, aggressive polling is used until at least
-		//	one user has been discovered. The interval is retained at initial value of 10s.
-		if(pMessaging->userCount() == 0)
-			return;
-
-		//	If one or more users have been discovered, we increase the interval until the
-		//	refresh time defined by user is reached. Then keep refreshing at that interval.
+		//	The refresh interval is doubled until the refresh time defined by user is reached.
+		//	Then keep refreshing at that interval.
 		int nextInterval = pTimer->interval() * 2;
 		int maxInterval = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
 		int refreshTime = qMin(nextInterval, maxInterval);
@@ -288,11 +297,11 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 	case MT_Query:
 	case MT_Group:
 	case MT_ChatState:
-	case MT_Note:
 	case MT_Version:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Status:
+	case MT_Note:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		processPublicMessage(type, lpszUserId, pMessage);
 		routeGroupMessage(type, lpszUserId, pMessage);
@@ -497,13 +506,8 @@ void lmcCore::showBroadcast(void) {
 }
 
 void lmcCore::showPublicChat() {
-	//	if window is minimized it, restore it to previous state
-	if(pPublicChatWindow->windowState().testFlag(Qt::WindowMinimized))
-		pPublicChatWindow->setWindowState(pPublicChatWindow->windowState() & ~Qt::WindowMinimized);
-	pPublicChatWindow->setWindowState(pPublicChatWindow->windowState() | Qt::WindowActive);
-	pPublicChatWindow->raise();	// make window the top most window of the application
-	pPublicChatWindow->show();
-	pPublicChatWindow->activateWindow();	// bring window to foreground
+	//	Show public chat window
+	showPublicChatWindow(true);
 }
 
 void lmcCore::historyCleared(void) {
@@ -668,7 +672,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 void lmcCore::routeGroupMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	if(!lpszUserId) {
 		for(int index = 0; index < chatRoomWindows.count(); index++) {
-			if(type == MT_Status)
+			if(type == MT_Status || type == MT_Note)
 				chatRoomWindows[index]->updateUser(pMessaging->localUser);
 			chatRoomWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 		}
@@ -766,8 +770,7 @@ void lmcCore::processPublicMessage(MessageType type, QString* lpszUserId, XmlMes
 		break;
 	case MT_PublicMessage:
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
-		if(!pPublicChatWindow->isHidden())
-			qApp->alert(pPublicChatWindow);
+		showPublicChatWindow((pubMessagePop && messageTop), true, pubMessagePop);
 		break;
 	case MT_LocalAvatar:
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
@@ -907,6 +910,23 @@ void lmcCore::showChatRoomWindow(lmcChatRoomWindow* chatRoomWindow, bool show, b
 			chatRoomWindow->close();
 		} else
 			chatRoomWindow->selectContacts(&selectedContacts);
+	}
+}
+
+void lmcCore::showPublicChatWindow(bool show, bool alert, bool open) {
+	if(show) {
+		if(pPublicChatWindow->windowState().testFlag(Qt::WindowMinimized))
+			pPublicChatWindow->setWindowState(pPublicChatWindow->windowState() & ~Qt::WindowMinimized);
+		pPublicChatWindow->show();
+		pPublicChatWindow->activateWindow();
+	} else {
+		if(open) {
+			if(pPublicChatWindow->isHidden())
+				pPublicChatWindow->setWindowState(pPublicChatWindow->windowState() | Qt::WindowMinimized);
+			pPublicChatWindow->show();
+		}
+		if(alert)
+			qApp->alert(pPublicChatWindow);
 	}
 }
 

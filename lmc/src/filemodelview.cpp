@@ -78,11 +78,15 @@ void FileView::paint(QPainter* painter, const QRect& rect, const QPalette& palet
 
 	QString nameDisplay = (mode == TM_Send) ? tr("To: ") : tr("From: ");
 	nameDisplay.append(userName);
-	painter->drawText(54, 0, rect.width(), 18, textFlags, nameDisplay);
+	QRect textRect = QRect(54, 0, rect.width() - 58, 18);
+	QString text = painter->fontMetrics().elidedText(nameDisplay, Qt::ElideRight, textRect.width());
+	painter->drawText(textRect, textFlags, text);
 	
 	font.setBold(false);
 	painter->setFont(font);
-	painter->drawText(54, 18, rect.width(), 18, textFlags, fileDisplay);
+	textRect = QRect(54, 18, rect.width() - 58, 18);
+	text = painter->fontMetrics().elidedText(fileDisplay, Qt::ElideMiddle, textRect.width());
+	painter->drawText(textRect, textFlags, text);
 
 	bool drawProgress = false;
 	QString stateDisplay;
@@ -107,7 +111,9 @@ void FileView::paint(QPainter* painter, const QRect& rect, const QPalette& palet
     default:
         break;
 	}
-	painter->drawText(54, 36, rect.width(), 18, textFlags, stateDisplay);
+	textRect = QRect(54, 36, rect.width() - 58, 18);
+	text = painter->fontMetrics().elidedText(stateDisplay, Qt::ElideRight, textRect.width());
+	painter->drawText(textRect, textFlags, text);
 
 	if(drawProgress) {
 		int spanAngle = ((double)position / (double)fileSize) * 360;

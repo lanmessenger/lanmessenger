@@ -12,6 +12,8 @@ for %%f in (*.ts) do (
     %QTDIR%\bin\lrelease %%~nf.ts -qm %1\lang\%%~nf.qm
 )
 echo Done.
+echo Copying system translations
+xcopy resources\lang\system %1\lang\system /E /I /F /Y
 
 echo Copying themes...
 xcopy resources\themes %1\themes /E /I /F /Y
@@ -41,7 +43,7 @@ xcopy %QTDIR%\plugins\imageformats\qjpegd4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qtiffd4.dll %1\imageformats /I /F /Y
 
 echo Copying libraries
-copy /Y ..\..\lmcapp\bin\lmcappd.dll %1\lmcappd.dll
+copy /Y ..\..\lmcapp\bin\lmcappd2.dll %1\lmcappd2.dll
 copy /Y ..\..\openssl\bin\libeay32.dll %1\libeay32.dll
 goto end
 
@@ -52,7 +54,7 @@ xcopy %QTDIR%\plugins\imageformats\qjpeg4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qtiff4.dll %1\imageformats /I /F /Y
 
 echo Copying libraries
-copy /Y ..\..\lmcapp\bin\lmcapp.dll %1\lmcapp.dll
+copy /Y ..\..\lmcapp\bin\lmcapp2.dll %1\lmcapp2.dll
 copy /Y ..\..\openssl\bin\libeay32.dll %1\libeay32.dll
 goto end
 

@@ -29,8 +29,8 @@
 //	constructor
 lmcAboutDialog::lmcAboutDialog(QWidget *parent, Qt::WFlags flags) : QDialog(parent, flags) {
 	ui.setupUi(this);
-	//	set fixed size
-	layout()->setSizeConstraint(QLayout::SetFixedSize);
+	//	set minimum size
+	layout()->setSizeConstraint(QLayout::SetMinimumSize);
 	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	//	Destroy the window when it closes
@@ -74,8 +74,7 @@ void lmcAboutDialog::setUIText(void) {
 	ui.lblLogoSmall->setPixmap(QPixmap(IDR_LOGOSMALL));
 
 	QString description(lmcStrings::appDesc() + "\n\n");
-	description.append(IDA_COPYRIGHT "\n");
-	description.append(IDA_CONTACT "\n" IDA_DOMAIN);
+	description.append(IDA_COPYRIGHT "\n" IDA_DOMAIN);
 	ui.lblDescription->setText(description);
 
 	QFile thanks(IDR_THANKSTEXT);

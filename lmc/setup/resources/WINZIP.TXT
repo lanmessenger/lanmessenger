@@ -1,1 +1,0 @@
-Extract the contents of the archive to any folder. Run lmc.exe to start LAN Messenger.

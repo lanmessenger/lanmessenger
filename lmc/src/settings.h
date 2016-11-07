@@ -83,6 +83,8 @@
 #define IDS_TRIMMESSAGE_VAL		true
 #define IDS_MESSAGETOP			"Messages/MessageTop"
 #define IDS_MESSAGETOP_VAL		false
+#define IDS_PUBMESSAGEPOP		"Messages/PubMessagePop"
+#define IDS_PUBMESSAGEPOP_VAL	false
 #define IDS_FONT				"Messages/Font"
 #define IDS_FONT_VAL			QApplication::font().toString()
 #define IDS_COLOR				"Messages/Color"
@@ -113,14 +115,16 @@
 #define IDS_NODNDSOUND_VAL		true
 #define IDS_SOUNDEVENTHDR		"SoundEvents"
 #define IDS_EVENT				"Event"
+#define IDS_SOUNDFILEHDR		"SoundFiles"
+#define IDS_FILE				"File"
 #define IDS_CONNECTION			"Connection/Connection"
 #define IDS_CONNECTION_VAL		AUTO_CONNECTION
 #define IDS_TIMEOUT				"Connection/Timeout"
 #define IDS_TIMEOUT_VAL			10
 #define IDS_MAXRETRIES			"Connection/MaxRetries"
 #define IDS_MAXRETRIES_VAL		1
-#define IDS_BROADCAST			"Connection/Broadcast"
-#define IDS_BROADCAST_VAL		"255.255.255.255"
+#define IDS_BROADCAST_OLD		"Connection/Broadcast"
+#define IDS_BROADCAST_OLD_VAL	"255.255.255.255"
 #define IDS_MULTICAST			"Connection/Multicast"
 #define IDS_MULTICAST_VAL		"239.255.100.100"
 #define IDS_UDPPORT				"Connection/UDPPort"
@@ -164,11 +168,8 @@
 #define IDS_GROUPEXPHDR			"GroupExp"
 #define IDS_GROUPMAPHDR			"GroupMap"
 #define IDS_USER				"User"
-#define IDS_SILENTMODE			"Internal/SilentMode"
-#define IDS_SILENTMODE_VAL		false
-#define IDS_TRACEMODE			"Internal/TraceMode"
-#define IDS_TRACEMODE_VAL		false
-#define IDS_LOGFILE				"Internal/LogFile"
+#define IDS_BROADCASTHDR		"BroadcastList"
+#define IDS_BROADCAST			"Broadcast"
 
 class lmcSettings : public QSettings {
 public:

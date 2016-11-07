@@ -30,18 +30,17 @@
 #include <QDateTime>
 #include <QDir>
 #include "stdlocation.h"
-#include "settings.h"
+#include "xmlmessage.h"
 
 class lmcTrace {
 public:
 	lmcTrace(void);
 	~lmcTrace(void);
 
+	static void init(XmlMessage* pInitParams);
 	static void write(const QString& string);
 
 private:
-	static void init(void);
-
 	static bool traceMode;
 	static QString fileName;
 };

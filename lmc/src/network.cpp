@@ -54,20 +54,19 @@ lmcNetwork::lmcNetwork(void) {
 lmcNetwork::~lmcNetwork(void) {
 }
 
-void lmcNetwork::init(void) {
+void lmcNetwork::init(XmlMessage *pInitParams) {
 	lmcTrace::write("Network initialized");
 
 	pSettings = new lmcSettings();
-	ipAddress = getIPAddress().toString();
-	subnetMask = getSubnetMask().toString();
-	isConnected = !ipAddress.isNull();
+	isConnected = getIPAddress();
 
-	lmcTrace::write("IP address obtained: " + ipAddress +
-		"\nSubnet mask obtained: " + subnetMask +
+	lmcTrace::write("IP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+					"\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
 		"\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
-	pUdpNetwork->init();
-	pTcpNetwork->init();
+	int port = pInitParams->data(XN_PORT).toInt();
+	pUdpNetwork->init(port);
+	pTcpNetwork->init(port);
 }
 
 void lmcNetwork::start(void) {
@@ -82,9 +81,9 @@ void lmcNetwork::start(void) {
 	pTcpNetwork->setCrypto(pCrypto);
 	if(isConnected) {
 		pUdpNetwork->setMulticastInterface(networkInterface);
-		pUdpNetwork->setListenAddress(ipAddress);
+		pUdpNetwork->setIPAddress(ipAddress, subnetMask);
 		pUdpNetwork->start();
-		pTcpNetwork->setListenAddress(ipAddress);
+		pTcpNetwork->setIPAddress(ipAddress);
 		pTcpNetwork->start();
 		canReceive = pUdpNetwork->canReceive;
 	}
@@ -99,25 +98,7 @@ void lmcNetwork::stop(void) {
 	lmcTrace::write("Network stopped");
 }
 
-QHostAddress lmcNetwork::getIPAddress(void) {
-	QNetworkAddressEntry hostAddressEntry;
-	
-	if(getNetworkAddressEntry(&hostAddressEntry))
-		return hostAddressEntry.ip();
-	
-	return QHostAddress::Null;
-}
-
-QHostAddress lmcNetwork::getSubnetMask(void) {
-	QNetworkAddressEntry hostAddressEntry;
-	
-	if(getNetworkAddressEntry(&hostAddressEntry))
-		return hostAddressEntry.netmask();
-	
-	return QHostAddress::Null;
-}
-
-QString lmcNetwork::getPhysicalAddress(void) {
+QString lmcNetwork::physicalAddress(void) {
 	//	get the first active network interface
 	QNetworkInterface networkInterface;
 
@@ -167,22 +148,19 @@ void lmcNetwork::settingsChanged(void) {
 }
 
 void lmcNetwork::timer_timeout(void) {
-	ipAddress = getIPAddress().toString();
-	subnetMask = getSubnetMask().toString();
-
 	bool prev = isConnected;
-	isConnected = !ipAddress.isNull();
+	isConnected = getIPAddress();
 
 	if(prev != isConnected) {
-		lmcTrace::write("IP address obtained: " + ipAddress +
-			"\nSubnet mask obtained: " + subnetMask +
+		lmcTrace::write("IP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+			"\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
 			"\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
 		if(isConnected) {
 			pUdpNetwork->setMulticastInterface(networkInterface);
-			pUdpNetwork->setListenAddress(ipAddress);
+			pUdpNetwork->setIPAddress(ipAddress, subnetMask);
 			pUdpNetwork->start();
-			pTcpNetwork->setListenAddress(ipAddress);
+			pTcpNetwork->setIPAddress(ipAddress);
 			pTcpNetwork->start();
 			canReceive = pUdpNetwork->canReceive;
 		} else {
@@ -215,6 +193,86 @@ void lmcNetwork::tcp_receiveProgress(QString* lpszUserId, QString* lpszData) {
 
 void lmcNetwork::web_receiveMessage(QString *lpszData) {
 	emit webMessageReceived(lpszData);
+}
+
+bool lmcNetwork::getIPAddress(void) {
+	// If an interface is already being used, get it. Ignore all others
+	if(networkInterface.isValid()) {
+		QNetworkAddressEntry addressEntry;
+		if(getIPAddress(&networkInterface, &addressEntry)) {
+			ipAddress = addressEntry.ip().toString();
+			subnetMask = addressEntry.netmask().toString();
+			return true;
+		}
+		ipAddress = QString::null;
+		subnetMask = QString::null;
+		return false;
+	}
+
+	// Get the preferred interface name from settings if checking for the first time
+	if(szInterfaceName.isNull())
+		szInterfaceName = pSettings->value(IDS_CONNECTION, IDS_CONNECTION_VAL).toString();
+
+	// Currently, hard coding usePreferred to False, since using preferred connection is not
+	// working properly.
+	//bool usePreferred = (szInterfaceName.compare(IDS_CONNECTION_VAL, Qt::CaseInsensitive) != 0);
+	bool usePreferred = false;
+
+	lmcTrace::write("Checking for active network interface...");
+
+	//	get a list of all network interfaces available in the system
+	QList<QNetworkInterface> allInterfaces = QNetworkInterface::allInterfaces();
+
+	//	return the preferred interface if it is active
+	for(int index = 0; index < allInterfaces.count(); index++) {
+		// Skip to the next interface if it is not the preferred one
+		// Checked only if searching for the preferred adapter
+		if(usePreferred && szInterfaceName.compare(allInterfaces[index].name()) != 0)
+			continue;
+
+		if(isInterfaceUp(&allInterfaces[index])) {
+			lmcTrace::write("Active network interface found: " + allInterfaces[index].humanReadableName());
+			QNetworkAddressEntry addressEntry;
+			if(getIPAddress(&allInterfaces[index], &addressEntry)) {
+				ipAddress = addressEntry.ip().toString();
+				subnetMask = addressEntry.netmask().toString();
+				networkInterface = allInterfaces[index];
+				szInterfaceName = allInterfaces[index].name();
+				return true;
+			}
+		}
+	}
+
+	lmcTrace::write("Warning: No active network interface found");
+	ipAddress = QString::null;
+	subnetMask = QString::null;
+	return false;
+}
+
+bool lmcNetwork::getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddressEntry *pAddressEntry) {
+	//lmcTrace::write("Querying IP address from network interface...");
+
+	//	get a list of all associated ip addresses of the interface
+	QList<QNetworkAddressEntry> addressEntries = pNetworkInterface->addressEntries();
+	//	return the first address which is an ipv4 address
+	for(int index = 0; index < addressEntries.count(); index++) {
+		if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv4Protocol) {
+			*pAddressEntry = addressEntries[index];
+			//lmcTrace::write("IPv4 address found for network interface.");
+			return true;
+		}
+	}
+	// if ipv4 address is not present, check for ipv6 address
+	for(int index = 0; index < addressEntries.count(); index++) {
+		if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv6Protocol) {
+			*pAddressEntry = addressEntries[index];
+			//lmcTrace::write("IPv6 address found for network interface.");
+			return true;
+		}
+	}
+
+	//lmcTrace::write("Warning: No IP address found for network interface.");
+	return false;
 }
 
 bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface) {
@@ -271,9 +329,7 @@ bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface, QStri
 
 bool lmcNetwork::isInterfaceUp(QNetworkInterface* pNetworkInterface) {
 	if(pNetworkInterface->flags().testFlag(QNetworkInterface::IsUp)
-	#ifdef Q_WS_X11
 		&& pNetworkInterface->flags().testFlag(QNetworkInterface::IsRunning)
-	#endif
 		&& !pNetworkInterface->flags().testFlag(QNetworkInterface::IsLoopBack)) {
 			return true;
 	}

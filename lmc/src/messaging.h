@@ -75,7 +75,7 @@ public:
 	lmcMessaging(void);
 	~lmcMessaging(void);
 
-	void init(void);
+	void init(XmlMessage* pInitParams);
 	void start(void);
 	void update(void);
 	void stop(void);

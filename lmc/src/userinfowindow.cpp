@@ -40,6 +40,13 @@ lmcUserInfoWindow::~lmcUserInfoWindow() {
 void lmcUserInfoWindow::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
 
+	QFont font = ui.lblUserName->font();
+	int fontSize = ui.lblUserName->fontInfo().pixelSize();
+	fontSize += (fontSize * 0.1);
+	font.setPixelSize(fontSize);
+	font.setBold(true);
+	ui.lblUserName->setFont(font);
+
 	pSettings = new lmcSettings();
 	setUIText();
 }

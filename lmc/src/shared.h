@@ -111,6 +111,8 @@ public:
 	static QString escapeDelimiter(QString *lpszData);
 	static QString unescapeDelimiter(QString* lpszData);
 	static int compareVersions(const QString& version1, const QString& version2);
+	static QString BoolToString(bool value);
+	static bool StringToBool(const QString& value);
 };
 
 #endif // SHARED_H

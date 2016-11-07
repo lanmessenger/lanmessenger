@@ -156,7 +156,15 @@ bool lmcSettings::migrateSettings(void) {
 		}
 		groupSettings.endArray();
 	}
-	//	End of migration
+	//	End of migration to 1.2.25
+
+	//	Migrate settings if version less than 1.2.28
+	if(Helper::compareVersions(version, "1.2.28") < 0) {
+		//	Broadcast list used instead of single broadcast address
+		//	Remove old entry from settings
+		remove(IDS_BROADCAST_OLD);
+	}
+	//	End of migration to 1.2.28
 
 	setValue(IDS_VERSION, IDA_VERSION);
 	sync();

@@ -53,7 +53,7 @@ class lmcCore : public QObject {
 public:
 	lmcCore(void);
 	~lmcCore(void);
-	void init(bool silent, bool trace);
+	void init(const QString& szCommandArgs);
 	bool start(void);
 
 public slots:
@@ -86,7 +86,7 @@ private slots:
 
 private:
 	void stop(void);
-	void loadSettings(bool silent, bool trace);
+	void loadSettings(void);
 	void settingsChanged(void);
 	void processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
     void processFile(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
@@ -101,6 +101,7 @@ private:
 	void showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert = false);
 	void createChatRoomWindow(QString* lpszThreadId);
 	void showChatRoomWindow(lmcChatRoomWindow* chatRoomWindow, bool show, bool alert = false, bool add = false);
+	void showPublicChatWindow(bool show, bool alert = false, bool open = false);
 	QStringList showSelectContacts(QWidget* parent, QString* minVersion, QStringList* excludeList);
 	void showPortConflictMessage(void);
 
@@ -121,8 +122,10 @@ private:
 	QPointer<lmcAboutDialog>		pAboutDialog;
 	QPointer<lmcBroadcastWindow>	pBroadcastWindow;
 	bool							messageTop;
+	bool							pubMessagePop;
 	QString							lang;
 	bool							adaptiveRefresh;
+	XmlMessage*						pInitParams;
 };
 
 #endif // LMC_H

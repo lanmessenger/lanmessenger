@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="sl_SI">
 <context>
     <name>AboutDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;Logo&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;Application Title&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>About</source>
@@ -433,7 +433,7 @@
     </message>
     <message>
         <source>Broadcast Settings</source>
-        <translation>Nastavitve Broadcast-a</translation>
+        <translation type="obsolete">Nastavitve Broadcast-a</translation>
     </message>
     <message>
         <source>Broadcast address:</source>
@@ -518,6 +518,38 @@
     <message>
         <source>Cancel</source>
         <translation>Prekliči</translation>
+    </message>
+    <message>
+        <source>Broadcast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;- Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multicast address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Broadcast list:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply to public messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset All</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1195,6 +1227,14 @@
     <message>
         <source>Check for updates</source>
         <translation>Preveri posodobitve</translation>
+    </message>
+    <message>
+        <source>Select sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;File Not Found&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

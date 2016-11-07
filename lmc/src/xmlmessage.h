@@ -72,6 +72,10 @@
 #define XN_GROUPMSGOP	"groupmsgop"
 #define XN_DESCRIPTION	"description"
 #define XN_NOTE			"note"
+#define XN_SILENTMODE	"silentmode"
+#define XN_TRACEMODE	"tracemode"
+#define XN_LOGFILE		"logfile"
+#define XN_PORT			"port"
 
 class XmlMessage : public QDomDocument
 {

@@ -461,7 +461,7 @@ void lmcChatWindow::createToolBar(void) {
 	pSaveAction->setShortcut(QKeySequence::Save);
 	pSaveAction->setEnabled(false);
 
-	QToolBar* pRightBar = new QToolBar(ui.wgtToolBar);
+	pRightBar = new QToolBar(ui.wgtToolBar);
 	pRightBar->setStyleSheet("QToolBar { border: 0px }");
 	pRightBar->setIconSize(QSize(16, 16));
 	pRightBar->setLayoutDirection(Qt::RightToLeft);
@@ -482,6 +482,7 @@ void lmcChatWindow::setUIText(void) {
 	ui.retranslateUi(this);
 
 	setWindowTitle(getWindowTitle());
+	pRightBar->setLayoutDirection((QApplication::layoutDirection() == Qt::LeftToRight ? Qt::RightToLeft : Qt::LeftToRight));
 
 	pbtnSmiley->setToolTip(tr("Insert Smiley"));
 	pFileAction->setText(tr("Send A &File..."));

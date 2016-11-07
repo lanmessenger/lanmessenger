@@ -31,14 +31,14 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
 	messageMap.clear();
 	locMsgStream = NULL;
 	crypto = NULL;
-	listenAddress = QHostAddress::Null;
+	ipAddress = QHostAddress::Null;
 	server = new QTcpServer(this);
 	connect(server, SIGNAL(newConnection()), this, SLOT(server_newConnection()));
 }
 
-void lmcTcpNetwork::init(void) {
+void lmcTcpNetwork::init(int nPort) {
 	pSettings = new lmcSettings();
-	tcpPort = pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toInt();
+	tcpPort = nPort > 0 ? nPort : pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toInt();
 }
 
 void lmcTcpNetwork::start(void) {
@@ -166,8 +166,8 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 void lmcTcpNetwork::settingsChanged(void) {
 }
 
-void lmcTcpNetwork::setListenAddress(const QString& szAddress) {
-	listenAddress = QHostAddress(szAddress);
+void lmcTcpNetwork::setIPAddress(const QString& szAddress) {
+	ipAddress = QHostAddress(szAddress);
 }
 
 void lmcTcpNetwork::server_newConnection(void) {

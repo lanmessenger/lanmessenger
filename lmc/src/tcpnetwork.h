@@ -41,7 +41,7 @@ public:
 	lmcTcpNetwork(void);
 	~lmcTcpNetwork(void) {}
 
-	void init(void);
+	void init(int nPort = 0);
 	void start(void);
 	void stop(void);
 	void setLocalId(QString* lpszLocalId);
@@ -52,7 +52,7 @@ public:
 	void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
 	void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);
 	void settingsChanged(void);
-	void setListenAddress(const QString& szAddress);
+	void setIPAddress(const QString& szAddress);
 
 signals:
 	void newConnection(QString* lpszUserId, QString* lpszAddress);
@@ -85,7 +85,7 @@ private:
 	int						  tcpPort;
 	QString					  localId;
 	lmcCrypto*				  crypto;
-	QHostAddress			  listenAddress;
+	QHostAddress			  ipAddress;
 };
 
 #endif // TCPNETWORK_H

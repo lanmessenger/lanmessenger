@@ -123,6 +123,7 @@ private:
 	lmcToolButton* pbtnSmiley;
 	QAction* pFileAction;
 	QAction* pSaveAction;
+	QToolBar* pRightBar;
 	QAction* pHistoryAction;
 	QAction* pTransferAction;
 	QMenu* pSmileyMenu;

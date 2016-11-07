@@ -11,7 +11,6 @@ BODY a:visited { color: #800080; }
 
 BODY {
   margin: 4px;
-  -webkit-nbsp-mode: space;
 }
 DIV#content {
   font: 12px Arial;
@@ -192,6 +191,12 @@ DIV.request SPAN.links {
 DIV.request .icon {
   float: left;
   margin: 0px 5px 0px 0px;
+}
+
+SPAN.time {
+  color: rgb(119,119,119);
+  font-weight: normal;
+  margin: 0px;
 }
 
 /* Helper styles */

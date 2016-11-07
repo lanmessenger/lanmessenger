@@ -77,8 +77,6 @@ int main(int argc, char *argv[]) {
 
 	QString messageList;
 	QString message;
-	bool silent = false;
-	bool trace = false;
 
 	for(int index = 1; index < argc; index++) {
 		message = QString(argv[index]).toLower();
@@ -86,13 +84,8 @@ int main(int argc, char *argv[]) {
 			return showSwitches();
 		else if(message.compare("/inst") == 0)
 			return application.isRunning() ? 1 : 0;
-		else {
-			if(!silent && message.compare("/silent") == 0)
-				silent = true;
-			if(!trace && message.compare("/trace") == 0)
-				trace = true;
+		else
 			messageList += message + " ";
-		}
 	}
 
 	if(application.sendMessage(messageList))
@@ -104,13 +97,16 @@ int main(int argc, char *argv[]) {
 
 	//	Enable tracing for Windows and Mac
 #ifndef Q_WS_X11
-	trace = true;
+	messageList += "/trace ";
 #endif
 
 	lmcCore core;
-	core.init(silent, trace);
-	messageList += "/new";	//	indicates this is a new instance
-	if(!core.receiveAppMessage(messageList))	//	handle command line args if this is first instance
+	//	handle command line args if this is first instance
+	//	some args are handled when the application is initializing
+	core.init(messageList);
+	messageList += "/new ";	//	indicates this is a new instance
+	//	the remaining args are handled after initializing all the layers
+	if(!core.receiveAppMessage(messageList))
 		return 0;
 	if(!core.start())
 		return 1;

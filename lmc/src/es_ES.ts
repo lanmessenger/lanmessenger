@@ -24,22 +24,22 @@
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="68"/>
+        <location filename="aboutdialog.ui" line="81"/>
         <source>&lt;Description&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="81"/>
+        <location filename="aboutdialog.ui" line="107"/>
         <source>Thanks</source>
         <translation>Gracias</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="110"/>
+        <location filename="aboutdialog.ui" line="136"/>
         <source>License</source>
         <translation>Licencia</translation>
     </message>
     <message>
-        <location filename="aboutdialog.ui" line="169"/>
+        <location filename="aboutdialog.ui" line="195"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
@@ -122,17 +122,17 @@
         <translation>De: </translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="99"/>
+        <location filename="filemodelview.cpp" line="103"/>
         <source>Completed</source>
         <translation>Finalizado</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="102"/>
+        <location filename="filemodelview.cpp" line="106"/>
         <source>Canceled</source>
         <translation>Cancelado</translation>
     </message>
     <message>
-        <location filename="filemodelview.cpp" line="105"/>
+        <location filename="filemodelview.cpp" line="109"/>
         <source>Interrupted</source>
         <translation>Interrumpido</translation>
     </message>
@@ -219,54 +219,85 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1602"/>
+        <location filename="settingsdialog.ui" line="1148"/>
+        <source>Reset All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1320"/>
+        <source>Broadcast address:</source>
+        <oldsource>Broadcast Address:</oldsource>
+        <translation>Dirección de difusión:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1357"/>
+        <source>&lt;- Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1384"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1413"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1421"/>
+        <source>Multicast address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1782"/>
         <source>Chat Theme</source>
         <translation>Tema de la ventana de chat</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1662"/>
+        <location filename="settingsdialog.ui" line="1842"/>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1670"/>
+        <location filename="settingsdialog.ui" line="1850"/>
         <source>Contacts list view:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1695"/>
+        <location filename="settingsdialog.ui" line="1875"/>
         <source>Show status as tooltip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1761"/>
+        <location filename="settingsdialog.ui" line="1941"/>
         <source>Send messages using:</source>
         <translation>Clave para enviar el mensaje:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1786"/>
+        <location filename="settingsdialog.ui" line="1966"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1793"/>
+        <location filename="settingsdialog.ui" line="1973"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1854"/>
+        <location filename="settingsdialog.ui" line="2034"/>
         <source>Reset Preferences</source>
         <translation>Reiniciar preferencias</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1874"/>
+        <location filename="settingsdialog.ui" line="2054"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1884"/>
+        <location filename="settingsdialog.ui" line="2064"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
@@ -278,7 +309,7 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1595"/>
+        <location filename="settingsdialog.ui" line="1775"/>
         <source>Appearance</source>
         <translation>Apariencia</translation>
     </message>
@@ -381,7 +412,7 @@
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
-        <location filename="settingsdialog.ui" line="1750"/>
+        <location filename="settingsdialog.ui" line="1930"/>
         <source>Messages</source>
         <translation>Mensajes</translation>
     </message>
@@ -391,17 +422,17 @@
         <translation>Ventana de mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="578"/>
+        <location filename="settingsdialog.ui" line="605"/>
         <source>Show emoticons in instant messages</source>
         <translation>Mostrar emoticones en los mensajes instantáneos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="585"/>
+        <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Agregar fecha y hora a los mensajes instantáneos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="610"/>
+        <location filename="settingsdialog.ui" line="637"/>
         <source>Show date in time stamp</source>
         <translation>Mostrar el tiempo en fecha y hora</translation>
     </message>
@@ -416,7 +447,7 @@
         <translation>Minimizar los mensajes recibidos a la barra de tareas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="663"/>
+        <location filename="settingsdialog.ui" line="690"/>
         <source>Message Font</source>
         <translation>Fuente del mensaje</translation>
     </message>
@@ -438,13 +469,13 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
-        <location filename="settingsdialog.ui" line="792"/>
+        <location filename="settingsdialog.ui" line="819"/>
         <source>History</source>
         <translation>Historial</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
-        <location filename="settingsdialog.ui" line="1743"/>
+        <location filename="settingsdialog.ui" line="1923"/>
         <source>Hotkeys</source>
         <translation>Teclas Rápidas</translation>
     </message>
@@ -454,221 +485,229 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="619"/>
+        <location filename="settingsdialog.ui" line="580"/>
+        <source>Apply to public messages</source>
+        <oldsource>Apply  to public messages</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Permitir los hipervínculos en los mensajes instantáneos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="644"/>
+        <location filename="settingsdialog.ui" line="671"/>
         <source>Convert network paths to links</source>
         <translation>Convierte las rutas de red en enlaces</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="653"/>
+        <location filename="settingsdialog.ui" line="680"/>
         <source>Remove whitespace from start and end of messages</source>
         <translation>Eliminar espacios en blanco desde el inicio y al final de los mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="671"/>
+        <location filename="settingsdialog.ui" line="698"/>
         <source>Change Font...</source>
         <translation>Cambiar fuente...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="695"/>
+        <location filename="settingsdialog.ui" line="722"/>
         <source>Change Color...</source>
         <translation>Cambiar color...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="719"/>
+        <location filename="settingsdialog.ui" line="746"/>
         <source>Incoming message text size:</source>
         <translation>Tamaño del texto del mensaje recibido:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="799"/>
+        <location filename="settingsdialog.ui" line="826"/>
         <source>Message History</source>
         <translation>Historial de mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="805"/>
+        <location filename="settingsdialog.ui" line="832"/>
         <source>Keep a history of conversations</source>
         <translation>Mantener un historial de conversaciones</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="814"/>
+        <location filename="settingsdialog.ui" line="841"/>
         <source>Clear Message History</source>
         <translation>Borrar historial</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="839"/>
+        <location filename="settingsdialog.ui" line="866"/>
         <source>History File Location</source>
         <translation>Ubicación del archivo del historial</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="845"/>
+        <location filename="settingsdialog.ui" line="872"/>
         <source>System default location</source>
         <translation>Ubicación por defecto del Sistema</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="852"/>
+        <location filename="settingsdialog.ui" line="879"/>
         <source>Custom location</source>
         <translation>Ubicación personalizada</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="890"/>
-        <location filename="settingsdialog.ui" line="1521"/>
+        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="1128"/>
+        <location filename="settingsdialog.ui" line="1701"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="902"/>
+        <location filename="settingsdialog.ui" line="929"/>
         <source>File Transfer History</source>
         <translation>Historial de transferencias de Archivo</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="908"/>
+        <location filename="settingsdialog.ui" line="935"/>
         <source>Keep a history of file transfers</source>
         <translation>Mantener un historial de transferencias de archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="917"/>
+        <location filename="settingsdialog.ui" line="944"/>
         <source>Clear Transfer History</source>
         <translation>Borrar historial</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="980"/>
+        <location filename="settingsdialog.ui" line="1007"/>
         <source>Alerts</source>
         <translation>Alertas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="987"/>
+        <location filename="settingsdialog.ui" line="1014"/>
         <source>Status Alerts</source>
         <translation>Alertas de estados</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="993"/>
+        <location filename="settingsdialog.ui" line="1020"/>
         <source>Display status alerts</source>
         <translation>Mostrar las alertas de estados</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1000"/>
+        <location filename="settingsdialog.ui" line="1027"/>
         <source>Suspend alerts when my status is Busy</source>
         <translation>Suspender las alertas cuando mi estado sea Ocupado</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1007"/>
+        <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
         <translation>Suspender las alertas cuando mi estado sea No molestar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1017"/>
+        <location filename="settingsdialog.ui" line="1044"/>
         <source>Sounds</source>
         <translation>Sonidos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1023"/>
+        <location filename="settingsdialog.ui" line="1050"/>
         <source>Provide feedback with sounds</source>
         <translation>Informar mediante sonidos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1094"/>
+        <location filename="settingsdialog.ui" line="1161"/>
         <source>Suspend sounds when my status is Busy</source>
         <translation>Suspender sonidos cuando mi estado sea Ocupado</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1101"/>
+        <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
         <translation>Suspender el sonido cuando mi estado sea No molestar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1050"/>
+        <location filename="settingsdialog.ui" line="1077"/>
         <source>Play sounds for these events:</source>
         <translation>Reproducir los sonidos para estos eventos:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1149"/>
+        <location filename="settingsdialog.ui" line="1216"/>
         <source>Network</source>
         <translation>Red</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1156"/>
+        <location filename="settingsdialog.ui" line="1223"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1164"/>
+        <location filename="settingsdialog.ui" line="1231"/>
         <source>Connection timeout (seconds):</source>
         <translation>Tiempo de espera de conexión (segundos):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1198"/>
+        <location filename="settingsdialog.ui" line="1265"/>
         <source>Maximum number of retries:</source>
         <translation>El número máximo de intentos:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1233"/>
-        <source>Broadcast Settings</source>
+        <location filename="settingsdialog.ui" line="1300"/>
+        <source>Broadcast</source>
+        <oldsource>Broadcast Settings</oldsource>
         <translation>Configuración de la difusión</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1241"/>
-        <source>Broadcast address:</source>
-        <translation>Dirección de difusión:</translation>
+        <location filename="settingsdialog.ui" line="1306"/>
+        <source>Broadcast list:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1284"/>
+        <location filename="settingsdialog.ui" line="1464"/>
         <source>UDP Port*:</source>
         <translation>El puerto UDP *:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1327"/>
+        <location filename="settingsdialog.ui" line="1507"/>
         <source>TCP Port*:</source>
         <translation>Puerto TCP *:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1371"/>
+        <location filename="settingsdialog.ui" line="1551"/>
         <source>* Takes effect after you restart %1.</source>
         <translation>* Toma los cambios despues de reiniciar el %1.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1416"/>
+        <location filename="settingsdialog.ui" line="1596"/>
         <source>File Transfer</source>
         <translation>Transferencia de archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1423"/>
+        <location filename="settingsdialog.ui" line="1603"/>
         <source>Incoming File Request</source>
         <translation>Solicitud de archivo recibido</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1461"/>
+        <location filename="settingsdialog.ui" line="1641"/>
         <source>Bring window to foreground</source>
         <translation>Traer ventana al primer plano</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1488"/>
+        <location filename="settingsdialog.ui" line="1668"/>
         <source>Minimize window to taskbar</source>
         <translation>Minimizar la ventana a la barra de tareas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1429"/>
+        <location filename="settingsdialog.ui" line="1609"/>
         <source>Accept and start receiving files automatically</source>
         <translation>Aceptar y empezar a recibir archivos de forma automática</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1436"/>
+        <location filename="settingsdialog.ui" line="1616"/>
         <source>Show File Transfer window when sending or receiving files</source>
         <translation>Mostrar la ventana de transferencia al enviar o recibir archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1500"/>
+        <location filename="settingsdialog.ui" line="1680"/>
         <source>Store Received Files in this Folder</source>
         <translation>Almacenar archivos recibidos en esta carpeta</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1532"/>
+        <location filename="settingsdialog.ui" line="1712"/>
         <source>View Files</source>
         <translation>Ver archivos</translation>
     </message>
@@ -777,99 +816,99 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="50"/>
+        <location filename="userinfowindow.ui" line="43"/>
         <source>&lt;User Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="57"/>
+        <location filename="userinfowindow.ui" line="50"/>
         <source>&lt;Status&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="91"/>
+        <location filename="userinfowindow.ui" line="84"/>
         <source>Personal Information</source>
         <translation>Información Personal</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="94"/>
         <source>First Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="108"/>
-        <location filename="userinfowindow.ui" line="129"/>
-        <location filename="userinfowindow.ui" line="167"/>
+        <location filename="userinfowindow.ui" line="101"/>
+        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="160"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="122"/>
+        <location filename="userinfowindow.ui" line="115"/>
         <source>Last Name:</source>
         <translation>Apellido:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="145"/>
+        <location filename="userinfowindow.ui" line="138"/>
         <source>About:</source>
         <translation>Acerca de:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="177"/>
+        <location filename="userinfowindow.ui" line="170"/>
         <source>System Information</source>
         <translation>Información del Sistema</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="183"/>
+        <location filename="userinfowindow.ui" line="176"/>
         <source>IP Address:</source>
         <translation>Dirección IP:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="193"/>
+        <location filename="userinfowindow.ui" line="186"/>
         <source>&lt;IP Address&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="200"/>
+        <location filename="userinfowindow.ui" line="193"/>
         <source>Logon Name:</source>
         <translation>Nombre de inicio de sesión:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="210"/>
+        <location filename="userinfowindow.ui" line="203"/>
         <source>&lt;Logon Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="217"/>
+        <location filename="userinfowindow.ui" line="210"/>
         <source>Computer Name:</source>
         <translation>Nombre del equipo:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="227"/>
+        <location filename="userinfowindow.ui" line="220"/>
         <source>&lt;Computer Name&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="234"/>
+        <location filename="userinfowindow.ui" line="227"/>
         <source>Operating System:</source>
         <translation>Sistema Operativo:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="244"/>
+        <location filename="userinfowindow.ui" line="237"/>
         <source>&lt;Operating System&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="251"/>
+        <location filename="userinfowindow.ui" line="244"/>
         <source>Messenger Version:</source>
         <translation>Versión del Messenger:</translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="261"/>
+        <location filename="userinfowindow.ui" line="254"/>
         <source>&lt;Messenger Version&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="userinfowindow.ui" line="287"/>
+        <location filename="userinfowindow.ui" line="280"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
@@ -1040,7 +1079,7 @@
     <message>
         <location filename="chatroomwindow.cpp" line="715"/>
         <source>Conversation</source>
-        <translation type="unfinished">Conversación</translation>
+        <translation>Conversación</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="717"/>
@@ -1247,23 +1286,23 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="122"/>
-        <location filename="lmc.cpp" line="164"/>
+        <location filename="lmc.cpp" line="143"/>
+        <location filename="lmc.cpp" line="182"/>
         <source>LAYOUT_DIRECTION</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="944"/>
+        <location filename="lmc.cpp" line="971"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>Un conflicto con la dirección del puerto ha sido detectado. %1 se cerrará ahora.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="946"/>
+        <location filename="lmc.cpp" line="973"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%1 No se puede iniciar debido a que otra aplicación está utilizando el puerto configurado para su uso con %2.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="117"/>
+        <location filename="lmc.cpp" line="138"/>
         <source>Your preferences file is corrupt or invalid.
 
 %1 is unable to recover your settings.</source>
@@ -1286,7 +1325,7 @@
 <context>
     <name>lmcHistoryWindow</name>
     <message>
-        <location filename="historywindow.cpp" line="108"/>
+        <location filename="historywindow.cpp" line="110"/>
         <source>Message History</source>
         <translation>Historial de mensajes</translation>
     </message>
@@ -1579,12 +1618,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="740"/>
+        <location filename="messagelog.cpp" line="769"/>
         <source>&amp;Copy</source>
         <translation>&amp;Copiar</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="741"/>
+        <location filename="messagelog.cpp" line="770"/>
         <source>Select &amp;All</source>
         <translation>Seleccionar &amp;todos</translation>
     </message>
@@ -1596,57 +1635,67 @@
         <translation type="obsolete">AaBbYyZz</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="178"/>
+        <location filename="settingsdialog.cpp" line="194"/>
         <source>Save History</source>
         <translation>Guardar historial</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="185"/>
+        <location filename="settingsdialog.cpp" line="201"/>
         <source>Select folder</source>
         <translation>Seleccione la carpeta</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="216"/>
+        <location filename="settingsdialog.cpp" line="232"/>
         <source>Select Font</source>
         <translation>Seleccione la fuente</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="222"/>
+        <location filename="settingsdialog.cpp" line="238"/>
         <source>Select Color</source>
         <translation>Seleccione el color</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="228"/>
+        <location filename="settingsdialog.cpp" line="244"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
         <translation>¿Esta seguro que quiere reiniciar su %1 preferencias?</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="229"/>
+        <location filename="settingsdialog.cpp" line="245"/>
         <source>Reset Preferences</source>
         <translation>Reiniciar preferencias</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="296"/>
+        <location filename="settingsdialog.cpp" line="350"/>
+        <source>&lt;File Not Found&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="364"/>
+        <source>Select sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.cpp" line="392"/>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="304"/>
+        <location filename="settingsdialog.cpp" line="400"/>
         <source>System Tray (Not Available)</source>
         <translation>La bandeja del sistema (no disponible)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="308"/>
+        <location filename="settingsdialog.cpp" line="404"/>
         <source>Status Alerts (Not Available)</source>
         <translation>Alertas de Estado (no disponible)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="312"/>
+        <location filename="settingsdialog.cpp" line="408"/>
         <source>Sounds (Not Available)</source>
         <translation>Sonidos (No disponible)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="326"/>
+        <location filename="settingsdialog.cpp" line="422"/>
         <source>Check for updates</source>
         <translation>Comprobar actulizaciones</translation>
     </message>
@@ -1885,7 +1934,7 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
 <context>
     <name>lmcUserInfoWindow</name>
     <message>
-        <location filename="userinfowindow.cpp" line="70"/>
+        <location filename="userinfowindow.cpp" line="77"/>
         <source>User Information</source>
         <translation>Información del usuario</translation>
     </message>

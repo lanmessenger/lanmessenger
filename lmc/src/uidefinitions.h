@@ -73,6 +73,7 @@
 #define IDR_CHAT			":/images/chat"
 #define IDR_HGRIP			":/images/hgrip"
 #define IDR_VGRIP			":/images/vgrip"
+#define IDR_PLAY			":/images/play"
 
 #define IDR_LICENSETEXT		":/text/license"
 #define IDR_THANKSTEXT		":/text/thanks"

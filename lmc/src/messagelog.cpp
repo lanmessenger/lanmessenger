@@ -254,7 +254,7 @@ QString lmcMessageLog::prepareMessageLogForSave(OutputFormat format) {
 	if(format == HtmlFormat) {
 		QString html =
 			"<html><head><style type='text/css'>"\
-			"*{font-size: 9pt;} body {-webkit-nbsp-mode: space;}"\
+			"*{font-size: 9pt;} body {-webkit-nbsp-mode: space; word-wrap: break-word;}"\
 			"span.salutation {float:left; font-weight: bold;} span.time {float: right;}"\
 			"span.message {clear: both; display: block;} p {border-bottom: 1px solid #CCC;}"\
 			"</style></head><body>";
@@ -706,22 +706,51 @@ void lmcMessageLog::decodeMessage(QString* lpszMessage, bool useDefaults) {
 	if(!useDefaults && trimMessage)
 		*lpszMessage = lpszMessage->trimmed();
 
-	ChatHelper::makeHtmlSafe(lpszMessage);
-
-	//	if smileys are enabled, replace text emoticons with corresponding images
-	if(!useDefaults && showSmiley)
-		ChatHelper::decodeSmileys(lpszMessage);
-
-	lpszMessage->replace("\n", "<br/>");
+	//	The url detection regexps only work with plain text, so link detection is done before
+	//	making the text html safe. The converted links are given a "data-isLink" custom
+	//	attribute to differentiate them from the message content
 	if(useDefaults || allowLinks) {
-		lpszMessage->replace(QRegExp("(((https|http|ftp|file|smb):[/][/]|www.)[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"),
-							 "<a href='\\1'>\\1</a>");
-		lpszMessage->replace("<a href='www", "<a href='http://www");
+//		lpszMessage->replace(QRegExp("(((https|http|ftp|file|smb):[/][/]|www.)[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"),
+//							 "<a href='\\1'>\\1</a>");
+		lpszMessage->replace(QRegExp("((?:(?:https?|ftp|file)://|www\\.|ftp\\.)[-A-Z0-9+&@#/%=~_|$?!:,.]*[A-Z0-9+&@#/%=~_|$])", Qt::CaseInsensitive),
+							 "<a data-isLink='true' href='\\1'>\\1</a>");
+		lpszMessage->replace("<a data-isLink='true' href='www", "<a data-isLink='true' href='http://www");
 
 		if(!useDefaults && pathToLink)
 			lpszMessage->replace(QRegExp("((\\\\\\\\[\\w-]+\\\\[^\\\\/:*?<>|""]+)((?:\\\\[^\\\\/:*?<>|""]+)*\\\\?)$)"),
-								 "<a href='file:\\1'>\\1</a>");
+								 "<a data-isLink='true' href='file:\\1'>\\1</a>");
 	}
+
+	QString message = QString::null;
+	int index = 0;
+
+	while(index < lpszMessage->length()) {
+		int aStart = lpszMessage->indexOf("<a data-isLink='true'", index);
+		if(aStart != -1) {
+			QString messageSegment = lpszMessage->mid(index, aStart - index);
+			processMessageText(&messageSegment, useDefaults);
+			message.append(messageSegment);
+			index = lpszMessage->indexOf("</a>", aStart) + 4;
+			QString linkSegment = lpszMessage->mid(aStart, index - aStart);
+			message.append(linkSegment);
+		} else {
+			QString messageSegment = lpszMessage->mid(index);
+			processMessageText(&messageSegment, useDefaults);
+			message.append(messageSegment);
+			break;
+		}
+	}
+
+	message.replace("\n", "<br/>");
+
+	*lpszMessage = message;
+}
+
+void lmcMessageLog::processMessageText(QString* lpszMessageText, bool useDefaults) {
+	ChatHelper::makeHtmlSafe(lpszMessageText);
+	//	if smileys are enabled, replace text emoticons with corresponding images
+	if(!useDefaults && showSmiley)
+		ChatHelper::decodeSmileys(lpszMessageText);
 }
 
 QString lmcMessageLog::getTimeString(QDateTime* pTime) {

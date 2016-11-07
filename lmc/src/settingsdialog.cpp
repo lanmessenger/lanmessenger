@@ -55,6 +55,15 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.btnColor, SIGNAL(clicked()), this, SLOT(btnColor_clicked()));
 	connect(ui.btnReset, SIGNAL(clicked()), this, SLOT(btnReset_clicked()));
 	connect(ui.cboTheme, SIGNAL(currentIndexChanged(int)), this, SLOT(cboTheme_currentIndexChanged(int)));
+	connect(ui.lvBroadcasts, SIGNAL(currentRowChanged(int)), this, SLOT(lvBroadcasts_currentRowChanged(int)));
+	connect(ui.txtBroadcast, SIGNAL(textEdited(QString)), this, SLOT(txtBroadcast_textEdited(QString)));
+	connect(ui.txtBroadcast, SIGNAL(returnPressed()), this, SLOT(btnAddBroadcast_clicked()));
+	connect(ui.btnAddBroadcast, SIGNAL(clicked()), this, SLOT(btnAddBroadcast_clicked()));
+	connect(ui.btnDeleteBroadcast, SIGNAL(clicked()), this, SLOT(btnDeleteBroadcast_clicked()));
+	connect(ui.lvSounds, SIGNAL(currentRowChanged(int)), this, SLOT(lvSounds_currentRowChanged(int)));
+	connect(ui.btnPlaySound, SIGNAL(clicked()), this, SLOT(btnPlaySound_clicked()));
+	connect(ui.btnSoundPath, SIGNAL(clicked()), this, SLOT(btnSoundPath_clicked()));
+	connect(ui.btnResetSounds, SIGNAL(clicked()), this, SLOT(btnResetSounds_clicked()));
 }
 
 lmcSettingsDialog::~lmcSettingsDialog(void) {
@@ -80,6 +89,7 @@ void lmcSettingsDialog::init(void) {
 	for(int index = 0; index < SE_Max; index++) {
 		QListWidgetItem* pListItem = new QListWidgetItem(ui.lvSounds);
 		pListItem->setText(lmcStrings::soundDesc()[index]);
+		pListItem->setData(Qt::UserRole, soundFile[index]);
 		pListItem->setCheckState(Qt::Checked);
 	}
 
@@ -118,9 +128,15 @@ void lmcSettingsDialog::init(void) {
     setPageHeaderStyle(ui.lblThemePage);
     setPageHeaderStyle(ui.lblHotkeysPage);
 
+	ui.btnPlaySound->setIcon(QIcon(QPixmap(IDR_PLAY, "PNG")));
+
 	pPortValidator = new QIntValidator(1, 65535, this);
 	ui.txtUDPPort->setValidator(pPortValidator);
 	ui.txtTCPPort->setValidator(pPortValidator);
+
+	ipRegExp = QRegExp("\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
+	pIpValidator = new QRegExpValidator(ipRegExp, this);
+	ui.txtMulticast->setValidator(pIpValidator);
 
 	pMessageLog->setAutoScroll(false);
 
@@ -281,6 +297,86 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 }
 
+void lmcSettingsDialog::lvBroadcasts_currentRowChanged(int index) {
+	ui.btnDeleteBroadcast->setEnabled(!(index < 0));
+}
+
+void lmcSettingsDialog::txtBroadcast_textEdited(const QString& text) {
+	ui.btnAddBroadcast->setEnabled(ipRegExp.exactMatch(text));
+}
+
+void lmcSettingsDialog::btnAddBroadcast_clicked(void) {
+	QString address = ui.txtBroadcast->text();
+	//	Do not add if not a valid ip address
+	if(!ipRegExp.exactMatch(address))
+		return;
+
+	//	Check if the same address is already present in the list
+	for(int index = 0; index < ui.lvBroadcasts->count(); index++) {
+		QString text = ui.lvBroadcasts->item(index)->text();
+		if(text.compare(address) == 0)
+			return;
+	}
+
+	QListWidgetItem* item = new QListWidgetItem(ui.lvBroadcasts);
+	item->setText(address);
+
+	ui.txtBroadcast->clear();
+	ui.btnAddBroadcast->setEnabled(false);
+	ui.txtBroadcast->setFocus();
+}
+
+void lmcSettingsDialog::btnDeleteBroadcast_clicked(void) {
+	if(ui.lvBroadcasts->currentRow() < 0)
+		return;
+
+	QListWidgetItem* item = ui.lvBroadcasts->takeItem(ui.lvBroadcasts->currentRow());
+	delete item;
+}
+
+void lmcSettingsDialog::lvSounds_currentRowChanged(int index) {
+	ui.btnPlaySound->setEnabled(!(index < 0));
+	ui.btnSoundPath->setEnabled(!(index < 0));
+
+	if(index < 0) {
+		ui.txtSoundFile->clear();
+		return;
+	}
+
+	QFileInfo fileInfo(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
+	if(fileInfo.exists())
+		ui.txtSoundFile->setText(fileInfo.fileName());
+	else
+		ui.txtSoundFile->setText(tr("<File Not Found>"));
+}
+
+void lmcSettingsDialog::btnPlaySound_clicked(void) {
+	if(ui.lvSounds->currentRow() < 0)
+		return;
+
+	QSound::play(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
+}
+
+void lmcSettingsDialog::btnSoundPath_clicked(void) {
+	if(ui.lvSounds->currentRow() < 0)
+		return;
+
+	QString soundPath = QFileDialog::getOpenFileName(this, tr("Select sound"),
+		ui.lvSounds->currentItem()->data(Qt::UserRole).toString(), "Wave Files (*.wav)");
+	if(!soundPath.isEmpty()) {
+		ui.lvSounds->currentItem()->setData(Qt::UserRole, soundPath);
+		lvSounds_currentRowChanged(ui.lvSounds->currentRow());
+	}
+}
+
+void lmcSettingsDialog::btnResetSounds_clicked(void) {
+	for(int index = 0; index < SE_Max; index++) {
+		QListWidgetItem* pListItem = ui.lvSounds->item(index);
+		pListItem->setData(Qt::UserRole, soundFile[index]);
+	}
+	lvSounds_currentRowChanged(ui.lvSounds->currentRow());
+}
+
 void lmcSettingsDialog::setPageHeaderStyle(QLabel* pLabel) {
     QFont font = pLabel->font();
     int fontSize = pLabel->fontInfo().pixelSize();
@@ -368,14 +464,15 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.txtAbout->setPlainText(pSettings->value(IDS_USERABOUT, IDS_USERABOUT_VAL).toString());
 	ui.spnRefreshTime->setValue(pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt());
 
+	ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
+	ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
+	ui.chkPublicMessagePop->setChecked(pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool());
 	ui.chkEmoticon->setChecked(pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool());
 	ui.chkMessageTime->setChecked(pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool());
 	ui.chkMessageDate->setChecked(pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool());
 	ui.chkAllowLinks->setChecked(pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool());
 	ui.chkPathToLink->setChecked(pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool());
 	ui.chkTrimMessage->setChecked(pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool());
-	ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
-	ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
 	font.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
 	color.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
 	fontSize = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
@@ -392,13 +489,18 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkNoBusyAlert->setChecked(pSettings->value(IDS_NOBUSYALERT, IDS_NOBUSYALERT_VAL).toBool());
 	ui.chkNoDNDAlert->setChecked(pSettings->value(IDS_NODNDALERT, IDS_NODNDALERT_VAL).toBool());
 	ui.chkSound->setChecked(pSettings->value(IDS_SOUND, IDS_SOUND_VAL).toBool());
-	int size = pSettings->beginReadArray(IDS_SOUNDEVENTHDR);
+	// Check so that number of elements read from settings file does not exceed the number of elements
+	// in the list view control. This prevents array out of bounds error.
+	int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), ui.lvSounds->count());
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		// Check so that number of elements read from settings file does not exceed the number of elements
-		// in the list view control. This prevents array out of bounds error.
-		if(index < ui.lvSounds->count())
-			ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_EVENT).toInt());
+		ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_EVENT).toInt());
+	}
+	pSettings->endArray();
+	size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), ui.lvSounds->count());
+	for(int index = 0; index < size; index++) {
+		pSettings->setArrayIndex(index);
+		ui.lvSounds->item(index)->setData(Qt::UserRole, pSettings->value(IDS_FILE).toString());
 	}
 	pSettings->endArray();
 	ui.chkNoBusySound->setChecked(pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool());
@@ -406,7 +508,14 @@ void lmcSettingsDialog::loadSettings(void) {
 
 	ui.spnTimeout->setValue(pSettings->value(IDS_TIMEOUT, IDS_TIMEOUT_VAL).toInt());
 	ui.spnMaxRetries->setValue(pSettings->value(IDS_MAXRETRIES, IDS_MAXRETRIES_VAL).toInt());
-	ui.txtBroadcast->setText(pSettings->value(IDS_MULTICAST, IDS_MULTICAST_VAL).toString());
+	size = pSettings->beginReadArray(IDS_BROADCASTHDR);
+	for(int index = 0; index < size; index++) {
+		pSettings->setArrayIndex(index);
+		QListWidgetItem* item = new QListWidgetItem(ui.lvBroadcasts);
+		item->setText(pSettings->value(IDS_BROADCAST).toString());
+	}
+	pSettings->endArray();
+	ui.txtMulticast->setText(pSettings->value(IDS_MULTICAST, IDS_MULTICAST_VAL).toString());
 	ui.txtUDPPort->setText(pSettings->value(IDS_UDPPORT, IDS_UDPPORT_VAL).toString());
 	ui.txtTCPPort->setText(pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toString());
 
@@ -451,13 +560,14 @@ void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_USERABOUT, ui.txtAbout->toPlainText());
 	pSettings->setValue(IDS_REFRESHTIME, ui.spnRefreshTime->value());
 
+	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked());
+	pSettings->setValue(IDS_PUBMESSAGEPOP, ui.chkPublicMessagePop->isChecked());
 	pSettings->setValue(IDS_EMOTICON, ui.chkEmoticon->isChecked());
 	pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked());
 	pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked());
 	pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked());
 	pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked());
 	pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked());
-	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked());
 	pSettings->setValue(IDS_FONT, font.toString());
 	pSettings->setValue(IDS_COLOR, color.name());
 	pSettings->setValue(IDS_FONTSIZE, ui.cboFontSize->currentIndex());
@@ -477,12 +587,24 @@ void lmcSettingsDialog::saveSettings(void) {
 		pSettings->setValue(IDS_EVENT, ui.lvSounds->item(index)->checkState());
 	}
 	pSettings->endArray();
+	pSettings->beginWriteArray(IDS_SOUNDFILEHDR);
+	for(int index = 0; index < ui.lvSounds->count(); index++) {
+		pSettings->setArrayIndex(index);
+		pSettings->setValue(IDS_FILE, ui.lvSounds->item(index)->data(Qt::UserRole).toString());
+	}
+	pSettings->endArray();
 	pSettings->setValue(IDS_NOBUSYSOUND, ui.chkNoBusySound->isChecked());
 	pSettings->setValue(IDS_NODNDSOUND, ui.chkNoDNDSound->isChecked());
 
 	pSettings->setValue(IDS_TIMEOUT, ui.spnTimeout->value());
 	pSettings->setValue(IDS_MAXRETRIES, ui.spnMaxRetries->value());
-	pSettings->setValue(IDS_MULTICAST, ui.txtBroadcast->text());
+	pSettings->beginWriteArray(IDS_BROADCASTHDR);
+	for(int index = 0; index < ui.lvBroadcasts->count(); index++) {
+		pSettings->setArrayIndex(index);
+		pSettings->setValue(IDS_BROADCAST, ui.lvBroadcasts->item(index)->text());
+	}
+	pSettings->endArray();
+	pSettings->setValue(IDS_MULTICAST, ui.txtMulticast->text());
 	pSettings->setValue(IDS_UDPPORT, ui.txtUDPPort->text());
 	pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text());
 

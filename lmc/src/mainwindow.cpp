@@ -558,7 +558,7 @@ void lmcMainWindow::groupAddAction_triggered(void) {
 
 	if(getGroupItemByName(&groupName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
-		QMessageBox::warning(this, "", msg.arg(groupName));
+		QMessageBox::warning(this, lmcStrings::appName(), msg.arg(groupName));
 		return;
 	}
 
@@ -591,7 +591,7 @@ void lmcMainWindow::groupRenameAction_triggered(void) {
 
 	if(getGroupItemByName(&newName)) {
 		QString msg = tr("A group named '%1' already exists. Please enter a different name.");
-		QMessageBox::warning(this, "", msg.arg(newName));
+		QMessageBox::warning(this, lmcStrings::appName(), msg.arg(newName));
 		return;
 	}
 
