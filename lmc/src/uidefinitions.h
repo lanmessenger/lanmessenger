@@ -66,6 +66,7 @@
 
 #define IDR_LICENSETEXT		":/text/license"
 #define IDR_THANKSTEXT		":/text/thanks"
+#define IDR_LANG			":/lang"
 
 //	item data role definitions
 enum ItemDataRole {

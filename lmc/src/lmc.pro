@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-08-29T16:07:59
+# Project created by QtCreator 2011-09-28T15:09:29
 #
 #-------------------------------------------------
 
@@ -11,73 +11,73 @@ TEMPLATE = app
 
 
 SOURCES += \
-    lmc.cpp \
-    mainwindow.cpp \
-    main.cpp \
     usertreewidget.cpp \
     userinfodialog.cpp \
+    udpnetwork.cpp \
     transferwindow.cpp \
     transferlistview.cpp \
     tcpnetwork.cpp \
+    strings.cpp \
     soundplayer.cpp \
+    shared.cpp \
     settingsdialog.cpp \
+    settings.cpp \
+    network.cpp \
+    netstreamer.cpp \
+    messagingproc.cpp \
     messaging.cpp \
+    message.cpp \
+    mainwindow.cpp \
+    main.cpp \
+    lmc.cpp \
     imagepickeraction.cpp \
     imagepicker.cpp \
     historywindow.cpp \
-    chatwindow.cpp \
     history.cpp \
-    broadcastwindow.cpp \
+    helpwindow.cpp \
     filemodelview.cpp \
     datagram.cpp \
-    aboutdialog.cpp \
     crypto.cpp \
-    message.cpp \
-    messagingproc.cpp \
-    network.cpp \
-    udpnetwork.cpp \
-    netstreamer.cpp \
-    settings.cpp \
-    strings.cpp \
-    helpwindow.cpp \
-    shared.cpp
+    chatwindow.cpp \
+    broadcastwindow.cpp \
+    aboutdialog.cpp
 
 HEADERS  += \
-    lmc.h \
     usertreewidget.h \
     userinfodialog.h \
     uidefinitions.h \
+    udpnetwork.h \
     transferwindow.h \
     transferlistview.h \
     toolbutton.h \
     tcpnetwork.h \
+    strings.h \
     soundplayer.h \
     shared.h \
     settingsdialog.h \
     settings.h \
     resource.h \
+    network.h \
+    netstreamer.h \
     messaging.h \
+    message.h \
     mainwindow.h \
+    lmc.h \
     imagepickeraction.h \
     imagepicker.h \
     historywindow.h \
-    chatdefinitions.h \
     historytreewidget.h \
-    history.h \
-    broadcastwindow.h \
+    helpwindow.h \
     filemodelview.h \
+    chatwindow.h \
+    chatdefinitions.h \
+    broadcastwindow.h \
+    history.h \
+    filetransfer.h \
     definitions.h \
     datagram.h \
-    chatwindow.h \
-    aboutdialog.h \
     crypto.h \
-    message.h \
-    filetransfer.h \
-    network.h \
-    udpnetwork.h \
-    netstreamer.h \
-    strings.h \
-    helpwindow.h
+    aboutdialog.h
 
 FORMS += \
     userinfodialog.ui \
@@ -85,25 +85,23 @@ FORMS += \
     settingsdialog.ui \
     mainwindow.ui \
     historywindow.ui \
-    broadcastwindow.ui \
+    helpwindow.ui \
     chatwindow.ui \
-    aboutdialog.ui \
-    helpwindow.ui
-
-RESOURCES +=
+    broadcastwindow.ui \
+    aboutdialog.ui
 
 TRANSLATIONS += \
-    lmc_en.ts \
-    lmc_ml.ts
+	lmc_en.ts \
+	lmc_ml.ts
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+win32:RC_FILE = lmc.rc
+
+unix:!symbian|win32: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
+unix:!symbian|win32: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include
 DEPENDPATH += $$PWD/../../openssl/include
-
-unix:!macx:!symbian: PRE_TARGETDEPS += $$PWD/../../openssl/lib/libcrypto.a

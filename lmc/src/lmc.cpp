@@ -55,7 +55,7 @@ void lmcCore::init(void) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
 
-	QApplication::setApplicationName(IDA_TITLE);
+	QApplication::setApplicationName(IDA_PRODUCT);
 	QApplication::setOrganizationName(IDA_COMPANY);
 
 	loadSettings();
@@ -89,6 +89,8 @@ bool lmcCore::start(void) {
 	connect(pTimer, SIGNAL(timeout(void)), this, SLOT(timer_timeout(void)));
 	int refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt();
 	pTimer->start(refreshTime * 1000);
+	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
+	lmcSettings::setAutoStart(autoStart);
 
 	return true;
 }
@@ -236,6 +238,8 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 	}
 
 	QStringList messageList = szMessage.split(" ", QString::SkipEmptyParts);
+	//	remove duplicates
+	messageList = messageList.toSet().toList();
 
 	if(messageList.contains("/loopback")) {
 		if(messageList.contains("/new"))
@@ -259,6 +263,9 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 	if(messageList.contains("/sync")) {
 		bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 		lmcSettings::setAutoStart(autoStart);
+	}
+	if(messageList.contains("/unsync")) {
+		lmcSettings::setAutoStart(false);
 	}
 	if(messageList.contains("/term")) {
 		doNotExit = false;

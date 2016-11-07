@@ -66,6 +66,10 @@ void lmcHelpWindow::setUIText(void) {
 
 	setWindowTitle(tr("Help"));
 
+	QString helpLink = QString(IDA_DOMAIN"/help.php");
+	QString faqLink = QString(IDA_DOMAIN"/faq.php");
+	QString supportLink = QString(IDA_DOMAIN"/support.php");
+
 	QString html = tr(
 		"<html>"
 			"<head>"
@@ -75,13 +79,13 @@ void lmcHelpWindow::setUIText(void) {
 				"<h2>Welcome to LAN Messenger Help</h2>"
 				"<h3>Help</h3>"
 				"<p>"
-				"You can find documentation on LAN Messenger's <a href='http://sourceforge.net/p/lanmsngr/wiki/Manual/'>wiki</a> website."
+				"You can find documentation on LAN Messenger's <a href='%1'>wiki</a> website."
 				"</p>"
 				"<p>"
-				"Before asking any question, please refer yourself to the <a href='http://sourceforge.net/p/lanmsngr/wiki/FAQ/'>FAQ</a>."
+				"Before asking any question, please refer yourself to the <a href='%2'>FAQ</a>."
 				"</p>"
 				"<p>"
-				"You might then get (and give) help on the <a href='http://sourceforge.net/projects/lanmsngr/support'>Support Forums</a>."
+				"You might then get (and give) help on the <a href='%3'>Support Forums</a>."
 				"</p>"
 				"<h3>Contribute to the project</h3>"
 				"<p>"
@@ -89,5 +93,5 @@ void lmcHelpWindow::setUIText(void) {
 				"</p>"
 			"</body>"
 		"</html>");
-	ui.txtHelp->setHtml(html);
+	ui.txtHelp->setHtml(html.arg(helpLink, faqLink, supportLink));
 }

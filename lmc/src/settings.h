@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** This file is part of LAN Messenger.
 ** 
@@ -135,7 +135,7 @@
 
 class lmcSettings : public QSettings {
 public:
-	lmcSettings(void) : QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_TITLE) {}
+	lmcSettings(void) : QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT) {}
 	~lmcSettings(void) {}
 
     static void setAutoStart(bool on);

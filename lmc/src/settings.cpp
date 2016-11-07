@@ -45,7 +45,15 @@ void lmcSettings::setAutoStart(bool on) {
         autoStartDir.append("/.config/autostart");
     }
     QDir dir(autoStartDir);
-    QString fileName = dir.absoluteFilePath("lmc.desktop");
+	QString fileName = dir.absoluteFilePath("lmc.desktop");
+	//	delete the file if autostart is set to false
+	if(!on) {
+		QFile::remove(fileName);
+		return;
+	}
+
+	if(!dir.exists())
+		dir.mkpath(dir.absolutePath());
     QFile file(fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -57,10 +65,9 @@ void lmcSettings::setAutoStart(bool on) {
     stream << "Type=Application\n";
     stream << "Name=" << IDA_TITLE << "\n";
     stream << "Comment=Send and receive instant messages\n";
+	stream << "Icon=lmc\n";
     stream << "Exec=sh " << qApp->applicationDirPath() << "/lmc.sh\n";
     stream << "Terminal=false\n";
-    if(!on)
-        stream << "Hidden=true\n";
     file.close();
 #endif
 }

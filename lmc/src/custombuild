@@ -1,8 +1,25 @@
+#!/bin/sh
+
 echo "Creating translation binaries..."
 lrelease lmc_en.ts -qm resources/lang/en_US.qm
 lrelease lmc_ml.ts -qm resources/lang/ml_IN.qm
 echo "Done."
+
 echo "Building resource binary..."
 rcc -binary resource.qrc -o $1/lmc.rcc
 echo "Done."
+
+cp -v ./resources/text/license.txt $1/COPYING
+
+echo "Copying sound files..."
+cp -v -r ./resources/sounds $1/sounds
+echo "Done."
+
+echo "Copying plugins..."
+if [ ! -d "$1/imageformats" ]; then
+  mkdir $1/imageformats
+fi
+cp -v /usr/lib/qt4/plugins/imageformats/libqico.so $1/imageformats/libqico.so
+echo "Done."
+
 exit 0
