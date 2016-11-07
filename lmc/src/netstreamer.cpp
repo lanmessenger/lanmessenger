@@ -28,7 +28,6 @@
 #include "netstreamer.h"
 
 const qint64 bufferSize = 65535;
-const int timeout = 2000;
 
 /****************************************************************************
 ** Class: FileSender
@@ -37,10 +36,11 @@ const int timeout = 2000;
 FileSender::FileSender(void) {
 }
 
-FileSender::FileSender(QString szId, QString szPeerId, QString szFilePath, QString szFileName, 
-	qint64 nFileSize, QString szAddress, int nPort, FileType nType) {
+FileSender::FileSender(QString szId, QString szLocalId, QString szPeerId, QString szFilePath,
+    QString szFileName, qint64 nFileSize, QString szAddress, int nPort, FileType nType) {
 
 		id = szId;
+        localId = szLocalId;
 		peerId = szPeerId;
 		filePath = szFilePath;
 		fileName = szFileName;
@@ -82,7 +82,8 @@ void FileSender::stop(void) {
 }
 
 void FileSender::connected(void) {
-	QByteArray data = id.toLocal8Bit();
+    QByteArray data = id.toLocal8Bit();
+    data.append(localId.toLocal8Bit());
 	data.insert(0, "FILE");	// insert indicator that this socket handles file transfer
 	//	send an id message and then wait for a START message 
 	//	from receiver, which will trigger readyRead signal
@@ -121,8 +122,7 @@ void FileSender::bytesWritten(qint64 bytes) {
 		active = false;
 		file->close();
 		socket->close();
-        QString data;
-		emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &data);
+        emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &filePath);
 		return;
 	}
 
@@ -130,11 +130,11 @@ void FileSender::bytesWritten(qint64 bytes) {
 	qint64 bytesRead = file->read(buffer, bytesToSend);
 	socket->write(buffer, bytesRead);
 
-	if(file->pos() > milestone) {
-		QString transferred = QString::number(file->pos());
-		emit progressUpdated(FM_Send, FO_Progress, type, &id, &peerId, &transferred);
-		milestone += mile;
-	}
+//	if(file->pos() > milestone) {
+//		QString transferred = QString::number(file->pos());
+//		emit progressUpdated(FM_Send, FO_Progress, type, &id, &peerId, &transferred);
+//		milestone += mile;
+//	}
 }
 
 void FileSender::sendFile(void) {
@@ -146,7 +146,7 @@ void FileSender::sendFile(void) {
 
 		timer = new QTimer(this);
 		connect(timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
-		timer->start(timeout);
+        timer->start(PROGRESS_TIMEOUT);
 
 		qint64 unsentBytes = fileSize - file->pos();
 		qint64 bytesToSend = (bufferSize < unsentBytes) ? bufferSize : unsentBytes;
@@ -242,11 +242,11 @@ void FileReceiver::readyRead(void) {
 		return;
 	}
 
-	if(file->pos() > milestone) {
-		QString transferred = QString::number(file->pos());
-		emit progressUpdated(FM_Receive, FO_Progress, type, &id, &peerId, &transferred);
-		milestone += mile;
-	}
+//	if(file->pos() > milestone) {
+//		QString transferred = QString::number(file->pos());
+//		emit progressUpdated(FM_Receive, FO_Progress, type, &id, &peerId, &transferred);
+//		milestone += mile;
+//	}
 }
 
 void FileReceiver::timer_timeout(void) {
@@ -283,7 +283,7 @@ void FileReceiver::receiveFile(void) {
 
 		timer = new QTimer(this);
 		connect(timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
-		timer->start(timeout);
+        timer->start(PROGRESS_TIMEOUT);
 	} else {
 		socket->close();
 		emit progressUpdated(FM_Receive, FO_Error, type, &id, &peerId, &filePath);

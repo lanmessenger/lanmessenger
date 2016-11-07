@@ -202,7 +202,7 @@ void lmcCore::stop(void) {
 	for(int index = 0; index < chatWindows.count(); index++) {
 		chatWindows[index]->stop();
 		chatWindows[index]->deleteLater();
-	}
+    }
 
 	for(int index = 0; index < chatRoomWindows.count(); index++) {
 		chatRoomWindows[index]->stop();
@@ -314,6 +314,9 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 	case MT_Group:
 	case MT_ChatState:
 	case MT_Version:
+    case MT_File:
+    case MT_Avatar:
+    case MT_Folder:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Status:
@@ -324,35 +327,6 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 		break;
 	case MT_Refresh:
 		pMessaging->update();
-		break;
-	case MT_LocalFile:
-		data = pMessage->data(XN_FILEOP);
-		if(data == FileOpNames[FO_Request]) {
-			// this request message was sent from main window, route to chat window
-			routeMessage(type, lpszUserId, pMessage);
-		} else if(data == FileOpNames[FO_Accept]) { // accept message sent from chat window
-			// init file transfer, transfer window will send message to messaging layer after validating filepath
-			initFileTransfer(FM_Receive, lpszUserId, pMessage);
-		} else {
-			// any other file op send from chat window, send to messaging layer after rebadging as file message
-			pMessaging->sendMessage(MT_File, lpszUserId, pMessage);
-		}
-		break;
-	case MT_File:
-		data = pMessage->data(XN_FILEOP);
-		if(data == FileOpNames[FO_Request]) {
-			// this request message was sent from chat window
-			initFileTransfer(FM_Send, lpszUserId, pMessage);
-        }
-		pMessaging->sendMessage(type, lpszUserId, pMessage);
-		break;
-	case MT_Avatar:
-		pMessaging->sendMessage(type, lpszUserId, pMessage);
-		break;
-	case MT_LocalAvatar:
-		processPublicMessage(type, lpszUserId, pMessage);
-		routeMessage(type, lpszUserId, pMessage);
-		routeGroupMessage(type, lpszUserId, pMessage);
 		break;
 	default:
 		break;
@@ -544,9 +518,9 @@ void lmcCore::updateGroup(GroupOp op, QVariant value1, QVariant value2) {
 	pMessaging->updateGroup(op, value1, value2);
 }
 
-void lmcCore::addContacts(QString* lpszMinVersion, QStringList* pExcludList) {
-	lmcChatRoomWindow* chatRoomWindow = (lmcChatRoomWindow*)sender();
-	QStringList selectedContacts = showSelectContacts(chatRoomWindow, lpszMinVersion, pExcludList);
+void lmcCore::addContacts(QStringList* pExcludList) {
+    lmcChatRoomWindow* chatRoomWindow = static_cast<lmcChatRoomWindow*>(sender());
+    QStringList selectedContacts = showSelectContacts(chatRoomWindow, UC_GroupMessage, pExcludList);
 	chatRoomWindow->selectContacts(&selectedContacts);
 }
 
@@ -589,7 +563,10 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 		routeGroupMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Avatar:
-		pMainWindow->receiveMessage(type, lpszUserId, pMessage);
+        pMainWindow->receiveMessage(type, lpszUserId, pMessage);
+        processPublicMessage(type, lpszUserId, pMessage);
+        routeMessage(type, lpszUserId, pMessage);
+        routeGroupMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Message:
 		routeMessage(type, lpszUserId, pMessage);
@@ -615,6 +592,7 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_File:
+    case MT_Folder:
         processFile(type, lpszUserId, pMessage);
 		break;
 	case MT_Version:
@@ -628,10 +606,14 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 
 void lmcCore::processFile(MessageType type, QString *lpszUserId, XmlMessage* pMessage) {
 	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
+    int fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
 	switch(fileOp) {
 	case FO_Accept:
-		showTransferWindow();
+        initFileTransfer(type, (FileMode)fileMode, lpszUserId, pMessage);
+        showTransferWindow();
 		break;
+    default:
+        break;
 	}
 	if(fileOp != FO_Request && pTransferWindow)
 		pTransferWindow->receiveMessage(type, lpszUserId, pMessage);
@@ -643,7 +625,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 	bool windowExists = false;
 	bool needsNotice = (type == MT_Message || type == MT_Broadcast || type == MT_Failed
 		|| (type == MT_File && pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
-		|| (type == MT_LocalFile && pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
+        || (type == MT_Folder && pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
 		|| type == MT_GroupMessage);
 
 	//	If no specific user is specified, send this message to all windows
@@ -655,16 +637,18 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
         QString threadId = pMessage ? pMessage->data(XN_THREAD) : QString::null;
 		
 		switch(type) {
-		case MT_LocalAvatar:
+        case MT_Avatar:
 		case MT_Status:
 		case MT_UserName:
 			for(int index = 0; index < chatWindows.count(); index++)
-				if(chatWindows[index]->peerIds.contains(*lpszUserId))
+                if(chatWindows[index]->peerIds.contains(*lpszUserId)
+                        || chatWindows[index]->localId.compare(*lpszUserId) == 0)
 					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 			break;
 		default:
 			for(int index = 0; index < chatWindows.count(); index++) {
-				if(chatWindows[index]->peerIds.contains(*lpszUserId) && chatWindows[index]->threadId == threadId) {
+                if(chatWindows[index]->peerIds.contains(*lpszUserId)
+                        && chatWindows[index]->threadId == threadId) {
 					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 					if(needsNotice)
 						showChatWindow(chatWindows[index], messageTop, needsNotice);
@@ -717,7 +701,7 @@ void lmcCore::routeGroupMessage(MessageType type, QString* lpszUserId, XmlMessag
 					chatRoomWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 				}
 			break;
-		case MT_LocalAvatar:
+        case MT_Avatar:
 			for(int index = 0; index < chatRoomWindows.count(); index++)
 				if(chatRoomWindows[index]->peerIds.contains(*lpszUserId))
 					chatRoomWindows[index]->receiveMessage(type, lpszUserId, pMessage);
@@ -789,7 +773,7 @@ void lmcCore::processPublicMessage(MessageType type, QString* lpszUserId, XmlMes
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
 		showPublicChatWindow((pubMessagePop && messageTop), true, pubMessagePop);
 		break;
-	case MT_LocalAvatar:
+    case MT_Avatar:
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
 		break;
 	default:
@@ -830,13 +814,11 @@ void lmcCore::showTransferWindow(bool show) {
 	}
 }
 
-void lmcCore::initFileTransfer(FileMode mode, QString* lpszUserId, XmlMessage* pMessage) {
+void lmcCore::initFileTransfer(MessageType type, FileMode mode, QString *lpszUserId, XmlMessage *pMessage) {
     createTransferWindow();
-    if(mode == FM_Receive)
-        showTransferWindow();
 	
 	User* pUser = pMessaging->getUser(lpszUserId);
-	pTransferWindow->createTransfer(mode, lpszUserId, &pUser->name, pMessage);
+    pTransferWindow->createTransfer(type, mode, lpszUserId, &pUser->name, pMessage);
 }
 
 void lmcCore::showUserInfo(XmlMessage* pMessage) {
@@ -892,8 +874,8 @@ void lmcCore::createChatRoomWindow(QString* lpszThreadId) {
 	User* pLocalUser = pMessaging->localUser;
 	connect(pChatRoomWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
 		this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-	connect(pChatRoomWindow, SIGNAL(contactsAdding(QString*, QStringList*)),
-		this, SLOT(addContacts(QString*, QStringList*)));
+    connect(pChatRoomWindow, SIGNAL(contactsAdding(QStringList*)),
+        this, SLOT(addContacts(QStringList*)));
 	connect(pChatRoomWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
 	connect(pChatRoomWindow, SIGNAL(closed(QString*)), this, SLOT(chatRoomWindow_closed(QString*)));
 	pChatRoomWindow->init(pLocalUser, pMessaging->isConnected(), *lpszThreadId);
@@ -917,9 +899,8 @@ void lmcCore::showChatRoomWindow(lmcChatRoomWindow* chatRoomWindow, bool show, b
 	// if add is specified, show Add Contact dialog
 	// add should be specified only when the local user is creating a new chat room
 	if(add) {
-		QString minVersion = GROUPMSGVERSION;
 		QStringList excludeList(pMessaging->localUser->id);
-		QStringList selectedContacts = showSelectContacts(chatRoomWindow, &minVersion, &excludeList);
+        QStringList selectedContacts = showSelectContacts(chatRoomWindow, UC_GroupMessage, &excludeList);
 
 		// if no contacts were selected, close the chat room window
 		if(selectedContacts.count() == 0) {
@@ -947,7 +928,7 @@ void lmcCore::showPublicChatWindow(bool show, bool alert, bool open) {
 	}
 }
 
-QStringList lmcCore::showSelectContacts(QWidget* parent, QString* minVersion, QStringList* excludeList) {
+QStringList lmcCore::showSelectContacts(QWidget* parent, uint caps, QStringList* excludeList) {
 	QStringList selectedContacts;
 	pUserSelectDialog = new lmcUserSelectDialog(parent);
 
@@ -958,7 +939,7 @@ QStringList lmcCore::showSelectContacts(QWidget* parent, QString* minVersion, QS
 			QTreeWidgetItem* pChildItem = pItem->child(childIndex);
 			QString userId = pChildItem->data(0, IdRole).toString();
 			User* pUser = pMessaging->getUser(&userId);
-			if(Helper::compareVersions(pUser->version, *minVersion) < 0) {
+            if((pUser->caps & caps) != caps) {
 				pItem->removeChild(pChildItem);
 				childIndex--;
 				continue;

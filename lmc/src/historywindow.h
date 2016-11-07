@@ -28,6 +28,7 @@
 #include <QWidget>
 #include <QList>
 #include <QTreeWidget>
+#include <qevent.h>
 #include "ui_historywindow.h"
 #include "settings.h"
 #include "history.h"
@@ -48,6 +49,7 @@ public:
 	void settingsChanged(void);
 
 protected:
+    bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
 
 private slots:

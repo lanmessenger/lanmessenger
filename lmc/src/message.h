@@ -42,10 +42,6 @@ class Message {
 public:
 	static QString addHeader(MessageType type, qint64 id, QString* lpszLocalId, QString* lpszPeerId, XmlMessage* pMessage);
 	static bool getHeader(QString* lpszMessage, MessageHeader** ppHeader, XmlMessage** ppMessage);
-
-private:
-	static QString escapeDelimiter(QString *lpszData);
-	static QString unescapeDelimiter(QString* lpszData);
 };
 
 #endif // MESSAGE_H

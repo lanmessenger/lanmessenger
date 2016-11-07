@@ -77,6 +77,10 @@
 #define XN_LOGFILE			"logfile"
 #define XN_PORT				"port"
 #define XN_CONFIG			"config"
+#define XN_USERCAPS         "usercaps"
+#define XN_FOLDERID         "folderid"
+#define XN_RELPATH          "relpath"
+#define XN_FILECOUNT        "filecount"
 
 class XmlMessage : public QDomDocument
 {

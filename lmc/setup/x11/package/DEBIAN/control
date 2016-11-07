@@ -1,8 +1,8 @@
 Package: lmc
-Version: 1.2.28
+Version: 1.2.32
 Architecture: i386
 Maintainer: Qualia Digital Solutions <qualiatech@gmail.com>
-Installed-Size: 45867
+Installed-Size: 50000
 Section: web
 Priority: optional
 Depends: libaudio2

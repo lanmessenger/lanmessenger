@@ -80,7 +80,7 @@ private slots:
 	void fileHistoryCleared(void);
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
 	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
-	void addContacts(QString* lpszMinVersion, QStringList* pExcludList);
+    void addContacts(QStringList *pExcludList);
 	void chatWindow_closed(QString* lpszUserId);
 	void chatRoomWindow_closed(QString* lpszThreadId);
 
@@ -95,14 +95,14 @@ private:
 	void processPublicMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
     void createTransferWindow(void);
 	void showTransferWindow(bool show = false);
-	void initFileTransfer(FileMode mode, QString* lpszUserId, XmlMessage* pMessage);
+    void initFileTransfer(MessageType type, FileMode mode, QString* lpszUserId, XmlMessage* pMessage);
 	void showUserInfo(XmlMessage* pMessage);
 	void createChatWindow(QString* lpszUserId);
 	void showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert = false);
 	void createChatRoomWindow(QString* lpszThreadId);
 	void showChatRoomWindow(lmcChatRoomWindow* chatRoomWindow, bool show, bool alert = false, bool add = false);
 	void showPublicChatWindow(bool show, bool alert = false, bool open = false);
-	QStringList showSelectContacts(QWidget* parent, QString* minVersion, QStringList* excludeList);
+    QStringList showSelectContacts(QWidget* parent, uint caps, QStringList* excludeList);
 	void showPortConflictMessage(void);
 
 	lmcSettings*					pSettings;

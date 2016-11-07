@@ -49,6 +49,9 @@ lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget *parent) : QWidget(parent
 
 	connect(ui->btnRecheck, SIGNAL(clicked()), this, SLOT(btnRecheck_clicked()));
 
+    ui->btnClose->installEventFilter(this);
+    ui->btnRecheck->installEventFilter(this);
+
 	webVersion = QString::null;
 }
 
@@ -92,6 +95,19 @@ void lmcUpdateWindow::receiveMessage(MessageType type, QString *lpszUserId, XmlM
 }
 
 void lmcUpdateWindow::settingsChanged(void) {
+}
+
+bool lmcUpdateWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+    Q_UNUSED(pObject);
+    if(pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+        if(pKeyEvent->key() == Qt::Key_Escape) {
+            close();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void lmcUpdateWindow::changeEvent(QEvent* pEvent) {

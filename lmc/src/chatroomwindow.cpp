@@ -57,6 +57,8 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget *parent) : QWidget(parent) {
 	ui.lblInfo->setBackgroundRole(QPalette::Base);
 	ui.lblInfo->setAutoFillBackground(true);
 	ui.lblInfo->setVisible(false);
+    pMessageLog->installEventFilter(this);
+    ui.tvUserList->installEventFilter(this);
 	ui.txtMessage->installEventFilter(this);
 	infoFlag = IT_Ok;
 	dataSaved = false;
@@ -77,11 +79,8 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 
 	pMessageLog->localId = localId;
 
-	//	get the avatar image for the users from the cache folder
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + localId + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
-	pMessageLog->participantAvatars.insert(localId, filePath);
+    //	get the avatar image for the user
+    pMessageLog->participantAvatars.insert(localId, pLocalUser->avatarPath);
 
 	threadId = thread;
 	groupMode = !threadId.isNull();
@@ -207,7 +206,7 @@ void lmcChatRoomWindow::addUser(User* pUser) {
 	pGroupItem->sortChildren(0, Qt::AscendingOrder);
 
 	// this should be called after item has been added to tree
-	setUserAvatar(&pUser->id);
+    setUserAvatar(&pUser->id, &pUser->avatarPath);
 
 	if(groupMode) {
 		XmlMessage xmlMessage;
@@ -302,7 +301,7 @@ void lmcChatRoomWindow::receiveMessage(MessageType type, QString* lpszUserId, Xm
 			setWindowTitle(title.arg(senderName));
 		}
 		break;
-	case MT_LocalAvatar:
+    case MT_Avatar:
 		data = pMessage->data(XN_FILEPATH);
 		// this message may come with or without user id. NULL user id means avatar change
 		// by local user, while non NULL user id means avatar change by a peer.
@@ -374,19 +373,29 @@ void lmcChatRoomWindow::selectContacts(QStringList* selectedContacts) {
 }
 
 bool lmcChatRoomWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
-	if(pObject == ui.txtMessage && pEvent->type() == QEvent::KeyPress) {
+    if(pEvent->type() == QEvent::KeyPress) {
 		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
-		if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
-			bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
-			if(keyMod == sendKeyMod) {
-				sendMessage();
-				return true;
-			}
-			// The TextEdit widget does not insert new line when Ctrl+Enter is pressed
-			// So we insert a new line manually
-			if(keyMod)
-				ui.txtMessage->insertPlainText("\n");
-		}
+        if(pObject == ui.txtMessage) {
+            if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
+                bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
+                if(keyMod == sendKeyMod) {
+                    sendMessage();
+                    return true;
+                }
+                // The TextEdit widget does not insert new line when Ctrl+Enter is pressed
+                // So we insert a new line manually
+                if(keyMod)
+                    ui.txtMessage->insertPlainText("\n");
+            } else if(pKeyEvent->key() == Qt::Key_Escape) {
+                close();
+                return true;
+            }
+        } else {
+            if(pKeyEvent->key() == Qt::Key_Escape) {
+                close();
+                return true;
+            }
+        }
 	}
 
 	return false;
@@ -435,11 +444,10 @@ void lmcChatRoomWindow::userFileAction_triggered(void) {
 	if(!fileName.isEmpty()) {
 		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
 		XmlMessage xmlMessage;
-		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
 		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
 		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
 		xmlMessage.addData(XN_FILEPATH, fileName);
-		emit messageSent(MT_LocalFile, &userId, &xmlMessage);
+        emit messageSent(MT_File, &userId, &xmlMessage);
 	}
 }
 
@@ -499,7 +507,6 @@ void lmcChatRoomWindow::smileyAction_triggered(void) {
 
 void lmcChatRoomWindow::addContactAction_triggered(void) {
 	QStringList excludeList;
-	QString minVersion = GROUPMSGVERSION;
 
 	QHash<QString, QString>::const_iterator index = peerIds.constBegin();
 	while (index != peerIds.constEnd()) {
@@ -508,7 +515,7 @@ void lmcChatRoomWindow::addContactAction_triggered(void) {
 		index++;
 	}
 
-	emit contactsAdding(&minVersion, &excludeList);
+    emit contactsAdding(&excludeList);
 }
 
 void lmcChatRoomWindow::log_sendMessage(MessageType type, QString *lpszUserId, XmlMessage *pMessage) {
@@ -760,18 +767,11 @@ QTreeWidgetItem* lmcChatRoomWindow::getGroupItem(QString* lpszGroupId) {
 
 void lmcChatRoomWindow::setUserAvatar(QString* lpszUserId, QString* lpszFilePath) {
 	QTreeWidgetItem* pUserItem = getUserItem(lpszUserId);
-	if(!pUserItem)
+    if(!pUserItem || !lpszFilePath)
 		return;
 
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + *lpszUserId + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
-
-	QPixmap avatar(filePath);
-	avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	pUserItem->setData(0, AvatarRole, QIcon(avatar));
-
-	if(lpszFilePath)
-		filePath = *lpszFilePath;
-	pMessageLog->updateAvatar(lpszUserId, &filePath);
+    QPixmap avatar(*lpszFilePath);
+    avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pUserItem->setData(0, AvatarRole, QIcon(avatar));
+    pMessageLog->updateAvatar(lpszUserId, lpszFilePath);
 }

@@ -37,7 +37,7 @@ QRect lmcUserTreeWidgetItem::checkBoxRect(const QRect& itemRect) {
 	else if(data(0, TypeRole).toString() == "User")
 		checkBoxRect = QRect(itemRect.left(), itemRect.top() + 4, 0, 0);
 
-	lmcUserTreeWidget* treeWidget = (lmcUserTreeWidget*)this->treeWidget();
+    lmcUserTreeWidget* treeWidget = static_cast<lmcUserTreeWidget*>(this->treeWidget());
 	if(treeWidget->checkable()) {
 		checkBoxRect.setSize(QSize(12, 12));
 		checkBoxRect.moveLeft(checkBoxRect.left() + 3);
@@ -47,7 +47,7 @@ QRect lmcUserTreeWidgetItem::checkBoxRect(const QRect& itemRect) {
 }
 
 void lmcUserTreeWidgetGroupItem::addChild(QTreeWidgetItem* child) {
-	lmcUserTreeWidget* treeWidget = (lmcUserTreeWidget*)this->treeWidget();
+    lmcUserTreeWidget* treeWidget = static_cast<lmcUserTreeWidget*>(this->treeWidget());
 	child->setSizeHint(0, QSize(0, itemViewHeight[treeWidget->view()]));
 	QTreeWidgetItem::addChild(child);
 }
@@ -73,7 +73,7 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
 	QPalette palette = QApplication::palette();
 	QRect itemRect = option.rect;
 	lmcUserTreeWidgetItem* pItem = static_cast<lmcUserTreeWidgetItem*>(index.internalPointer());
-	lmcUserTreeWidget* pTreeWidget = (lmcUserTreeWidget*)pItem->treeWidget();
+    lmcUserTreeWidget* pTreeWidget = static_cast<lmcUserTreeWidget*>(pItem->treeWidget());
 	QString type = pItem->data(0, TypeRole).toString();
 	QString name = pItem->data(0, Qt::DisplayRole).toString();
 
@@ -322,7 +322,7 @@ void lmcUserTreeWidget::mouseReleaseEvent(QMouseEvent* event) {
 	QTreeWidget::mouseReleaseEvent(event);
 
 	QPoint pos = event->pos();
-	lmcUserTreeWidgetItem* item = (lmcUserTreeWidgetItem*)itemAt(pos);
+    lmcUserTreeWidgetItem* item = static_cast<lmcUserTreeWidgetItem*>(itemAt(pos));
 	if(item && checkable() && item->checkBoxRect(visualItemRect(item)).contains(pos)) {
 		// toggle checkstate
 		if(item->checkState(0) == Qt::Checked)
@@ -336,7 +336,7 @@ void lmcUserTreeWidget::keyPressEvent(QKeyEvent* event) {
 	QTreeWidget::keyPressEvent(event);
 
 	if(event->key() == Qt::Key_Space && selectedItems().count() > 0) {
-		lmcUserTreeWidgetItem* item = (lmcUserTreeWidgetItem*)selectedItems().at(0);
+        lmcUserTreeWidgetItem* item = static_cast<lmcUserTreeWidgetItem*>(selectedItems().at(0));
 		if(item && checkable()) {
 			// toggle checkstate
 			if(item->checkState(0) == Qt::Checked)

@@ -79,9 +79,7 @@ void lmcUserInfoWindow::setUIText(void) {
 	if(userInfo.header(XN_TYPE).isNull())
 		return;
 
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + userInfo.data(XN_USERID) + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
+    QString filePath = userInfo.data(XN_AVATAR);
 	//	if image not found, use the default avatar image for this user
 	if(!QFile::exists(filePath))
 		filePath = AVT_DEFAULT;

@@ -74,6 +74,7 @@
 #define IDR_HGRIP			":/images/hgrip"
 #define IDR_VGRIP			":/images/vgrip"
 #define IDR_PLAY			":/images/play"
+#define IDR_SENDFOLDER      ":/images/sendfolder"
 
 #define IDR_LICENSETEXT		":/text/license"
 #define IDR_THANKSTEXT		":/text/thanks"
@@ -86,7 +87,8 @@ enum ItemDataRole {
 	DataRole,	//	Custom data associated with the item
 	StatusRole,	//	Status of the User
 	AvatarRole,	//	Avatar image of the User
-	SubtextRole	//	Subtext to be displayed on the item
+    SubtextRole,//	Subtext to be displayed on the item
+    CapsRole    //  The capabilities of the user
 };
 
 //	font size definitions

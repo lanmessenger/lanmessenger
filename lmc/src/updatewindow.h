@@ -26,6 +26,7 @@
 #define UPDATEWINDOW_H
 
 #include <QWidget>
+#include <qevent.h>
 #include "xmlmessage.h"
 
 namespace Ui {
@@ -49,6 +50,7 @@ signals:
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 
 protected:
+    bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
 
 private slots:

@@ -45,6 +45,11 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WFlags flags) : QWidget(
 	connect(ui.tvMsgList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
 		this, SLOT(tvMsgList_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 	connect(ui.btnClearHistory, SIGNAL(clicked()), this, SLOT(btnClearHistory_clicked()));
+
+    ui.tvMsgList->installEventFilter(this);
+    pMessageLog->installEventFilter(this);
+    ui.btnClearHistory->installEventFilter(this);
+    ui.btnClose->installEventFilter(this);
 }
 
 lmcHistoryWindow::~lmcHistoryWindow() {
@@ -74,6 +79,19 @@ void lmcHistoryWindow::stop(void) {
 }
 
 void lmcHistoryWindow::settingsChanged(void) {
+}
+
+bool lmcHistoryWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+    Q_UNUSED(pObject);
+    if(pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+        if(pKeyEvent->key() == Qt::Key_Escape) {
+            close();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void lmcHistoryWindow::changeEvent(QEvent* pEvent) {

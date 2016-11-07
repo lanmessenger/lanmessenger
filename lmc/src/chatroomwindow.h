@@ -76,7 +76,7 @@ public:
 signals:
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void chatStarting(QString* lpszUserId);
-	void contactsAdding(QString* lpszMinVersion, QStringList* excludeList);
+    void contactsAdding(QStringList* excludeList);
 	void closed(QString* lpszThreadId);
 
 protected:

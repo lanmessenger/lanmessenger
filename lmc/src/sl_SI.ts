@@ -551,6 +551,10 @@
         <source>Reset All</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear messages when window is closed</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TransferWindow</name>
@@ -911,6 +915,18 @@
         <source>Conversation</source>
         <translation>Pogovor</translation>
     </message>
+    <message>
+        <source>%1 sends a folder...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send A Fol&amp;der...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send a folder to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcCore</name>
@@ -1100,6 +1116,10 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <source>%1 - Not Connected</source>
         <translation>%1 - Ni povezan</translation>
     </message>
+    <message>
+        <source>Send Fol&amp;der</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcMessageLog</name>
@@ -1133,7 +1153,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>File has been accepted automatically.</source>
-        <translation>Datoteka je bila samodejno sprejeta.</translation>
+        <translation type="obsolete">Datoteka je bila samodejno sprejeta.</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -1149,7 +1169,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>You have accepted the file.</source>
-        <translation>Sprejeli ste datoteko.</translation>
+        <translation type="obsolete">Sprejeli ste datoteko.</translation>
     </message>
     <message>
         <source>Declined</source>
@@ -1157,7 +1177,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>You have declined the file.</source>
-        <translation>Zavrnili ste datoteko.</translation>
+        <translation type="obsolete">Zavrnili ste datoteko.</translation>
     </message>
     <message>
         <source>Canceled</source>
@@ -1190,6 +1210,18 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Interrupted</source>
         <translation>Prekinjeno</translation>
+    </message>
+    <message>
+        <source>%1 is sending you a folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 sends you a folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Completed</source>
+        <translation>Končano</translation>
     </message>
 </context>
 <context>

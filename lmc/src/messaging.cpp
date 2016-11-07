@@ -47,6 +47,8 @@ lmcMessaging::lmcMessaging(void) {
 	userGroupMap.clear();
 	receivedList.clear();
 	pendingList.clear();
+    fileList.clear();
+    folderList.clear();
 	loopback = false;
 }
 
@@ -74,7 +76,10 @@ void lmcMessaging::init(XmlMessage *pInitParams) {
 
 	int nAvatar = pSettings->value(IDS_AVATAR, IDS_AVATAR_VAL).toInt();
 	QString userNote = pSettings->value(IDS_NOTE, IDS_NOTE_VAL).toString();
-	localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus, QString::null, nAvatar, userNote);
+    uint userCaps = UC_File | UC_GroupMessage | UC_Folder;
+    localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus,
+                         QString::null, nAvatar, userNote, StdLocation::avatarFile(),
+                         QString::number(userCaps));
 
 	loadGroups();
 
@@ -318,7 +323,7 @@ void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
 }
 
 bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus,
-						   QString szAvatar, QString szNote) {
+                           QString szAvatar, QString szNote, QString szCaps) {
 	for(int index = 0; index < userList.count(); index++)
 		if(userList[index].id.compare(szUserId) == 0)
 			return false;
@@ -330,7 +335,8 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
 
 	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();
 
-	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId], nAvatar, szNote));
+    userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId],
+                         nAvatar, szNote, QString::null, szCaps));
 	if(!szStatus.isNull()) {
 		XmlMessage xmlMessage;
 		xmlMessage.addHeader(XN_FROM, szUserId);
@@ -393,6 +399,9 @@ void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUser
 		userGroupMap.insert(pUser->id, pUser->group);
 		saveGroups();
 		break;
+    case MT_Avatar:
+        pUser->avatarPath = szUserData;
+        break;
 	default:
 		break;
 	}

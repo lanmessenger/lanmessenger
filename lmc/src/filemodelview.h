@@ -53,6 +53,7 @@ public:
 	QSize sizeHint() const;
 
 	QString	id;
+    int type;
 	QString	filePath;
 	QString	fileName;
 	qint64	fileSize;
@@ -68,7 +69,7 @@ public:
 	TransferMode mode;
 	TransferState state;
 	QPixmap icon;
-	QDateTime lastUpdated;
+    QDateTime startTime;
 };
 
 QDataStream &operator << (QDataStream &out, const FileView &view);

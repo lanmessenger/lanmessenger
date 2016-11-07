@@ -85,6 +85,7 @@ signals:
 	void groupUpdated(GroupOp op, QVariant value1, QVariant value2);
 
 protected:
+    bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void closeEvent(QCloseEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
 
@@ -117,6 +118,7 @@ private slots:
 	void userConversationAction_triggered(void);
 	void userBroadcastAction_triggered(void);
 	void userFileAction_triggered(void);
+    void userFolderAction_triggered(void);
 	void userInfoAction_triggered(void);
 	void txtNote_returnPressed(void);
 	void txtNote_lostFocus(void);
@@ -140,7 +142,7 @@ private:
 	QTreeWidgetItem* getGroupItemByName(QString* lpszGroupName);
 	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
 	void sendAvatar(QString* lpszUserId);
-	void setUserAvatar(QString* lpszUserId);
+    void setUserAvatar(QString* lpszUserId, QString* lpszFilePath);
 	void processTrayIconTrigger(void);
 	void setTrayTooltip(void);
 
@@ -202,6 +204,7 @@ private:
 	QAction* userChatAction;
 	QAction* userBroadcastAction;
 	QAction* userFileAction;
+    QAction* userFolderAction;
 	QAction* userInfoAction;
 	QAction* avatarBrowseAction;
 	bool windowLoaded;

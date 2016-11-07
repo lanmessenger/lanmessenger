@@ -51,7 +51,8 @@ SOURCES += \
     chatroomwindow.cpp \
     userselectdialog.cpp \
     subcontrols.cpp \
-    trace.cpp
+    trace.cpp \
+    filemessagingproc.cpp
 
 HEADERS  += \
     usertreewidget.h \

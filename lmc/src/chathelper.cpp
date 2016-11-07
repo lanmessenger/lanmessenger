@@ -25,6 +25,23 @@
 #include <QFile>
 #include "chathelper.h"
 
+QDataStream &operator << (QDataStream &out, const SingleMessage &message) {
+    out << qint32(message.type) << message.userId << message.userName << message.message.toString()
+        << message.id;
+    return out;
+}
+
+QDataStream &operator >> (QDataStream &in, SingleMessage &message) {
+    qint32 type;
+    QString userId;
+    QString userName;
+    QString xmlMessage;
+    QString id;
+    in >> type >> userId >> userName >> xmlMessage >> id;
+    message = SingleMessage((MessageType)type, userId, userName, XmlMessage(xmlMessage), id);
+    return in;
+}
+
 void ChatHelper::makeHtmlSafe(QString* lpszMessage) {
 	for(int index = 0; index < HTMLESC_COUNT; index++)
 		lpszMessage->replace(htmlSymbol[index], htmlEscape[index]);

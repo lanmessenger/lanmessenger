@@ -34,7 +34,7 @@
 #define IDA_PRODUCT		"lmc"
 #define IDA_COMPANY		"lmc"
 #endif
-#define IDA_VERSION		"1.2.32"
+#define IDA_VERSION		"1.2.35"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
 						"and does not require a server.\n"\
 						"LAN Messenger works on essentially every popular desktop platform."
@@ -101,15 +101,14 @@ enum MessageType {
 	MT_Info,
 	MT_ChatState,
 	MT_Note,
+    MT_Folder,
 	//	These are used only for local communication between layers
 	MT_Group,
 	MT_Version,
 	MT_WebFailed,
-	MT_LocalFile,
-	MT_LocalAvatar,
 	MT_Refresh,
 	MT_Join,
-	MT_Leave,
+    MT_Leave,
 	MT_Max
 };
 
@@ -135,15 +134,14 @@ const QString MessageTypeNames[] = {
 	"info",
 	"chatstate",
 	"note",
+    "folder",
 	//	These are used only for local communication between layers
 	"group",
 	"version",
 	"webfailed",
-	"localfile",
-	"localavatar",
 	"refresh",
 	"join",
-	"leave"
+    "leave"
 };
 
 enum FileMode {
@@ -165,6 +163,7 @@ const QString FileModeNames[] = {
 ****************************************************************************/
 enum FileOp {
 	FO_Blank = 0,
+    FO_Init,    // Id assigned, but request not yet sent. Used for files that are part of a folder transfer
 	FO_Request,
 	FO_Accept,
 	FO_Decline,
@@ -173,11 +172,13 @@ enum FileOp {
 	FO_Error,
 	FO_Abort,
 	FO_Complete,
+    FO_Next,
 	FO_Max
 };
 
 const QString FileOpNames[] = {
 	"",
+    "init",
 	"request",
 	"accept",
 	"decline",
@@ -185,7 +186,8 @@ const QString FileOpNames[] = {
 	"progress",
 	"error",
 	"abort",
-	"complete"
+    "complete",
+    "next"
 };
 
 /****************************************************************************
@@ -196,13 +198,15 @@ enum FileType {
 	FT_None = 0,
 	FT_Normal,
 	FT_Avatar,
+    FT_Folder,
 	FT_Max
 };
 
 const QString FileTypeNames[] = {
 	"",
 	"normal",
-	"avatar"
+    "avatar",
+    "folder"
 };
 
 /****************************************************************************
@@ -293,14 +297,22 @@ const int statusType[] = {
 	StatusTypeOffline
 };
 
+enum UserCap {
+    UC_None = 0x00000000,
+    UC_File = 0x00000001,
+    UC_GroupMessage = 0x00000002,
+    UC_Folder = 0x00000004,
+    UC_Max = 0xFFFFFFFF
+};
+
 #define GRP_DEFAULT		"General"
 #define GRP_DEFAULT_ID	"1CD75C10048C4E65F6082539A32DC111"
-
-#define GROUPMSGVERSION	"1.2.16"
 
 #define AUTO_CONNECTION	"Auto"
 
 #define LMC_TRUE	"true"
 #define LMC_FALSE	"false"
+
+#define PROGRESS_TIMEOUT    1500
 
 #endif // DEFINITIONS_H

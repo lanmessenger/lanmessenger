@@ -48,6 +48,10 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget *parent) : QWidget(parent) {
 	//	event filters for handling keyboard input
 	ui.txtMessage->installEventFilter(this);
 	ui.tvUserList->installEventFilter(this);
+    ui.btnSend->installEventFilter(this);
+    ui.btnCancel->installEventFilter(this);
+    ui.btnSelectAll->installEventFilter(this);
+    ui.btnSelectNone->installEventFilter(this);
 
 	ui.lblInfo->setVisible(false);
 	infoFlag = IT_Ok;

@@ -26,6 +26,10 @@
 #include <QAction>
 #include "messagelog.h"
 
+const QString acceptOp("accept");
+const QString declineOp("decline");
+const QString cancelOp("cancel");
+
 lmcMessageLog::lmcMessageLog(QWidget *parent) : QWebView(parent) {
 	connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(log_linkClicked(QUrl)));
 	connect(this->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
@@ -36,6 +40,7 @@ lmcMessageLog::lmcMessageLog(QWidget *parent) : QWebView(parent) {
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	setRenderHints(QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    settings()->setObjectCacheCapacities(0, 0, 0);
 
 	createContextMenu();
 
@@ -167,7 +172,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		addToLog = false;
 		break;
 	case MT_File:
-	case MT_LocalFile:
+    case MT_Folder:
 		appendFileMessage(type, lpszUserName, pMessage, bReload);
 		id = pMessage->data(XN_TEMPID);
 		pMessage->removeData(XN_TEMPID);
@@ -321,6 +326,40 @@ void lmcMessageLog::abortPendingFileOperations(void) {
     }
 }
 
+void lmcMessageLog::saveMessageLog(QString filePath) {
+    if(messageLog.isEmpty())
+        return;
+
+    QDir dir = QFileInfo(filePath).dir();
+    if(!dir.exists())
+        dir.mkpath(dir.absolutePath());
+
+    QFile file(filePath);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+
+    QDataStream stream(&file);
+    stream << peerId << peerName << messageLog;
+
+    file.close();
+}
+
+void lmcMessageLog::restoreMessageLog(QString filePath, bool reload) {
+    messageLog.clear();
+
+    QFile file(filePath);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+
+    QDataStream stream(&file);
+    stream >> peerId >> peerName >> messageLog;
+
+    file.close();
+
+    if(reload)
+        reloadMessageLog();
+}
+
 void lmcMessageLog::changeEvent(QEvent* event) {
 	switch(event->type()) {
 	case QEvent::LanguageChange:
@@ -357,22 +396,22 @@ void lmcMessageLog::log_linkClicked(QUrl url) {
 	FileMode mode;
 	FileOp op;
 
-	if(linkData[1].compare("fileaccept", Qt::CaseInsensitive) == 0) {
+    if(linkData[2].compare(acceptOp) == 0) {
 		mode = FM_Receive;
 		op = FO_Accept;
-	} else if(linkData[1].compare("filedecline", Qt::CaseInsensitive) == 0) {
+    } else if(linkData[2].compare(declineOp) == 0) {
 		mode = FM_Receive;
 		op = FO_Decline;
-	} else if(linkData[1].compare("filecancel", Qt::CaseInsensitive) == 0) {
+    } else if(linkData[2].compare(cancelOp) == 0) {
 		mode = FM_Send;
 		op = FO_Cancel;
 	} else	// unknown link command
 		return;
 
 	//	Remove the link and show a confirmation message.
-	updateFileMessage(mode, op, linkData[2]);
+    updateFileMessage(mode, op, linkData[3]);
 
-    fileOperation(linkData[2], linkData[1], mode);
+    fileOperation(linkData[3], linkData[2], linkData[1], mode);
 }
 
 void lmcMessageLog::log_contentsSizeChanged(QSize size) {
@@ -532,18 +571,33 @@ void lmcMessageLog::appendPublicMessage(QString* lpszUserId, QString* lpszUserNa
 // This function is called to display a file request message on chat box
 void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, XmlMessage* pMessage,
 									  bool bReload) {
-	QString htmlMsg;
+    Q_UNUSED(type);
+    QString htmlMsg;
 	QString caption;
-	QString fileId = pMessage->data(XN_FILEID);
+    QString fileId = pMessage->data(XN_FILEID);
 	QString tempId;
 	QString szStatus;
+    QString fileType;
+
+    switch(type) {
+    case MT_File:
+        fileType = "file";
+        break;
+    case MT_Folder:
+        fileType = "folder";
+        break;
+    default:
+        return;
+        break;
+    }
 
 	htmlMsg = themeData.reqMsg;
 	htmlMsg.replace("%iconpath%", "qrc"IDR_FILEMSG);
 
 	FileOp fileOp = (FileOp)Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
+    FileMode fileMode = (FileMode)Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
 
-	if(type == MT_LocalFile) {
+    if(fileMode == FM_Send) {
 		tempId = "send" + fileId;
 		caption = tr("Sending '%1' to %2.");
 		htmlMsg.replace("%sender%", caption.arg(pMessage->data(XN_FILENAME), *lpszUserName));
@@ -554,14 +608,14 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
 		case FO_Request:
 			sendFileMap.insert(fileId, *pMessage);
 			pMessage->addData(XN_TEMPID, tempId);
-
-			htmlMsg.replace("%links%", "<a href='lmc://filecancel/" + fileId + "'>" + tr("Cancel") + "</a>");
+            htmlMsg.replace("%links%", "<a href='lmc://" + fileType + "/" + cancelOp + "/" + fileId + "'>" + tr("Cancel") + "</a>");
 			break;
 		case FO_Cancel:
 		case FO_Accept:
 		case FO_Decline:
         case FO_Error:
         case FO_Abort:
+        case FO_Complete:
 			szStatus = getFileStatusMessage(FM_Send, fileOp);
 			htmlMsg.replace("%links%", szStatus);
 			break;
@@ -569,16 +623,22 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
 			return;
 			break;
 		}
-	} else if(type == MT_File) {
+    } else {
 		tempId = "receive" + fileId;
 		if(autoFile) {
-			caption = tr("%1 is sending you a file:");
+            if(type == MT_File)
+                caption = tr("%1 is sending you a file:");
+            else
+                caption = tr("%1 is sending you a folder:");
 			htmlMsg.replace("%sender%", caption.arg(*lpszUserName));
 			htmlMsg.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
 				Helper::formatSize(pMessage->data(XN_FILESIZE).toLongLong()) + ")");
 			htmlMsg.replace("%fileid%", "");
 		} else {
-			caption = tr("%1 sends you a file:");
+            if(type == MT_File)
+                caption = tr("%1 sends you a file:");
+            else
+                caption = tr("%1 sends you a folder:");
 			htmlMsg.replace("%sender%", caption.arg(*lpszUserName));
 			htmlMsg.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
 				Helper::formatSize(pMessage->data(XN_FILESIZE).toLongLong()) + ")");
@@ -591,20 +651,21 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
 			pMessage->addData(XN_TEMPID, tempId);
 
 			if(autoFile) {
-				htmlMsg.replace("%links%", tr("File has been accepted automatically."));
+                htmlMsg.replace("%links%", tr("Accepted"));
+                if(!bReload)
+                    fileOperation(fileId, acceptOp, fileType);
 			} else {
-				htmlMsg.replace("%links%", "<a href='lmc://fileaccept/" + fileId + "'>" + tr("Accept") + "</a>&nbsp;&nbsp;" +
-					"<a href='lmc://filedecline/" + fileId + "'>" + tr("Decline") + "</a>");
+                htmlMsg.replace("%links%",
+                    "<a href='lmc://" + fileType + "/" + acceptOp + "/" + fileId + "'>" + tr("Accept") + "</a>&nbsp;&nbsp;" +
+                    "<a href='lmc://" + fileType + "/" + declineOp + "/" + fileId + "'>" + tr("Decline") + "</a>");
 			}
-
-			if(autoFile && !bReload)
-				fileOperation(fileId, "fileaccept");
 			break;
 		case FO_Cancel:
 		case FO_Accept:
 		case FO_Decline:
         case FO_Error:
         case FO_Abort:
+        case FO_Complete:
 			szStatus = getFileStatusMessage(FM_Receive, fileOp);
 			htmlMsg.replace("%links%", szStatus);
 			break;
@@ -647,10 +708,10 @@ QString lmcMessageLog::getFileStatusMessage(FileMode mode, FileOp op) {
 
 	switch(op) {
 	case FO_Accept:
-		message = (mode == FM_Send) ? tr("Accepted") : tr("You have accepted the file.");
+        message = (mode == FM_Send) ? tr("Accepted") : tr("Accepted");
 		break;
 	case FO_Decline:
-		message = (mode == FM_Send) ? tr("Declined") : tr("You have declined the file.");
+        message = (mode == FM_Send) ? tr("Declined") : tr("Declined");
 		break;
 	case FO_Cancel:
 		message = (mode == FM_Send) ? tr("Canceled") : tr("Canceled");
@@ -658,6 +719,9 @@ QString lmcMessageLog::getFileStatusMessage(FileMode mode, FileOp op) {
     case FO_Error:
     case FO_Abort:
         message = (mode == FM_Send) ? tr("Interrupted") : tr("Interrupted");
+        break;
+    case FO_Complete:
+        message = (mode == FM_Send) ? tr("Completed") : tr("Completed");
         break;
 	default:
 		break;
@@ -700,28 +764,35 @@ QString lmcMessageLog::getChatRoomMessage(GroupMsgOp op) {
 	return message;
 }
 
-void lmcMessageLog::fileOperation(QString fileId, QString action, FileMode mode) {
-	XmlMessage xmlMessage;
+void lmcMessageLog::fileOperation(QString fileId, QString action, QString fileType, FileMode mode) {
+    XmlMessage fileData, xmlMessage;
 
-	if(action.compare("fileaccept", Qt::CaseInsensitive) == 0) {
-		XmlMessage fileData = receiveFileMap.value(fileId);
+    MessageType type;
+    if(fileType.compare("file") == 0)
+        type = MT_File;
+    else if(fileType.compare("folder") == 0)
+        type = MT_Folder;
+    else
+        return;
+
+    if(action.compare(acceptOp) == 0) {
+        fileData = receiveFileMap.value(fileId);
 		xmlMessage.addData(XN_MODE, FileModeNames[FM_Receive]);
 		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
 		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Accept]);
-		xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
+        xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
 		xmlMessage.addData(XN_FILEPATH, fileData.data(XN_FILEPATH));
 		xmlMessage.addData(XN_FILENAME, fileData.data(XN_FILENAME));
 		xmlMessage.addData(XN_FILESIZE, fileData.data(XN_FILESIZE));
 	}
-	else if(action.compare("filedecline", Qt::CaseInsensitive) == 0) {
-		XmlMessage fileData = receiveFileMap.value(fileId);
+    else if(action.compare(declineOp) == 0) {
+        fileData = receiveFileMap.value(fileId);
 		xmlMessage.addData(XN_MODE, FileModeNames[FM_Receive]);
 		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
 		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Decline]);
-		xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
+        xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
 	}
-	else if(action.compare("filecancel", Qt::CaseInsensitive) == 0) {
-        XmlMessage fileData;
+    else if(action.compare(cancelOp) == 0) {
         if(mode == FM_Receive)
             fileData = receiveFileMap.value(fileId);
         else
@@ -732,7 +803,7 @@ void lmcMessageLog::fileOperation(QString fileId, QString action, FileMode mode)
         xmlMessage.addData(XN_FILEID, fileData.data(XN_FILEID));
 	}
 
-	emit messageSent(MT_LocalFile, &peerId, &xmlMessage);
+    emit messageSent(type, &peerId, &xmlMessage);
 }
 
 //	Called when message received, before adding to message log

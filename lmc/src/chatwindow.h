@@ -59,7 +59,7 @@ public:
 	~lmcChatWindow(void);
 
 	void init(User* pLocalUser, User* pRemoteUser, bool connected);
-	void stop(void);
+    void stop(void);
 	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void connectionStateChanged(bool connected);
 	void settingsChanged(void);
@@ -86,6 +86,7 @@ private slots:
 	void btnFont_clicked(void);
 	void btnFontColor_clicked(void);
 	void btnFile_clicked(void);
+    void btnFolder_clicked(void);
 	void btnSave_clicked(void);
 	void btnHistory_clicked(void);
 	void btnTransfers_clicked(void);
@@ -98,7 +99,9 @@ private:
 	void createToolBar(void);
 	void setUIText(void);
 	void sendMessage(void);
-	void sendFile(QString* lpszFilePath);
+    void sendFile(QString* lpszFilePath);
+    void sendFolder(QString* lpszFolderPath);
+    void sendObject(MessageType type, QString* lpszPath);
 	void encodeMessage(QString* lpszMessage);
     void processFileOp(XmlMessage* pMessage);
 	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
@@ -112,6 +115,7 @@ private:
 	QString localName;
 	QHash<QString, QString> peerNames;
 	QHash<QString, QString> peerStatuses;
+    QHash<QString, uint> peerCaps;
 	User* pLocalUser;
 	QString lastUserId;
 
@@ -122,6 +126,7 @@ private:
 	QAction* pFontColorAction;
 	lmcToolButton* pbtnSmiley;
 	QAction* pFileAction;
+    QAction* pFolderAction;
 	QAction* pSaveAction;
 	QToolBar* pRightBar;
 	QAction* pHistoryAction;
@@ -133,6 +138,7 @@ private:
 	int infoFlag;
 	bool showSmiley;
 	bool sendKeyMod;
+    bool clearOnClose;
 	lmcSoundPlayer* pSoundPlayer;
 	QColor messageColor;
 	ChatState chatState;

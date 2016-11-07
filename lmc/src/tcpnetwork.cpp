@@ -126,11 +126,12 @@ void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, 
 	XmlMessage xmlMessage(*lpszData);
 	int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
-	FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), *lpszReceiverId, xmlMessage.data(XN_FILEPATH), 
+    FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), localId, *lpszReceiverId, xmlMessage.data(XN_FILEPATH),
 		xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, tcpPort, (FileType)type);
 	connect(sender, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
 		this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
 	sendList.prepend(sender);
+    sender->init();
 }
 
 void lmcTcpNetwork::initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData) {
@@ -153,7 +154,7 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 	QString id = xmlMessage.data(XN_FILEID);
 
 	if(mode == FM_Send) {
-		FileSender* sender = getSender(id);
+        FileSender* sender = getSender(id, *lpszUserId);
 		if(!sender)
 			return;
 
@@ -161,13 +162,11 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 		case FO_Cancel:
 		case FO_Abort:	
 			sender->stop();
-			break;
-		case FO_Accept:
-			sender->init();
+            removeSender(sender);
 			break;
 		}
 	} else {
-		FileReceiver* receiver = getReceiver(id);
+        FileReceiver* receiver = getReceiver(id, *lpszUserId);
 		if(!receiver)
 			return;
 
@@ -175,6 +174,7 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 		case FO_Cancel:
 		case FO_Abort:	
 			receiver->stop();
+            removeReceiver(receiver);
 			break;
 		}
 	}
@@ -204,8 +204,9 @@ void lmcTcpNetwork::socket_readyRead(void) {
 		addMsgSocket(&userId, socket);
 	} else if(buffer.startsWith("FILE")) {
 		//	read transfer id from socket and assign socket to correct file receiver
-		QString id(buffer.mid(4)); // 4 is length of "FILE"
-		addFileSocket(&id, socket);
+        QString id(buffer.mid(4, 32)); // 4 is length of "FILE", 32 is length of File Id
+        QString userId(buffer.mid(36));
+        addFileSocket(&id, &userId, socket);
 	}
 }
 
@@ -226,6 +227,10 @@ void lmcTcpNetwork::update(FileMode mode, FileOp op, FileType type, QString* lps
 	case FO_Complete:
 	case FO_Error:
 		xmlMessage.addData(XN_FILEPATH, *lpszData);
+        if(mode == FM_Send)
+            removeSender(static_cast<FileSender*>(sender()));
+        else
+            removeReceiver(static_cast<FileReceiver*>(sender()));
 		break;
 	case FO_Progress:
 		xmlMessage.addData(XN_FILESIZE, *lpszData);
@@ -277,8 +282,8 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
 	}
 }
 
-void lmcTcpNetwork::addFileSocket(QString* lpszId, QTcpSocket* pSocket) {
-	FileReceiver* receiver = getReceiver(*lpszId);
+void lmcTcpNetwork::addFileSocket(QString* lpszId, QString* lpszUserId, QTcpSocket* pSocket) {
+    FileReceiver* receiver = getReceiver(*lpszId, *lpszUserId);
 	if(receiver)
 		receiver->init(pSocket);
 }
@@ -327,18 +332,30 @@ void lmcTcpNetwork::sendSessionKey(QString* lpszUserId, QByteArray& publicKey) {
 	}
 }
 
-FileSender* lmcTcpNetwork::getSender(QString id) {
+FileSender* lmcTcpNetwork::getSender(QString id, QString userId) {
 	for(int index = 0; index < sendList.count(); index++)
-		if(sendList[index]->id.compare(id) == 0)
+        if(sendList[index]->id.compare(id) == 0 && sendList[index]->peerId.compare(userId) == 0)
 			return sendList[index];
 	
 	return NULL;
 }
 
-FileReceiver* lmcTcpNetwork::getReceiver(QString id) {
+FileReceiver* lmcTcpNetwork::getReceiver(QString id, QString userId) {
 	for(int index = 0; index < receiveList.count(); index++)
-		if(receiveList[index]->id.compare(id) == 0)
+        if(receiveList[index]->id.compare(id) == 0 && receiveList[index]->peerId.compare(userId) == 0)
 			return receiveList[index];
 	
 	return NULL;
+}
+
+void lmcTcpNetwork::removeSender(FileSender* pSender) {
+    int index = sendList.indexOf(pSender);
+    FileSender* sender = sendList.takeAt(index);
+    sender->deleteLater();  // deleting later is generally safer
+}
+
+void lmcTcpNetwork::removeReceiver(FileReceiver* pReceiver) {
+    int index = receiveList.indexOf(pReceiver);
+    FileReceiver* receiver = receiveList.takeAt(index);
+    receiver->deleteLater();  // deleting later is generally safer
 }

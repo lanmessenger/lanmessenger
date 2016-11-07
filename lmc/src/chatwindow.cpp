@@ -51,6 +51,7 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 	ui.lblInfo->setBackgroundRole(QPalette::Base);
 	ui.lblInfo->setAutoFillBackground(true);
 	ui.lblInfo->setVisible(false);
+    pMessageLog->installEventFilter(this);
 	ui.txtMessage->installEventFilter(this);
 	infoFlag = IT_Ok;
 
@@ -59,6 +60,7 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 	peerIds.clear();
 	peerNames.clear();
 	peerStatuses.clear();
+    peerCaps.clear();
 	threadId = QString::null;
 	groupMode = false;
 	dataSaved = false;
@@ -78,20 +80,17 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 	peerIds.insert(peerId, pRemoteUser->id);
 	peerNames.insert(peerId, pRemoteUser->name);
 	peerStatuses.insert(peerId, pRemoteUser->status);
+    peerCaps.insert(peerId, pRemoteUser->caps);
 
 	this->pLocalUser = pLocalUser;
 
 	pMessageLog->localId = localId;
 	pMessageLog->peerId = peerId;
+    pMessageLog->peerName = pRemoteUser->name;
 
-	//	get the avatar image for the users from the cache folder
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + localId + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
-	pMessageLog->participantAvatars.insert(localId, filePath);
-	fileName = "avt_" + peerId + ".png";
-	filePath = cacheDir.absoluteFilePath(fileName);
-	pMessageLog->participantAvatars.insert(peerId, filePath);
+    //	get the avatar image for the users
+    pMessageLog->participantAvatars.insert(localId, pLocalUser->avatarPath);
+    pMessageLog->participantAvatars.insert(peerId, pRemoteUser->avatarPath);
 
 	createSmileyMenu();
 	createToolBar();
@@ -128,6 +127,7 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 	messageColor = QApplication::palette().text().color();
 	messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
 	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
+    clearOnClose = pSettings->value(IDS_CLEARONCLOSE, IDS_CLEARONCLOSE_VAL).toBool();
 
 	setUIText();
 
@@ -137,17 +137,23 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 
 	QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
 	pMessageLog->initMessageLog(themePath);
+    if(!clearOnClose)
+        pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
 }
 
 void lmcChatWindow::stop(void) {
 	bool saveHistory = pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool();
 	if(pMessageLog->hasData && saveHistory && !dataSaved) {
-		QString szMessageLog = pMessageLog->prepareMessageLogForSave();
-		if(!groupMode)
-			History::save(peerNames.value(peerId), QDateTime::currentDateTime(), &szMessageLog);
-		else
-			History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
-		dataSaved = true;
+        if(clearOnClose) {
+            QString szMessageLog = pMessageLog->prepareMessageLogForSave();
+            if(!groupMode)
+                History::save(peerNames.value(peerId), QDateTime::currentDateTime(), &szMessageLog);
+            else
+                History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
+            dataSaved = true;
+        } else {
+            pMessageLog->saveMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
+        }
 	}
 }
 
@@ -191,7 +197,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 			peerStatuses.insert(senderId, data);
 		}
 		break;
-	case MT_LocalAvatar:
+    case MT_Avatar:
 		data = pMessage->data(XN_FILEPATH);
 		// this message may come with or without user id. NULL user id means avatar change
 		// by local user, while non NULL user id means avatar change by a peer.
@@ -199,31 +205,31 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 		break;
 	case MT_UserName:
 		data = pMessage->data(XN_NAME);
-		if(peerNames.contains(senderId))
+        if(peerNames.contains(senderId)) {
 			peerNames.insert(senderId, data);
+            pMessageLog->peerName = data;
+        }
 		pMessageLog->updateUserName(&senderId, &data);
 		break;
 	case MT_Failed:
 		appendMessageLog(type, lpszUserId, &senderName, pMessage);
 		break;
 	case MT_File:
+    case MT_Folder:
 		if(pMessage->data(XN_FILEOP) == FileOpNames[FO_Request]) {
 			//	a file request has been received
 			appendMessageLog(type, lpszUserId, &senderName, pMessage);
-			if(isHidden() || !isActiveWindow()) {
+            if(pMessage->data(XN_MODE) == FileModeNames[FM_Receive] && (isHidden() || !isActiveWindow())) {
 				pSoundPlayer->play(SE_NewFile);
-				title = tr("%1 sends a file...");
+                if(type == MT_File)
+                    title = tr("%1 sends a file...");
+                else
+                    title = tr("%1 sends a folder...");
 				setWindowTitle(title.arg(senderName));
 			}
 		} else {
 			// a file message of op other than request has been received
 			processFileOp(pMessage);
-		}
-		break;
-	case MT_LocalFile:
-		if(pMessage->data(XN_FILEOP) == FileOpNames[FO_Request]) {
-			data = pMessage->data(XN_FILEPATH);
-			sendFile(&data);
 		}
 		break;
     case MT_Depart:
@@ -245,6 +251,7 @@ void lmcChatWindow::settingsChanged(void) {
 	pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
 	pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
 	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
+    clearOnClose = pSettings->value(IDS_CLEARONCLOSE, IDS_CLEARONCLOSE_VAL).toBool();
 	pSoundPlayer->settingsChanged();
 	if(localName.compare(pLocalUser->name) != 0) {
 		localName = pLocalUser->name;
@@ -271,23 +278,33 @@ void lmcChatWindow::settingsChanged(void) {
 }
 
 bool lmcChatWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
-	if(pObject == ui.txtMessage && pEvent->type() == QEvent::KeyPress) {
-		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
-		if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
-			bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
-			if(keyMod == sendKeyMod) {
-				sendMessage();
-				setChatState(CS_Active);
-				return true;
-			}
-			// The TextEdit widget does not insert new line when Ctrl+Enter is pressed
-			// So we insert a new line manually
-			if(keyMod)
-				ui.txtMessage->insertPlainText("\n");
-		}
-		keyStroke++;
-		setChatState(CS_Composing);
-	}
+    if(pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+        if(pObject == ui.txtMessage) {
+            if(pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) {
+                bool keyMod = ((pKeyEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier);
+                if(keyMod == sendKeyMod) {
+                    sendMessage();
+                    setChatState(CS_Active);
+                    return true;
+                }
+                // The TextEdit widget does not insert new line when Ctrl+Enter is pressed
+                // So we insert a new line manually
+                if(keyMod)
+                    ui.txtMessage->insertPlainText("\n");
+            } else if(pKeyEvent->key() == Qt::Key_Escape) {
+                close();
+                return true;
+            }
+            keyStroke++;
+            setChatState(CS_Composing);
+        } else {
+            if(pKeyEvent->key() == Qt::Key_Escape) {
+                close();
+                return true;
+            }
+        }
+    }
 
 	return false;
 }
@@ -311,7 +328,7 @@ void lmcChatWindow::changeEvent(QEvent* pEvent) {
 void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
 	setChatState(CS_Inactive);
 	// Call stop() to save history
-	stop();
+    stop();
 	emit closed(&peerId);
 
 	QWidget::closeEvent(pEvent);
@@ -319,16 +336,16 @@ void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
 
 void lmcChatWindow::dragEnterEvent(QDragEnterEvent* pEvent) {
 	if(pEvent->mimeData()->hasFormat("text/uri-list")) {
+        //  Check if the remote user has file transfer capability
+        if((peerCaps.value(peerId) & UC_File) != UC_File)
+            return;
+
 		QList<QUrl> urls = pEvent->mimeData()->urls();
 		if(urls.isEmpty())
 			return;
 
 		QString fileName = urls.first().toLocalFile();
 		if(fileName.isEmpty())
-			return;
-
-		QFileInfo fileInfo(fileName);
-		if(!fileInfo.isFile())
 			return;
 
 		pEvent->acceptProposedAction();
@@ -341,14 +358,18 @@ void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
 		return;
 
     foreach(QUrl url, urls) {
-        QString fileName = url.toLocalFile();
-        if(fileName.isEmpty())
+        QString path = url.toLocalFile();
+        if(path.isEmpty())
             continue;
 
-        if(!QFile::exists(fileName))
+        QFileInfo fileInfo(path);
+        if(!fileInfo.exists())
             continue;
 
-        sendFile(&fileName);
+        if(fileInfo.isFile())
+            sendFile(&path);
+        else if(fileInfo.isDir())
+            sendFolder(&path);
     }
 }
 
@@ -371,11 +392,20 @@ void lmcChatWindow::btnFontColor_clicked(void) {
 
 void lmcChatWindow::btnFile_clicked(void) {
 	QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
-	QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
+    QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
 	if(!fileName.isEmpty()) {
 		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
 		sendFile(&fileName);
 	}
+}
+
+void lmcChatWindow::btnFolder_clicked(void) {
+    QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
+    QString path = QFileDialog::getExistingDirectory(this, QString(), dir, QFileDialog::ShowDirsOnly);
+    if(!path.isEmpty()) {
+        pSettings->setValue(IDS_OPENPATH, QFileInfo(path).absolutePath());
+        sendFolder(&path);
+    }
 }
 
 void lmcChatWindow::btnSave_clicked(void) {
@@ -462,6 +492,14 @@ void lmcChatWindow::createToolBar(void) {
 
 	pFileAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send A &File...", this, SLOT(btnFile_clicked()));
 	pFileAction->setShortcut(QKeySequence::Open);
+    bool fileCap = ((peerCaps.value(peerId) & UC_File) == UC_File);
+    pFileAction->setEnabled(fileCap);
+    pFolderAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SENDFOLDER, "PNG")), "Send A Fol&der...", this, SLOT(btnFolder_clicked()));
+    bool folderCap = ((peerCaps.value(peerId) & UC_Folder) == UC_Folder);
+    pFolderAction->setEnabled(folderCap);
+
+    pLeftBar->addSeparator();
+
 	pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, SLOT(btnSave_clicked()));
 	pSaveAction->setShortcut(QKeySequence::Save);
 	pSaveAction->setEnabled(false);
@@ -491,12 +529,15 @@ void lmcChatWindow::setUIText(void) {
 
 	pbtnSmiley->setToolTip(tr("Insert Smiley"));
 	pFileAction->setText(tr("Send A &File..."));
+    pFolderAction->setText(tr("Send A Fol&der..."));
 	pSaveAction->setText(tr("&Save As..."));
 	pHistoryAction->setText(tr("&History"));
 	pTransferAction->setText(tr("File &Transfers"));
 	if(!groupMode) {
 		QString toolTip = tr("Send a file to %1");
 		pFileAction->setToolTip(toolTip.arg(peerNames.value(peerId)));
+        toolTip = tr("Send a folder to %1");
+        pFolderAction->setToolTip(toolTip.arg(peerNames.value(peerId)));
 	}
 	pSaveAction->setToolTip(tr("Save this conversation"));
 	pHistoryAction->setToolTip(tr("View History"));
@@ -551,24 +592,24 @@ void lmcChatWindow::sendMessage(void) {
 }
 
 void lmcChatWindow::sendFile(QString* lpszFilePath) {
-	if(bConnected) {
-		QFileInfo fileInfo(*lpszFilePath);
+    sendObject(MT_File, lpszFilePath);
+}
 
-		XmlMessage xmlMessage;
-		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
-		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
-		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
-		xmlMessage.addData(XN_FILEID, Helper::getUuid());
-		xmlMessage.addData(XN_FILEPATH, fileInfo.filePath());
-		xmlMessage.addData(XN_FILENAME, fileInfo.fileName());
-		xmlMessage.addData(XN_FILESIZE, QString::number(fileInfo.size()));
+void lmcChatWindow::sendFolder(QString* lpszFolderPath) {
+    sendObject(MT_Folder, lpszFolderPath);
+}
 
-		QString userId = peerIds.value(peerId);
-		QString userName = peerNames.value(peerId);
-		appendMessageLog(MT_LocalFile, NULL, &userName, &xmlMessage);
-		emit messageSent(MT_File, &userId, &xmlMessage);
-	} else
-		appendMessageLog(MT_Error, NULL, NULL, NULL);
+void lmcChatWindow::sendObject(MessageType type, QString* lpszPath) {
+    if(bConnected) {
+        XmlMessage xmlMessage;
+        xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+        xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
+        xmlMessage.addData(XN_FILEPATH, *lpszPath);
+
+        QString userId = peerIds.value(peerId);
+        emit messageSent(type, &userId, &xmlMessage);
+    } else
+        appendMessageLog(MT_Error, NULL, NULL, NULL);
 }
 
 //	Called before sending message
@@ -577,27 +618,19 @@ void lmcChatWindow::encodeMessage(QString* lpszMessage) {
 	ChatHelper::encodeSmileys(lpszMessage);
 }
 
-void lmcChatWindow::processFileOp(XmlMessage* pMessage) {
+void lmcChatWindow::processFileOp(XmlMessage *pMessage) {
 	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
 	int fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
-	QString fileId = pMessage->data(XN_FILEID);
+    QString fileId = pMessage->data(XN_FILEID);
 
     switch(fileOp) {
     case FO_Cancel:
-		if(fileMode == FM_Send)
-			updateFileMessage(FM_Receive, FO_Cancel, fileId);
-        break;
     case FO_Accept:
-		updateFileMessage(FM_Send, FO_Accept, fileId);
-        break;
     case FO_Decline:
-		updateFileMessage(FM_Send, FO_Decline, fileId);
-        break;
     case FO_Error:
-        updateFileMessage((FileMode)fileMode, FO_Error, fileId);
-        break;
     case FO_Abort:
-        updateFileMessage((FileMode)fileMode, FO_Abort, fileId);
+    case FO_Complete:
+        updateFileMessage((FileMode)fileMode, (FileOp)fileOp, fileId);
         break;
     default:
         break;

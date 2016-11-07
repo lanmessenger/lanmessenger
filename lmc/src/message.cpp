@@ -59,11 +59,3 @@ bool Message::getHeader(QString* lpszMessage, MessageHeader** ppHeader, XmlMessa
 					(*ppMessage)->header(XN_FROM));
 	return true;
 }
-
-QString Message::escapeDelimiter(QString *lpszData) {
-	return lpszData->replace(DELIMITER, DELIMITER_ESC, Qt::CaseSensitive);
-}
-
-QString Message::unescapeDelimiter(QString* lpszData) {
-	return lpszData->replace(DELIMITER_ESC, DELIMITER, Qt::CaseSensitive);
-}

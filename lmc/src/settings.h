@@ -81,6 +81,8 @@
 #define IDS_PATHTOLINK_VAL		false
 #define IDS_TRIMMESSAGE			"Messages/Trim"
 #define IDS_TRIMMESSAGE_VAL		true
+#define IDS_CLEARONCLOSE        "Messages/ClearOnClose"
+#define IDS_CLEARONCLOSE_VAL    true
 #define IDS_MESSAGETOP			"Messages/MessageTop"
 #define IDS_MESSAGETOP_VAL		false
 #define IDS_PUBMESSAGEPOP		"Messages/PubMessagePop"

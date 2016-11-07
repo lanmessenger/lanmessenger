@@ -26,6 +26,8 @@
 #include <QTimer>
 #include <QUrl>
 #include "mainwindow.h"
+#include "messagelog.h"
+#include "history.h"
 
 lmcMainWindow::lmcMainWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent, flags) {
 	ui.setupUi(this);
@@ -40,6 +42,9 @@ lmcMainWindow::lmcMainWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 		this, SLOT(tvUserList_currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
 	connect(ui.txtNote, SIGNAL(returnPressed()), this, SLOT(txtNote_returnPressed()));
 	connect(ui.txtNote, SIGNAL(lostFocus()), this, SLOT(txtNote_lostFocus()));
+
+    ui.txtNote->installEventFilter(this);
+    ui.tvUserList->installEventFilter(this);
 
 	windowLoaded = false;
 }
@@ -152,14 +157,28 @@ void lmcMainWindow::stop(void) {
 	QDir cacheDir(StdLocation::cacheDir());
 	if(!cacheDir.exists())
 		return;
-	QString filter = "*.tmp";
-	QDir::Filters filters = QDir::Files | QDir::Readable;
-	QDir::SortFlags sort = QDir::Name;
-	QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
-	foreach (QString fileName, fileNames) {
-		QString filePath = cacheDir.absoluteFilePath(fileName);
-		QFile::remove(filePath);
-	}
+    QDir::Filters filters = QDir::Files | QDir::Readable;
+    QDir::SortFlags sort = QDir::Name;
+    //  save all cached conversations to history, then delete the files
+    QString filter = "msg_*.tmp";
+    lmcMessageLog* pMessageLog = new lmcMessageLog();
+    QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
+    foreach (QString fileName, fileNames) {
+        QString filePath = cacheDir.absoluteFilePath(fileName);
+        pMessageLog->restoreMessageLog(filePath, false);
+        QString szMessageLog = pMessageLog->prepareMessageLogForSave();
+        History::save(pMessageLog->peerName, QDateTime::currentDateTime(), &szMessageLog);
+        QFile::remove(filePath);
+    }
+    pMessageLog->deleteLater();
+
+    //  delete all other temp files
+    filter = "*.tmp";
+    fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
+    foreach (QString fileName, fileNames) {
+        QString filePath = cacheDir.absoluteFilePath(fileName);
+        QFile::remove(filePath);
+    }
 }
 
 void lmcMainWindow::addUser(User* pUser) {
@@ -173,6 +192,7 @@ void lmcMainWindow::addUser(User* pUser) {
 	pItem->setData(0, TypeRole, "User");
 	pItem->setData(0, StatusRole, index);
 	pItem->setData(0, SubtextRole, pUser->note);
+    pItem->setData(0, CapsRole, pUser->caps);
 	pItem->setText(0, pUser->name);
 	if(statusToolTip)
 		pItem->setToolTip(0, lmcStrings::statusDesc()[index]);
@@ -185,7 +205,7 @@ void lmcMainWindow::addUser(User* pUser) {
 	pGroupItem->sortChildren(0, Qt::AscendingOrder);
 
 	// this should be called after item has been added to tree
-	setUserAvatar(&pUser->id);
+    setUserAvatar(&pUser->id, &pUser->avatarPath);
 
 	if(isHidden() || !isActiveWindow()) {
 		QString msg = tr("%1 is online.");
@@ -230,47 +250,12 @@ void lmcMainWindow::removeUser(QString* lpszUserId) {
 }
 
 void lmcMainWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
-	QDir cacheDir;
-	QString fileName;
-	QString oldName;
-	QString tempName;
 	QString filePath;
-	QString oldPath;
-	QString tempPath;
-	XmlMessage reply;
-	int fileOp;
-	int fileMode;
 
 	switch(type) {
 	case MT_Avatar:
-		fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
-		fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
-		if(fileOp == FO_Request) {
-			cacheDir = QDir(StdLocation::cacheDir());
-			fileName = "avt_" + * lpszUserId + "_part.png";
-			filePath = cacheDir.absoluteFilePath(fileName);
-			reply.addData(XN_MODE, FileModeNames[FM_Receive]);
-			reply.addData(XN_FILETYPE, FileTypeNames[FT_Avatar]);
-			reply.addData(XN_FILEOP, FileOpNames[FO_Accept]);
-			reply.addData(XN_FILEID, pMessage->data(XN_FILEID));
-			reply.addData(XN_FILEPATH, filePath);
-			reply.addData(XN_FILENAME, fileName);
-			reply.addData(XN_FILESIZE, pMessage->data(XN_FILESIZE));
-			sendMessage(MT_Avatar, lpszUserId, &reply);
-		} else if(fileOp == FO_Complete && fileMode == FM_Receive) {
-			cacheDir = QDir(StdLocation::cacheDir());
-			fileName = "avt_" + *lpszUserId + ".png";
-			filePath = cacheDir.absoluteFilePath(fileName);
-			QFile::remove(filePath);
-			oldName = "avt_" + * lpszUserId + "_part.png";
-			oldPath = cacheDir.absoluteFilePath(oldName);
-			QFile::rename(oldPath, filePath);
-			setUserAvatar(lpszUserId);
-			tempName = Helper::getUuid() + ".tmp";
-			tempPath = cacheDir.absoluteFilePath(tempName);
-			QFile::copy(filePath, tempPath);
-			sendMessage(MT_LocalAvatar, lpszUserId, &tempPath);
-		}
+        filePath = pMessage->data(XN_FILEPATH);
+        setUserAvatar(lpszUserId, &filePath);
 		break;
 	default:
 		break;
@@ -365,6 +350,19 @@ QList<QTreeWidgetItem*> lmcMainWindow::getContactsList(void) {
 		contactsList.append(ui.tvUserList->topLevelItem(index)->clone());
 
 	return contactsList;
+}
+
+bool lmcMainWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+    Q_UNUSED(pObject);
+    if(pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+        if(pKeyEvent->key() == Qt::Key_Escape) {
+            close();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void lmcMainWindow::closeEvent(QCloseEvent* pEvent) {
@@ -534,6 +532,10 @@ void lmcMainWindow::tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoint& p
         for(int index = 0; index < pUserMenu->actions().count(); index++)
             pUserMenu->actions()[index]->setData(pItem->data(0, IdRole));
 
+        bool fileCap = ((pItem->data(0, CapsRole).toUInt() & UC_File) == UC_File);
+        pUserMenu->actions()[1]->setEnabled(fileCap);
+        bool folderCap = ((pItem->data(0, CapsRole).toUInt() & UC_Folder) == UC_Folder);
+        pUserMenu->actions()[2]->setEnabled(folderCap);
         pUserMenu->exec(pos);
     }
 }
@@ -643,8 +645,18 @@ void lmcMainWindow::userFileAction_triggered(void) {
 	QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
 	if(!fileName.isEmpty()) {
 		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
-		sendMessage(MT_LocalFile, &userId, &fileName);
+        sendMessage(MT_File, &userId, &fileName);
 	}
+}
+
+void lmcMainWindow::userFolderAction_triggered(void) {
+    QString userId = ui.tvUserList->currentItem()->data(0, IdRole).toString();
+    QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
+    QString path = QFileDialog::getExistingDirectory(this, QString(), dir, QFileDialog::ShowDirsOnly);
+    if(!path.isEmpty()) {
+        pSettings->setValue(IDS_OPENPATH, QFileInfo(path).absolutePath());
+        sendMessage(MT_Folder, &userId, &path);
+    }
 }
 
 void lmcMainWindow::userInfoAction_triggered(void) {
@@ -776,6 +788,7 @@ void lmcMainWindow::createUserMenu(void) {
 
 	userChatAction = pUserMenu->addAction("&Conversation", this, SLOT(userConversationAction_triggered()));
 	userFileAction = pUserMenu->addAction("Send &File", this, SLOT(userFileAction_triggered()));
+    userFolderAction = pUserMenu->addAction("Send a Fol&der", this, SLOT(userFolderAction_triggered()));
 	pUserMenu->addSeparator();
 	userBroadcastAction = pUserMenu->addAction("Send &Broadcast Message", this, SLOT(userBroadcastAction_triggered()));
 	pUserMenu->addSeparator();
@@ -856,6 +869,7 @@ void lmcMainWindow::setUIText(void) {
 	userChatAction->setText(tr("&Conversation"));
 	userBroadcastAction->setText(tr("Send &Broadcast Message"));
 	userFileAction->setText(tr("Send &File"));
+    userFolderAction->setText(tr("Send Fol&der"));
 	userInfoAction->setText(tr("Get &Information"));
 	avatarBrowseAction->setText(tr("&Browse for more pictures..."));
 	toolChatAction->setText(tr("&Conversation"));
@@ -927,39 +941,32 @@ void lmcMainWindow::setAvatar(QString fileName) {
 
 	//	Save the image as a file in the data folder
 	QPixmap avatar;
+    bool loadFromStdPath = false;
 	if(!fileName.isEmpty()) {
 		//	save a backup of the image in the cache folder
 		avatar = QPixmap(fileName);
-		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-		avatar.save(filePath);
 		nAvatar = -1;
 	} else {
 		//	nAvatar = -1 means custom avatar is set, otherwise load from resource
 		if(nAvatar < 0) {
 			//	load avatar from image file if file exists, else load default
-			if(QFile::exists(filePath))
+            if(QFile::exists(filePath)) {
 				avatar = QPixmap(filePath);
+                loadFromStdPath = true;
+            }
 			else
 				avatar = QPixmap(AVT_DEFAULT);
 		} else
 			avatar = QPixmap(avtPic[nAvatar]);
 	}
 
-	avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
-	fileName = "avt_" + pLocalUser->id + ".png";
-	filePath = cacheDir.absoluteFilePath(fileName);
-	avatar.save(filePath);
+    if(!loadFromStdPath) {
+        avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        avatar.save(filePath);
+    }
 
 	ui.btnAvatar->setIcon(QIcon(QPixmap(filePath, "PNG")));
 	pLocalUser->avatar = nAvatar;
-
-	QString tempName;
-	QString tempPath;
-	tempName = Helper::getUuid() + ".tmp";
-	tempPath = cacheDir.absoluteFilePath(tempName);
-	QFile::copy(filePath, tempPath);
-
-	sendMessage(MT_LocalAvatar, NULL, &tempPath);
 	sendAvatar(NULL);
 }
 
@@ -1010,17 +1017,19 @@ void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, QString* 
 	case MT_Group:
 		xmlMessage.addData(XN_GROUP, *lpszMessage);
 		break;
-	case MT_LocalFile:
-		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
+    case MT_File:
+    case MT_Folder:
 		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
 		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
 		xmlMessage.addData(XN_FILEPATH, *lpszMessage);
 		break;
+    case MT_Avatar:
+        xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Avatar]);
+        xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
+        xmlMessage.addData(XN_FILEPATH, *lpszMessage);
+        break;
 	case MT_Query:
 		xmlMessage.addData(XN_QUERYOP, QueryOpNames[QO_Get]);
-		break;
-	case MT_LocalAvatar:
-		xmlMessage.addData(XN_FILEPATH, *lpszMessage);
 		break;
 	default:
 		break;
@@ -1030,43 +1039,24 @@ void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, QString* 
 }
 
 void lmcMainWindow::sendAvatar(QString* lpszUserId) {
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + pLocalUser->id + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
-
+    QString filePath = StdLocation::avatarFile();
 	if(!QFile::exists(filePath))
 		return;
 
-	QFileInfo fileInfo = QFileInfo(filePath);
-	XmlMessage xmlMessage;
-	xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
-	xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Avatar]);
-	xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
-	xmlMessage.addData(XN_FILEPATH, fileInfo.filePath());
-	xmlMessage.addData(XN_FILENAME, fileInfo.fileName());
-	xmlMessage.addData(XN_FILESIZE, QString::number(fileInfo.size()));
-
-	sendMessage(MT_Avatar, lpszUserId, &xmlMessage);
+    sendMessage(MT_Avatar, lpszUserId, &filePath);
 }
 
-void lmcMainWindow::setUserAvatar(QString* lpszUserId) {
+void lmcMainWindow::setUserAvatar(QString* lpszUserId, QString *lpszFilePath) {
 	QTreeWidgetItem* pUserItem = getUserItem(lpszUserId);
 	if(!pUserItem)
 		return;
 
-	QDir cacheDir(StdLocation::cacheDir());
-	QString fileName = "avt_" + *lpszUserId + ".png";
-	QString filePath = cacheDir.absoluteFilePath(fileName);
-	QPixmap avatar;
-	if(!QFile::exists(filePath)) {
-		avatar.load(AVT_DEFAULT);
-		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
-		avatar.save(filePath);
-	}
-
-	avatar.load(filePath);
-	avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
+    QPixmap avatar;
+    if(!lpszFilePath || !QFile::exists(*lpszFilePath))
+        avatar.load(AVT_DEFAULT);
+    else
+        avatar.load(*lpszFilePath);
+    avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	pUserItem->setData(0, AvatarRole, QIcon(avatar));
 }
 

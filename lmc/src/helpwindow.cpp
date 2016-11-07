@@ -45,6 +45,9 @@ lmcHelpWindow::lmcHelpWindow(QRect* pRect, QWidget *parent) : QWidget(parent) {
 			windowRect.translate(0, qAbs(windowRect.top() - screenRect.top()));
 		setGeometry(windowRect);
 	}
+
+    ui.txtHelp->installEventFilter(this);
+    ui.btnClose->installEventFilter(this);
 }
 
 lmcHelpWindow::~lmcHelpWindow() {
@@ -63,6 +66,19 @@ void lmcHelpWindow::stop(void) {
 }
 
 void lmcHelpWindow::settingsChanged(void) {
+}
+
+bool lmcHelpWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+    Q_UNUSED(pObject);
+    if(pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+        if(pKeyEvent->key() == Qt::Key_Escape) {
+            close();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void lmcHelpWindow::changeEvent(QEvent* pEvent) {

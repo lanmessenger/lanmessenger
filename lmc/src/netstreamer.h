@@ -41,7 +41,7 @@ class FileSender : public QObject {
 
 public:
 	FileSender(void);
-	FileSender(QString szId, QString szPeerId, QString szFilePath, QString szFileName, qint64 nFileSize, 
+    FileSender(QString szId, QString szLocalId, QString szPeerId, QString szFilePath, QString szFileName, qint64 nFileSize,
 		QString szAddress, int nPort, FileType nType);
 	~FileSender(void);
 
@@ -49,6 +49,7 @@ public:
 	void stop(void);
 
 	QString id;
+    QString peerId;
 	FileType type;
 
 signals:
@@ -64,7 +65,7 @@ private slots:
 private:
 	void sendFile(void);
 
-	QString peerId;
+    QString localId;
 	QString filePath;
 	QString fileName;
 	qint64 fileSize;
@@ -97,6 +98,7 @@ public:
 	void stop(void);
 	
 	QString id;
+    QString peerId;
 	FileType type;
 
 signals:
@@ -110,7 +112,6 @@ private slots:
 private:
 	void receiveFile(void);
 
-	QString peerId;
 	QString filePath;
 	QString fileName;
 	qint64 fileSize;

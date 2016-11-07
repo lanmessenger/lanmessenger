@@ -26,6 +26,7 @@
 #define HELPWINDOW_H
 
 #include <QWidget>
+#include <qevent.h>
 #include "ui_helpwindow.h"
 #include "shared.h"
 #include "settings.h"
@@ -43,6 +44,7 @@ public:
 	void settingsChanged(void);
 
 protected:
+    bool eventFilter(QObject* pObject, QEvent* pEvent);
 	void changeEvent(QEvent* pEvent);
 
 private:

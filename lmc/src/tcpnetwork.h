@@ -68,12 +68,14 @@ private slots:
 	void receiveMessage(QString* lpszUserId, QString* lpszAddress, QByteArray& data);
 
 private:
-	void addFileSocket(QString* lpszId, QTcpSocket* pSocket);
+    void addFileSocket(QString* lpszId, QString *lpszUserId, QTcpSocket *pSocket);
 	void addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket);
 	void sendPublicKey(QString* lpszUserId);
 	void sendSessionKey(QString* lpszUserId, QByteArray& publicKey);
-	FileSender* getSender(QString id);
-	FileReceiver* getReceiver(QString id);
+    FileSender* getSender(QString id, QString userId);
+    FileReceiver* getReceiver(QString id, QString userId);
+    void removeSender(FileSender* pSender);
+    void removeReceiver(FileReceiver* pReceiver);
 
 	QTcpServer*				  server;
 	QList<FileSender*>		  sendList;

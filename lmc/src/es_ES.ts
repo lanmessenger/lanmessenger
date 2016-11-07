@@ -219,85 +219,85 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1148"/>
+        <location filename="settingsdialog.ui" line="1155"/>
         <source>Reset All</source>
         <translation>Reiniciar todo</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1320"/>
+        <location filename="settingsdialog.ui" line="1327"/>
         <source>Broadcast address:</source>
         <oldsource>Broadcast Address:</oldsource>
         <translation>Dirección de difusión:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1357"/>
+        <location filename="settingsdialog.ui" line="1364"/>
         <source>&lt;- Add</source>
         <translation>&lt;- Agregar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1384"/>
+        <location filename="settingsdialog.ui" line="1391"/>
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1413"/>
+        <location filename="settingsdialog.ui" line="1420"/>
         <source>Advanced</source>
         <translation>Avanzado</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1421"/>
+        <location filename="settingsdialog.ui" line="1428"/>
         <source>Multicast address:</source>
         <translation>Dirección de multidifusión:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1782"/>
+        <location filename="settingsdialog.ui" line="1789"/>
         <source>Chat Theme</source>
         <translation>Tema de la ventana de chat</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1842"/>
+        <location filename="settingsdialog.ui" line="1849"/>
         <source>Contacts List</source>
         <translation>Lista de contactos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1850"/>
+        <location filename="settingsdialog.ui" line="1857"/>
         <source>Contacts list view:</source>
         <translation>Vista de lista de contactos:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1875"/>
+        <location filename="settingsdialog.ui" line="1882"/>
         <source>Show status as tooltip</source>
         <translation>Mostrar estdo como tooltip</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1941"/>
+        <location filename="settingsdialog.ui" line="1948"/>
         <source>Send messages using:</source>
         <translation>Clave para enviar el mensaje:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1966"/>
+        <location filename="settingsdialog.ui" line="1973"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1973"/>
+        <location filename="settingsdialog.ui" line="1980"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2034"/>
+        <location filename="settingsdialog.ui" line="2041"/>
         <source>Reset Preferences</source>
         <translation>Reiniciar preferencias</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2054"/>
+        <location filename="settingsdialog.ui" line="2061"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2064"/>
+        <location filename="settingsdialog.ui" line="2071"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
@@ -309,7 +309,7 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1775"/>
+        <location filename="settingsdialog.ui" line="1782"/>
         <source>Appearance</source>
         <translation>Apariencia</translation>
     </message>
@@ -412,7 +412,7 @@
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
-        <location filename="settingsdialog.ui" line="1930"/>
+        <location filename="settingsdialog.ui" line="1937"/>
         <source>Messages</source>
         <translation>Mensajes</translation>
     </message>
@@ -447,7 +447,7 @@
         <translation>Minimizar los mensajes recibidos a la barra de tareas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="690"/>
+        <location filename="settingsdialog.ui" line="697"/>
         <source>Message Font</source>
         <translation>Fuente del mensaje</translation>
     </message>
@@ -469,13 +469,13 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
-        <location filename="settingsdialog.ui" line="819"/>
+        <location filename="settingsdialog.ui" line="826"/>
         <source>History</source>
         <translation>Historial</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
-        <location filename="settingsdialog.ui" line="1923"/>
+        <location filename="settingsdialog.ui" line="1930"/>
         <source>Hotkeys</source>
         <translation>Teclas Rápidas</translation>
     </message>
@@ -506,208 +506,213 @@
         <translation>Eliminar espacios en blanco desde el inicio y al final de los mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="698"/>
+        <location filename="settingsdialog.ui" line="687"/>
+        <source>Clear messages when window is closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="705"/>
         <source>Change Font...</source>
         <translation>Cambiar fuente...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="722"/>
+        <location filename="settingsdialog.ui" line="729"/>
         <source>Change Color...</source>
         <translation>Cambiar color...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="746"/>
+        <location filename="settingsdialog.ui" line="753"/>
         <source>Incoming message text size:</source>
         <translation>Tamaño del texto del mensaje recibido:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="826"/>
+        <location filename="settingsdialog.ui" line="833"/>
         <source>Message History</source>
         <translation>Historial de mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="832"/>
+        <location filename="settingsdialog.ui" line="839"/>
         <source>Keep a history of conversations</source>
         <translation>Mantener un historial de conversaciones</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="841"/>
+        <location filename="settingsdialog.ui" line="848"/>
         <source>Clear Message History</source>
         <translation>Borrar historial</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="866"/>
+        <location filename="settingsdialog.ui" line="873"/>
         <source>History File Location</source>
         <translation>Ubicación del archivo del historial</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="872"/>
+        <location filename="settingsdialog.ui" line="879"/>
         <source>System default location</source>
         <translation>Ubicación por defecto del Sistema</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="879"/>
+        <location filename="settingsdialog.ui" line="886"/>
         <source>Custom location</source>
         <translation>Ubicación personalizada</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="917"/>
-        <location filename="settingsdialog.ui" line="1128"/>
-        <location filename="settingsdialog.ui" line="1701"/>
+        <location filename="settingsdialog.ui" line="924"/>
+        <location filename="settingsdialog.ui" line="1135"/>
+        <location filename="settingsdialog.ui" line="1708"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="929"/>
+        <location filename="settingsdialog.ui" line="936"/>
         <source>File Transfer History</source>
         <translation>Historial de transferencias de Archivo</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="935"/>
+        <location filename="settingsdialog.ui" line="942"/>
         <source>Keep a history of file transfers</source>
         <translation>Mantener un historial de transferencias de archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="944"/>
+        <location filename="settingsdialog.ui" line="951"/>
         <source>Clear Transfer History</source>
         <translation>Borrar historial</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="1007"/>
+        <location filename="settingsdialog.ui" line="1014"/>
         <source>Alerts</source>
         <translation>Alertas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1014"/>
+        <location filename="settingsdialog.ui" line="1021"/>
         <source>Status Alerts</source>
         <translation>Alertas de estados</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1020"/>
+        <location filename="settingsdialog.ui" line="1027"/>
         <source>Display status alerts</source>
         <translation>Mostrar las alertas de estados</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1027"/>
+        <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Busy</source>
         <translation>Suspender las alertas cuando mi estado sea Ocupado</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1034"/>
+        <location filename="settingsdialog.ui" line="1041"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
         <translation>Suspender las alertas cuando mi estado sea No molestar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1044"/>
+        <location filename="settingsdialog.ui" line="1051"/>
         <source>Sounds</source>
         <translation>Sonidos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1050"/>
+        <location filename="settingsdialog.ui" line="1057"/>
         <source>Provide feedback with sounds</source>
         <translation>Informar mediante sonidos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1161"/>
+        <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sounds when my status is Busy</source>
         <translation>Suspender sonidos cuando mi estado sea Ocupado</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1168"/>
+        <location filename="settingsdialog.ui" line="1175"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
         <translation>Suspender el sonido cuando mi estado sea No molestar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1077"/>
+        <location filename="settingsdialog.ui" line="1084"/>
         <source>Play sounds for these events:</source>
         <translation>Reproducir los sonidos para estos eventos:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1216"/>
+        <location filename="settingsdialog.ui" line="1223"/>
         <source>Network</source>
         <translation>Red</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1223"/>
+        <location filename="settingsdialog.ui" line="1230"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1231"/>
+        <location filename="settingsdialog.ui" line="1238"/>
         <source>Connection timeout (seconds):</source>
         <translation>Tiempo de espera de conexión (segundos):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1265"/>
+        <location filename="settingsdialog.ui" line="1272"/>
         <source>Maximum number of retries:</source>
         <translation>El número máximo de intentos:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1300"/>
+        <location filename="settingsdialog.ui" line="1307"/>
         <source>Broadcast</source>
         <oldsource>Broadcast Settings</oldsource>
         <translation>Configuración de la difusión</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1306"/>
+        <location filename="settingsdialog.ui" line="1313"/>
         <source>Broadcast list:</source>
         <translation>Lista de difusión:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1464"/>
+        <location filename="settingsdialog.ui" line="1471"/>
         <source>UDP Port*:</source>
         <translation>El puerto UDP *:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1507"/>
+        <location filename="settingsdialog.ui" line="1514"/>
         <source>TCP Port*:</source>
         <translation>Puerto TCP *:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1551"/>
+        <location filename="settingsdialog.ui" line="1558"/>
         <source>* Takes effect after you restart %1.</source>
         <translation>* Toma los cambios despues de reiniciar el %1.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1596"/>
+        <location filename="settingsdialog.ui" line="1603"/>
         <source>File Transfer</source>
         <translation>Transferencia de archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1603"/>
+        <location filename="settingsdialog.ui" line="1610"/>
         <source>Incoming File Request</source>
         <translation>Solicitud de archivo recibido</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1641"/>
+        <location filename="settingsdialog.ui" line="1648"/>
         <source>Bring window to foreground</source>
         <translation>Traer ventana al primer plano</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1668"/>
+        <location filename="settingsdialog.ui" line="1675"/>
         <source>Minimize window to taskbar</source>
         <translation>Minimizar la ventana a la barra de tareas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1609"/>
+        <location filename="settingsdialog.ui" line="1616"/>
         <source>Accept and start receiving files automatically</source>
         <translation>Aceptar y empezar a recibir archivos de forma automática</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1616"/>
+        <location filename="settingsdialog.ui" line="1623"/>
         <source>Show File Transfer window when sending or receiving files</source>
         <translation>Mostrar la ventana de transferencia al enviar o recibir archivos</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1680"/>
+        <location filename="settingsdialog.ui" line="1687"/>
         <source>Store Received Files in this Folder</source>
         <translation>Almacenar archivos recibidos en esta carpeta</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1712"/>
+        <location filename="settingsdialog.ui" line="1719"/>
         <source>View Files</source>
         <translation>Ver archivos</translation>
     </message>
@@ -947,32 +952,32 @@
 <context>
     <name>lmcBroadcastWindow</name>
     <message>
-        <location filename="broadcastwindow.cpp" line="295"/>
+        <location filename="broadcastwindow.cpp" line="299"/>
         <source>Send Broadcast Message</source>
         <translation>Enviar mensaje a todos</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="298"/>
+        <location filename="broadcastwindow.cpp" line="302"/>
         <source>Change Font Size</source>
         <translation>Cambiar tamaño de la fuente</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="299"/>
+        <location filename="broadcastwindow.cpp" line="303"/>
         <source>Insert Smiley</source>
         <translation>Insertar Smiley</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="335"/>
+        <location filename="broadcastwindow.cpp" line="339"/>
         <source>No recipient selected</source>
         <translation>Ningun destinatario seleccionado</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="336"/>
+        <location filename="broadcastwindow.cpp" line="340"/>
         <source>Please select at least one recipient to send a broadcast.</source>
         <translation>Por favor, seleccione al menos un destinatario para enviar el mensaje.</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="358"/>
+        <location filename="broadcastwindow.cpp" line="362"/>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
         <translation>Usted ya no está conectado. Mensaje de difusión no pueden ser enviados.</translation>
     </message>
@@ -980,109 +985,109 @@
 <context>
     <name>lmcChatRoomWindow</name>
     <message>
-        <location filename="chatroomwindow.cpp" line="166"/>
+        <location filename="chatroomwindow.cpp" line="165"/>
         <source>Group Conversation</source>
         <translation>Conversación del grupo</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="301"/>
+        <location filename="chatroomwindow.cpp" line="300"/>
         <source>%1 says...</source>
         <translation>%1 dice...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="457"/>
+        <location filename="chatroomwindow.cpp" line="465"/>
         <source>Select Font</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="463"/>
+        <location filename="chatroomwindow.cpp" line="471"/>
         <source>Select Color</source>
         <translation>Seleccione el color</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="472"/>
+        <location filename="chatroomwindow.cpp" line="480"/>
         <source>Save Conversation</source>
         <translation>Guardar conversación</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="612"/>
+        <location filename="chatroomwindow.cpp" line="619"/>
         <source>Participants</source>
         <translation>Participantes</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="614"/>
+        <location filename="chatroomwindow.cpp" line="621"/>
         <source>&amp;Conversation</source>
         <translation>&amp;Conversación</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="615"/>
+        <location filename="chatroomwindow.cpp" line="622"/>
         <source>Send &amp;File</source>
         <translation>Enviar &amp;Archivo</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="616"/>
+        <location filename="chatroomwindow.cpp" line="623"/>
         <source>Get &amp;Information</source>
         <translation>Obtener &amp;Información</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="617"/>
+        <location filename="chatroomwindow.cpp" line="624"/>
         <source>Insert Smiley</source>
         <translation>Insertar Smiley</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="618"/>
+        <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Guardar como...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="619"/>
+        <location filename="chatroomwindow.cpp" line="626"/>
         <source>Save this conversation</source>
         <translation>Guardar esta conversación</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="620"/>
+        <location filename="chatroomwindow.cpp" line="627"/>
         <source>Change Font...</source>
         <translation>Cambiar fuente...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="621"/>
+        <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Cambiar fuente del mensaje</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="622"/>
+        <location filename="chatroomwindow.cpp" line="629"/>
         <source>Change Color...</source>
         <translation>Cambiar color...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="623"/>
+        <location filename="chatroomwindow.cpp" line="630"/>
         <source>Change message text color</source>
         <translation>Cambiar el color del texto del mensaje</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="626"/>
+        <location filename="chatroomwindow.cpp" line="633"/>
         <source>&amp;Add Contacts...</source>
         <oldsource>&amp;Add A Contact...</oldsource>
         <translation>&amp;Agregar Contactos...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="627"/>
+        <location filename="chatroomwindow.cpp" line="634"/>
         <source>Add people to this conversation</source>
         <oldsource>Add contacts to this conversation</oldsource>
         <translation>agregar personas a la conversación</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="697"/>
+        <location filename="chatroomwindow.cpp" line="704"/>
         <source>You are no longer connected.</source>
         <translation>Usted ya no está conectado.</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="721"/>
+        <location filename="chatroomwindow.cpp" line="728"/>
         <source>Conversation</source>
         <translation>Conversación</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="723"/>
+        <location filename="chatroomwindow.cpp" line="730"/>
         <source>Public Chat</source>
         <translation>Chat público</translation>
     </message>
@@ -1098,67 +1103,82 @@
         <translation type="obsolete">Cambiar tamaño de la fuente</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="492"/>
+        <location filename="chatwindow.cpp" line="227"/>
+        <source>%1 sends a folder...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="530"/>
         <source>Insert Smiley</source>
         <translation>Insertar Smiley</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="493"/>
+        <location filename="chatwindow.cpp" line="531"/>
         <source>Send A &amp;File...</source>
         <translation>Enviar un &amp;Archivo...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="494"/>
+        <location filename="chatwindow.cpp" line="532"/>
+        <source>Send A Fol&amp;der...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="533"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Guardar como...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="495"/>
+        <location filename="chatwindow.cpp" line="534"/>
         <source>&amp;History</source>
         <translation>&amp;Historial</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="496"/>
+        <location filename="chatwindow.cpp" line="535"/>
         <source>File &amp;Transfers</source>
         <translation>Transferencia &amp;de archivos</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="498"/>
+        <location filename="chatwindow.cpp" line="537"/>
         <source>Send a file to %1</source>
         <translation>Enviar un archivo a %1</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="501"/>
+        <location filename="chatwindow.cpp" line="539"/>
+        <source>Send a folder to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="542"/>
         <source>Save this conversation</source>
         <translation>Guardar esta conversación</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="502"/>
+        <location filename="chatwindow.cpp" line="543"/>
         <source>View History</source>
         <translation>Ver el historial</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="503"/>
+        <location filename="chatwindow.cpp" line="544"/>
         <source>View File Transfers</source>
         <translation>Ver las transferencias de archivos</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="504"/>
+        <location filename="chatwindow.cpp" line="545"/>
         <source>Change Font...</source>
         <translation>Cambiar fuente...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="505"/>
+        <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>Cambiar fuente del mensaje</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="506"/>
+        <location filename="chatwindow.cpp" line="547"/>
         <source>Change Color...</source>
         <translation>Cambiar color...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="507"/>
+        <location filename="chatwindow.cpp" line="548"/>
         <source>Change message text color</source>
         <translation>Cambiar el color del texto del mensaje</translation>
     </message>
@@ -1175,37 +1195,37 @@
         <translation type="obsolete">Cancelado</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="359"/>
+        <location filename="chatwindow.cpp" line="380"/>
         <source>Select Font</source>
         <translation>Seleccione la Fuente</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="365"/>
+        <location filename="chatwindow.cpp" line="386"/>
         <source>Select Color</source>
         <translation>Seleccione el color</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="383"/>
+        <location filename="chatwindow.cpp" line="413"/>
         <source>Save Conversation</source>
         <translation>Guardar conversación</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="149"/>
+        <location filename="chatwindow.cpp" line="152"/>
         <source>Group Conversation</source>
         <translation>Conversación del grupo</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="168"/>
+        <location filename="chatwindow.cpp" line="174"/>
         <source>%1 says...</source>
         <translation>%1 dice...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="176"/>
+        <location filename="chatwindow.cpp" line="182"/>
         <source>Broadcast from %1</source>
         <translation>Emisión de %1</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="215"/>
+        <location filename="chatwindow.cpp" line="225"/>
         <source>%1 sends a file...</source>
         <translation>%1 envía un archivo...</translation>
     </message>
@@ -1258,27 +1278,27 @@
         <translation type="obsolete">Declinar</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="625"/>
+        <location filename="chatwindow.cpp" line="658"/>
         <source>You are no longer connected.</source>
         <translation>Usted ya no está conectado.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="628"/>
+        <location filename="chatwindow.cpp" line="661"/>
         <source>%1 is offline.</source>
         <translation>%1 no está en línea.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="632"/>
+        <location filename="chatwindow.cpp" line="665"/>
         <source>%1 is away.</source>
         <translation>%1 está ausente.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="636"/>
+        <location filename="chatwindow.cpp" line="669"/>
         <source>%1 is busy. You may be interrupting.</source>
         <translation>%1 está ocupado(a). Puede que le interrumpas.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="660"/>
+        <location filename="chatwindow.cpp" line="693"/>
         <source>Conversation</source>
         <translation>Conversación</translation>
     </message>
@@ -1299,12 +1319,12 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="988"/>
+        <location filename="lmc.cpp" line="969"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>Un conflicto con la dirección del puerto ha sido detectado. %1 se cerrará ahora.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="990"/>
+        <location filename="lmc.cpp" line="971"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%1 No se puede iniciar debido a que otra aplicación está utilizando el puerto configurado para su uso con %2.</translation>
     </message>
@@ -1321,12 +1341,12 @@ File may not exist, or may not be compatible with this version of %2.</source>
 <context>
     <name>lmcHelpWindow</name>
     <message>
-        <location filename="helpwindow.cpp" line="83"/>
+        <location filename="helpwindow.cpp" line="99"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="helpwindow.cpp" line="89"/>
+        <location filename="helpwindow.cpp" line="105"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Help&lt;/h3&gt;&lt;p&gt;You can find documentation on LAN Messenger&apos;s &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Before asking any question, please refer yourself to the &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You might then get (and give) help on the &lt;a href=&apos;%3&apos;&gt;Support Forums&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Bienvenido a la Ayuda de LAN Messenger&lt;/h2&gt;&lt;h3&gt;Ayuda&lt;/h3&gt;&lt;p&gt;Usted puede encontrar documentación sobre LAN Messenger en este sitio web &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Antes de preguntar cualquier duda, consulte usted mismo a la &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;A continuación, puede obtener (y dar) ayuda en los &lt;a href=&apos;%3&apos;&gt;Foros de soporte&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribuir con el proyecto&lt;/h3&gt;&lt;p&gt;Usted puede ayudar al proyecto LAN Messenger dando parte de su tiempo para ayudar a la comunidad, para traducir la aplicación o la documentación, y para probar el programa. Y, por supuesto, usted puede &lt;b&gt;promover&lt;/b&gt; el LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1334,7 +1354,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
 <context>
     <name>lmcHistoryWindow</name>
     <message>
-        <location filename="historywindow.cpp" line="110"/>
+        <location filename="historywindow.cpp" line="128"/>
         <source>Message History</source>
         <translation>Historial de mensajes</translation>
     </message>
@@ -1342,32 +1362,32 @@ File may not exist, or may not be compatible with this version of %2.</source>
 <context>
     <name>lmcMainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="191"/>
+        <location filename="mainwindow.cpp" line="211"/>
         <source>%1 is online.</source>
         <translation>%1 está en línea.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="226"/>
+        <location filename="mainwindow.cpp" line="246"/>
         <source>%1 is offline.</source>
         <translation>%1 no está en línea.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="282"/>
+        <location filename="mainwindow.cpp" line="267"/>
         <source>You are online.</source>
         <translation>Usted está en línea.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1086"/>
+        <location filename="mainwindow.cpp" line="1074"/>
         <source>%1 - Not Connected</source>
         <translation>%1 - No conectado</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="284"/>
+        <location filename="mainwindow.cpp" line="269"/>
         <source>You are no longer connected.</source>
         <translation>Usted ya no está conectado.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="445"/>
+        <location filename="mainwindow.cpp" line="443"/>
         <source>Select avatar picture</source>
         <translation>Seleccione la imagen del avatar</translation>
     </message>
@@ -1398,133 +1418,138 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation>Introducir un nuevo nombre para el grupo</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="830"/>
+        <location filename="mainwindow.cpp" line="841"/>
         <source>&amp;Messenger</source>
         <translation>&amp;Aplicación</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="831"/>
-        <location filename="mainwindow.cpp" line="864"/>
+        <location filename="mainwindow.cpp" line="842"/>
+        <location filename="mainwindow.cpp" line="876"/>
         <source>&amp;New Chat Room</source>
         <translation>&amp;Nueva sala de chat</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="833"/>
+        <location filename="mainwindow.cpp" line="844"/>
         <source>&amp;Refresh Contacts List</source>
         <translation>&amp;Actualizar lista de contactos</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="832"/>
-        <location filename="mainwindow.cpp" line="865"/>
+        <location filename="mainwindow.cpp" line="843"/>
+        <location filename="mainwindow.cpp" line="877"/>
         <source>&amp;Public Chat</source>
         <translation>&amp;Chat público</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="834"/>
-        <location filename="mainwindow.cpp" line="852"/>
+        <location filename="mainwindow.cpp" line="845"/>
+        <location filename="mainwindow.cpp" line="863"/>
         <source>E&amp;xit</source>
         <translation>&amp;Salir</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="835"/>
+        <location filename="mainwindow.cpp" line="846"/>
         <source>&amp;Tools</source>
         <translation>&amp;Herramientas</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="836"/>
-        <location filename="mainwindow.cpp" line="848"/>
+        <location filename="mainwindow.cpp" line="847"/>
+        <location filename="mainwindow.cpp" line="859"/>
         <source>&amp;History</source>
         <translation>&amp;Historial</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="837"/>
-        <location filename="mainwindow.cpp" line="849"/>
+        <location filename="mainwindow.cpp" line="848"/>
+        <location filename="mainwindow.cpp" line="860"/>
         <source>File &amp;Transfers</source>
         <translation>Transferencia &amp;de archivos</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="838"/>
-        <location filename="mainwindow.cpp" line="850"/>
+        <location filename="mainwindow.cpp" line="849"/>
+        <location filename="mainwindow.cpp" line="861"/>
         <source>&amp;Preferences</source>
         <translation>&amp;Preferencias</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="839"/>
-        <location filename="mainwindow.cpp" line="840"/>
+        <location filename="mainwindow.cpp" line="850"/>
+        <location filename="mainwindow.cpp" line="851"/>
         <source>&amp;Help</source>
         <translation>A&amp;yuda</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="841"/>
+        <location filename="mainwindow.cpp" line="852"/>
         <source>%1 &amp;online</source>
         <translation>%1 &amp;en línea</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="843"/>
+        <location filename="mainwindow.cpp" line="854"/>
         <source>Check for &amp;Updates...</source>
         <translation>&amp;Comprobar actualizaciones...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="844"/>
-        <location filename="mainwindow.cpp" line="851"/>
+        <location filename="mainwindow.cpp" line="855"/>
+        <location filename="mainwindow.cpp" line="862"/>
         <source>&amp;About</source>
         <translation>&amp;Acerca de</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="845"/>
+        <location filename="mainwindow.cpp" line="856"/>
         <source>&amp;Show %1</source>
         <translation>&amp;Mostrar %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="847"/>
+        <location filename="mainwindow.cpp" line="858"/>
         <source>&amp;Change Status</source>
         <translation>&amp;Cambio de estado</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="853"/>
+        <location filename="mainwindow.cpp" line="864"/>
         <source>Add &amp;New Group</source>
         <translation>Agregar &amp;Nuevo Grupo</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="854"/>
+        <location filename="mainwindow.cpp" line="865"/>
         <source>&amp;Rename This Group</source>
         <translation>&amp;Cambiar el nombre de este grupo</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="855"/>
+        <location filename="mainwindow.cpp" line="866"/>
         <source>&amp;Delete This Group</source>
         <translation>&amp;Eliminar este grupo</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="856"/>
-        <location filename="mainwindow.cpp" line="861"/>
+        <location filename="mainwindow.cpp" line="867"/>
+        <location filename="mainwindow.cpp" line="873"/>
         <source>&amp;Conversation</source>
         <translation>&amp;Conversación</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="857"/>
-        <location filename="mainwindow.cpp" line="863"/>
+        <location filename="mainwindow.cpp" line="868"/>
+        <location filename="mainwindow.cpp" line="875"/>
         <source>Send &amp;Broadcast Message</source>
         <translation>Enviar &amp;mensaje de difusión</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="858"/>
-        <location filename="mainwindow.cpp" line="862"/>
+        <location filename="mainwindow.cpp" line="869"/>
+        <location filename="mainwindow.cpp" line="874"/>
         <source>Send &amp;File</source>
         <translation>Enviar &amp;Archivo</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="859"/>
+        <location filename="mainwindow.cpp" line="870"/>
+        <source>Send Fol&amp;der</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="871"/>
         <source>Get &amp;Information</source>
         <translation>Obtener &amp;Información</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="860"/>
+        <location filename="mainwindow.cpp" line="872"/>
         <source>&amp;Browse for more pictures...</source>
         <translation>E&amp;xaminar para más imagenes...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="888"/>
+        <location filename="mainwindow.cpp" line="900"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
         <translation>%1 seguirá funcionando en segundo plano. Activar este icono para restaurar la ventana de la aplicación.</translation>
     </message>
@@ -1532,112 +1557,125 @@ File may not exist, or may not be compatible with this version of %2.</source>
 <context>
     <name>lmcMessageLog</name>
     <message>
-        <location filename="messagelog.cpp" line="433"/>
+        <location filename="messagelog.cpp" line="472"/>
         <source>Broadcast message from %1:</source>
         <translation>Difusión de mensajes de %1:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="150"/>
+        <location filename="messagelog.cpp" line="155"/>
         <source>This message was not delivered to %1:</source>
         <translation>Este mensaje no fue entregado a %1:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="163"/>
+        <location filename="messagelog.cpp" line="168"/>
         <source>Your message was not sent.</source>
         <translation>Su mensaje no fue enviado.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="548"/>
+        <location filename="messagelog.cpp" line="602"/>
         <source>Sending &apos;%1&apos; to %2.</source>
         <translation>Enviando &apos;%1&apos; a %2.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="558"/>
+        <location filename="messagelog.cpp" line="611"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="575"/>
+        <location filename="messagelog.cpp" line="630"/>
         <source>%1 is sending you a file:</source>
         <translation>%1 le está enviando un archivo:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="581"/>
+        <location filename="messagelog.cpp" line="632"/>
+        <source>%1 is sending you a folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="messagelog.cpp" line="639"/>
         <source>%1 sends you a file:</source>
         <translation>%1 le envía un archivo:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="594"/>
         <source>File has been accepted automatically.</source>
-        <translation>El archivo ha sido aceptado de forma automática.</translation>
+        <translation type="obsolete">El archivo ha sido aceptado de forma automática.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="596"/>
+        <location filename="messagelog.cpp" line="659"/>
         <source>Accept</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="597"/>
+        <location filename="messagelog.cpp" line="660"/>
         <source>Decline</source>
         <translation>Declinar</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="650"/>
+        <location filename="messagelog.cpp" line="654"/>
+        <location filename="messagelog.cpp" line="711"/>
         <source>Accepted</source>
         <translation>Aceptado</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="650"/>
         <source>You have accepted the file.</source>
-        <translation>Usted ha aceptado el archivo.</translation>
+        <translation type="obsolete">Usted ha aceptado el archivo.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="653"/>
+        <location filename="messagelog.cpp" line="714"/>
         <source>Declined</source>
         <translation>Declinó</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="653"/>
         <source>You have declined the file.</source>
-        <translation>Ha rechazado el archivo.</translation>
+        <translation type="obsolete">Ha rechazado el archivo.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="656"/>
+        <location filename="messagelog.cpp" line="641"/>
+        <source>%1 sends you a folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="messagelog.cpp" line="717"/>
         <source>Canceled</source>
         <translation>Cancelado</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="660"/>
+        <location filename="messagelog.cpp" line="721"/>
         <source>Interrupted</source>
         <translation>Interrumpido</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="674"/>
+        <location filename="messagelog.cpp" line="724"/>
+        <source>Completed</source>
+        <translation>Finalizado</translation>
+    </message>
+    <message>
+        <location filename="messagelog.cpp" line="738"/>
         <source>%1 is typing...</source>
         <translation>%1 está tecleando...</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="677"/>
+        <location filename="messagelog.cpp" line="741"/>
         <source>%1 has entered text</source>
         <translation>%1 ha introducido el texto</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="691"/>
+        <location filename="messagelog.cpp" line="755"/>
         <source>%1 has joined this conversation</source>
         <translation>%1 se ha unido a esta conversación</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="694"/>
+        <location filename="messagelog.cpp" line="758"/>
         <source>%1 has left this conversation</source>
         <translation>%1 ha dejado a esta conversación</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="806"/>
+        <location filename="messagelog.cpp" line="877"/>
         <source>&amp;Copy</source>
         <translation>&amp;Copiar</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="807"/>
+        <location filename="messagelog.cpp" line="878"/>
         <source>Select &amp;All</source>
         <translation>Seleccionar &amp;todos</translation>
     </message>
@@ -1864,48 +1902,48 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
 <context>
     <name>lmcTransferWindow</name>
     <message>
-        <location filename="transferwindow.cpp" line="230"/>
+        <location filename="transferwindow.cpp" line="177"/>
         <source>&apos;%1&apos; has been sent to %2.</source>
         <translation>&apos;%1&apos; ha sido enviado a %2.</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="232"/>
-        <location filename="transferwindow.cpp" line="247"/>
+        <location filename="transferwindow.cpp" line="179"/>
+        <location filename="transferwindow.cpp" line="194"/>
         <source>File Transfer Completed</source>
         <translation>Transferencia de archivos completados</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="245"/>
+        <location filename="transferwindow.cpp" line="192"/>
         <source>&apos;%1&apos; has been received from %2.</source>
         <translation>&apos;%1&apos; se ha recibido de %2.</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="356"/>
+        <location filename="transferwindow.cpp" line="316"/>
         <source>File Transfers</source>
         <translation>Transferencia de archivos</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="358"/>
+        <location filename="transferwindow.cpp" line="318"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="359"/>
+        <location filename="transferwindow.cpp" line="319"/>
         <source>Show In Folder</source>
         <translation>Mostrar en carpeta</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="360"/>
+        <location filename="transferwindow.cpp" line="320"/>
         <source>Remove From List</source>
         <translation>Eliminar de la lista</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="411"/>
+        <location filename="transferwindow.cpp" line="371"/>
         <source>Calculating time</source>
         <translation>Calcular el tiempo</translation>
     </message>
     <message>
-        <location filename="transferwindow.cpp" line="453"/>
+        <location filename="transferwindow.cpp" line="410"/>
         <source>/sec</source>
         <translation>/seg</translation>
     </message>
@@ -1913,27 +1951,27 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
 <context>
     <name>lmcUpdateWindow</name>
     <message>
-        <location filename="updatewindow.cpp" line="116"/>
+        <location filename="updatewindow.cpp" line="132"/>
         <source>%1 updates</source>
         <translation>Actualizaciones del %1</translation>
     </message>
     <message>
-        <location filename="updatewindow.cpp" line="135"/>
+        <location filename="updatewindow.cpp" line="151"/>
         <source>Launching an update request...</source>
         <translation>Realizando solicitude de actualizaciones...</translation>
     </message>
     <message>
-        <location filename="updatewindow.cpp" line="138"/>
+        <location filename="updatewindow.cpp" line="154"/>
         <source>An error occured while checking for updates.</source>
         <translation>Ocurrió un error al buscar actualizaciones.</translation>
     </message>
     <message>
-        <location filename="updatewindow.cpp" line="141"/>
+        <location filename="updatewindow.cpp" line="157"/>
         <source>The new version %1 is available on %2 web site.</source>
         <translation>La nueva versión %1 está disponible en el Sitio Web de %2.</translation>
     </message>
     <message>
-        <location filename="updatewindow.cpp" line="144"/>
+        <location filename="updatewindow.cpp" line="160"/>
         <source>You have the latest version of %1.</source>
         <translation>Tiene la última versión del %1.</translation>
     </message>

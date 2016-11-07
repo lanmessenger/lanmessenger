@@ -75,7 +75,6 @@ DBHeader History::readHeader(QDataStream* pStream) {
 }
 
 int History::save(QString user, QDateTime date, QString* lpszData) {
-	lmcSettings settings;
 	QString path = historyFile();
 	
 	QDir dir = QFileInfo(path).dir();

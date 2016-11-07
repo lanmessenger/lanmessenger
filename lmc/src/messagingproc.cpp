@@ -59,14 +59,13 @@ void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage
 		break;
 	case MT_Avatar:
 		//	if user id is specified send to that user alone, else send to all
-		if(lpszUserId) {
-			if(pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
-				pMessage->addData(XN_FILEID, Helper::getUuid());
+        if(lpszUserId) {
 			prepareMessage(type, msgId, false, lpszUserId, pMessage);
 		} else {
+            message = pMessage->clone();
+            emit messageReceived(MT_Avatar, &localUser->id, &message);
 			for(int index = 0; index < userList.count(); index++) {
 				message = pMessage->clone();
-				message.addData(XN_FILEID, Helper::getUuid());
 				prepareMessage(type, msgId, false, &userList[index].id, &message);
 			}
 		}
@@ -146,46 +145,6 @@ void lmcMessaging::connectionLost(QString* lpszUserId) {
 	removeUser(*lpszUserId);
 }
 
-void lmcMessaging::receiveProgress(QString* lpszUserId, QString* lpszData) {
-	XmlMessage xmlMessage(*lpszData);
-	int fileMode = Helper::indexOf(FileModeNames, FM_Max, xmlMessage.data(XN_MODE));
-	int fileOp = Helper::indexOf(FileOpNames, FO_Max, xmlMessage.data(XN_FILEOP));
-	int fileType = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
-	QString fileId = xmlMessage.data(XN_FILEID);
-
-	//	determine type of message to be sent to app layer based on file type
-	MessageType type;
-	switch(fileType) {
-	case FT_Normal:
-		type = MT_File;
-		break;
-	case FT_Avatar:
-		type = MT_Avatar;
-		break;
-	default:
-		type = MT_Blank;
-		break;
-	}
-
-	XmlMessage reply;
-
-	switch(fileOp) {
-	case FO_Error:
-		reply.addData(XN_MODE, FileModeNames[fileMode]);
-		reply.addData(XN_FILETYPE, FileTypeNames[fileType]);
-		reply.addData(XN_FILEOP, FileOpNames[FO_Abort]);
-		reply.addData(XN_FILEID, fileId);
-		sendMessage(type, lpszUserId, &reply);
-
-		emit messageReceived(type, lpszUserId, &xmlMessage);
-		break;
-	case FO_Progress:
-	case FO_Complete:
-		emit messageReceived(type, lpszUserId, &xmlMessage);
-		break;
-	}
-}
-
 void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserId, QString* lpszAddress) {
 	lmcTrace::write("Sending local user details to user " + *lpszUserId + " at " + *lpszAddress);
 	XmlMessage xmlMessage;
@@ -195,6 +154,7 @@ void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserI
 	xmlMessage.addData(XN_VERSION, localUser->version);
 	xmlMessage.addData(XN_STATUS, localUser->status);
 	xmlMessage.addData(XN_NOTE, localUser->note);
+    xmlMessage.addData(XN_USERCAPS, QString::number(localUser->caps));
 	xmlMessage.addData(XN_QUERYOP, QueryOpNames[op]);
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, lpszUserId, &xmlMessage);
 	pNetwork->sendMessage(lpszUserId, lpszAddress, &szMessage);
@@ -274,6 +234,9 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 	case MT_Avatar:
 		prepareFile(type, msgId, retry, lpszUserId, pMessage);
 		break;
+    case MT_Folder:
+        prepareFolder(type, msgId, retry, lpszUserId, pMessage);
+        break;
     default:
         break;
 	}
@@ -288,33 +251,6 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, lpszUserId, pMessage);
 	pNetwork->sendMessage(&receiver->id, &receiver->address, &szMessage);
 	lmcTrace::write("Message sending done");
-}
-
-void lmcMessaging::prepareFile(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, XmlMessage* pMessage) {
-    Q_UNUSED(type);
-    Q_UNUSED(msgId);
-    Q_UNUSED(retry);
-
-	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
-	int fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
-
-	User* user = getUser(lpszUserId);
-	QString szMessage = pMessage->toString();
-
-	lmcTrace::write("Sending file message type " + QString::number(fileOp) + " to user " + *lpszUserId
-		+ ", Mode: " + QString::number(fileMode));
-
-	switch(fileOp) {
-	case FO_Request:
-		pNetwork->initSendFile(&user->id, &user->address, &szMessage);
-		break;
-	case FO_Accept:
-		pNetwork->initReceiveFile(&user->id, &user->address, &szMessage);
-		break;
-	case FO_Cancel:
-		pNetwork->fileOperation((FileMode)fileMode, &user->id, &szMessage);
-		break;
-	}
 }
 
 //	This method converts a Datagram from network layer to a Message that can be passed to ui layer
@@ -357,7 +293,8 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 			sendUserData(pHeader->type, QO_Result, &pHeader->userId, &pHeader->address);
 		//	add the user only after sending back user data, this way both parties will have added each other
 		addUser(pMessage->data(XN_USERID), pMessage->data(XN_VERSION), pMessage->data(XN_ADDRESS),
-			pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString::null, pMessage->data(XN_NOTE));
+            pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString::null, pMessage->data(XN_NOTE),
+            pMessage->data(XN_USERCAPS));
 		break;
 	case MT_Broadcast:
 		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
@@ -406,6 +343,10 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 		} else if(pMessage->data(XN_QUERYOP) == QueryOpNames[QO_Result]) {
 			msgId = pMessage->data(XN_MESSAGEID);
 			removePendingMsg(msgId.toLongLong());
+            //  Add the path to the user's avatar image stored locally
+            data = "avt_" + pHeader->userId + ".png";
+            data = QDir(StdLocation::cacheDir()).absoluteFilePath(data);
+            pMessage->addData(XN_AVATAR, data);
 			emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
 		}
 		break;
@@ -421,54 +362,14 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 	case MT_Avatar:
 		processFile(pHeader, pMessage);
 		break;
+    case MT_Folder:
+        processFolder(pHeader, pMessage);
+        break;
     default:
         break;
 	}
 
 	lmcTrace::write("Message processing done");
-}
-
-void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
-	int fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
-	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
-	QString szMessage = pMessage->toString();
-
-	lmcTrace::write("Processing file message type " + QString::number(fileOp) + " from user " +
-		pHeader->userId + ", Mode: " + QString::number(fileMode));
-
-	switch(fileOp) {
-	case FO_Request:
-		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		break;
-	case FO_Accept:
-		pNetwork->fileOperation(FM_Send, &pHeader->userId, &szMessage);
-		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		break;
-	case FO_Cancel:
-		if(fileMode == FM_Send) {
-			pNetwork->fileOperation(FM_Receive, &pHeader->userId, &szMessage);
-			emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		} else {
-			pNetwork->fileOperation(FM_Send, &pHeader->userId, &szMessage);
-			emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		}
-		break;
-	case FO_Abort:
-		if(fileMode == FM_Send) {
-			pNetwork->fileOperation(FM_Receive, &pHeader->userId, &szMessage);
-			emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		} else {
-			pNetwork->fileOperation(FM_Send, &pHeader->userId, &szMessage);
-			emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		}
-		break;
-	case FO_Decline:
-	case FO_Progress:
-		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
-		break;
-	default:
-		break;
-	}
 }
 
 void lmcMessaging::processWebMessage(MessageHeader* pHeader, XmlMessage *pMessage) {

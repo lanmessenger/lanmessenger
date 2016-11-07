@@ -46,6 +46,9 @@ struct SingleMessage {
 	}
 };
 
+QDataStream &operator << (QDataStream &out, const SingleMessage &message);
+QDataStream &operator >> (QDataStream &in, SingleMessage &message);
+
 class ChatHelper {
 public:
 	static void makeHtmlSafe(QString* lpszMessage);
