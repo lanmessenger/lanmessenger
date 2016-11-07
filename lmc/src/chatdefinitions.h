@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,15 +27,16 @@
 
 #include "uidefinitions.h"
 
-const int HTMLESC_COUNT = 4;
-const QString htmlSymbol[] = {"&", "\"", "<", ">"};
-const QString htmlEscape[] = {"&amp;", "&quot;", "&lt;", "&gt;"};
+const int HTMLESC_COUNT = 5;
+const QString htmlSymbol[] = {"&", "\"", "<", ">", " "};
+const QString htmlEscape[] = {"&amp;", "&quot;", "&lt;", "&gt;", "&nbsp;"};
 
 enum InfoType {
 	IT_Ok			= 0x00,
 	IT_Busy			= 0x01,
 	IT_Offline		= 0x02,
-	IT_Disconnected	= 0x04
+	IT_Disconnected	= 0x04,
+	IT_Away			= 0x08
 };
 
 /****************************************************************************

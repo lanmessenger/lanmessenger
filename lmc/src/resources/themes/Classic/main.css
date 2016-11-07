@@ -1,4 +1,5 @@
 * {
+font-family: Arial, Helvetica, Tahoma, Verdana, Sans-serif;
 font-size: 9pt;
 }
 /* Ensure that our assumptions about the default browser colors are correct. */
@@ -10,6 +11,7 @@ BODY a:visited { color: #800080; }
 
 BODY {
   margin: 4px;
+  -webkit-nbsp-mode: space;
 }
 DIV#content {
   font: 12px Arial;

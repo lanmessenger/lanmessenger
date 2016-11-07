@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -55,7 +55,12 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.btnColor, SIGNAL(clicked()), this, SLOT(btnColor_clicked()));
 	connect(ui.btnReset, SIGNAL(clicked()), this, SLOT(btnReset_clicked()));
 	connect(ui.cboTheme, SIGNAL(currentIndexChanged(int)), this, SLOT(cboTheme_currentIndexChanged(int)));
+}
 
+lmcSettingsDialog::~lmcSettingsDialog(void) {
+}
+
+void lmcSettingsDialog::init(void) {
 	QMap<QString, QString> languages;
 	//	Loop through available languages and add them to a map. This ensures that
 	//	the languages are sorted alphabetically. After that add the sorted items
@@ -82,17 +87,14 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	for(int index = 0; index < themes.count(); index++)
 		ui.cboTheme->addItem(themes.at(index).name, themes.at(index).path);
 
+	for(int index = 0; index < ULV_Max; index++)
+		ui.cboUserListView->addItem(lmcStrings::userListView()[index], index);
+
 	fontSize = 0;
 	font = QApplication::font();
 	color = QApplication::palette().text().color();
 	ui.lvCategories->setCurrentRow(0);
-	init();
-}
 
-lmcSettingsDialog::~lmcSettingsDialog(void) {
-}
-
-void lmcSettingsDialog::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
 
 	ui.lvCategories->setIconSize(QSize(32, 32));
@@ -106,9 +108,21 @@ void lmcSettingsDialog::init(void) {
 	ui.lvCategories->item(7)->setIcon(QIcon(QPixmap(IDR_THEMESET, "PNG")));
 	ui.lvCategories->item(8)->setIcon(QIcon(QPixmap(IDR_HOTKEYSET, "PNG")));
 
+    setPageHeaderStyle(ui.lblGeneralPage);
+    setPageHeaderStyle(ui.lblAccountPage);
+    setPageHeaderStyle(ui.lblMessagesPage);
+    setPageHeaderStyle(ui.lblHistoryPage);
+    setPageHeaderStyle(ui.lblAlertsPage);
+    setPageHeaderStyle(ui.lblNetworkPage);
+    setPageHeaderStyle(ui.lblFileTransferPage);
+    setPageHeaderStyle(ui.lblThemePage);
+    setPageHeaderStyle(ui.lblHotkeysPage);
+
 	pPortValidator = new QIntValidator(1, 65535, this);
 	ui.txtUDPPort->setValidator(pPortValidator);
 	ui.txtTCPPort->setValidator(pPortValidator);
+
+	pMessageLog->setAutoScroll(false);
 
 	pSettings = new lmcSettings();
 	setUIText();
@@ -267,6 +281,15 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 }
 
+void lmcSettingsDialog::setPageHeaderStyle(QLabel* pLabel) {
+    QFont font = pLabel->font();
+    int fontSize = pLabel->fontInfo().pixelSize();
+    fontSize += (fontSize * 0.2);
+    font.setPixelSize(fontSize);
+    font.setBold(true);
+    pLabel->setFont(font);
+}
+
 void lmcSettingsDialog::setUIText(void) {
 	ui.retranslateUi(this);
 
@@ -295,6 +318,9 @@ void lmcSettingsDialog::setUIText(void) {
 	for(int index = 0; index < ui.lvSounds->count(); index++)
 		ui.lvSounds->item(index)->setText(lmcStrings::soundDesc()[index]);
 
+	for(int index = 0; index < ULV_Max; index++)
+		ui.cboUserListView->setItemText(index, lmcStrings::userListView()[index]);
+
 	QString updateLink = QString(IDA_DOMAIN"/downloads.php#translations");
 	ui.lblUpdateLink->setText("<a href='" + updateLink + "'><span style='text-decoration: underline; color:#0000ff;'>" + 
 		tr("Check for updates") + "</span></a>");
@@ -314,10 +340,10 @@ void lmcSettingsDialog::setUIText(void) {
 }
 
 void lmcSettingsDialog::loadSettings(void) {
-	//	Auto start function not implemented on Mac
+    //	Auto start function not implemented on Mac since Mac itself provides an easy UI for it
 #ifdef Q_WS_MAC
 	ui.chkAutoStart->setChecked(false);
-	ui.chkAutoStart->setEnabled(false);
+    ui.chkAutoStart->hide();
 #else
 	ui.chkAutoStart->setChecked(pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool());
 #endif
@@ -326,6 +352,7 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkMinimizeTray->setChecked(pSettings->value(IDS_MINIMIZETRAY, IDS_MINIMIZETRAY_VAL).toBool());
 	ui.chkSingleClickTray->setChecked(pSettings->value(IDS_SINGLECLICKTRAY, IDS_SINGLECLICKTRAY_VAL).toBool());
 	ui.chkSysTrayMsg->setChecked(pSettings->value(IDS_SYSTRAYMSG, IDS_SYSTRAYMSG_VAL).toBool());
+	ui.chkAllowSysTrayMin->setChecked(pSettings->value(IDS_ALLOWSYSTRAYMIN, IDS_ALLOWSYSTRAYMIN_VAL).toBool());
 	QString langCode = pSettings->value(IDS_LANGUAGE, IDS_LANGUAGE_VAL).toString();
 	for(int index = 0; index < ui.cboLanguage->count(); index ++) {
 		QString code = ui.cboLanguage->itemData(index, Qt::UserRole).toString();
@@ -368,7 +395,10 @@ void lmcSettingsDialog::loadSettings(void) {
 	int size = pSettings->beginReadArray(IDS_SOUNDEVENTHDR);
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_EVENT).toInt());
+		// Check so that number of elements read from settings file does not exceed the number of elements
+		// in the list view control. This prevents array out of bounds error.
+		if(index < ui.lvSounds->count())
+			ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_EVENT).toInt());
 	}
 	pSettings->endArray();
 	ui.chkNoBusySound->setChecked(pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool());
@@ -376,7 +406,7 @@ void lmcSettingsDialog::loadSettings(void) {
 
 	ui.spnTimeout->setValue(pSettings->value(IDS_TIMEOUT, IDS_TIMEOUT_VAL).toInt());
 	ui.spnMaxRetries->setValue(pSettings->value(IDS_MAXRETRIES, IDS_MAXRETRIES_VAL).toInt());
-	ui.txtBroadcast->setText(pSettings->value(IDS_BROADCAST, IDS_BROADCAST_VAL).toString());
+	ui.txtBroadcast->setText(pSettings->value(IDS_MULTICAST, IDS_MULTICAST_VAL).toString());
 	ui.txtUDPPort->setText(pSettings->value(IDS_UDPPORT, IDS_UDPPORT_VAL).toString());
 	ui.txtTCPPort->setText(pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toString());
 
@@ -394,6 +424,9 @@ void lmcSettingsDialog::loadSettings(void) {
 			break;
 		}
 	}
+	int userListView = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.cboUserListView->setCurrentIndex(userListView);
+	ui.chkUserListToolTip->setChecked(pSettings->value(IDS_STATUSTOOLTIP, IDS_STATUSTOOLTIP_VAL).toBool());
 
 	ui.rdbEnter->setChecked(!pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
 	ui.rdbCmdEnter->setChecked(pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool());
@@ -408,6 +441,7 @@ void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_MINIMIZETRAY, ui.chkMinimizeTray->isChecked());
 	pSettings->setValue(IDS_SINGLECLICKTRAY, ui.chkSingleClickTray->isChecked());
 	pSettings->setValue(IDS_SYSTRAYMSG, ui.chkSysTrayMsg->isChecked());
+	pSettings->setValue(IDS_ALLOWSYSTRAYMIN, ui.chkAllowSysTrayMin->isChecked());
 	QString langCode = ui.cboLanguage->itemData(ui.cboLanguage->currentIndex(), Qt::UserRole).toString();
 	pSettings->setValue(IDS_LANGUAGE, langCode);
 
@@ -448,7 +482,7 @@ void lmcSettingsDialog::saveSettings(void) {
 
 	pSettings->setValue(IDS_TIMEOUT, ui.spnTimeout->value());
 	pSettings->setValue(IDS_MAXRETRIES, ui.spnMaxRetries->value());
-	pSettings->setValue(IDS_BROADCAST, ui.txtBroadcast->text());
+	pSettings->setValue(IDS_MULTICAST, ui.txtBroadcast->text());
 	pSettings->setValue(IDS_UDPPORT, ui.txtUDPPort->text());
 	pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text());
 
@@ -459,6 +493,8 @@ void lmcSettingsDialog::saveSettings(void) {
 
 	QString themePath = ui.cboTheme->itemData(ui.cboTheme->currentIndex(), Qt::UserRole).toString();
 	pSettings->setValue(IDS_THEME, themePath);
+	pSettings->setValue(IDS_USERLISTVIEW, ui.cboUserListView->currentIndex());
+	pSettings->setValue(IDS_STATUSTOOLTIP, ui.chkUserListToolTip->isChecked());
 
 	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCmdEnter->isChecked());
 

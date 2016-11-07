@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -90,6 +90,7 @@ public:
 	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
 	void updateGroupMap(QString oldGroup, QString newGroup);
 	void saveGroups(void);
+	int userCount(void);
 
 	User* localUser;
 	QList<User> userList;
@@ -122,7 +123,7 @@ private:
 	void processMessage(MessageHeader* pHeader, XmlMessage* pMessage);
 	void processFile(MessageHeader* pHeader, XmlMessage* pMessage);
 	void processWebMessage(MessageHeader* pHeader, XmlMessage* pMessage);
-	bool addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar);
+	bool addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar, QString szNote);
 	void updateUser(MessageType type, QString szUserId, QString szUserData);
 	void removeUser(QString szUserId);
 	bool addReceivedMsg(qint64 msgId, QString userId);

@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -70,6 +70,8 @@
 #define XN_TEMPID		"tempid"
 #define XN_ERROR		"error"
 #define XN_GROUPMSGOP	"groupmsgop"
+#define XN_DESCRIPTION	"description"
+#define XN_NOTE			"note"
 
 class XmlMessage : public QDomDocument
 {

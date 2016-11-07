@@ -6,12 +6,14 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
+QTDIR=/home/dilip/QtSDK/Desktop/Qt/4.8.0/gcc
+
 sudo echo "COPYING FILES..."
-sudo cp -v /usr/lib/i386-linux-gnu/libQtCore.so.4 ./package/usr/lib/lmc/libQtCore.so.4
-sudo cp -v /usr/lib/i386-linux-gnu/libQtGui.so.4 ./package/usr/lib/lmc/libQtGui.so.4
-sudo cp -v /usr/lib/i386-linux-gnu/libQtNetwork.so.4 ./package/usr/lib/lmc/libQtNetwork.so.4
-sudo cp -v /usr/lib/i386-linux-gnu/libQtXml.so.4 ./package/usr/lib/lmc/libQtXml.so.4
-sudo cp -v /usr/lib/i386-linux-gnu/libQtWebKit.so.4 ./package/usr/lib/lmc/libQtWebKit.so.4
+sudo cp -v $QTDIR/lib/libQtCore.so.4 ./package/usr/lib/lmc/libQtCore.so.4
+sudo cp -v $QTDIR/lib/libQtGui.so.4 ./package/usr/lib/lmc/libQtGui.so.4
+sudo cp -v $QTDIR/lib/libQtNetwork.so.4 ./package/usr/lib/lmc/libQtNetwork.so.4
+sudo cp -v $QTDIR/lib/libQtXml.so.4 ./package/usr/lib/lmc/libQtXml.so.4
+sudo cp -v $QTDIR/lib/libQtWebKit.so.4 ./package/usr/lib/lmc/libQtWebKit.so.4
 sudo cp -v ../../release/libcrypto.so.1.0.0 ./package/usr/lib/lmc/libcrypto.so.1.0.0
 sudo cp -v ../../release/liblmcapp.so.1 ./package/usr/lib/lmc/liblmcapp.so.1
 sudo cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc

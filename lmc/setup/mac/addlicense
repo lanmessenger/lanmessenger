@@ -5,10 +5,23 @@ if [ "$1" = "" ]; then
   echo "Eg: addlicense 1.0.0"
   exit 1
 fi
-  
+
+# hide the background image source
+/Developer/Tools/SetFile -a V /Volumes/LAN-Messenger/background.jpg
+
+# eject the mounted volume
+hdiutil detach /Volumes/LAN-Messenger
+
+# compress the disk image
+hdiutil convert LAN-Messenger.dmg -format UDBZ -o lmc_$1_intel.dmg
+
+# add the license to the disk image
 ./licenseDMG.py lmc_$1_intel.dmg ./package/eula/license.txt
 
+# move the final image to output folder
 mv -f -v lmc_$1_intel.dmg ../
+
+# delete the intermediate files
 rm -r -v LAN-Messenger.app
 rm -f -v LAN-Messenger.dmg
 

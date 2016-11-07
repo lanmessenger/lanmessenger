@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 
+#include "trace.h"
 #include "tcpnetwork.h"
 
 lmcTcpNetwork::lmcTcpNetwork(void) {
@@ -30,6 +31,7 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
 	messageMap.clear();
 	locMsgStream = NULL;
 	crypto = NULL;
+	listenAddress = QHostAddress::Null;
 	server = new QTcpServer(this);
 	connect(server, SIGNAL(newConnection()), this, SLOT(server_newConnection()));
 }
@@ -40,12 +42,23 @@ void lmcTcpNetwork::init(void) {
 }
 
 void lmcTcpNetwork::start(void) {
-	server->listen(QHostAddress::Any, tcpPort);
-	isRunning = true;
+	lmcTrace::write("Starting TCP server...");
+	isRunning = server->listen(QHostAddress::Any, tcpPort);
+	lmcTrace::write((isRunning ? "Success" : "Failed"));
 }
 
 void lmcTcpNetwork::stop(void) {
 	server->close();
+	// Close all open sockets
+	if(locMsgStream)
+		locMsgStream->stop();
+	QMap<QString, MsgStream*>::const_iterator index = messageMap.constBegin();
+	while(index != messageMap.constEnd()) {
+		MsgStream* pMsgStream = index.value();
+		if(pMsgStream)
+			pMsgStream->stop();
+		index++;
+	}
 	isRunning = false;
 }
 
@@ -58,6 +71,8 @@ void lmcTcpNetwork::setCrypto(lmcCrypto* pCrypto) {
 }
 
 void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress) {
+	lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress);
+
 	MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, tcpPort);
 	connect(msgStream, SIGNAL(connectionLost(QString*)), 
 		this, SLOT(msgStream_connectionLost(QString*)));
@@ -81,6 +96,7 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
 		msgStream = messageMap.value(*lpszReceiverId);
 
 	if(msgStream) {
+		lmcTrace::write("Sending TCP data stream to user " + *lpszReceiverId);
 		QByteArray clearData = lpszData->toUtf8();
 		QByteArray cipherData = crypto->encrypt(lpszReceiverId, clearData);
 		//	cipherData should now contain encrypted content
@@ -150,7 +166,12 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 void lmcTcpNetwork::settingsChanged(void) {
 }
 
+void lmcTcpNetwork::setListenAddress(const QString& szAddress) {
+	listenAddress = QHostAddress(szAddress);
+}
+
 void lmcTcpNetwork::server_newConnection(void) {
+	lmcTrace::write("New connection received");
 	QTcpSocket* socket = server->nextPendingConnection();
 	connect(socket, SIGNAL(readyRead()), this, SLOT(socket_readyRead()));
 }
@@ -210,7 +231,9 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
 	QByteArray cipherData = Datagram::getData(datagram);
     QByteArray clearData;
 	QString szMessage;
-	XmlMessage xmlMessage;
+
+	lmcTrace::write("TCP stream type " + QString::number(pHeader->type) +
+					" received from user " + *lpszUserId + " at " + *lpszAddress);
 
 	switch(pHeader->type) {
 	case DT_PublicKey:
@@ -240,6 +263,7 @@ void lmcTcpNetwork::addFileSocket(QString* lpszId, QTcpSocket* pSocket) {
 }
 
 void lmcTcpNetwork::addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket) {
+	lmcTrace::write("Accepted connection from user " + *lpszUserId);
 	QString address = pSocket->peerAddress().toString();
 	MsgStream* msgStream = new MsgStream(localId, *lpszUserId, address, tcpPort);
 	connect(msgStream, SIGNAL(connectionLost(QString*)), 
@@ -254,6 +278,7 @@ void lmcTcpNetwork::addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket) {
 
 //	Once a new incoming connection is established, the server sends a public key to client
 void lmcTcpNetwork::sendPublicKey(QString* lpszUserId) {
+	lmcTrace::write("Sending public key to user " + *lpszUserId);
 	MsgStream* msgStream = messageMap.value(*lpszUserId);
 	if(msgStream) {
 		QByteArray publicKey = crypto->publicKey;
@@ -274,6 +299,7 @@ void lmcTcpNetwork::sendSessionKey(QString* lpszUserId, QByteArray& publicKey) {
 		msgStream = messageMap.value(*lpszUserId);
 
 	if(msgStream) {
+		lmcTrace::write("Sending session key to user " + *lpszUserId);
 		QByteArray sessionKey = crypto->generateAES(lpszUserId, publicKey);
 		Datagram::addHeader(DT_Handshake, sessionKey);
 		msgStream->sendMessage(sessionKey);

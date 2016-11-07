@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -30,6 +30,10 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WFlags flags) : QWidget(
 
 	//	Destroy the window when it closes
 	setAttribute(Qt::WA_DeleteOnClose, true);
+
+	pMessageLog = new lmcMessageLog(ui.fraMessageLog);
+	ui.logLayout->addWidget(pMessageLog);
+	pMessageLog->setAcceptDrops(false);
 
 	QList<int> sizes;
 	sizes.append(width() * 0.35);
@@ -89,7 +93,7 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
 		qint64 offset = current->data(0, DataRole).toLongLong();
 		QString data = History::getMessage(offset);
 
-		ui.wvMessageLog->setHtml(data);
+		pMessageLog->setHtml(data);
 	}
 }
 
@@ -105,7 +109,7 @@ void lmcHistoryWindow::setUIText(void) {
 }
 
 void lmcHistoryWindow::displayList(void) {
-	ui.wvMessageLog->setHtml("<html></html>");
+	pMessageLog->setHtml("<html></html>");
 	ui.tvMsgList->clear();
 	msgList.clear();
 

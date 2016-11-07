@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -49,6 +49,8 @@ public:
 	void setCrypto(lmcCrypto* pCrypto);
 	void sendBroadcast(QString* lpszData);
 	void settingsChanged(void);
+	void setMulticastInterface(const QNetworkInterface& networkInterface);
+	void setListenAddress(const QString& szAddress);
 
 	QString ipAddress;
 	QString subnetMask;
@@ -67,15 +69,16 @@ private:
 	bool startReceiving(void);
 	void parseDatagram(QString* lpszAddress, QByteArray& baDatagram);
 
-	lmcSettings*	pSettings;
-	QUdpSocket*		pUdpSender;
-	QUdpSocket*		pUdpReceiver;
-	lmcCrypto*		pCrypto;
+	lmcSettings*		pSettings;
+	QUdpSocket*			pUdpSocket;
+	lmcCrypto*			pCrypto;
 
-	bool			isRunning;
-	int				nUdpPort;
-	QHostAddress	broadcastAddress;
-	QString			localId;
+	bool				isRunning;
+	int					nUdpPort;
+	QHostAddress		broadcastAddress;
+	QString				localId;
+	QNetworkInterface	multicastInterface;
+	QHostAddress		listenAddress;
 };
 
 #endif // UDPNETWORK_H

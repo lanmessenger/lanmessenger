@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ public:
 	void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
 	void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);
 	void settingsChanged(void);
+	void setListenAddress(const QString& szAddress);
 
 signals:
 	void newConnection(QString* lpszUserId, QString* lpszAddress);
@@ -84,6 +85,7 @@ private:
 	int						  tcpPort;
 	QString					  localId;
 	lmcCrypto*				  crypto;
+	QHostAddress			  listenAddress;
 };
 
 #endif // TCPNETWORK_H

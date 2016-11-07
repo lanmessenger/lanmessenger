@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 **
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 **
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 **
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ public:
 	void updateAvatar(QString* lpszUserId, QString* lpszFilePath);
 	void reloadMessageLog(void);
 	QString prepareMessageLogForSave(OutputFormat format = HtmlFormat);
+	void setAutoScroll(bool enable);
 
 	QString localId;
 	QString peerId;
@@ -84,6 +85,7 @@ private slots:
 	void selectAllAction_triggered(void);
 
 private:
+	void createContextMenu(void);
 	void appendMessageLog(QString* lpszHtml);
 	void removeMessageLog(QString divClass);
 	void appendBroadcast(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime);
@@ -97,7 +99,7 @@ private:
 	QString getChatStateMessage(ChatState chatState);
 	QString getChatRoomMessage(GroupMsgOp op);
 	void fileOperation(QString fileId, QString action);
-	void decodeMessage(QString* lpszMessage);
+	void decodeMessage(QString* lpszMessage, bool useDefaults = false);
 	QString getTimeString(QDateTime* pTime);
 	void setUIText(void);
 
@@ -111,6 +113,7 @@ private:
 	QAction* selectAllAction;
 	bool linkHovered;
 	bool outStyle;
+	bool autoScroll;
 };
 
 #endif // MESSAGELOG_H

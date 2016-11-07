@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include "tcpnetwork.h"
 #include "webnetwork.h"
 #include "crypto.h"
+#include "settings.h"
 #include "xmlmessage.h"
 
 class lmcNetwork : public QObject {
@@ -83,13 +84,24 @@ private slots:
 
 private:
 	bool getNetworkInterface(QNetworkInterface* pNetworkInterface);
+	bool getNetworkInterface(QNetworkInterface* pNetworkInterface, QString* lpszPreferred);
+	bool isInterfaceUp(QNetworkInterface* pNetworkInterface);
 	bool getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry);
 
-	lmcUdpNetwork*	pUdpNetwork;
-	lmcTcpNetwork*	pTcpNetwork;
-	lmcWebNetwork*	pWebNetwork;
-	lmcCrypto*		pCrypto;
-	QTimer*			pTimer;
+	struct NetworkAdapter {
+		QString name;
+		QString description;
+		QString type;
+	};
+
+	lmcSettings*			pSettings;
+	lmcUdpNetwork*			pUdpNetwork;
+	lmcTcpNetwork*			pTcpNetwork;
+	lmcWebNetwork*			pWebNetwork;
+	lmcCrypto*				pCrypto;
+	QTimer*					pTimer;
+	QString					szInterfaceName;
+	QNetworkInterface		networkInterface;
 };
 
 #endif // NETWORK_H

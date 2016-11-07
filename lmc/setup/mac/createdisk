@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Copy the app bundle to the setup folder
+cp -v -r ../../release/LAN-Messenger.app LAN-Messenger.app
+
+# Remove plugins that were copied into the app bundle while building
+echo "Deleting old plugins..."
+rm -r -v LAN-Messenger.app/Contents/Plugins
+echo "Done."
+
+# Copy all the required dependencies into the app bundle, and set correct lookup paths
+$QTDIR/bin/macdeployqt LAN-Messenger.app -verbose=2
+
+install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.1.dylib
+
+# create a blank disk with sufficient space
+hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+ -volname LAN-Messenger
+
+# mount and copy files onto volume
+hdid LAN-Messenger.dmg
+cp -R -v LAN-Messenger.app /Volumes/LAN-Messenger
+cp -R -v ./package/Applications /Volumes/LAN-Messenger/Applications
+cp -R -v ./package/images/background.jpg /Volumes/LAN-Messenger/background.jpg
+
+exit 0

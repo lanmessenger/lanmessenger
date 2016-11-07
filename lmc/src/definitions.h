@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,12 +34,12 @@
 #define IDA_PRODUCT		"lmc"
 #define IDA_COMPANY		"lmc"
 #endif
-#define IDA_VERSION		"1.2.16"
+#define IDA_VERSION		"1.2.25"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
 						"and does not require a server.\n"\
 						"LAN Messenger works on essentially every popular desktop platform."
-#define IDA_COPYRIGHT	"Copyright (C) 2010-2011 Dilip Radhakrishnan."
-#define IDA_CONTACT		"dilipvrk@gmail.com"
+#define IDA_COPYRIGHT	"Copyright (C) 2010-2012 Qualia Digital Solutions."
+#define IDA_CONTACT		"qualiatech@gmail.com"
 #define IDA_DOMAIN		"http://lanmsngr.sourceforge.net"
 
 #if defined Q_WS_WIN
@@ -100,6 +100,7 @@ enum MessageType {
 	MT_Query,
 	MT_Info,
 	MT_ChatState,
+	MT_Note,
 	//	These are used only for local communication between layers
 	MT_Group,
 	MT_Version,
@@ -133,6 +134,7 @@ const QString MessageTypeNames[] = {
 	"query",
 	"info",
 	"chatstate",
+	"note",
 	//	These are used only for local communication between layers
 	"group",
 	"version",
@@ -250,8 +252,19 @@ enum GroupOp {
 	GO_Max
 };
 
-enum TrayMessageType { TM_Connection, TM_Status, TM_Transfer, TM_Minimize, TM_Max };
-enum TrayMessageIcon { TMI_Info, TMI_Warning, TMI_Error, TMI_Max };
+enum TrayMessageType {
+	TM_Connection,
+	TM_Status,
+	TM_Transfer,
+	TM_Minimize,
+	TM_Max
+};
+enum TrayMessageIcon {
+	TMI_Info,
+	TMI_Warning,
+	TMI_Error,
+	TMI_Max
+};
 
 //	User status definitions
 enum StatusType {
@@ -263,12 +276,28 @@ enum StatusType {
 };
 
 #define ST_COUNT	6
-const QString statusCode[] = {"chat", "busy", "dnd", "brb", "away", "gone"};
-const int statusType[] = {StatusTypeOnline, StatusTypeBusy, StatusTypeBusy, StatusTypeAway, StatusTypeAway, StatusTypeOffline};
+const QString statusCode[] = {
+	"chat",
+	"busy",
+	"dnd",
+	"brb",
+	"away",
+	"gone"
+};
+const int statusType[] = {
+	StatusTypeOnline,
+	StatusTypeBusy,
+	StatusTypeBusy,
+	StatusTypeAway,
+	StatusTypeAway,
+	StatusTypeOffline
+};
 
 #define GRP_DEFAULT		"General"
 #define GRP_DEFAULT_ID	"1CD75C10048C4E65F6082539A32DC111"
 
 #define GROUPMSGVERSION	"1.2.16"
+
+#define AUTO_CONNECTION	"Auto"
 
 #endif // DEFINITIONS_H

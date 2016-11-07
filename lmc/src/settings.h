@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -63,8 +63,10 @@
 #define IDS_MINIMIZEMSG_VAL		true
 #define IDS_SYSTRAYMSG			"SystemTray/SysTrayMsg"
 #define IDS_SYSTRAYMSG_VAL		true
+#define IDS_ALLOWSYSTRAYMIN		"SystemTray/AllowMinimize"
+#define IDS_ALLOWSYSTRAYMIN_VAL	false
 #define IDS_REFRESHTIME			"RefreshInterval"
-#define IDS_REFRESHTIME_VAL		30
+#define IDS_REFRESHTIME_VAL		300
 #define IDS_IDLETIME			"IdleTime"
 #define IDS_IDLETIME_VAL		0
 #define IDS_EMOTICON			"Messages/Emoticon"
@@ -111,12 +113,16 @@
 #define IDS_NODNDSOUND_VAL		true
 #define IDS_SOUNDEVENTHDR		"SoundEvents"
 #define IDS_EVENT				"Event"
+#define IDS_CONNECTION			"Connection/Connection"
+#define IDS_CONNECTION_VAL		AUTO_CONNECTION
 #define IDS_TIMEOUT				"Connection/Timeout"
 #define IDS_TIMEOUT_VAL			10
 #define IDS_MAXRETRIES			"Connection/MaxRetries"
 #define IDS_MAXRETRIES_VAL		1
 #define IDS_BROADCAST			"Connection/Broadcast"
 #define IDS_BROADCAST_VAL		"255.255.255.255"
+#define IDS_MULTICAST			"Connection/Multicast"
+#define IDS_MULTICAST_VAL		"239.255.100.100"
 #define IDS_UDPPORT				"Connection/UDPPort"
 #define IDS_UDPPORT_VAL			50000
 #define IDS_TCPPORT				"Connection/TCPPort"
@@ -128,8 +134,14 @@
 #define IDS_FILETOP				"FileTransfer/FileTop"
 #define IDS_FILETOP_VAL			false
 #define IDS_FILESTORAGEPATH		"FileTransfer/StoragePath"
-#define IDS_THEME				"Themes/Theme"
+#define IDS_THEME_OLD			"Themes/Theme"
+#define IDS_THEME_OLD_VAL		":/themes/Classic"
+#define IDS_THEME				"Appearance/Theme"
 #define IDS_THEME_VAL			":/themes/Classic"
+#define IDS_USERLISTVIEW		"Appearance/UserListView"
+#define IDS_USERLISTVIEW_VAL	ULV_Detailed
+#define IDS_STATUSTOOLTIP		"Appearance/StatusToolTip"
+#define IDS_STATUSTOOLTIP_VAL	false
 #define IDS_SENDKEYMOD			"Hotkeys/SendKeyMod"
 #define IDS_SENDKEYMOD_VAL		false
 #define IDS_STATUS				"User/Status"
@@ -144,12 +156,19 @@
 #define IDS_USERLASTNAME_VAL	""
 #define IDS_USERABOUT			"User/About"
 #define IDS_USERABOUT_VAL		""
+#define IDS_NOTE				"User/Note"
+#define IDS_NOTE_VAL			""
 #define IDS_GROUPHDR			"Groups"
 #define IDS_GROUP				"Group"
 #define IDS_GROUPNAME			"GroupName"
 #define IDS_GROUPEXPHDR			"GroupExp"
 #define IDS_GROUPMAPHDR			"GroupMap"
 #define IDS_USER				"User"
+#define IDS_SILENTMODE			"Internal/SilentMode"
+#define IDS_SILENTMODE_VAL		false
+#define IDS_TRACEMODE			"Internal/TraceMode"
+#define IDS_TRACEMODE_VAL		false
+#define IDS_LOGFILE				"Internal/LogFile"
 
 class lmcSettings : public QSettings {
 public:

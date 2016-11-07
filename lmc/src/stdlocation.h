@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -26,7 +26,9 @@
 #define STDLOCATION_H
 
 #include <QDir>
+#include <QFileInfo>
 #include <QDesktopServices>
+#include <QDateTime>
 #include "settings.h"
 
 #define SL_TRANSFERHISTORY		"transfers.lst"
@@ -35,6 +37,9 @@
 #define SL_RESOURCE				"lmc.rcc"
 #define SL_LANGDIR				"lang"
 #define SL_THEMEDIR				"themes"
+#define SL_GROUPFILE			"group.cfg"
+#define SL_AVATARFILE			"avt_local.png"
+#define SL_LOGDIR				"logs"
 
 class StdLocation {
 public:
@@ -89,6 +94,27 @@ public:
 	static QString userThemeDir(void) {
 		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
 			QDesktopServices::DataLocation) + "/"SL_THEMEDIR);
+	}
+
+	static QString groupFile(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::DataLocation) + "/"SL_GROUPFILE);
+	}
+
+	static QString avatarFile(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::DataLocation) + "/"SL_AVATARFILE);
+	}
+
+	static QString logDir(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::DataLocation) + "/"SL_LOGDIR);
+	}
+
+	static QString freeLogFile(void) {
+		QString fileName = "lmc_" +
+			QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()) + ".log";
+		return QDir::toNativeSeparators(logDir() + "/" + fileName);
 	}
 };
 

@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 **
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 **
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 **
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 
 #include "settings.h"
+#include "stdlocation.h"
 
 //	migrate settings from older versions to new format
 bool lmcSettings::migrateSettings(void) {
@@ -36,8 +37,15 @@ bool lmcSettings::migrateSettings(void) {
 		return false;
 	}
 
-	//	Migrate settings from version 1.2.10
+	//	Migrate settings from version 1.2.10 and older
+	//	Any version before 1.2.10 will also return 1.2.10 as the version since its the
+	//	default value
 	if(Helper::compareVersions(version, "1.2.10") == 0) {
+		//	The group settings were changed in v1.2.16
+		//	Groups now have both an id and a name. All the existing groups in the
+		//	settings are assigned a unique id. The general group is assigned a special
+		//	unique id that is predefined. The user group mapping is done with user id
+		//	and group id.
 		QList<Group> groupList;
 		QHash<QString, QString> groupIdHash;
 		QMap<QString, QString> userGroupMap;
@@ -87,7 +95,68 @@ bool lmcSettings::migrateSettings(void) {
 		}
 		endArray();
 	}
-	// End of migration from 1.2.10
+	//	End of migration from 1.2.10
+
+	//	Migrate settings if version less than 1.2.25
+	if(Helper::compareVersions(version, "1.2.25") < 0) {
+		//	Theme is now saved under the "Appearance" section
+		//	Prior to 1.2.25, it was under "Themes" section which is no longer used
+		QString theme = value(IDS_THEME_OLD, IDS_THEME_OLD_VAL).toString();
+		setValue(IDS_THEME, theme);
+
+		//	Change the refresh interval to reduce network load
+		setValue(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL);
+
+		//	Group settings (except group tree item expanded info) are now saved in a
+		//	separate group file. Copy group details from settings file to group file
+		QHash<QString, QString> groupIdHash;
+		QMap<QString, QString> userGroupMap;
+
+		int size = beginReadArray(IDS_GROUPHDR);
+		for(int index = 0; index < size; index++) {
+			setArrayIndex(index);
+			QString groupId = value(IDS_GROUP).toString();
+			QString groupName = value(IDS_GROUPNAME).toString();
+			groupIdHash.insert(groupId, groupName);
+		}
+		endArray();
+
+		size = beginReadArray(IDS_GROUPMAPHDR);
+		for(int index = 0; index < size; index++)
+		{
+			setArrayIndex(index);
+			QString user = value(IDS_USER).toString();
+			QString group = value(IDS_GROUP).toString();
+			userGroupMap.insert(user, group);
+		}
+		endArray();
+
+		QSettings groupSettings(StdLocation::groupFile(), QSettings::IniFormat);
+		groupSettings.beginWriteArray(IDS_GROUPHDR);
+		QHashIterator<QString, QString> it(groupIdHash);
+		int count = 0;
+		while(it.hasNext()) {
+			groupSettings.setArrayIndex(count);
+			it.next();
+			groupSettings.setValue(IDS_GROUP, it.key());
+			groupSettings.setValue(IDS_GROUPNAME, it.value());
+			count++;
+		}
+		groupSettings.endArray();
+
+		groupSettings.beginWriteArray(IDS_GROUPMAPHDR);
+		QMapIterator<QString, QString> i(userGroupMap);
+		count = 0;
+		while(i.hasNext()) {
+			groupSettings.setArrayIndex(count);
+			i.next();
+			groupSettings.setValue(IDS_USER, i.key());
+			groupSettings.setValue(IDS_GROUP, i.value());
+			count++;
+		}
+		groupSettings.endArray();
+	}
+	//	End of migration
 
 	setValue(IDS_VERSION, IDA_VERSION);
 	sync();
@@ -95,28 +164,32 @@ bool lmcSettings::migrateSettings(void) {
 }
 
 void lmcSettings::setAutoStart(bool on) {
-#if defined Q_WS_WIN
-    QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-        QSettings::NativeFormat);
-    if(on)
-        settings.setValue(IDA_TITLE, QDir::toNativeSeparators(QApplication::applicationFilePath()));
-    else
-        settings.remove(IDA_TITLE);
-#elif defined Q_WS_MAC
-	Q_UNUSED(on);
-#elif defined Q_WS_X11
-    //  get the path of .desktop file
-    QString autoStartDir;
-    char* buffer = getenv("XDG_CONFIG_HOME");
-    if(buffer) {
-        autoStartDir = QString(buffer);
-        autoStartDir.append("/autostart");
-    } else {
-        buffer = getenv("HOME");
-        autoStartDir = QString(buffer);
-        autoStartDir.append("/.config/autostart");
-    }
-    QDir dir(autoStartDir);
+#ifdef Q_WS_WIN
+	QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+		QSettings::NativeFormat);
+	if(on)
+		settings.setValue(IDA_TITLE, QDir::toNativeSeparators(QApplication::applicationFilePath()));
+	else
+		settings.remove(IDA_TITLE);
+#endif
+
+#ifdef Q_WS_MAC
+    Q_UNUSED(on);
+#endif
+
+#ifdef Q_WS_X11
+	//  get the path of .desktop file
+	QString autoStartDir;
+	char* buffer = getenv("XDG_CONFIG_HOME");
+	if(buffer) {
+		autoStartDir = QString(buffer);
+		autoStartDir.append("/autostart");
+	} else {
+		buffer = getenv("HOME");
+		autoStartDir = QString(buffer);
+		autoStartDir.append("/.config/autostart");
+	}
+	QDir dir(autoStartDir);
 	QString fileName = dir.absoluteFilePath("lmc.desktop");
 	//	delete the file if autostart is set to false
 	if(!on) {
@@ -126,20 +199,20 @@ void lmcSettings::setAutoStart(bool on) {
 
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-    QFile file(fileName);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-    stream.setGenerateByteOrderMark(false);
-    stream << "[Desktop Entry]\n";
-    stream << "Encoding=UTF-8\n";
-    stream << "Type=Application\n";
-    stream << "Name=" << IDA_TITLE << "\n";
-    stream << "Comment=Send and receive instant messages\n";
+	QFile file(fileName);
+	if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+	QTextStream stream(&file);
+	stream.setCodec("UTF-8");
+	stream.setGenerateByteOrderMark(false);
+	stream << "[Desktop Entry]\n";
+	stream << "Encoding=UTF-8\n";
+	stream << "Type=Application\n";
+	stream << "Name=" << IDA_TITLE << "\n";
+	stream << "Comment=Send and receive instant messages\n";
 	stream << "Icon=lmc\n";
-    stream << "Exec=sh " << qApp->applicationDirPath() << "/lmc.sh\n";
-    stream << "Terminal=false\n";
-    file.close();
+	stream << "Exec=sh " << qApp->applicationDirPath() << "/lmc.sh\n";
+	stream << "Terminal=false\n";
+	file.close();
 #endif
 }

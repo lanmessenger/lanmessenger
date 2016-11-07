@@ -62,12 +62,12 @@
         <translation>İptal</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.ui" line="244"/>
+        <location filename="broadcastwindow.ui" line="239"/>
         <source>Select All</source>
         <translation>Hepsini Seç</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.ui" line="251"/>
+        <location filename="broadcastwindow.ui" line="246"/>
         <source>Select None</source>
         <translation>Hiçbirini Seçme</translation>
     </message>
@@ -77,22 +77,12 @@
         <source>Send To:</source>
         <translation>Gönder:</translation>
     </message>
-    <message>
-        <location filename="broadcastwindow.ui" line="218"/>
-        <source>.</source>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="chatroomwindow.ui" line="247"/>
-        <source>.</source>
         <translation></translation>
     </message>
 </context>
@@ -178,17 +168,12 @@
         <translation>Tarih</translation>
     </message>
     <message>
-        <location filename="historywindow.ui" line="115"/>
-        <source>about:blank</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="historywindow.ui" line="151"/>
+        <location filename="historywindow.ui" line="133"/>
         <source>Clear History</source>
         <translation>Geçmişi Temizle</translation>
     </message>
     <message>
-        <location filename="historywindow.ui" line="174"/>
+        <location filename="historywindow.ui" line="156"/>
         <source>Close</source>
         <translation>Kapat</translation>
     </message>
@@ -201,29 +186,29 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="130"/>
+        <location filename="mainwindow.ui" line="124"/>
         <source>Username</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="158"/>
+        <location filename="mainwindow.ui" line="168"/>
         <source>Status</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="183"/>
+        <location filename="mainwindow.ui" line="186"/>
+        <source>Type a note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="211"/>
         <source>Change avatar</source>
         <translation>Avatarı değiştir</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="299"/>
+        <location filename="mainwindow.ui" line="324"/>
         <source>Contacts</source>
         <translation>Kişiler</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="304"/>
-        <source>.</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -234,189 +219,204 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1661"/>
+        <location filename="settingsdialog.ui" line="1602"/>
         <source>Chat Theme</source>
         <translation>Sohbet penceresinin Tema</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1784"/>
+        <location filename="settingsdialog.ui" line="1662"/>
+        <source>Contacts List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1670"/>
+        <source>Contacts list view:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1695"/>
+        <source>Show status as tooltip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1761"/>
         <source>Send messages using:</source>
         <translation>Mesajı göndermek için girin:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1809"/>
+        <location filename="settingsdialog.ui" line="1786"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1816"/>
+        <location filename="settingsdialog.ui" line="1793"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1880"/>
+        <location filename="settingsdialog.ui" line="1854"/>
         <source>Reset Preferences</source>
         <translation>Ayarları Sıfırla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1900"/>
+        <location filename="settingsdialog.ui" line="1874"/>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1910"/>
+        <location filename="settingsdialog.ui" line="1884"/>
         <source>Cancel</source>
         <translation>İptal</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="59"/>
-        <location filename="settingsdialog.ui" line="158"/>
+        <location filename="settingsdialog.ui" line="141"/>
         <source>General</source>
         <translation>Genel</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1654"/>
+        <location filename="settingsdialog.ui" line="1595"/>
         <source>Appearance</source>
         <translation>Görünüm</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="165"/>
+        <location filename="settingsdialog.ui" line="148"/>
         <source>System</source>
         <translation>Sistem</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="171"/>
+        <location filename="settingsdialog.ui" line="154"/>
         <source>Start %1 on system startup</source>
         <translation>Başlangıçta %1 &apos;ı çalıştır </translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="178"/>
+        <location filename="settingsdialog.ui" line="161"/>
         <source>Show main window when %1 starts</source>
         <translation>%1 başladığında ana pencerede göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="188"/>
+        <location filename="settingsdialog.ui" line="171"/>
         <source>System Tray</source>
         <translation>Sistem Simgesi</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="194"/>
+        <location filename="settingsdialog.ui" line="177"/>
         <source>Show system tray icon</source>
         <translation>Sistem simgesini göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="201"/>
+        <location filename="settingsdialog.ui" line="184"/>
         <source>Minimize main window to system tray</source>
         <translation>Pencereyi sistem simgesi durumunda çalıştır</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="208"/>
+        <location filename="settingsdialog.ui" line="191"/>
         <source>Single click on tray icon to open</source>
         <translation>Açmak için sistem simgesine tek tıkla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="215"/>
+        <location filename="settingsdialog.ui" line="198"/>
         <source>Show balloon notifications in tray</source>
         <translation>Balon uyarıları bildirim alanında göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="225"/>
+        <location filename="settingsdialog.ui" line="215"/>
         <source>Language</source>
         <translation>Dil</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="233"/>
+        <location filename="settingsdialog.ui" line="223"/>
         <source>Select language:</source>
         <translation>Dil Seç:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="64"/>
-        <location filename="settingsdialog.ui" line="346"/>
+        <location filename="settingsdialog.ui" line="329"/>
         <source>Account</source>
         <translation>Hesap</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="353"/>
+        <location filename="settingsdialog.ui" line="336"/>
         <source>Personal</source>
         <translation>Kişisel</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="361"/>
+        <location filename="settingsdialog.ui" line="344"/>
         <source>User name as seen by contacts:</source>
         <translation>Kişilerde görünecek kullanıcı adı:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="390"/>
+        <location filename="settingsdialog.ui" line="373"/>
         <source>First Name:</source>
         <translation>İsim:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="420"/>
+        <location filename="settingsdialog.ui" line="403"/>
         <source>Last Name:</source>
         <translation>Soyisim:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="436"/>
+        <location filename="settingsdialog.ui" line="419"/>
         <source>About:</source>
         <translation>Hakkında:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="464"/>
+        <location filename="settingsdialog.ui" line="447"/>
         <source>Contacts</source>
         <translation>Kişiler</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="472"/>
+        <location filename="settingsdialog.ui" line="455"/>
         <source>Refresh contacts list every</source>
         <translation>Kişi listesini her</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="502"/>
+        <location filename="settingsdialog.ui" line="485"/>
         <source>seconds</source>
         <translation>saniyede güncelle</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="69"/>
-        <location filename="settingsdialog.ui" line="559"/>
-        <location filename="settingsdialog.ui" line="1773"/>
+        <location filename="settingsdialog.ui" line="535"/>
+        <location filename="settingsdialog.ui" line="1750"/>
         <source>Messages</source>
         <translation>İletiler</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="566"/>
+        <location filename="settingsdialog.ui" line="542"/>
         <source>Message Window</source>
         <translation>İleti Penceresi</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="602"/>
+        <location filename="settingsdialog.ui" line="578"/>
         <source>Show emoticons in instant messages</source>
         <translation>Anlık iletilerde yüz ifadelerini göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="609"/>
+        <location filename="settingsdialog.ui" line="585"/>
         <source>Add time stamp to instant messages</source>
         <translation>Anlık iletilere tarihi ekle</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="634"/>
+        <location filename="settingsdialog.ui" line="610"/>
         <source>Show date in time stamp</source>
         <translation>Zaman gösteririken tarihi de ekle</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="572"/>
+        <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Anlık ileti gelince pencereyi öne çıkar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="579"/>
+        <location filename="settingsdialog.ui" line="555"/>
         <source>Minimize incoming messages to taskbar</source>
         <translation>Gelen iletileri görev çubuğuna küçült</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="687"/>
+        <location filename="settingsdialog.ui" line="663"/>
         <source>Message Font</source>
         <translation>İleti fontu</translation>
     </message>
@@ -438,232 +438,237 @@
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
-        <location filename="settingsdialog.ui" line="823"/>
+        <location filename="settingsdialog.ui" line="792"/>
         <source>History</source>
         <translation>Geçmiş</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
-        <location filename="settingsdialog.ui" line="1766"/>
+        <location filename="settingsdialog.ui" line="1743"/>
         <source>Hotkeys</source>
         <translation>Kısayol Tuşları</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="643"/>
+        <location filename="settingsdialog.ui" line="205"/>
+        <source>Minimize main window using tray icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="619"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Anlık iletilerde linklere izin ver</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="668"/>
+        <location filename="settingsdialog.ui" line="644"/>
         <source>Convert network paths to links</source>
         <translation>Ağ yollarını linklere dönüştür</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="677"/>
+        <location filename="settingsdialog.ui" line="653"/>
         <source>Remove whitespace from start and end of messages</source>
         <translation>İletilerin başındaki ve sonundaki alfabe dışı karakterleri kaldır</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="695"/>
+        <location filename="settingsdialog.ui" line="671"/>
         <source>Change Font...</source>
         <translation>Fontu Değiştir...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="719"/>
+        <location filename="settingsdialog.ui" line="695"/>
         <source>Change Color...</source>
         <translation>Renk Değiştir...</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="743"/>
+        <location filename="settingsdialog.ui" line="719"/>
         <source>Incoming message text size:</source>
         <translation>Gelen ileti yazı ölçüsü:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="830"/>
+        <location filename="settingsdialog.ui" line="799"/>
         <source>Message History</source>
         <translation>İleti Geçmişi</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="836"/>
+        <location filename="settingsdialog.ui" line="805"/>
         <source>Keep a history of conversations</source>
         <translation>Konuşmaların geçmişini sakla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="845"/>
+        <location filename="settingsdialog.ui" line="814"/>
         <source>Clear Message History</source>
         <translation>İleti Geçmişini Temizle</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="870"/>
+        <location filename="settingsdialog.ui" line="839"/>
         <source>History File Location</source>
         <translation>Geçmiş Saklama Lokasyonu</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="876"/>
+        <location filename="settingsdialog.ui" line="845"/>
         <source>System default location</source>
         <translation>Sistem varsayılan lokasyonu</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="883"/>
+        <location filename="settingsdialog.ui" line="852"/>
         <source>Custom location</source>
         <translation>Özel lokasyon</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="921"/>
-        <location filename="settingsdialog.ui" line="1573"/>
+        <location filename="settingsdialog.ui" line="890"/>
+        <location filename="settingsdialog.ui" line="1521"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="933"/>
+        <location filename="settingsdialog.ui" line="902"/>
         <source>File Transfer History</source>
         <translation>Dosya Transfer Geçmişi</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="939"/>
+        <location filename="settingsdialog.ui" line="908"/>
         <source>Keep a history of file transfers</source>
         <translation>Dosya Transfer Geçmişini Sakla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="948"/>
+        <location filename="settingsdialog.ui" line="917"/>
         <source>Clear Transfer History</source>
         <translation>Transfer geçmişini temizle</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="1018"/>
+        <location filename="settingsdialog.ui" line="980"/>
         <source>Alerts</source>
         <translation>Uyarılar</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1025"/>
+        <location filename="settingsdialog.ui" line="987"/>
         <source>Status Alerts</source>
         <translation>Durum Uyarıları</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1031"/>
+        <location filename="settingsdialog.ui" line="993"/>
         <source>Display status alerts</source>
         <translation>Durum uyarılarını göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1038"/>
+        <location filename="settingsdialog.ui" line="1000"/>
         <source>Suspend alerts when my status is Busy</source>
         <translation>Durumum Meşgul iken uyarıları yoksay</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1045"/>
+        <location filename="settingsdialog.ui" line="1007"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
         <translation>Durumum Rahatsız Etmeyin iken uyarıları yoksay</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1055"/>
+        <location filename="settingsdialog.ui" line="1017"/>
         <source>Sounds</source>
         <translation>Sesler</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1061"/>
+        <location filename="settingsdialog.ui" line="1023"/>
         <source>Provide feedback with sounds</source>
         <translation>Seslerle geribildirim sağla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1132"/>
+        <location filename="settingsdialog.ui" line="1094"/>
         <source>Suspend sounds when my status is Busy</source>
         <translation>Durumum Meşgul iken sesleri yoksay</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1139"/>
+        <location filename="settingsdialog.ui" line="1101"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
         <translation>Durumum Rahatsız Etmeyin iken sesleri yoksay</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1088"/>
+        <location filename="settingsdialog.ui" line="1050"/>
         <source>Play sounds for these events:</source>
         <translation>Bu olaylarda sesleri çal:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1194"/>
+        <location filename="settingsdialog.ui" line="1149"/>
         <source>Network</source>
         <translation>Ağ</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1201"/>
+        <location filename="settingsdialog.ui" line="1156"/>
         <source>Connection</source>
         <translation>Bağlantı</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1209"/>
+        <location filename="settingsdialog.ui" line="1164"/>
         <source>Connection timeout (seconds):</source>
         <translation>Bağlantı süre aşımı (saniye):</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1243"/>
+        <location filename="settingsdialog.ui" line="1198"/>
         <source>Maximum number of retries:</source>
         <translation>Maksimum tekrar sayısı:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1278"/>
+        <location filename="settingsdialog.ui" line="1233"/>
         <source>Broadcast Settings</source>
         <translation>Broadcast Ayarları</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1286"/>
+        <location filename="settingsdialog.ui" line="1241"/>
         <source>Broadcast address:</source>
         <translation>Broadcast adresi:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1329"/>
+        <location filename="settingsdialog.ui" line="1284"/>
         <source>UDP Port*:</source>
         <translation>UDP Portu*:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1372"/>
+        <location filename="settingsdialog.ui" line="1327"/>
         <source>TCP Port*:</source>
         <translation>TCP Portu*:</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1416"/>
+        <location filename="settingsdialog.ui" line="1371"/>
         <source>* Takes effect after you restart %1.</source>
         <translation>*  %1  yeniden başlatıldıktan sonra etki edecek.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1468"/>
+        <location filename="settingsdialog.ui" line="1416"/>
         <source>File Transfer</source>
         <translation>Dosya Transferi</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1475"/>
+        <location filename="settingsdialog.ui" line="1423"/>
         <source>Incoming File Request</source>
         <translation>Gelen Dosya İsteği</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1513"/>
+        <location filename="settingsdialog.ui" line="1461"/>
         <source>Bring window to foreground</source>
         <translation>Pencereyi öne getir</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1540"/>
+        <location filename="settingsdialog.ui" line="1488"/>
         <source>Minimize window to taskbar</source>
         <translation>Pencereyi bildirim alanına küçült</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1481"/>
+        <location filename="settingsdialog.ui" line="1429"/>
         <source>Accept and start receiving files automatically</source>
         <translation>Dosya almayı otomatik olarak kabul et ve başlat</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1488"/>
+        <location filename="settingsdialog.ui" line="1436"/>
         <source>Show File Transfer window when sending or receiving files</source>
         <translation>Dosya alınırken/gönderilirken Dosya Transfer Penceresini göster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1552"/>
+        <location filename="settingsdialog.ui" line="1500"/>
         <source>Store Received Files in this Folder</source>
         <translation>Alınan Dosyaları Klasörde depola</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="1584"/>
+        <location filename="settingsdialog.ui" line="1532"/>
         <source>View Files</source>
         <translation>Dosyalara bakış</translation>
     </message>
@@ -873,22 +878,17 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="userselectdialog.ui" line="33"/>
+        <location filename="userselectdialog.ui" line="36"/>
         <source>Contacts</source>
         <translation>Kişiler</translation>
     </message>
     <message>
-        <location filename="userselectdialog.ui" line="38"/>
-        <source>.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="userselectdialog.ui" line="61"/>
+        <location filename="userselectdialog.ui" line="59"/>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="userselectdialog.ui" line="71"/>
+        <location filename="userselectdialog.ui" line="69"/>
         <source>Cancel</source>
         <translation>İptal</translation>
     </message>
@@ -904,32 +904,32 @@
 <context>
     <name>lmcBroadcastWindow</name>
     <message>
-        <location filename="broadcastwindow.cpp" line="292"/>
+        <location filename="broadcastwindow.cpp" line="295"/>
         <source>Send Broadcast Message</source>
         <translation>Yayın İletisi Gönder</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="295"/>
+        <location filename="broadcastwindow.cpp" line="298"/>
         <source>Change Font Size</source>
         <translation>Font Ölçüsünü Değiştir</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="296"/>
+        <location filename="broadcastwindow.cpp" line="299"/>
         <source>Insert Smiley</source>
         <translation>Smiley Ekle</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="332"/>
+        <location filename="broadcastwindow.cpp" line="335"/>
         <source>No recipient selected</source>
         <translation>Seçilmiş alıcı yok</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="333"/>
+        <location filename="broadcastwindow.cpp" line="336"/>
         <source>Please select at least one recipient to send a broadcast.</source>
         <translation>Yayın iletisi göndermek için lütfen en az bir alıcı seçiniz.</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="355"/>
+        <location filename="broadcastwindow.cpp" line="358"/>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
         <translation>Yeteri süre bağlı kalamadınız. Yayın iletisi gönderilemedi.</translation>
     </message>
@@ -937,109 +937,109 @@
 <context>
     <name>lmcChatRoomWindow</name>
     <message>
-        <location filename="chatroomwindow.cpp" line="149"/>
+        <location filename="chatroomwindow.cpp" line="160"/>
         <source>Group Conversation</source>
         <translation>Grup Görüşmesi</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="269"/>
+        <location filename="chatroomwindow.cpp" line="295"/>
         <source>%1 says...</source>
         <translation>%1 diyorki ...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="420"/>
+        <location filename="chatroomwindow.cpp" line="451"/>
         <source>Select Font</source>
         <translation>Font Seç</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="426"/>
+        <location filename="chatroomwindow.cpp" line="457"/>
         <source>Select Color</source>
         <translation>Renk Seç</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="435"/>
+        <location filename="chatroomwindow.cpp" line="466"/>
         <source>Save Conversation</source>
         <translation>Konuşmayı kaydet</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="576"/>
+        <location filename="chatroomwindow.cpp" line="606"/>
         <source>Participants</source>
         <translation>Katılımcılar</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="578"/>
+        <location filename="chatroomwindow.cpp" line="608"/>
         <source>&amp;Conversation</source>
         <translation>&amp;Görüşme</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="579"/>
+        <location filename="chatroomwindow.cpp" line="609"/>
         <source>Send &amp;File</source>
         <translation>&amp;Dosya gönder</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="580"/>
+        <location filename="chatroomwindow.cpp" line="610"/>
         <source>Get &amp;Information</source>
         <translation>&amp;Bilgi al</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="581"/>
+        <location filename="chatroomwindow.cpp" line="611"/>
         <source>Insert Smiley</source>
         <translation>Smiley Ekle</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="582"/>
+        <location filename="chatroomwindow.cpp" line="612"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Farklı Kaydet ...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="583"/>
+        <location filename="chatroomwindow.cpp" line="613"/>
         <source>Save this conversation</source>
         <translation>Bu konuşmayı kaydet</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="584"/>
+        <location filename="chatroomwindow.cpp" line="614"/>
         <source>Change Font...</source>
         <translation>Fontu Değiştir...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="585"/>
+        <location filename="chatroomwindow.cpp" line="615"/>
         <source>Change message font</source>
         <translation>İleti fontunu değiştir</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="586"/>
+        <location filename="chatroomwindow.cpp" line="616"/>
         <source>Change Color...</source>
         <translation>Renk Değiştir...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="587"/>
+        <location filename="chatroomwindow.cpp" line="617"/>
         <source>Change message text color</source>
         <translation>İleti yazı rengini değiştir</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="590"/>
+        <location filename="chatroomwindow.cpp" line="620"/>
         <source>&amp;Add Contacts...</source>
         <oldsource>&amp;Add A Contact...</oldsource>
         <translation>Kişi &amp;Ekle...</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="591"/>
+        <location filename="chatroomwindow.cpp" line="621"/>
         <source>Add people to this conversation</source>
         <oldsource>Add contacts to this conversation</oldsource>
         <translation>Bu görüşmeye kişi ekle</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="661"/>
+        <location filename="chatroomwindow.cpp" line="691"/>
         <source>You are no longer connected.</source>
         <translation>Bağlantınız Yok.</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="685"/>
+        <location filename="chatroomwindow.cpp" line="715"/>
         <source>Conversation</source>
         <translation>Görüşme</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="687"/>
+        <location filename="chatroomwindow.cpp" line="717"/>
         <source>Public Chat</source>
         <translation>Genel Sohbet</translation>
     </message>
@@ -1055,67 +1055,67 @@
         <translation type="obsolete">Font Ölçüsünü Değiştir</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="479"/>
+        <location filename="chatwindow.cpp" line="486"/>
         <source>Insert Smiley</source>
         <translation>Smiley Ekle</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="480"/>
+        <location filename="chatwindow.cpp" line="487"/>
         <source>Send A &amp;File...</source>
         <translation>Bir &amp;dosya gönder...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="481"/>
+        <location filename="chatwindow.cpp" line="488"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Farklı Kaydet ...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="482"/>
+        <location filename="chatwindow.cpp" line="489"/>
         <source>&amp;History</source>
         <translation>&amp;Geçmiş</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="483"/>
+        <location filename="chatwindow.cpp" line="490"/>
         <source>File &amp;Transfers</source>
         <translation>Dosya &amp;Transfer</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="485"/>
+        <location filename="chatwindow.cpp" line="492"/>
         <source>Send a file to %1</source>
         <translation>%1 alıcısına dosya gönder</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="488"/>
+        <location filename="chatwindow.cpp" line="495"/>
         <source>Save this conversation</source>
         <translation>Bu konuşmayı kaydet</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="489"/>
+        <location filename="chatwindow.cpp" line="496"/>
         <source>View History</source>
         <translation>Geçmişe Bakın</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="490"/>
+        <location filename="chatwindow.cpp" line="497"/>
         <source>View File Transfers</source>
         <translation>Dosya Transferine Bakın</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="491"/>
+        <location filename="chatwindow.cpp" line="498"/>
         <source>Change Font...</source>
         <translation>Fontu Değiştir...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="492"/>
+        <location filename="chatwindow.cpp" line="499"/>
         <source>Change message font</source>
         <translation>İleti fontunu değiştir</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="493"/>
+        <location filename="chatwindow.cpp" line="500"/>
         <source>Change Color...</source>
         <translation>Renk Değiştir...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="494"/>
+        <location filename="chatwindow.cpp" line="501"/>
         <source>Change message text color</source>
         <translation>İleti yazı rengini değiştir</translation>
     </message>
@@ -1132,37 +1132,37 @@
         <translation type="obsolete">İptal Edildi</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="347"/>
+        <location filename="chatwindow.cpp" line="354"/>
         <source>Select Font</source>
         <translation>Font Seç</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="353"/>
+        <location filename="chatwindow.cpp" line="360"/>
         <source>Select Color</source>
         <translation>Renk Seç</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="371"/>
+        <location filename="chatwindow.cpp" line="378"/>
         <source>Save Conversation</source>
         <translation>Konuşmayı kaydet</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="144"/>
+        <location filename="chatwindow.cpp" line="149"/>
         <source>Group Conversation</source>
         <translation>Grup Görüşmesi</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="162"/>
+        <location filename="chatwindow.cpp" line="168"/>
         <source>%1 says...</source>
         <translation>%1 diyorki ...</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="170"/>
+        <location filename="chatwindow.cpp" line="176"/>
         <source>Broadcast from %1</source>
         <translation>%1 kullanıcısından yayın iletisi var</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="208"/>
+        <location filename="chatwindow.cpp" line="215"/>
         <source>%1 sends a file...</source>
         <translation>%1 kullanıcısı dosya gönderiyor...</translation>
     </message>
@@ -1215,22 +1215,27 @@
         <translation type="obsolete">Reddet</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="606"/>
+        <location filename="chatwindow.cpp" line="613"/>
         <source>You are no longer connected.</source>
         <translation>Bağlantınız Yok.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="609"/>
+        <location filename="chatwindow.cpp" line="616"/>
         <source>%1 is offline.</source>
         <translation>%1 çevrimdışı.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="613"/>
+        <location filename="chatwindow.cpp" line="620"/>
+        <source>%1 is away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="624"/>
         <source>%1 is busy. You may be interrupting.</source>
         <translation>%1 meşgul, yanıt vermeyebilir.</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="637"/>
+        <location filename="chatwindow.cpp" line="648"/>
         <source>Conversation</source>
         <translation>Görüşme</translation>
     </message>
@@ -1238,12 +1243,18 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="91"/>
+        <location filename="lmc.cpp" line="122"/>
+        <location filename="lmc.cpp" line="164"/>
+        <source>LAYOUT_DIRECTION</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lmc.cpp" line="944"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
         <translation>Port adresinizde çakışma algılandı. %1 şimdi kapanacak.</translation>
     </message>
     <message>
-        <location filename="lmc.cpp" line="93"/>
+        <location filename="lmc.cpp" line="946"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
         <translation>%1 başlatılamıyor çünkü %2 adlı başka bir uygulama aynı portu kullanıyor.</translation>
     </message>
@@ -1273,7 +1284,7 @@
 <context>
     <name>lmcHistoryWindow</name>
     <message>
-        <location filename="historywindow.cpp" line="104"/>
+        <location filename="historywindow.cpp" line="108"/>
         <source>Message History</source>
         <translation>İleti Geçmişi</translation>
     </message>
@@ -1281,188 +1292,189 @@
 <context>
     <name>lmcMainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="166"/>
+        <location filename="mainwindow.cpp" line="181"/>
         <source>%1 is online.</source>
         <translation>%1 çevrimiçi.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="197"/>
+        <location filename="mainwindow.cpp" line="216"/>
         <source>%1 is offline.</source>
         <translation>%1 çevrimdışı.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="254"/>
+        <location filename="mainwindow.cpp" line="272"/>
         <source>You are online.</source>
         <translation>Çevrimiçisin.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="256"/>
+        <location filename="mainwindow.cpp" line="1076"/>
         <source>%1 - Not Connected</source>
         <translation>%1 - Bağlanamadı</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="258"/>
+        <location filename="mainwindow.cpp" line="274"/>
         <source>You are no longer connected.</source>
         <translation>Bağlantınız Kesildi.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="404"/>
+        <location filename="mainwindow.cpp" line="435"/>
         <source>Select avatar picture</source>
         <translation>Avatar resmi seç</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="523"/>
+        <location filename="mainwindow.cpp" line="554"/>
         <source>Add New Group</source>
         <translation>Yeni Grup Ekle</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="523"/>
+        <location filename="mainwindow.cpp" line="554"/>
         <source>Enter a name for the group</source>
         <translation>Grup İsmi giriniz</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="529"/>
-        <location filename="mainwindow.cpp" line="562"/>
+        <location filename="mainwindow.cpp" line="560"/>
+        <location filename="mainwindow.cpp" line="593"/>
         <source>A group named &apos;%1&apos; already exists. Please enter a different name.</source>
         <translation>%1&apos; grup adı zaten var. Lütfen farklı bir isim giriniz.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="555"/>
+        <location filename="mainwindow.cpp" line="586"/>
         <source>Rename Group</source>
         <translation>Grubu yeniden adlandır</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="556"/>
+        <location filename="mainwindow.cpp" line="587"/>
         <source>Enter a new name for the group</source>
         <translation>Grup için yeni isim giriniz</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="766"/>
+        <location filename="mainwindow.cpp" line="820"/>
         <source>&amp;Messenger</source>
         <translation>&amp;Messenger</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="767"/>
+        <location filename="mainwindow.cpp" line="821"/>
+        <location filename="mainwindow.cpp" line="854"/>
         <source>&amp;New Chat Room</source>
         <translation>&amp;Yeni Sohbet Odası</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="769"/>
+        <location filename="mainwindow.cpp" line="823"/>
         <source>&amp;Refresh Contacts List</source>
         <translation>&amp;Kişi Listesini Yenile</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="768"/>
-        <location filename="mainwindow.cpp" line="800"/>
+        <location filename="mainwindow.cpp" line="822"/>
+        <location filename="mainwindow.cpp" line="855"/>
         <source>&amp;Public Chat</source>
         <translation>&amp;Genel Sohbet</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="770"/>
-        <location filename="mainwindow.cpp" line="788"/>
+        <location filename="mainwindow.cpp" line="824"/>
+        <location filename="mainwindow.cpp" line="842"/>
         <source>E&amp;xit</source>
         <translation>&amp;Çıkış</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="771"/>
+        <location filename="mainwindow.cpp" line="825"/>
         <source>&amp;Tools</source>
         <translation>&amp;Araçlar</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="772"/>
-        <location filename="mainwindow.cpp" line="784"/>
+        <location filename="mainwindow.cpp" line="826"/>
+        <location filename="mainwindow.cpp" line="838"/>
         <source>&amp;History</source>
         <translation>&amp;Geçmiş</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="773"/>
-        <location filename="mainwindow.cpp" line="785"/>
+        <location filename="mainwindow.cpp" line="827"/>
+        <location filename="mainwindow.cpp" line="839"/>
         <source>File &amp;Transfers</source>
         <translation>Dosya &amp;Transferi</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="774"/>
-        <location filename="mainwindow.cpp" line="786"/>
+        <location filename="mainwindow.cpp" line="828"/>
+        <location filename="mainwindow.cpp" line="840"/>
         <source>&amp;Preferences</source>
         <translation>&amp;Tercihler</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="775"/>
-        <location filename="mainwindow.cpp" line="776"/>
+        <location filename="mainwindow.cpp" line="829"/>
+        <location filename="mainwindow.cpp" line="830"/>
         <source>&amp;Help</source>
         <translation>&amp;Yardım</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="777"/>
+        <location filename="mainwindow.cpp" line="831"/>
         <source>%1 &amp;online</source>
         <translation>%1 &amp;çevrimiçi</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="779"/>
+        <location filename="mainwindow.cpp" line="833"/>
         <source>Check for &amp;Updates...</source>
         <translation>Güncelleştirmeleri &amp;denetle...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="780"/>
-        <location filename="mainwindow.cpp" line="787"/>
+        <location filename="mainwindow.cpp" line="834"/>
+        <location filename="mainwindow.cpp" line="841"/>
         <source>&amp;About</source>
         <translation>&amp;Hakkında</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="781"/>
+        <location filename="mainwindow.cpp" line="835"/>
         <source>&amp;Show %1</source>
         <translation>%1 &amp;gösterilsin</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="783"/>
+        <location filename="mainwindow.cpp" line="837"/>
         <source>&amp;Change Status</source>
         <translation>&amp;Durumu Değiştir</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="789"/>
+        <location filename="mainwindow.cpp" line="843"/>
         <source>Add &amp;New Group</source>
         <translation>&amp;Yeni grup ekle</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="790"/>
+        <location filename="mainwindow.cpp" line="844"/>
         <source>&amp;Rename This Group</source>
         <translation>&amp;Bu grubu yeniden adlandır</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="791"/>
+        <location filename="mainwindow.cpp" line="845"/>
         <source>&amp;Delete This Group</source>
         <translation>&amp;Bu grubu sil</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="792"/>
-        <location filename="mainwindow.cpp" line="797"/>
+        <location filename="mainwindow.cpp" line="846"/>
+        <location filename="mainwindow.cpp" line="851"/>
         <source>&amp;Conversation</source>
         <translation>&amp;Görüşme</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="793"/>
-        <location filename="mainwindow.cpp" line="799"/>
+        <location filename="mainwindow.cpp" line="847"/>
+        <location filename="mainwindow.cpp" line="853"/>
         <source>Send &amp;Broadcast Message</source>
         <translation>&amp;Yayın iletisi gönder</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="794"/>
-        <location filename="mainwindow.cpp" line="798"/>
+        <location filename="mainwindow.cpp" line="848"/>
+        <location filename="mainwindow.cpp" line="852"/>
         <source>Send &amp;File</source>
         <translation>&amp;Dosya gönder</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="795"/>
+        <location filename="mainwindow.cpp" line="849"/>
         <source>Get &amp;Information</source>
         <translation>&amp;Bilgi al</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="796"/>
+        <location filename="mainwindow.cpp" line="850"/>
         <source>&amp;Browse for more pictures...</source>
         <translation>&amp;Daha fazla resime gözat...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="812"/>
+        <location filename="mainwindow.cpp" line="878"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
         <translation>%1 arkaplanda çalışmasına devam edecek. Uygulamayı açmak için ikonu aktif edin.</translation>
     </message>
@@ -1470,107 +1482,107 @@
 <context>
     <name>lmcMessageLog</name>
     <message>
-        <location filename="messagelog.cpp" line="395"/>
+        <location filename="messagelog.cpp" line="408"/>
         <source>Broadcast message from %1:</source>
         <translation>İleti %1 alıcısına gönderildi:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="145"/>
+        <location filename="messagelog.cpp" line="150"/>
         <source>This message was not delivered to %1:</source>
         <translation>İleti %1 alıcısına gönderilemedi:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="158"/>
+        <location filename="messagelog.cpp" line="163"/>
         <source>Your message was not sent.</source>
         <translation>İletiniz gönderilmedi.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="510"/>
+        <location filename="messagelog.cpp" line="523"/>
         <source>Sending &apos;%1&apos; to %2.</source>
         <translation>&apos;%1&apos;  %2 kullanıcısına gönderiliyor.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="520"/>
+        <location filename="messagelog.cpp" line="533"/>
         <source>Cancel</source>
         <translation>İptal</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="535"/>
+        <location filename="messagelog.cpp" line="548"/>
         <source>%1 is sending you a file:</source>
         <translation>%1 kullanıcısı size dosya gönderiyor:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="541"/>
+        <location filename="messagelog.cpp" line="554"/>
         <source>%1 sends you a file:</source>
         <translation>%1 kullanıcısı size dosya gönderiyor:</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="554"/>
+        <location filename="messagelog.cpp" line="567"/>
         <source>File has been accepted automatically.</source>
         <translation>Dosya otomatik olarak kabul edildi.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="556"/>
+        <location filename="messagelog.cpp" line="569"/>
         <source>Accept</source>
         <translation>Kabul Et</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="557"/>
+        <location filename="messagelog.cpp" line="570"/>
         <source>Decline</source>
         <translation>Reddet</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="608"/>
+        <location filename="messagelog.cpp" line="621"/>
         <source>Accepted</source>
         <translation>Kabul Edildi</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="608"/>
+        <location filename="messagelog.cpp" line="621"/>
         <source>You have accepted the file.</source>
         <translation>Dosya Transferini kabul ettniz.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="611"/>
+        <location filename="messagelog.cpp" line="624"/>
         <source>Declined</source>
         <translation>Reddedildi</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="611"/>
+        <location filename="messagelog.cpp" line="624"/>
         <source>You have declined the file.</source>
         <translation>Dosya Transferini reddettiniz.</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="614"/>
+        <location filename="messagelog.cpp" line="627"/>
         <source>Canceled</source>
         <translation>İptal Edildi</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="628"/>
+        <location filename="messagelog.cpp" line="641"/>
         <source>%1 is typing...</source>
         <translation>%1 yazarak...</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="631"/>
+        <location filename="messagelog.cpp" line="644"/>
         <source>%1 has entered text</source>
         <translation>%1 metin girmiştir</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="645"/>
+        <location filename="messagelog.cpp" line="658"/>
         <source>%1 has joined this conversation</source>
         <translation>%1 görüşmeye katıldı</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="648"/>
+        <location filename="messagelog.cpp" line="661"/>
         <source>%1 has left this conversation</source>
         <translation>%1 görüşmeden ayrıldı</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="722"/>
+        <location filename="messagelog.cpp" line="740"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopyala</translation>
     </message>
     <message>
-        <location filename="messagelog.cpp" line="723"/>
+        <location filename="messagelog.cpp" line="741"/>
         <source>Select &amp;All</source>
         <translation>Hepsini &amp;Seç</translation>
     </message>
@@ -1582,57 +1594,57 @@
         <translation type="obsolete">AaBbYyZz</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="164"/>
+        <location filename="settingsdialog.cpp" line="178"/>
         <source>Save History</source>
         <translation>Geçmişi Kaydet</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="171"/>
+        <location filename="settingsdialog.cpp" line="185"/>
         <source>Select folder</source>
         <translation>Dosya Seç</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="202"/>
+        <location filename="settingsdialog.cpp" line="216"/>
         <source>Select Font</source>
         <translation>Font Seç</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="208"/>
+        <location filename="settingsdialog.cpp" line="222"/>
         <source>Select Color</source>
         <translation>Renk Seç</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="214"/>
+        <location filename="settingsdialog.cpp" line="228"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
         <translation>%1 seçeneklerinizi sıfırlamak istediğinizden emin misiniz?</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="215"/>
+        <location filename="settingsdialog.cpp" line="229"/>
         <source>Reset Preferences</source>
         <translation>Ayarları Sıfırla</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="273"/>
+        <location filename="settingsdialog.cpp" line="296"/>
         <source>Preferences</source>
         <translation>Tercihler</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="281"/>
+        <location filename="settingsdialog.cpp" line="304"/>
         <source>System Tray (Not Available)</source>
         <translation>Sistem Simgesi(Uygun Değil)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="285"/>
+        <location filename="settingsdialog.cpp" line="308"/>
         <source>Status Alerts (Not Available)</source>
         <translation>Durum Uyarıları (Uygun Değil)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="289"/>
+        <location filename="settingsdialog.cpp" line="312"/>
         <source>Sounds (Not Available)</source>
         <translation>Sesler (Uygun Değil)</translation>
     </message>
     <message>
-        <location filename="settingsdialog.cpp" line="300"/>
+        <location filename="settingsdialog.cpp" line="326"/>
         <source>Check for updates</source>
         <translation>Güncelleştirmeleri denetle</translation>
     </message>
@@ -1640,12 +1652,12 @@
 <context>
     <name>lmcStrings</name>
     <message>
-        <location filename="strings.cpp" line="51"/>
+        <location filename="strings.cpp" line="55"/>
         <source>LAN Messenger</source>
         <translation>LAN Messenger</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="57"/>
+        <location filename="strings.cpp" line="61"/>
         <source>LAN Messenger is a free peer-to-peer messaging application for
 intra-network communication and does not require a server.
 LAN Messenger works on essentially every popular desktop platform.</source>
@@ -1654,114 +1666,134 @@ mesajlaşma uygulamasıdır ve sunucu gerektirmez.
 LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="65"/>
+        <location filename="strings.cpp" line="69"/>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="strings.cpp" line="75"/>
         <source>Small text</source>
         <translation>Küçük yazı</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="66"/>
+        <location filename="strings.cpp" line="76"/>
         <source>Medium text</source>
         <translation>Orta yazı</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="67"/>
+        <location filename="strings.cpp" line="77"/>
         <source>Large text</source>
         <translation>Büyük yazı</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="74"/>
+        <location filename="strings.cpp" line="84"/>
         <source>Available</source>
         <translation>Uygun</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="75"/>
+        <location filename="strings.cpp" line="85"/>
         <source>Busy</source>
         <translation>Meşgul</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="76"/>
+        <location filename="strings.cpp" line="86"/>
         <source>Do Not Disturb</source>
         <translation>Rahatsız Etmeyin</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="77"/>
+        <location filename="strings.cpp" line="87"/>
         <source>Be Right Back</source>
         <translation>Hemen Dönecek</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="78"/>
+        <location filename="strings.cpp" line="88"/>
         <source>Away</source>
         <translation>Uzakta</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="79"/>
+        <location filename="strings.cpp" line="89"/>
         <source>Appear Offline</source>
         <translation>Çevrimdışı Görün</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="86"/>
+        <location filename="strings.cpp" line="96"/>
         <source>Incoming message</source>
         <translation>Gelen ileti</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="87"/>
+        <location filename="strings.cpp" line="97"/>
         <source>User is online</source>
         <translation>Kullancı çevrimiçi</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="88"/>
+        <location filename="strings.cpp" line="98"/>
         <source>User is offline</source>
         <translation>Kullancı çevrimdışı</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="89"/>
+        <location filename="strings.cpp" line="99"/>
         <source>Incoming file transfer</source>
         <translation>Gelen dosya transferi</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="90"/>
+        <location filename="strings.cpp" line="100"/>
         <source>File transfer completed</source>
         <translation>Dosya transferi tamamlandı</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="97"/>
+        <location filename="strings.cpp" line="101"/>
+        <source>Incoming public message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="strings.cpp" line="108"/>
         <source>5 minutes</source>
         <translation>5 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="98"/>
+        <location filename="strings.cpp" line="109"/>
         <source>10 minutes</source>
         <translation>10 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="99"/>
+        <location filename="strings.cpp" line="110"/>
         <source>15 minutes</source>
         <translation>15 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="100"/>
+        <location filename="strings.cpp" line="111"/>
         <source>20 minutes</source>
         <translation>20 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="101"/>
+        <location filename="strings.cpp" line="112"/>
         <source>30 minutes</source>
         <translation>30 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="102"/>
+        <location filename="strings.cpp" line="113"/>
         <source>45 minutes</source>
         <translation>45 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="103"/>
+        <location filename="strings.cpp" line="114"/>
         <source>60 minutes</source>
         <translation>60 dakika</translation>
     </message>
     <message>
-        <location filename="strings.cpp" line="104"/>
+        <location filename="strings.cpp" line="115"/>
         <source>Never</source>
         <translation>Asla</translation>
+    </message>
+    <message>
+        <location filename="strings.cpp" line="122"/>
+        <source>Detailed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="strings.cpp" line="123"/>
+        <source>Compact</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1859,7 +1891,7 @@ LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</transla
 <context>
     <name>lmcUserSelectDialog</name>
     <message>
-        <location filename="userselectdialog.cpp" line="128"/>
+        <location filename="userselectdialog.cpp" line="132"/>
         <source>Select Contacts</source>
         <translation>Kişileri Seç</translation>
     </message>

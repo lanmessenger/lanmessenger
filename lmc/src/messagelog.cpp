@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 **
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 **
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 **
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -37,6 +37,38 @@ lmcMessageLog::lmcMessageLog(QWidget *parent) : QWebView(parent) {
 	page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	setRenderHints(QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
+	createContextMenu();
+
+	participantAvatars.clear();
+	hasData = false;
+	messageTime = false;
+	messageDate = false;
+	allowLinks = false;
+	pathToLink = false;
+	trimMessage = true;
+	fontSizeVal = 0;
+	sendFileMap.clear();
+	receiveFileMap.clear();
+	lastId = QString::null;
+	messageLog.clear();
+	linkHovered = false;
+	outStyle = false;
+	autoScroll = true;
+}
+
+lmcMessageLog::~lmcMessageLog() {
+}
+
+void lmcMessageLog::initMessageLog(QString themePath, bool clearLog) {
+	if(clearLog)
+		messageLog.clear();
+	lastId = QString::null;
+	this->themePath = themePath;
+	themeData = lmcTheme::loadTheme(themePath);
+	setHtml(themeData.document);
+}
+
+void lmcMessageLog::createContextMenu(void) {
 	QAction* action = pageAction(QWebPage::Copy);
 	action->setShortcut(QKeySequence::Copy);
 	addAction(action);
@@ -54,33 +86,6 @@ lmcMessageLog::lmcMessageLog(QWidget *parent) : QWebView(parent) {
 							SLOT(selectAllAction_triggered()), QKeySequence::SelectAll);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
-
-	participantAvatars.clear();
-	hasData = false;
-	messageTime = false;
-	messageDate = false;
-	allowLinks = false;
-	pathToLink = false;
-	trimMessage = true;
-	fontSizeVal = 0;
-	sendFileMap.clear();
-	receiveFileMap.clear();
-	lastId = QString::null;
-	messageLog.clear();
-	linkHovered = false;
-	outStyle = false;
-}
-
-lmcMessageLog::~lmcMessageLog() {
-}
-
-void lmcMessageLog::initMessageLog(QString themePath, bool clearLog) {
-	if(clearLog)
-		messageLog.clear();
-	lastId = QString::null;
-	this->themePath = themePath;
-	themeData = lmcTheme::loadTheme(themePath);
-	setHtml(themeData.document);
 }
 
 void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage,
@@ -249,19 +254,21 @@ QString lmcMessageLog::prepareMessageLogForSave(OutputFormat format) {
 	if(format == HtmlFormat) {
 		QString html =
 			"<html><head><style type='text/css'>"\
-			"*{font-size: 9pt;} span.salutation {float:left; font-weight: bold;}"\
-			"span.time {float: right;} span.message {clear: both; display: block;}"\
-			"p {border-bottom: 1px solid #CCC;}"\
+			"*{font-size: 9pt;} body {-webkit-nbsp-mode: space;}"\
+			"span.salutation {float:left; font-weight: bold;} span.time {float: right;}"\
+			"span.message {clear: both; display: block;} p {border-bottom: 1px solid #CCC;}"\
 			"</style></head><body>";
 
 		for(int index = 0; index < messageLog.count(); index++) {
 			SingleMessage msg = messageLog.at(index);
 			if(msg.type == MT_Message || msg.type == MT_GroupMessage) {
 				time.setMSecsSinceEpoch(msg.message.header(XN_TIME).toLongLong());
+				QString messageText = msg.message.data(XN_MESSAGE);
+				decodeMessage(&messageText, true);
 				QString htmlMsg =
 					"<p><span class='salutation'>" + msg.userName + ":</span>"\
 					"<span class='time'>" + time.time().toString(Qt::SystemLocaleShortDate) + "</span>"\
-					"<span class='message'>" + msg.message.data(XN_MESSAGE) + "</span></p>";
+					"<span class='message'>" + messageText + "</span></p>";
 				html.append(htmlMsg);
 			}
 		}
@@ -283,6 +290,10 @@ QString lmcMessageLog::prepareMessageLogForSave(OutputFormat format) {
 
 		return text;
 	}
+}
+
+void lmcMessageLog::setAutoScroll(bool enable) {
+	autoScroll = enable;
 }
 
 void lmcMessageLog::changeEvent(QEvent* event) {
@@ -340,8 +351,10 @@ void lmcMessageLog::log_linkClicked(QUrl url) {
 }
 
 void lmcMessageLog::log_contentsSizeChanged(QSize size) {
-	QWebFrame* frame = page()->mainFrame();
-	frame->scroll(0, size.height());
+	if(autoScroll) {
+		QWebFrame* frame = page()->mainFrame();
+		frame->scroll(0, size.height());
+	}
 }
 
 void lmcMessageLog::log_linkHovered(const QString& link, const QString& title, const QString& textContent) {
@@ -354,7 +367,7 @@ void lmcMessageLog::showContextMenu(const QPoint& pos) {
 	copyAction->setEnabled(!selectedText().isEmpty());
 	copyLinkAction->setEnabled(linkHovered);
 	//	Copy Link is currently hidden since it performs the same action as regular Copy
-	copyLinkAction->setVisible(false);
+	//copyLinkAction->setVisible(false);
 	selectAllAction->setEnabled(!page()->mainFrame()->documentElement().findFirst("body").firstChild().isNull());
 	contextMenu->exec(mapToGlobal(pos));
 }
@@ -686,21 +699,26 @@ void lmcMessageLog::fileOperation(QString fileId, QString action) {
 }
 
 //	Called when message received, before adding to message log
-void lmcMessageLog::decodeMessage(QString* lpszMessage) {
-	if(trimMessage)
+//	The useDefaults parameter is an override flag that will ignore app settings
+//	while decoding the message. If the flag is set, message is not trimmed,
+//	smileys are left as text and links will be detected and converted.
+void lmcMessageLog::decodeMessage(QString* lpszMessage, bool useDefaults) {
+	if(!useDefaults && trimMessage)
 		*lpszMessage = lpszMessage->trimmed();
 
 	ChatHelper::makeHtmlSafe(lpszMessage);
 
 	//	if smileys are enabled, replace text emoticons with corresponding images
-	if(showSmiley)
+	if(!useDefaults && showSmiley)
 		ChatHelper::decodeSmileys(lpszMessage);
 
 	lpszMessage->replace("\n", "<br/>");
-	if(allowLinks) {
+	if(useDefaults || allowLinks) {
 		lpszMessage->replace(QRegExp("(((https|http|ftp|file|smb):[/][/]|www.)[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"),
 							 "<a href='\\1'>\\1</a>");
-		if(pathToLink)
+		lpszMessage->replace("<a href='www", "<a href='http://www");
+
+		if(!useDefaults && pathToLink)
 			lpszMessage->replace(QRegExp("((\\\\\\\\[\\w-]+\\\\[^\\\\/:*?<>|""]+)((?:\\\\[^\\\\/:*?<>|""]+)*\\\\?)$)"),
 								 "<a href='file:\\1'>\\1</a>");
 	}

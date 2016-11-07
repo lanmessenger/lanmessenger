@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -65,12 +65,11 @@ void lmcBroadcastWindow::init(bool connected) {
 	setWindowIcon(QIcon(IDR_APPICON));
 	ui.splitter->setStyleSheet("QSplitter::handle { image: url("IDR_HGRIP"); }");
 
-	ui.tvUserList->setIconSize(QSize(32, 32));
+	ui.tvUserList->setIconSize(QSize(16, 16));
 	ui.tvUserList->header()->setMovable(false);
 	ui.tvUserList->header()->setStretchLastSection(false);
 	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui.tvUserList->header()->setResizeMode(1, QHeaderView::Fixed);
-	ui.tvUserList->header()->resizeSection(1, 38);
+	ui.tvUserList->setCheckable(true);
 
 	//	load settings
 	pSettings = new lmcSettings();
@@ -80,6 +79,8 @@ void lmcBroadcastWindow::init(bool connected) {
 	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
 	fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
 	pFontGroup->actions()[fontSizeVal]->setChecked(true);
+	int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.tvUserList->setView((UserListView)viewType);
 
 	//	show a message if not connected
 	bConnected = connected;
@@ -128,6 +129,8 @@ void lmcBroadcastWindow::connectionStateChanged(bool connected) {
 void lmcBroadcastWindow::settingsChanged(void) {
 	showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
 	sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
+	int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.tvUserList->setView((UserListView)viewType);
 }
 
 //	this method receives keyboard events and check if Enter key or Escape key were pressed
@@ -217,7 +220,7 @@ void lmcBroadcastWindow::tvUserList_itemChanged(QTreeWidgetItem* item, int colum
     Q_UNUSED(column);
 
 	//	if parent tree item was toggled, update all its children to the same state
-	//	if a child tree was toggled, two cases arise: 
+	//	if a child tree item was toggled, two cases arise:
 	//		if all its siblings and it are checked, update its parent to checked
 	//		if all its siblings and it are not checked, update its parent to unchecked
 	if(item->data(0, TypeRole).toString().compare("Group") == 0 && !childToggling) {

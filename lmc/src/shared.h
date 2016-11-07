@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -42,9 +42,11 @@ struct User {
 	QString status;
 	int avatar;
 	QString group;
+	QString note;
 
 	User(void) {}
-	User(QString szId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szGroup, int nAvatar) {
+	User(QString szId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szGroup,
+		 int nAvatar, QString szNote) {
 		this->id = szId;
 		this->version = szVersion;
 		this->address = szAddress;
@@ -52,6 +54,7 @@ struct User {
 		this->status = szStatus;
 		this->group = szGroup;
 		this->avatar = nAvatar;
+		this->note = szNote;
 	}
 };
 

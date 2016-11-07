@@ -40,8 +40,8 @@ SOURCES += \
     crypto.cpp \
     chatwindow.cpp \
     broadcastwindow.cpp \
-	aboutdialog.cpp \
-	xmlmessage.cpp \
+    aboutdialog.cpp \
+    xmlmessage.cpp \
     chathelper.cpp \
     theme.cpp \
     messagelog.cpp \
@@ -49,7 +49,9 @@ SOURCES += \
     webnetwork.cpp \
     userinfowindow.cpp \
     chatroomwindow.cpp \
-    userselectdialog.cpp
+    userselectdialog.cpp \
+    subcontrols.cpp \
+    trace.cpp
 
 HEADERS  += \
     usertreewidget.h \
@@ -57,7 +59,6 @@ HEADERS  += \
     udpnetwork.h \
     transferwindow.h \
     transferlistview.h \
-    toolbutton.h \
     tcpnetwork.h \
     strings.h \
     soundplayer.h \
@@ -81,12 +82,12 @@ HEADERS  += \
     chatdefinitions.h \
     broadcastwindow.h \
     history.h \
-	stdlocation.h \
+    stdlocation.h \
     definitions.h \
     datagram.h \
     crypto.h \
-	aboutdialog.h \
-	xmlmessage.h \
+    aboutdialog.h \
+    xmlmessage.h \
     chathelper.h \
     theme.h \
     messagelog.h \
@@ -94,7 +95,9 @@ HEADERS  += \
     webnetwork.h \
     userinfowindow.h \
     chatroomwindow.h \
-    userselectdialog.h
+    userselectdialog.h \
+    subcontrols.h \
+    trace.h
 
 FORMS += \
     transferwindow.ui \
@@ -118,7 +121,10 @@ TRANSLATIONS += \
 	tr_TR.ts \
 	es_ES.ts \
 	ko_KR.ts \
-	bg_BG.ts
+	bg_BG.ts \
+	ro_RO.ts \
+	ar_SA.ts \
+	sl_SI.ts
 
 win32: RC_FILE = lmcwin32.rc
 macx: ICON = lmc.icns
@@ -142,21 +148,4 @@ unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 INCLUDEPATH += $$PWD/../../openssl/include
 DEPENDPATH += $$PWD/../../openssl/include
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+win32:LIBS += -liphlpapi

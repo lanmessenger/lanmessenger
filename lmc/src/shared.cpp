@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -138,6 +138,9 @@ QString Helper::getOSName(void) {
     case QSysInfo::MV_SNOWLEOPARD:
         osName = "Mac OS X 10.6";
         break;
+	case QSysInfo::MV_LION:
+		osName = "Mac OS X 10.7";
+		break;
     default:
         osName = "Mac OS X";
         break;

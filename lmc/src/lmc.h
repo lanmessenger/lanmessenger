@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class lmcCore : public QObject {
 public:
 	lmcCore(void);
 	~lmcCore(void);
-	void init(void);
+	void init(bool silent, bool trace);
 	bool start(void);
 
 public slots:
@@ -81,10 +81,12 @@ private slots:
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
 	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
 	void addContacts(QString* lpszMinVersion, QStringList* pExcludList);
+	void chatWindow_closed(QString* lpszUserId);
+	void chatRoomWindow_closed(QString* lpszThreadId);
 
 private:
 	void stop(void);
-	void loadSettings(void);
+	void loadSettings(bool silent, bool trace);
 	void settingsChanged(void);
 	void processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
     void processFile(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
@@ -100,6 +102,7 @@ private:
 	void createChatRoomWindow(QString* lpszThreadId);
 	void showChatRoomWindow(lmcChatRoomWindow* chatRoomWindow, bool show, bool alert = false, bool add = false);
 	QStringList showSelectContacts(QWidget* parent, QString* minVersion, QStringList* excludeList);
+	void showPortConflictMessage(void);
 
 	lmcSettings*					pSettings;
 	QTimer*							pTimer;
@@ -119,6 +122,7 @@ private:
 	QPointer<lmcBroadcastWindow>	pBroadcastWindow;
 	bool							messageTop;
 	QString							lang;
+	bool							adaptiveRefresh;
 };
 
 #endif // LMC_H

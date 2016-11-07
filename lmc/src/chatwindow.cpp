@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ const qint64 pauseTime = 5000;
 
 lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent, flags) {
 	ui.setupUi(this);
+	//	Destroy the window when it closes
+	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAcceptDrops(true);
 
 	pMessageLog = new lmcMessageLog(ui.wgtLog);
@@ -59,6 +61,7 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 	peerStatuses.clear();
 	threadId = QString::null;
 	groupMode = false;
+	dataSaved = false;
 
 	chatState = CS_Blank;
 	keyStroke = 0;
@@ -102,6 +105,8 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 		setWindowIcon(QIcon(bubblePic[index]));
 		if(statusType[index] == StatusTypeOffline)
 			showStatus(IT_Offline, true);
+		else if(statusType[index] == StatusTypeAway)
+			showStatus(IT_Away, true);
 		else if(statusType[index] == StatusTypeBusy)
 			showStatus(IT_Busy, true);
 	}
@@ -136,12 +141,13 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 
 void lmcChatWindow::stop(void) {
 	bool saveHistory = pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool();
-	if(pMessageLog->hasData && saveHistory) {
+	if(pMessageLog->hasData && saveHistory && !dataSaved) {
 		QString szMessageLog = pMessageLog->prepareMessageLogForSave();
 		if(!groupMode)
 			History::save(peerNames.value(peerId), QDateTime::currentDateTime(), &szMessageLog);
 		else
 			History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
+		dataSaved = true;
 	}
 }
 
@@ -181,6 +187,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
 			setWindowIcon(QIcon(bubblePic[statusIndex]));
 			statusType[statusIndex] == StatusTypeOffline ? showStatus(IT_Offline, true) : showStatus(IT_Offline, false);
 			statusType[statusIndex] == StatusTypeBusy ? showStatus(IT_Busy, true) : showStatus(IT_Busy, false);
+			statusType[statusIndex] == StatusTypeAway ? showStatus(IT_Away, true) : showStatus(IT_Away, false);
 			peerStatuses.insert(senderId, data);
 		}
 		break;
@@ -300,6 +307,9 @@ void lmcChatWindow::changeEvent(QEvent* pEvent) {
 
 void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
 	setChatState(CS_Inactive);
+	// Call stop() to save history
+	stop();
+	emit closed(&peerId);
 
 	QWidget::closeEvent(pEvent);
 }
@@ -605,6 +615,10 @@ void lmcChatWindow::showStatus(int flag, bool add) {
 	} else if(!groupMode && (infoFlag & IT_Offline))  {
 		QString msg = tr("%1 is offline.");
 		ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
+		ui.lblInfo->setVisible(true);
+	} else if(!groupMode && (infoFlag & IT_Away)) {
+		QString msg = tr("%1 is away.");
+		ui.lblInfo->setText("<span style='color:rgb(255,115,0);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
 		ui.lblInfo->setVisible(true);
 	} else if(!groupMode && (infoFlag & IT_Busy)) {
 		QString msg = tr("%1 is busy. You may be interrupting.");

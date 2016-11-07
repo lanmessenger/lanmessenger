@@ -7,6 +7,9 @@ This product includes software developed by the OpenSSL Project for use in the O
 
 Special thanks to the following contributors:
 
+Adli Amansouri - Arabic translation
+Andrei Moldovanu - Romanian translation
+Darko Vrsic - Slovenian translation
 Diego Ortiz - Spanish translation
 Inanc Tanriover - Turkish translation
 Kim Chul-Hyun - Korean translation

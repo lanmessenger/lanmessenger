@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #include "settings.h"
 #include "history.h"
 #include "messagelog.h"
-#include "toolbutton.h"
+#include "subcontrols.h"
 #include "imagepickeraction.h"
 #include "soundplayer.h"
 #include "chatdefinitions.h"
@@ -73,6 +73,7 @@ signals:
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void showHistory(void);
 	void showTransfers(void);
+	void closed(QString* lpszUserId);
 
 protected:
 	bool eventFilter(QObject* pObject, QEvent* pEvent);
@@ -136,6 +137,7 @@ private:
 	ChatState chatState;
 	qint64 keyStroke;
 	qint64 snapKeyStroke;
+	bool dataSaved;
 };
 
 #endif // CHATWINDOW_H

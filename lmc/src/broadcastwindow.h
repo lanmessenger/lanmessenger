@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "shared.h"
 #include "settings.h"
 #include "imagepickeraction.h"
-#include "toolbutton.h"
+#include "subcontrols.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
 #include "xmlmessage.h"

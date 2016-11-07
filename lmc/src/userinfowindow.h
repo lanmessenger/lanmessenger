@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #define USERINFOWINDOW_H
 
 #include <QDialog>
-#include "ui_userinfodialog.h"
+#include "ui_userinfowindow.h"
 #include "shared.h"
 #include "settings.h"
 #include "stdlocation.h"
@@ -51,7 +51,7 @@ private:
 	void setUIText(void);
 	void fillFields(void);
 
-	Ui::UserInfoDialog ui;
+    Ui::UserInfoWindow ui;
 	lmcSettings* pSettings;
 	XmlMessage userInfo;
 };

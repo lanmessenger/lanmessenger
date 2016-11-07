@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -55,8 +55,9 @@ public:
 	~lmcMainWindow(void);
 
 	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);
-	void start(void);
+    void start(void);
 	void restore(void);
+	void minimize(void);
 	void stop(void);
 	void addUser(User* pUser);
 	void updateUser(User* pUser);
@@ -116,6 +117,8 @@ private slots:
 	void userBroadcastAction_triggered(void);
 	void userFileAction_triggered(void);
 	void userInfoAction_triggered(void);
+	void txtNote_returnPressed(void);
+	void txtNote_lostFocus(void);
 
 private:
 	void createMainMenu(void);
@@ -137,6 +140,8 @@ private:
 	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
 	void sendAvatar(QString* lpszUserId);
 	void setUserAvatar(QString* lpszUserId);
+	void processTrayIconTrigger(void);
+	void setTrayTooltip(void);
 
 	Ui::MainWindow ui;
 	lmcSettings* pSettings;
@@ -150,9 +155,11 @@ private:
 	QMenu* pAvatarMenu;
 	QMenu* pGroupMenu;
 	QMenu* pUserMenu;
+	QToolButton* btnStatus;
 	QAction* toolChatAction;
 	QAction* toolFileAction;
 	QAction* toolBroadcastAction;
+	QAction* toolChatRoomAction;
 	QAction* toolPublicChatAction;
 	User* pLocalUser;
 	bool bConnected;
@@ -162,9 +169,11 @@ private:
 	bool showMinimizeMsg;
 	bool minimizeHide;
 	bool singleClickActivation;
+	bool allowSysTrayMinimize;
 	bool showAlert;
 	bool noBusyAlert;
 	bool noDNDAlert;
+	bool statusToolTip;
 	lmcSoundPlayer* pSoundPlayer;
 	TrayMessageType lastTrayMessageType;
 	QActionGroup* statusGroup;

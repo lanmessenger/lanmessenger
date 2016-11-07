@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -26,10 +26,12 @@
 
 QString lmcStrings::m_appName;
 QString lmcStrings::m_appDesc;
+QString lmcStrings::m_autoConn;
 QStringList lmcStrings::m_fontSize;
 QStringList lmcStrings::m_statusDesc;
 QStringList lmcStrings::m_soundDesc;
 QStringList lmcStrings::m_awayTimeDesc;
+QStringList lmcStrings::m_userListView;
 
 lmcStrings::lmcStrings(void) {
 }
@@ -40,10 +42,12 @@ lmcStrings::~lmcStrings(void) {
 void lmcStrings::retranslate(void) {
 	m_appName.clear();
 	m_appDesc.clear();
+	m_autoConn.clear();
 	m_fontSize.clear();
 	m_statusDesc.clear();
 	m_soundDesc.clear();
 	m_awayTimeDesc.clear();
+	m_userListView.clear();
 }
 
 const QString lmcStrings::appName(void) {
@@ -58,6 +62,12 @@ const QString lmcStrings::appDesc(void) {
                        "intra-network communication and does not require a server.\n"\
                        "LAN Messenger works on essentially every popular desktop platform.");
 	return m_appDesc;
+}
+
+const QString lmcStrings::autoConn(void) {
+	if(m_autoConn.isEmpty())
+		m_autoConn = tr("Automatic");
+	return m_autoConn;
 }
 
 const QStringList lmcStrings::fontSize(void) {
@@ -88,6 +98,7 @@ const QStringList lmcStrings::soundDesc(void) {
 		m_soundDesc.append(tr("User is offline"));
 		m_soundDesc.append(tr("Incoming file transfer"));
 		m_soundDesc.append(tr("File transfer completed"));
+		m_soundDesc.append(tr("Incoming public message"));
 	}
 	return m_soundDesc;
 }
@@ -104,4 +115,12 @@ const QStringList lmcStrings::awayTimeDesc(void) {
 		m_awayTimeDesc.append(tr("Never"));
 	}
 	return m_awayTimeDesc;
+}
+
+const QStringList lmcStrings::userListView(void) {
+	if(m_userListView.isEmpty()) {
+		m_userListView.append(tr("Detailed"));
+		m_userListView.append(tr("Compact"));
+	}
+	return m_userListView;
 }

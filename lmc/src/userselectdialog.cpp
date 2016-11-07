@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 **
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 **
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 **
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -41,12 +41,11 @@ lmcUserSelectDialog::~lmcUserSelectDialog() {
 }
 
 void lmcUserSelectDialog::init(QList<QTreeWidgetItem*>* pContactsList) {
-	ui.tvUserList->setIconSize(QSize(32, 32));
+	ui.tvUserList->setIconSize(QSize(16, 16));
 	ui.tvUserList->header()->setMovable(false);
 	ui.tvUserList->header()->setStretchLastSection(false);
 	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui.tvUserList->header()->setResizeMode(1, QHeaderView::Fixed);
-	ui.tvUserList->header()->resizeSection(1, 38);
+	ui.tvUserList->setCheckable(true);
 
 	ui.tvUserList->clear();
 	for(int index = 0; index < pContactsList->count(); index++) {
@@ -57,6 +56,11 @@ void lmcUserSelectDialog::init(QList<QTreeWidgetItem*>* pContactsList) {
 		ui.tvUserList->addTopLevelItem(pItem);
 	}
 	ui.tvUserList->expandAll();
+
+	//	load settings
+	pSettings = new lmcSettings();
+	int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.tvUserList->setView((UserListView)viewType);
 
 	ui.btnOK->setEnabled(false);
 

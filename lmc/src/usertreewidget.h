@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,32 +25,59 @@
 #ifndef USERTREEWIDGET_H
 #define USERTREEWIDGET_H
 
+#include <QApplication>
 #include <QTreeWidget>
 #include <QMouseEvent>
 #include <QDragMoveEvent>
 #include <QString>
+#include <QStyledItemDelegate>
+#include <QPainter>
+#include "uidefinitions.h"
 
-class lmcUserTreeWidgetGroupItem : public QTreeWidgetItem {
+class lmcUserTreeWidgetItem : public QTreeWidgetItem {
 public:
-	lmcUserTreeWidgetGroupItem() : QTreeWidgetItem() {}
-	~lmcUserTreeWidgetGroupItem() {};
+	lmcUserTreeWidgetItem();
+	~lmcUserTreeWidgetItem() {}
+
+	QRect checkBoxRect(const QRect& itemRect);
 };
 
-class lmcUserTreeWidgetUserItem : public QTreeWidgetItem {
+class lmcUserTreeWidgetGroupItem : public lmcUserTreeWidgetItem {
 public:
-	lmcUserTreeWidgetUserItem() : QTreeWidgetItem() {}
-	~lmcUserTreeWidgetUserItem() {};
+	lmcUserTreeWidgetGroupItem() : lmcUserTreeWidgetItem() {}
+	~lmcUserTreeWidgetGroupItem() {}
+
+	void addChild(QTreeWidgetItem* child);
+};
+
+class lmcUserTreeWidgetUserItem : public lmcUserTreeWidgetItem {
+public:
+	lmcUserTreeWidgetUserItem() : lmcUserTreeWidgetItem() {}
+	~lmcUserTreeWidgetUserItem() {}
 
 private:
 	bool operator < (const QTreeWidgetItem& other) const;
+};
+
+class lmcUserTreeWidgetDelegate : public QStyledItemDelegate {
+public:
+	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+
+private:
+	void drawCheckBox(QPainter* painter, const QPalette& palette, const QRect& checkBoxRect, Qt::CheckState checkState) const;
 };
 
 class lmcUserTreeWidget : public QTreeWidget {
 	Q_OBJECT
 
 public:
-	lmcUserTreeWidget(QWidget* parent = 0) : QTreeWidget(parent) {}
+	lmcUserTreeWidget(QWidget* parent);
 	~lmcUserTreeWidget() {}
+
+	bool checkable(void);
+	void setCheckable(bool enable);
+	UserListView view(void);
+	void setView(UserListView view);
 
 signals:
 	void itemDragDropped(QTreeWidgetItem* item);
@@ -61,13 +88,18 @@ protected:
 	void dragMoveEvent(QDragMoveEvent* event);
 	void dropEvent(QDropEvent* event);
     void contextMenuEvent(QContextMenuEvent *event);
+	void mouseReleaseEvent(QMouseEvent* event);
+	void keyPressEvent(QKeyEvent* event);
 
 private:
+	lmcUserTreeWidgetDelegate* itemDelegate;
 	bool dragGroup;
 	bool dragUser;
 	QString parentId;
 	QTreeWidgetItem* dragItem;
 	bool expanded;
+	bool isCheckable;
+	UserListView viewType;
 };
 
 #endif // USERTREEWIDGET_H

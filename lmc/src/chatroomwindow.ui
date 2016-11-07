@@ -222,11 +222,8 @@
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
          <property name="indentation">
-          <number>12</number>
+          <number>0</number>
          </property>
          <property name="animated">
           <bool>true</bool>
@@ -240,11 +237,6 @@
          <column>
           <property name="text">
            <string notr="true">Contacts</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>.</string>
           </property>
          </column>
         </widget>

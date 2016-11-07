@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 **
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 **
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 **
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -95,18 +95,16 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 
 	pSoundPlayer = new lmcSoundPlayer();
 
-	ui.tvUserList->setIconSize(QSize(32, 32));
+	ui.tvUserList->setIconSize(QSize(16, 16));
 	ui.tvUserList->header()->setMovable(false);
 	ui.tvUserList->header()->setStretchLastSection(false);
 	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui.tvUserList->header()->setResizeMode(1, QHeaderView::Fixed);
-	ui.tvUserList->header()->resizeSection(1, 38);
 
 	lmcUserTreeWidgetGroupItem *pItem = new lmcUserTreeWidgetGroupItem();
 	pItem->setData(0, IdRole, GroupId);
 	pItem->setData(0, TypeRole, "Group");
 	pItem->setText(0, "Participants");
-	pItem->setSizeHint(0, QSize(0, 20));
+	pItem->setSizeHint(0, QSize(0, 22));
 	ui.tvUserList->addTopLevelItem(pItem);
 	ui.tvUserList->expandAll();
 
@@ -140,6 +138,9 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 
 	QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
 	pMessageLog->initMessageLog(themePath);
+
+	int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.tvUserList->setView((UserListView)viewType);
 
 	//	Destroy the window when it closes if in group mode
 	setAttribute(Qt::WA_DeleteOnClose, groupMode);
@@ -189,13 +190,13 @@ void lmcChatRoomWindow::addUser(User* pUser) {
 	pItem->setData(0, IdRole, pUser->id);
 	pItem->setData(0, TypeRole, "User");
 	pItem->setData(0, StatusRole, index);
+	pItem->setData(0, SubtextRole, pUser->note);
 	pItem->setText(0, pUser->name);
-	pItem->setSizeHint(0, QSize(0, 36));
 
 	if(index != -1)
 		pItem->setIcon(0, QIcon(QPixmap(statusPic[index], "PNG")));
 
-	QTreeWidgetItem* pGroupItem = getGroupItem(&GroupId);
+	lmcUserTreeWidgetGroupItem* pGroupItem = (lmcUserTreeWidgetGroupItem*)getGroupItem(&GroupId);
 	pGroupItem->addChild(pItem);
 	pGroupItem->sortChildren(0, Qt::AscendingOrder);
 
@@ -228,6 +229,7 @@ void lmcChatRoomWindow::updateUser(User* pUser) {
 	if(pItem) {
 		updateStatusImage(pItem, &pUser->status);
 		pItem->setData(0, StatusRole, Helper::statusIndexFromCode(pUser->status));
+		pItem->setData(0, SubtextRole, pUser->note);
 		pItem->setText(0, pUser->name);
 		QTreeWidgetItem* pGroupItem = pItem->parent();
 		pGroupItem->sortChildren(0, Qt::AscendingOrder);
@@ -282,7 +284,9 @@ void lmcChatRoomWindow::receiveMessage(MessageType type, QString* lpszUserId, Xm
 
 	switch(type) {
 	case MT_PublicMessage:
-		appendMessageLog(type, lpszUserId, &senderName, pMessage);
+		appendMessageLog(type, lpszUserId, &senderName, pMessage);	
+		if(isVisible() && !isActiveWindow())
+			pSoundPlayer->play(SE_NewPubMessage);
 		break;
 	case MT_GroupMessage:
 		appendMessageLog(type, lpszUserId, &senderName, pMessage);
@@ -347,6 +351,9 @@ void lmcChatRoomWindow::settingsChanged(void) {
 		pMessageLog->themePath = theme;
 		pMessageLog->reloadMessageLog();
 	}
+
+	int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
+	ui.tvUserList->setView((UserListView)viewType);
 }
 
 void lmcChatRoomWindow::selectContacts(QStringList* selectedContacts) {
@@ -404,6 +411,7 @@ void lmcChatRoomWindow::closeEvent(QCloseEvent* pEvent) {
 
 		// call stop procedure to save history
 		stop();
+		emit closed(&threadId);
 	}
 
 	QWidget::closeEvent(pEvent);
@@ -755,7 +763,7 @@ void lmcChatRoomWindow::setUserAvatar(QString* lpszUserId, QString* lpszFilePath
 
 	QPixmap avatar(filePath);
 	avatar = avatar.scaled(QSize(32, 32), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	pUserItem->setIcon(1, QIcon(avatar));
+	pUserItem->setData(0, AvatarRole, QIcon(avatar));
 
 	if(lpszFilePath)
 		filePath = *lpszFilePath;

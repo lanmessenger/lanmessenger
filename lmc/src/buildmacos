@@ -2,7 +2,7 @@
 
 if [ "$1" = "" ]; then
   echo "Error: Missing output folder path"
-  echo "Usage: custombuild /path/to/build/directory"
+  echo "Usage: buildmacos /path/to/build/directory"
   exit 1
 fi
 
@@ -38,10 +38,10 @@ if [ ! -d "$1/../Plugins/imageformats" ]; then
   fi
   mkdir "$1/../Plugins/imageformats"
 fi
-cp -v /Developer/Applications/Qt/plugins/imageformats/libqgif.dylib "$1/../Plugins/imageformats/libqgif.dylib"
-cp -v /Developer/Applications/Qt/plugins/imageformats/libqico.dylib "$1/../Plugins/imageformats/libqico.dylib"
-cp -v /Developer/Applications/Qt/plugins/imageformats/libqjpeg.dylib "$1/../Plugins/imageformats/libqjpeg.dylib"
-cp -v /Developer/Applications/Qt/plugins/imageformats/libqtiff.dylib "$1/../Plugins/imageformats/libqtiff.dylib"
+cp -v $QTDIR/plugins/imageformats/libqgif.dylib "$1/../Plugins/imageformats/libqgif.dylib"
+cp -v $QTDIR/plugins/imageformats/libqico.dylib "$1/../Plugins/imageformats/libqico.dylib"
+cp -v $QTDIR/plugins/imageformats/libqjpeg.dylib "$1/../Plugins/imageformats/libqjpeg.dylib"
+cp -v $QTDIR/plugins/imageformats/libqtiff.dylib "$1/../Plugins/imageformats/libqtiff.dylib"
 echo "Done."
 
 echo "Copying libraries..."

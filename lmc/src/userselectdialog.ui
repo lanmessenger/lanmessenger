@@ -21,9 +21,12 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QTreeWidget" name="tvUserList">
+    <widget class="lmcUserTreeWidget" name="tvUserList">
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="indentation">
+      <number>0</number>
      </property>
      <attribute name="headerVisible">
       <bool>false</bool>
@@ -31,11 +34,6 @@
      <column>
       <property name="text">
        <string>Contacts</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>.</string>
       </property>
      </column>
     </widget>
@@ -76,6 +74,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>lmcUserTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>usertreewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

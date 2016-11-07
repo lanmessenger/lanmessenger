@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -38,18 +38,22 @@ public:
 	static void retranslate(void);
 	static const QString appName(void);
 	static const QString appDesc(void);
+	static const QString autoConn(void);
 	static const QStringList fontSize(void);
 	static const QStringList statusDesc(void);
 	static const QStringList soundDesc(void);
 	static const QStringList awayTimeDesc(void);
+	static const QStringList userListView(void);
 
 private:
 	static QString m_appName;
 	static QString m_appDesc;
+	static QString m_autoConn;
 	static QStringList m_fontSize;
 	static QStringList m_statusDesc;
 	static QStringList m_soundDesc;
 	static QStringList m_awayTimeDesc;
+	static QStringList m_userListView;
 };
 
 #endif // STRINGS_H

@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 
 
 #include "messaging.h"
+#include "stdlocation.h"
+#include "trace.h"
 
 lmcMessaging::lmcMessaging(void) {
 	pNetwork = new lmcNetwork();
@@ -51,6 +53,8 @@ lmcMessaging::~lmcMessaging(void) {
 }
 
 void lmcMessaging::init(void) {
+	lmcTrace::write("Messaging initialized");
+
 	pNetwork->init();
 
 	QString logonName = Helper::getLogonName();
@@ -68,7 +72,8 @@ void lmcMessaging::init(void) {
 	QString userName = getUserName();
 
 	int nAvatar = pSettings->value(IDS_AVATAR, IDS_AVATAR_VAL).toInt();
-	localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus, QString::null, nAvatar);
+	QString userNote = pSettings->value(IDS_NOTE, IDS_NOTE_VAL).toString();
+	localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus, QString::null, nAvatar, userNote);
 
 	loadGroups();
 
@@ -83,6 +88,7 @@ void lmcMessaging::init(void) {
 }
 
 void lmcMessaging::start(void) {
+	lmcTrace::write("Messaging started");
 	pNetwork->start();
 
 	sendBroadcast(MT_Depart, NULL);
@@ -90,6 +96,7 @@ void lmcMessaging::start(void) {
 }
 
 void lmcMessaging::update(void) {
+	lmcTrace::write("Refreshing contacts list...");
 	sendBroadcast(MT_Announce, NULL);
 
 	for(int index = 0; index < userList.count(); index++)
@@ -104,6 +111,8 @@ void lmcMessaging::stop(void) {
 	pSettings->setValue(IDS_AVATAR, localUser->avatar);
 
 	saveGroups();
+
+	lmcTrace::write("Messaging stopped");
 }
 
 bool lmcMessaging::isConnected(void) {
@@ -187,30 +196,35 @@ void lmcMessaging::updateGroupMap(QString oldGroup, QString newGroup) {
 
 //	save groups and group mapping
 void lmcMessaging::saveGroups(void) {
-	pSettings->beginWriteArray(IDS_GROUPHDR);
+	QSettings groupSettings(StdLocation::groupFile(), QSettings::IniFormat);
+	groupSettings.beginWriteArray(IDS_GROUPHDR);
 	for(int index = 0; index < groupList.count(); index++) {
-		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_GROUP, groupList[index].id);
-		pSettings->setValue(IDS_GROUPNAME, groupList[index].name);
+		groupSettings.setArrayIndex(index);
+		groupSettings.setValue(IDS_GROUP, groupList[index].id);
+		groupSettings.setValue(IDS_GROUPNAME, groupList[index].name);
 	}
-	pSettings->endArray();
+	groupSettings.endArray();
 
-	pSettings->beginWriteArray(IDS_GROUPMAPHDR);
+	groupSettings.beginWriteArray(IDS_GROUPMAPHDR);
 	QMapIterator<QString, QString> i(userGroupMap);
 	int count = 0;
 	while(i.hasNext()) {
-		pSettings->setArrayIndex(count);
+		groupSettings.setArrayIndex(count);
 		i.next();
-		pSettings->setValue(IDS_USER, i.key());
-		pSettings->setValue(IDS_GROUP, i.value());
+		groupSettings.setValue(IDS_USER, i.key());
+		groupSettings.setValue(IDS_GROUP, i.value());
 		count++;
 	}
-	pSettings->endArray();
+	groupSettings.endArray();
 
 	// make sure the correct version is set in the preferences file
 	// so the group settings will not be wrongly migrated next time
 	// application starts
 	pSettings->setValue(IDS_VERSION, IDA_VERSION);
+}
+
+int lmcMessaging::userCount(void) {
+	return userList.count();
 }
 
 void lmcMessaging::network_connectionStateChanged(void) {
@@ -242,30 +256,31 @@ QString lmcMessaging::getUserName(void) {
 void lmcMessaging::loadGroups(void) {
 	bool defaultFound = false;
 
-	int size = pSettings->beginReadArray(IDS_GROUPHDR);
+	QSettings groupSettings(StdLocation::groupFile(), QSettings::IniFormat);
+	int size = groupSettings.beginReadArray(IDS_GROUPHDR);
 	for(int index = 0; index < size; index++) {
-		pSettings->setArrayIndex(index);
-		QString groupId = pSettings->value(IDS_GROUP).toString();
-		QString group = pSettings->value(IDS_GROUPNAME).toString();
+		groupSettings.setArrayIndex(index);
+		QString groupId = groupSettings.value(IDS_GROUP).toString();
+		QString group = groupSettings.value(IDS_GROUPNAME).toString();
 		groupList.append(Group(groupId, group));
 		// check if the default group is present in the group list
 		if(groupId.compare(GRP_DEFAULT_ID) == 0)
 			defaultFound = true;
 	}
-	pSettings->endArray();
+	groupSettings.endArray();
 
 	if(groupList.count() == 0 || !defaultFound)
 		groupList.append(Group(GRP_DEFAULT_ID, GRP_DEFAULT));
 
-	size = pSettings->beginReadArray(IDS_GROUPMAPHDR);
+	size = groupSettings.beginReadArray(IDS_GROUPMAPHDR);
 	for(int index = 0; index < size; index++)
 	{
-		pSettings->setArrayIndex(index);
-		QString user = pSettings->value(IDS_USER).toString();
-		QString group = pSettings->value(IDS_GROUP).toString();
+		groupSettings.setArrayIndex(index);
+		QString user = groupSettings.value(IDS_USER).toString();
+		QString group = groupSettings.value(IDS_GROUP).toString();
 		userGroupMap.insert(user, group);
 	}
-	pSettings->endArray();
+	groupSettings.endArray();
 }
 
 void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
@@ -281,6 +296,7 @@ void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
 	pMessage->addData(XN_ADDRESS, localUser->address);
 	pMessage->addData(XN_VERSION, localUser->version);
 	pMessage->addData(XN_STATUS, localUser->status);
+	pMessage->addData(XN_NOTE, localUser->note);
 	pMessage->addData(XN_LOGON, Helper::getLogonName());
 	pMessage->addData(XN_HOST, Helper::getHostName());
 	pMessage->addData(XN_OS, Helper::getOSName());
@@ -289,17 +305,20 @@ void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
 	pMessage->addData(XN_ABOUT, about);
 }
 
-bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar) {
+bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus,
+						   QString szAvatar, QString szNote) {
 	for(int index = 0; index < userList.count(); index++)
 		if(userList[index].id.compare(szUserId) == 0)
 			return false;
+
+	lmcTrace::write("Adding new user: " + szUserId + ", " + szVersion + ", " + szAddress);
 
 	if(!userGroupMap.contains(szUserId) || !groupList.contains(Group(userGroupMap.value(szUserId))))
 		userGroupMap.insert(szUserId, GRP_DEFAULT_ID);
 
 	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();
 
-	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId], nAvatar));
+	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId], nAvatar, szNote));
 	if(!szStatus.isNull()) {
 		XmlMessage xmlMessage;
 		xmlMessage.addHeader(XN_FROM, szUserId);
@@ -348,6 +367,13 @@ void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUser
 			pUser->name = szUserData;
 			updateMsg.addData(XN_NAME, pUser->name);
 			emit messageReceived(MT_UserName, &szUserId, &updateMsg);
+		}
+		break;
+	case MT_Note:
+		if(pUser->note.compare(szUserData) != 0) {
+			pUser->note = szUserData;
+			updateMsg.addData(XN_NOTE, pUser->note);
+			emit messageReceived(MT_Note, &szUserId, &updateMsg);
 		}
 		break;
 	case MT_Group:

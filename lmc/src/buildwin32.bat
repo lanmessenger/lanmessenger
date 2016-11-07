@@ -33,19 +33,27 @@ echo Copying plugins...
 if exist %1\imageformats goto plug_exists
 mkdir %1\imageformats
 :plug_exists
-if "%2" == "release" goto release_plug
+if "%2" == "release" goto release_mode
 echo %2
 xcopy %QTDIR%\plugins\imageformats\qgifd4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qicod4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qjpegd4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qtiffd4.dll %1\imageformats /I /F /Y
+
+echo Copying libraries
+copy /Y ..\..\lmcapp\bin\lmcappd.dll %1\lmcappd.dll
+copy /Y ..\..\openssl\bin\libeay32.dll %1\libeay32.dll
 goto end
 
-:release_plug
+:release_mode
 xcopy %QTDIR%\plugins\imageformats\qgif4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qico4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qjpeg4.dll %1\imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qtiff4.dll %1\imageformats /I /F /Y
+
+echo Copying libraries
+copy /Y ..\..\lmcapp\bin\lmcapp.dll %1\lmcapp.dll
+copy /Y ..\..\openssl\bin\libeay32.dll %1\libeay32.dll
 goto end
 
 :null_param

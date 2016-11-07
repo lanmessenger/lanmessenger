@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include <QMessageBox>
 #include <QTranslator>
+#include "trace.h"
 #include "lmc.h"
 
 lmcCore::lmcCore(void) {
@@ -68,11 +69,13 @@ lmcCore::lmcCore(void) {
 lmcCore::~lmcCore(void) {
 }
 
-void lmcCore::init(void) {
+void lmcCore::init(bool silent, bool trace) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
 
-	loadSettings();
+	loadSettings(silent, trace);
+
+	lmcTrace::write("Application initilized\nSettings loaded");
 
 	pMessaging->init();
 	pMainWindow->init(pMessaging->localUser, &pMessaging->groupList, pMessaging->isConnected());
@@ -80,20 +83,12 @@ void lmcCore::init(void) {
 }
 
 bool lmcCore::start(void) {
+	lmcTrace::write("Application started");
 	pMessaging->start();
 
-	if(!pMessaging->canReceive()) {
-		//	show message box, exit
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(lmcStrings::appName());
-		msgBox.setWindowIcon(QIcon(IDR_APPICON));
-		msgBox.setIcon(QMessageBox::Critical);
-		QString msg = tr("A port address conflict has been detected. %1 will close now.");
-		msgBox.setText(msg.arg(lmcStrings::appName()));
-		QString detail = tr("%1 cannot start because another application is using the port "\
-			"configured for use with %2.");
-		msgBox.setDetailedText(detail.arg(lmcStrings::appName(), lmcStrings::appName()));
-		msgBox.exec();
+	if(pMessaging->isConnected() && !pMessaging->canReceive()) {
+		showPortConflictMessage();
+		//	stop the application
 		stop();
 		return false;
 	}
@@ -102,24 +97,33 @@ bool lmcCore::start(void) {
 	
 	pTimer = new QTimer(this);
 	connect(pTimer, SIGNAL(timeout(void)), this, SLOT(timer_timeout(void)));
-	int refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt();
-	pTimer->start(refreshTime * 1000);
+	//	Set the timer to trigger 10 seconds after the application starts. After the
+	//	first trigger, the timeout period will be decided by user settings.
+	adaptiveRefresh = true;
+	pTimer->start(10000);
 	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 	lmcSettings::setAutoStart(autoStart);
 
 	return true;
 }
 
-void lmcCore::loadSettings(void) {
+//	This is the initial point where settings are used in the application
+void lmcCore::loadSettings(bool silent, bool trace) {
 	pSettings = new lmcSettings();
-	if(!pSettings->migrateSettings()) {
-		// settings were reset
+	if(!pSettings->migrateSettings() && !silent) {
+		// settings were reset. Show an alert if not in silent mode
 		QString message = tr("Your preferences file is corrupt or invalid.\n\n%1 is unable to recover your settings.");
 		QMessageBox::warning(NULL, lmcStrings::appName(), message.arg(lmcStrings::appName()));
 	}
 	lang = pSettings->value(IDS_LANGUAGE, IDS_LANGUAGE_VAL).toString();
 	Application::setLanguage(lang);
+	Application::setLayoutDirection(tr("LAYOUT_DIRECTION") == RTL_LAYOUT ? Qt::RightToLeft : Qt::LeftToRight);
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
+
+	//	Set the values of internal values used by the application
+	pSettings->setValue(IDS_SILENTMODE, silent);
+	pSettings->setValue(IDS_TRACEMODE, trace);
+	pSettings->setValue(IDS_LOGFILE, StdLocation::freeLogFile());
 }
 
 void lmcCore::settingsChanged(void) {
@@ -155,6 +159,7 @@ void lmcCore::settingsChanged(void) {
 	if(appLang.compare(lang) != 0) {
 		lang = appLang;
 		Application::setLanguage(lang);
+		Application::setLayoutDirection(tr("LAYOUT_DIRECTION") == RTL_LAYOUT ? Qt::RightToLeft : Qt::LeftToRight);
 		lmcStrings::retranslate();
 	}
 }
@@ -208,6 +213,8 @@ void lmcCore::stop(void) {
 
 	pMessaging->stop();
 	pMainWindow->stop();
+
+	lmcTrace::write("Application stopped");
 }
 
 //	This slot handles the exit signal emitted by main window when the user
@@ -221,11 +228,35 @@ void lmcCore::exitApp(void) {
 void lmcCore::aboutToExit(void) {
 	stop();
 	pSettings->setValue(IDS_VERSION, IDA_VERSION);
+
+	lmcTrace::write("Application exit");
+
+	//	Remove the internal values used by the application since they
+	//	need not be saved to persistent storage
+	pSettings->remove(IDS_SILENTMODE);
+	pSettings->remove(IDS_TRACEMODE);
+	pSettings->remove(IDS_LOGFILE);
+
 	pSettings->sync();
 }
 
 void lmcCore::timer_timeout(void) {
+	//	Refresh the contacts list whenever the timer triggers
 	pMessaging->update();
+	if(adaptiveRefresh) {
+		//	If no users have yet been discovered, aggressive polling is used until at least
+		//	one user has been discovered. The interval is retained at initial value of 10s.
+		if(pMessaging->userCount() == 0)
+			return;
+
+		//	If one or more users have been discovered, we increase the interval until the
+		//	refresh time defined by user is reached. Then keep refreshing at that interval.
+		int nextInterval = pTimer->interval() * 2;
+		int maxInterval = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
+		int refreshTime = qMin(nextInterval, maxInterval);
+		adaptiveRefresh = (nextInterval >= maxInterval) ? false : true;
+		pTimer->setInterval(refreshTime);
+	}
 }
 
 void lmcCore::startChat(QString* lpszUserId) {
@@ -253,9 +284,11 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 	case MT_UserName:
 	case MT_Message:
 	case MT_PublicMessage:
+	case MT_GroupMessage:
 	case MT_Query:
 	case MT_Group:
 	case MT_ChatState:
+	case MT_Note:
 	case MT_Version:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
@@ -291,17 +324,6 @@ void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMe
 	case MT_Avatar:
 		pMessaging->sendMessage(type, lpszUserId, pMessage);
 		break;
-	case MT_GroupMessage:
-		data = pMessage->data(XN_GROUPMSGOP);
-		if(data == GroupMsgOpNames[GMO_Leave]) {
-			for(int index = 0; index < chatRoomWindows.count(); index++)
-				if(chatRoomWindows[index]->threadId.compare(pMessage->data(XN_THREAD)) == 0) {
-					chatRoomWindows.removeAt(index);
-					break;
-				}
-		}
-		pMessaging->sendMessage(type, lpszUserId, pMessage);
-		break;
 	case MT_LocalAvatar:
 		processPublicMessage(type, lpszUserId, pMessage);
 		routeMessage(type, lpszUserId, pMessage);
@@ -328,8 +350,8 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 	//	remove duplicates
 	messageList = messageList.toSet().toList();
 
-	if(messageList.contains("/loopback")) {
-		if(messageList.contains("/new"))
+	if(messageList.contains("/new")) {
+		if(messageList.contains("/loopback"))
 			pMessaging->setLoopback(true);
 	}
 	if(messageList.contains("/nohistory")) {
@@ -343,6 +365,7 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 			pTransferWindow->updateList();
 	}
 	if(messageList.contains("/noconfig")) {
+		QFile::remove(StdLocation::avatarFile());
 		QFile::remove(pSettings->fileName());
 		pSettings->sync();
 		settingsChanged();
@@ -365,7 +388,7 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 	return doNotExit;
 }
 
-void lmcCore::connectionStateChanged() {
+void lmcCore::connectionStateChanged(void) {
 	bool connected = pMessaging->isConnected();
 
 	pMainWindow->connectionStateChanged(connected);
@@ -377,6 +400,11 @@ void lmcCore::connectionStateChanged() {
 		chatRoomWindows[index]->connectionStateChanged(connected);
 	if(pBroadcastWindow)
 		pBroadcastWindow->connectionStateChanged(connected);
+
+	if(pMessaging->isConnected() && !pMessaging->canReceive()) {
+		showPortConflictMessage();
+		exitApp();
+	}
 }
 
 void lmcCore::showTransfers(void) {
@@ -404,6 +432,7 @@ void lmcCore::showSettings(void) {
 		pSettingsDialog = new lmcSettingsDialog(pMainWindow);
 		connect(pSettingsDialog, SIGNAL(historyCleared()), this, SLOT(historyCleared()));
 		connect(pSettingsDialog, SIGNAL(fileHistoryCleared()), this, SLOT(fileHistoryCleared()));
+		pSettingsDialog->init();
 	}
 
 	if(pSettingsDialog->exec())
@@ -501,6 +530,24 @@ void lmcCore::addContacts(QString* lpszMinVersion, QStringList* pExcludList) {
 	chatRoomWindow->selectContacts(&selectedContacts);
 }
 
+void lmcCore::chatWindow_closed(QString* lpszUserId) {
+	for(int index = 0; index < chatWindows.count(); index++) {
+		if(chatWindows[index]->peerIds.contains(*lpszUserId)) {
+			chatWindows.removeAt(index);
+			break;
+		}
+	}
+}
+
+void lmcCore::chatRoomWindow_closed(QString* lpszThreadId) {
+	for(int index = 0; index < chatRoomWindows.count(); index++) {
+		if(chatRoomWindows[index]->threadId.compare(*lpszThreadId) == 0) {
+			chatRoomWindows.removeAt(index);
+			break;
+		}
+	}
+}
+
 void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	switch(type) {
 	case MT_Announce:
@@ -514,6 +561,7 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 		break;
 	case MT_Status:
 	case MT_UserName:
+	case MT_Note:
 		pMainWindow->updateUser(pMessaging->getUser(lpszUserId));
 		processPublicMessage(type, lpszUserId, pMessage);
 		routeMessage(type, lpszUserId, pMessage);
@@ -591,7 +639,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 		case MT_UserName:
 			for(int index = 0; index < chatWindows.count(); index++)
 				if(chatWindows[index]->peerIds.contains(*lpszUserId))
-					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);		
+					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 			break;
 		default:
 			for(int index = 0; index < chatWindows.count(); index++) {
@@ -641,6 +689,7 @@ void lmcCore::routeGroupMessage(MessageType type, QString* lpszUserId, XmlMessag
 			break;
 		case MT_Status:
 		case MT_UserName:
+		case MT_Note:
 			for(int index = 0; index < chatRoomWindows.count(); index++)
 				if(chatRoomWindows[index]->peerIds.contains(*lpszUserId)) {
 					chatRoomWindows[index]->updateUser(pMessaging->getUser(lpszUserId));
@@ -708,6 +757,7 @@ void lmcCore::processPublicMessage(MessageType type, QString* lpszUserId, XmlMes
 		break;
 	case MT_Status:
 	case MT_UserName:
+	case MT_Note:
 		// lpszUserId can be NULL if sent by local user
 		if(lpszUserId)
 			pPublicChatWindow->updateUser(pMessaging->getUser(lpszUserId));
@@ -716,6 +766,8 @@ void lmcCore::processPublicMessage(MessageType type, QString* lpszUserId, XmlMes
 		break;
 	case MT_PublicMessage:
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
+		if(!pPublicChatWindow->isHidden())
+			qApp->alert(pPublicChatWindow);
 		break;
 	case MT_LocalAvatar:
 		pPublicChatWindow->receiveMessage(type, lpszUserId, pMessage);
@@ -794,6 +846,7 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
 		this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
 	connect(pChatWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
 	connect(pChatWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
+	connect(pChatWindow, SIGNAL(closed(QString*)), this, SLOT(chatWindow_closed(QString*)));
 	pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());
 }
 
@@ -822,6 +875,7 @@ void lmcCore::createChatRoomWindow(QString* lpszThreadId) {
 	connect(pChatRoomWindow, SIGNAL(contactsAdding(QString*, QStringList*)),
 		this, SLOT(addContacts(QString*, QStringList*)));
 	connect(pChatRoomWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
+	connect(pChatRoomWindow, SIGNAL(closed(QString*)), this, SLOT(chatRoomWindow_closed(QString*)));
 	pChatRoomWindow->init(pLocalUser, pMessaging->isConnected(), *lpszThreadId);
 }
 
@@ -886,4 +940,18 @@ QStringList lmcCore::showSelectContacts(QWidget* parent, QString* minVersion, QS
 	pUserSelectDialog->deleteLater();
 
 	return selectedContacts;
+}
+
+void lmcCore::showPortConflictMessage(void) {
+	//	show message box
+	QMessageBox msgBox;
+	msgBox.setWindowTitle(lmcStrings::appName());
+	msgBox.setWindowIcon(QIcon(IDR_APPICON));
+	msgBox.setIcon(QMessageBox::Critical);
+	QString msg = tr("A port address conflict has been detected. %1 will close now.");
+	msgBox.setText(msg.arg(lmcStrings::appName()));
+	QString detail = tr("%1 cannot start because another application is using the port "\
+		"configured for use with %2.");
+	msgBox.setDetailedText(detail.arg(lmcStrings::appName(), lmcStrings::appName()));
+	msgBox.exec();
 }

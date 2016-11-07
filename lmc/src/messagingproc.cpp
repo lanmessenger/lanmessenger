@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 
+#include "trace.h"
 #include "messaging.h"
 
 //	A broadcast is to be sent
@@ -41,6 +42,7 @@ void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage
 		break;
 	case MT_Status:
 	case MT_UserName:
+	case MT_Note:
 	case MT_PublicMessage:
 		for(int index = 0; index < userList.count(); index++)
 			prepareMessage(type, msgId, false, &userList[index].id, pMessage);
@@ -85,6 +87,8 @@ void lmcMessaging::sendWebMessage(MessageType type, XmlMessage *pMessage) {
 
 	QString szUrl;
 
+	lmcTrace::write("Sending web message type " + QString::number(type));
+
 	switch(type) {
 	case MT_Version:
 		szUrl = QString(IDA_DOMAIN"/webservice.php?q=version&p="IDA_PLATFORM);
@@ -99,8 +103,10 @@ void lmcMessaging::sendWebMessage(MessageType type, XmlMessage *pMessage) {
 void lmcMessaging::receiveBroadcast(DatagramHeader* pHeader, QString* lpszData) {
 	MessageHeader* pMsgHeader = NULL;
 	XmlMessage* pMessage = NULL;
-	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage))
+	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage)) {
+		lmcTrace::write("Warning: Broadcast header parse failed");
 		return;
+	}
 	pMsgHeader->address = pHeader->address;
 	processBroadcast(pMsgHeader, pMessage);
 }
@@ -109,8 +115,10 @@ void lmcMessaging::receiveBroadcast(DatagramHeader* pHeader, QString* lpszData) 
 void lmcMessaging::receiveMessage(DatagramHeader* pHeader, QString* lpszData) {
 	MessageHeader* pMsgHeader = NULL;
 	XmlMessage* pMessage = NULL;
-	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage))
+	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage)) {
+		lmcTrace::write("Warning: Message header parse failed");
 		return;
+	}
 	pMsgHeader->address = pHeader->address;
 	processMessage(pMsgHeader, pMessage);
 }
@@ -119,18 +127,22 @@ void lmcMessaging::receiveMessage(DatagramHeader* pHeader, QString* lpszData) {
 void lmcMessaging::receiveWebMessage(QString *lpszData) {
 	MessageHeader* pMsgHeader = NULL;
 	XmlMessage* pMessage = NULL;
-	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage))
+	if(!Message::getHeader(lpszData, &pMsgHeader, &pMessage)) {
+		lmcTrace::write("Warning: Web message header parse failed");
 		return;
+	}
 
 	processWebMessage(pMsgHeader, pMessage);
 }
 
 //	Handshake procedure has been completed
 void lmcMessaging::newConnection(QString* lpszUserId, QString* lpszAddress) {
+	lmcTrace::write("Connection completed with user " + *lpszUserId + " at " + *lpszAddress);
 	sendUserData(MT_UserData, QO_Get, lpszUserId, lpszAddress);
 }
 
 void lmcMessaging::connectionLost(QString* lpszUserId) {
+	lmcTrace::write("Connection to user " + *lpszUserId + " lost");
 	removeUser(*lpszUserId);
 }
 
@@ -175,12 +187,14 @@ void lmcMessaging::receiveProgress(QString* lpszUserId, QString* lpszData) {
 }
 
 void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserId, QString* lpszAddress) {
+	lmcTrace::write("Sending local user details to user " + *lpszUserId + " at " + *lpszAddress);
 	XmlMessage xmlMessage;
 	xmlMessage.addData(XN_USERID, localUser->id);
 	xmlMessage.addData(XN_NAME, localUser->name);
 	xmlMessage.addData(XN_ADDRESS, localUser->address);
 	xmlMessage.addData(XN_VERSION, localUser->version);
 	xmlMessage.addData(XN_STATUS, localUser->status);
+	xmlMessage.addData(XN_NOTE, localUser->note);
 	xmlMessage.addData(XN_QUERYOP, QueryOpNames[op]);
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, lpszUserId, &xmlMessage);
 	pNetwork->sendMessage(lpszUserId, lpszAddress, &szMessage);
@@ -188,13 +202,16 @@ void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserI
 
 void lmcMessaging::prepareBroadcast(MessageType type, XmlMessage* pMessage) {
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, pMessage);
+	lmcTrace::write("Sending broadcast type " + QString::number(type));
 	pNetwork->sendBroadcast(&szMessage);
 }
 
 //	This method converts a Message from ui layer to a Datagram that can be passed to network layer
 void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, XmlMessage* pMessage) {
-	if(!isConnected())
+	if(!isConnected()) {
+		lmcTrace::write("Warning: Not connected. Message not sent");
 		return;
+	}
 
 	User* receiver = getUser(lpszUserId);
 
@@ -204,6 +221,9 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 		break;
 	case MT_UserName:
 		pMessage->addData(XN_NAME, localUser->name);
+		break;
+	case MT_Note:
+		pMessage->addData(XN_NOTE, localUser->note);
 		break;
 	case MT_Ping:
 		//	add message to pending list
@@ -244,9 +264,13 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
         break;
 	}
 
-	if(!receiver)
+	if(!receiver) {
+		lmcTrace::write("Warning: Recipient " + *lpszUserId + " not found. Message not sent");
 		return;
+	}
 
+	lmcTrace::write("Sending message type " + QString::number(type) + " to user " + receiver->id
+		+ " at " + receiver->address);
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, lpszUserId, pMessage);
 	pNetwork->sendMessage(&receiver->id, &receiver->address, &szMessage);
 }
@@ -261,6 +285,9 @@ void lmcMessaging::prepareFile(MessageType type, qint64 msgId, bool retry, QStri
 
 	User* user = getUser(lpszUserId);
 	QString szMessage = pMessage->toString();
+
+	lmcTrace::write("Sending file message type " + QString::number(fileOp) + " to user " + *lpszUserId
+		+ ", Mode: " + QString::number(fileMode));
 
 	switch(fileOp) {
 	case FO_Request:
@@ -283,6 +310,9 @@ void lmcMessaging::processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage
 	if(!loopback && pHeader->userId.compare(localUser->id) == 0)
 		return;
 
+	lmcTrace::write("Processing broadcast type " + QString::number(pHeader->type) + " from user " +
+		pHeader->userId);
+
 	switch(pHeader->type) {
 	case MT_Announce:
 		if(!getUser(&pHeader->userId))
@@ -301,13 +331,16 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 	QString data = QString::null;
 	XmlMessage reply;
 
+	lmcTrace::write("Processing message type " + QString::number(pHeader->type) + " from user " +
+		pHeader->userId);
+
 	switch(pHeader->type) {
 	case MT_UserData:
 		if(pMessage->data(XN_QUERYOP) == QueryOpNames[QO_Get])
 			sendUserData(pHeader->type, QO_Result, &pHeader->userId, &pHeader->address);
 		//	add the user only after sending back user data, this way both parties will have added each other
 		addUser(pMessage->data(XN_USERID), pMessage->data(XN_VERSION), pMessage->data(XN_ADDRESS),
-			pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString::null);
+			pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString::null, pMessage->data(XN_NOTE));
 		break;
 	case MT_Broadcast:
 		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
@@ -318,6 +351,10 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 		break;
 	case MT_UserName:
 		data = pMessage->data(XN_NAME);
+		updateUser(pHeader->type, pHeader->userId, data);
+		break;
+	case MT_Note:
+		data = pMessage->data(XN_NOTE);
 		updateUser(pHeader->type, pHeader->userId, data);
 		break;
 	case MT_Message:
@@ -377,6 +414,9 @@ void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
 	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
 	QString szMessage = pMessage->toString();
 
+	lmcTrace::write("Processing file message type " + QString::number(fileOp) + " from user " +
+		pHeader->userId + ", Mode: " + QString::number(fileMode));
+
 	switch(fileOp) {
 	case FO_Request:
 		emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
@@ -413,6 +453,8 @@ void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
 }
 
 void lmcMessaging::processWebMessage(MessageHeader* pHeader, XmlMessage *pMessage) {
+	lmcTrace::write("Processing web message type " + QString::number(pHeader->type));
+
 	switch(pHeader->type) {
 	case MT_Version:
 		emit messageReceived(pHeader->type, NULL, pMessage);

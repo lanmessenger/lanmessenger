@@ -1,11 +1,11 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** This file is part of LAN Messenger.
-** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
-** 
-** Contact:  dilipvrk@gmail.com
-** 
+**
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
+**
+** Contact:  qualiatech@gmail.com
+**
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
@@ -22,25 +22,28 @@
 ****************************************************************************/
 
 
-#ifndef TOOLBUTTON_H
-#define TOOLBUTTON_H
+#ifndef TRACE_H
+#define TRACE_H
 
-#include <QStylePainter>
-#include <QStyleOption>
-#include <QToolButton>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDir>
+#include "stdlocation.h"
+#include "settings.h"
 
-class lmcToolButton : public QToolButton {
+class lmcTrace {
 public:
-	lmcToolButton(QWidget* parent = 0) : QToolButton(parent) {}
+	lmcTrace(void);
+	~lmcTrace(void);
 
-protected:
-	virtual void paintEvent(QPaintEvent*) {
-		QStylePainter p(this);
-		QStyleOptionToolButton opt;
-		initStyleOption(&opt);
-		opt.features &= (~QStyleOptionToolButton::HasMenu);
-		p.drawComplexControl(QStyle::CC_ToolButton, opt);
-	}
+	static void write(const QString& string);
+
+private:
+	static void init(void);
+
+	static bool traceMode;
+	static QString fileName;
 };
 
-#endif //TOOLBUTTON_H
+#endif // TRACE_H

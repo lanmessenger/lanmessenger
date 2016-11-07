@@ -10,6 +10,10 @@
 ;   -Streamlined to include variable number of setup files
 ; 2.2
 ;   -Added support for silent install/uninstall
+; 2.3
+;	-Uses the /silent switch to execute the application exe silently
+; 2.4
+;	-Setup now takes care of the log folder while install/uninstall
 
 
 ;Define the compression to be used (lzma gives best compression)
@@ -27,8 +31,8 @@ SetCompressor /SOLID lzma
   
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
-  !define ProductVersion "1.2.16"
-  !define InstallerVersion "1.2.1.6"
+  !define ProductVersion "1.2.25"
+  !define InstallerVersion "1.2.2.5"
   !define ProductUrl "http://lanmsngr.sourceforge.net"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"
   !define AppRegKey "${CompanyRegKey}\${ProductName}"
@@ -160,6 +164,7 @@ Section
   CreateDirectory "${AppDataDir}\cache"
   CreateDirectory "${AppDataDir}\lang"
   CreateDirectory "${AppDataDir}\themes"
+  CreateDirectory "${AppDataDir}\logs"
   
   ;Create directory in user's Documents folder storing received files
   CreateDirectory "$DOCUMENTS\Received Files"
@@ -177,7 +182,7 @@ Section
   ;Write the application path into the startup application group in registry
   ;based on the value in the settings file. Calling application with /sync
   ;switch will handle this.
-  ExecWait "$INSTDIR\${AppExec} /sync /quit"
+  ExecWait "$INSTDIR\${AppExec} /silent /sync /quit"
 
   ;Write the uninstall keys for Windows  
   WriteRegStr HKLM "${UninstKey}" "DisplayName" "${ProductName}"
@@ -201,8 +206,8 @@ Section
   CreateDirectory "${StartMenuDir}"
   CreateShortCut "${StartMenuDir}\${ProductName}.lnk" "$INSTDIR\${AppExec}" "" "$INSTDIR\${AppExec}" \
     0 SW_SHOWNORMAL "" "Send or receive instant messages."
-  ;CreateShortCut "${StartMenuDir}\${ProductName} - Debug.lnk" "$INSTDIR\${AppExec}" "-debug" "$INSTDIR\${AppExec}" \
-  ;  0 SW_SHOWNORMAL "" "Start ${ProductName} in debug mode."
+  ;CreateShortCut "${StartMenuDir}\${ProductName} - Loopback.lnk" "$INSTDIR\${AppExec}" "/loopback" "$INSTDIR\${AppExec}" \
+  ;  0 SW_SHOWNORMAL "" "Start ${ProductName} in loopback mode."
   CreateShortCut "${StartMenuDir}\Uninstall ${ProductName}.lnk" "$INSTDIR\${Uninstaller}" "" "$INSTDIR\${Uninstaller}" \
     0 SW_SHOWNORMAL "" "Uninstall ${ProductName}"
   SetShellVarContext current
@@ -236,13 +241,14 @@ Section "Uninstall"
   
   DetailPrint "Removing files and folders"
   ;Delete settings and history files if selected by user
-  ExecWait "$INSTDIR\${AppExec} $DeleteHistory $DeleteSettings /unsync /quit"
+  ExecWait "$INSTDIR\${AppExec} $DeleteHistory $DeleteSettings /silent /unsync /quit"
 
   RMDir "$DOCUMENTS\Received Files"
   
   RMDir /r "${AppDataDir}\cache"
   RMDir /r "${AppDataDir}\themes"
   RMDir /r "${AppDataDir}\lang"
+  RMDir /r "${AppDataDir}\logs"
   
   RMDir "${AppDataDir}"
   RMDir "${CompanyDataDir}"
@@ -347,7 +353,7 @@ SectionEnd
     
     CloseApp:
     ;Run the application with /term switch to terminate the running instance.
-    ExecWait "$INSTDIR\${AppExec} /term"
+    ExecWait "$INSTDIR\${AppExec} /silent /term"
     
     NotRunning:
     

@@ -2,7 +2,7 @@ How to compile LAN Messenger
 ============================
 
 You need Qt (http://qt.nokia.com/) to compile.
-I built LAN Messenger using Qt 4.7, so you probably need that or a 
+I built LAN Messenger using Qt 4.8, so you probably need that or a 
 later version.
 
 You also need OpenSSL (http://www.openssl.org/)
@@ -32,7 +32,7 @@ only provide generic help.
 Important: Its better if your project paths do not contain any white spaces.
 Some tools do not work properly with paths containing spaces. Use paths that
 do not have spaces to avoid headaches down the lane.
-Creating projects on your dektop is a BAD idea.
+Saving project files to your dektop is a BAD idea.
 
 
 Compiling/Installing OpenSSL
@@ -73,6 +73,15 @@ Mac OS X
 Mac OS X ships with a binary package of OpenSSL, so there is not need to
 compile. You can link the project with this package even if it is an older 
 version than the one found on OpenSSl web site.
+
+
+Compiling LAN Messenger
+=======================
+Some custom scripts are used for automating part of the compilation and setup
+of LAN Messenger. These scripts rely on an environment variable called
+QTDIR that should contain the path where Qt libraries are installed. More
+specifically, it should point to the parent folder of the bin and lib folders
+where Qt binaries reside. Eg: C:\Qt\4.8.0 on Windows.
 
 
 Compiling LAN Messenger on Windows
@@ -131,11 +140,11 @@ Note: OpenSSL paths may be different depending on how it was built/installed
 in your system.
 
 Once you have built lmc, run the "buildx11" shell script. This script 
-performs the same actions as its Windows counterpart. It does not depend 
-on any environment variable. You can add the execution of this script as 
-a custom build step to automate the whole process. If you get an error while
-executing the script, edit the script to make sure that the Qt plugins path
-in the script is correct.
+performs the same actions as its Windows counterpart. The script depends
+on the QTDIR environment variable, so make sure it is set correctly. You
+can add the execution of this script as a custom build step to automate 
+the whole process. If you get an error while executing the script, edit 
+the script to make sure that the Qt plugins path in the script is correct.
 
 
 Compiling LAN Messenger on Mac OS X
@@ -154,11 +163,11 @@ Note: There is no need to link to OpenSSL since it is present as a system
 library on Mac OS X.
 
 Once you have built lmc, run the "buildmacos" shell script. This script 
-performs the same actions as its Windows counterpart. It does not depend 
-on any environment variable. You can add the execution of this script as 
-a custom build step to automate the whole process. If you get an error while
-executing the script, edit the script to make sure that the Qt plugins path
-in the script is correct.
+performs the same actions as its Windows counterpart. The script depends 
+on the QTDIR environment variable, so make sure it is set correctly. 
+You can add the execution of this script as a custom build step to automate
+the whole process. If you get an error while executing the script, edit 
+the script to make sure that the Qt plugins path in the script is correct.
 
 Note: On Mac OS X, option to start LAN Messenger on startup will not work.
 This is a platform dependent function and I have not implemented it.

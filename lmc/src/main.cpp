@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ int showSwitches(void) {
 					"\n" \
 					"Some command line switches are mutually exclusive. If multiple switches\n" \
 					"are specified, they will take precedence in the order given above.\n" \
-					"Copyright (C) 2010-2011 Dilip Radhakrishnan.\n";
+					"Copyright (C) 2010-2012 Qualia Digital Solutions.\n";
 	QMessageBox::information(NULL, IDA_TITLE, msg, QMessageBox::Ok);
 	return 0;
 }
@@ -77,6 +77,8 @@ int main(int argc, char *argv[]) {
 
 	QString messageList;
 	QString message;
+	bool silent = false;
+	bool trace = false;
 
 	for(int index = 1; index < argc; index++) {
 		message = QString(argv[index]).toLower();
@@ -84,8 +86,13 @@ int main(int argc, char *argv[]) {
 			return showSwitches();
 		else if(message.compare("/inst") == 0)
 			return application.isRunning() ? 1 : 0;
-		else
+		else {
+			if(!silent && message.compare("/silent") == 0)
+				silent = true;
+			if(!trace && message.compare("/trace") == 0)
+				trace = true;
 			messageList += message + " ";
+		}
 	}
 
 	if(application.sendMessage(messageList))
@@ -95,8 +102,13 @@ int main(int argc, char *argv[]) {
 	application.loadTranslations(StdLocation::sysLangDir());
 	application.loadTranslations(StdLocation::userLangDir());
 
+	//	Enable tracing for Windows and Mac
+#ifndef Q_WS_X11
+	trace = true;
+#endif
+
 	lmcCore core;
-	core.init();
+	core.init(silent, trace);
 	messageList += "/new";	//	indicates this is a new instance
 	if(!core.receiveAppMessage(messageList))	//	handle command line args if this is first instance
 		return 0;

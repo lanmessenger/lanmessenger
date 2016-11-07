@@ -2,9 +2,9 @@
 **
 ** This file is part of LAN Messenger.
 ** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 ** 
-** Contact:  dilipvrk@gmail.com
+** Contact:  qualiatech@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@
 #define IDR_BROADCASTMSG	":/images/broadcastmsg"
 #define IDR_FILEMSG			":/images/filemsg"
 #define IDR_CHATROOM		":/images/chatroom"
+#define IDR_NEWCHATROOM		":/images/newchatroom"
 #define IDR_ADDCONTACT		":/images/addcontact"
 #define IDR_GENERALSET		":/images/systemsettings"
 #define IDR_ACCOUNTSET		":/images/usersettings"
@@ -79,10 +80,12 @@
 
 //	item data role definitions
 enum ItemDataRole {
-	IdRole = Qt::UserRole + 1,
-	TypeRole,
-	DataRole,
-	StatusRole
+	IdRole = Qt::UserRole + 1,	// Unique Id of the item
+	TypeRole,	//	Whether item represents a Group or a User
+	DataRole,	//	Custom data associated with the item
+	StatusRole,	//	Status of the User
+	AvatarRole,	//	Avatar image of the User
+	SubtextRole	//	Subtext to be displayed on the item
 };
 
 //	font size definitions
@@ -240,6 +243,7 @@ enum SoundEvent {
 	SE_UserOffline,
 	SE_NewFile,
 	SE_FileDone,
+	SE_NewPubMessage,
 	SE_Max
 };
 
@@ -248,13 +252,30 @@ enum SoundEvent {
 #define SND_USEROFFLINE		"./sounds/useroffline.wav"
 #define SND_NEWFILE			"./sounds/newfile.wav"
 #define SND_FILEDONE		"./sounds/filedone.wav"
+#define SND_NEWPUBMESSAGE	SND_NEWMESSAGE
 
-#define SE_COUNT	5
-//const QString soundDesc[] = {"Incoming message", "User is online", "User is offline", "Incoming file transfer", "File transfer completed"};
-const QString soundFile[] = {SND_NEWMESSAGE, SND_USERONLINE, SND_USEROFFLINE, SND_NEWFILE, SND_FILEDONE};
+#define SE_COUNT	6
+const QString soundFile[] = {SND_NEWMESSAGE, SND_USERONLINE, SND_USEROFFLINE, SND_NEWFILE, SND_FILEDONE, SND_NEWPUBMESSAGE};
 
 #define AT_COUNT	8
-//const QString awayTimeDesc[] = {"5 minutes", "10 minutes", "15 minutes", "20 minutes", "30 minutes", "45 minutes", "60 minutes", "Never"};
 const int awayTimeVal[] = {5, 10, 15, 20, 30, 45, 60, 0};
+
+//	User list views
+enum UserListView {
+	ULV_Detailed = 0,
+	ULV_Compact,
+	ULV_Max
+};
+
+#define ULV_COUNT	2
+const int itemViewHeight[] = {36, 20};
+
+#define RTL_LAYOUT			"RTL"
+
+#ifdef Q_WS_MAC
+#define GRAY_TEXT_COLOR     QApplication::palette().color(QPalette::Shadow).darker(175)
+#else
+#define GRAY_TEXT_COLOR     QApplication::palette().color(QPalette::Shadow)
+#endif
 
 #endif // UIDEFINITIONS_H
