@@ -14,6 +14,8 @@
 ;	-Uses the /silent switch to execute the application exe silently
 ; 2.4
 ;	-Setup now takes care of the log folder while install/uninstall
+; 2.5
+;	-Added support for the /config switch to specify a config file during installation
 
 
 ;Define the compression to be used (lzma gives best compression)
@@ -24,6 +26,7 @@ SetCompressor /SOLID lzma
 
   !include MUI2.nsh
   !include nsDialogs.nsh
+  !include "FileFunc.nsh"
 
   
 ;------------------------------------------------------------------------------
@@ -31,8 +34,8 @@ SetCompressor /SOLID lzma
   
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
-  !define ProductVersion "1.2.28"
-  !define InstallerVersion "1.2.2.8"
+  !define ProductVersion "1.2.30"
+  !define InstallerVersion "1.2.3.0"
   !define ProductUrl "http://lanmsngr.sourceforge.net"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"
   !define AppRegKey "${CompanyRegKey}\${ProductName}"
@@ -129,6 +132,7 @@ SetCompressor /SOLID lzma
   Var DeleteSettings
   Var BrandText
   Var SilentMode
+  Var ConfigFile
   
 ;------------------------------------------------------------------------------
 ;Installer Sections
@@ -179,10 +183,16 @@ Section
   WriteRegStr HKLM "${AppRegKey}" "Version" "${ProductVersion}"
   WriteRegStr HKLM "${AppRegkey}" "FirstRun" "0"
   
+  StrCpy $ConfigFile ""
+  ${GetParameters} $R0
+  ${GetOptions} $R0 "/config=" $R1
+  IfErrors +2 +1
+  StrCpy $ConfigFile "/config=$\"$R1$\""
+  
   ;Write the application path into the startup application group in registry
   ;based on the value in the settings file. Calling application with /sync
   ;switch will handle this.
-  ExecWait "$INSTDIR\${AppExec} /silent /sync /quit"
+  ExecWait "$INSTDIR\${AppExec} $ConfigFile /silent /sync /quit"
 
   ;Write the uninstall keys for Windows  
   WriteRegStr HKLM "${UninstKey}" "DisplayName" "${ProductName}"

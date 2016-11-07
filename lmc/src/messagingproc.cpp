@@ -201,9 +201,10 @@ void lmcMessaging::sendUserData(MessageType type, QueryOp op, QString* lpszUserI
 }
 
 void lmcMessaging::prepareBroadcast(MessageType type, XmlMessage* pMessage) {
-	QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, pMessage);
 	lmcTrace::write("Sending broadcast type " + QString::number(type));
+	QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, pMessage);
 	pNetwork->sendBroadcast(&szMessage);
+	lmcTrace::write("Broadcast sending done");
 }
 
 //	This method converts a Message from ui layer to a Datagram that can be passed to network layer
@@ -273,6 +274,7 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 		+ " at " + receiver->address);
 	QString szMessage = Message::addHeader(type, msgId, &localUser->id, lpszUserId, pMessage);
 	pNetwork->sendMessage(&receiver->id, &receiver->address, &szMessage);
+	lmcTrace::write("Message sending done");
 }
 
 void lmcMessaging::prepareFile(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, XmlMessage* pMessage) {
@@ -324,6 +326,8 @@ void lmcMessaging::processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage
     default:
         break;
 	}
+
+	lmcTrace::write("Broadcast processing done");
 }
 
 void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) {
@@ -407,6 +411,8 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
     default:
         break;
 	}
+
+	lmcTrace::write("Message processing done");
 }
 
 void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {

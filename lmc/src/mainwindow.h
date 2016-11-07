@@ -56,6 +56,7 @@ public:
 
 	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);
     void start(void);
+	void show(void);
 	void restore(void);
 	void minimize(void);
 	void stop(void);
@@ -203,6 +204,7 @@ private:
 	QAction* userFileAction;
 	QAction* userInfoAction;
 	QAction* avatarBrowseAction;
+	bool windowLoaded;
 };
 
 #endif // MAINWINDOW_H

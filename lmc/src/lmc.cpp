@@ -73,22 +73,27 @@ void lmcCore::init(const QString& szCommandArgs) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
 
-	QStringList argList = szCommandArgs.split(" ", QString::SkipEmptyParts);
+	QStringList arguments = szCommandArgs.split("\n", QString::SkipEmptyParts);
 	//	remove duplicates
-	argList = argList.toSet().toList();
+	arguments = arguments.toSet().toList();
 
 	pInitParams = new XmlMessage();
-	if(argList.contains("/silent"))
+	if(arguments.contains("/silent", Qt::CaseInsensitive))
 		pInitParams->addData(XN_SILENTMODE, LMC_TRUE);
-	if(argList.contains("/trace")) {
+	if(arguments.contains("/trace", Qt::CaseInsensitive)) {
 		pInitParams->addData(XN_TRACEMODE, LMC_TRUE);
 		pInitParams->addData(XN_LOGFILE, StdLocation::freeLogFile());
 	}
-	for(int index = 0; index < argList.count(); index++) {
-		if(argList.at(index).startsWith("/port:")) {
-			QString port = argList.at(index).mid(6); // 6 is length of string '/port:'
+	for(int index = 0; index < arguments.count(); index++) {
+		if(arguments.at(index).startsWith("/port=", Qt::CaseInsensitive)) {
+			QString port = arguments.at(index).mid(QString("/port=").length());
 			pInitParams->addData(XN_PORT, port);
-			break;
+			continue;
+		}
+		if(arguments.at(index).startsWith("/config=", Qt::CaseInsensitive)) {
+			QString configFile = arguments.at(index).mid(QString("/config=").length());
+			pInitParams->addData(XN_CONFIG, configFile);
+			continue;
 		}
 	}
 
@@ -121,7 +126,7 @@ bool lmcCore::start(void) {
 	connect(pTimer, SIGNAL(timeout(void)), this, SLOT(timer_timeout(void)));
 	//	Set the timer to trigger 10 seconds after the application starts. After the
 	//	first trigger, the timeout period will be decided by user settings.
-	adaptiveRefresh = true;
+	adaptiveRefresh = false;
 	pTimer->start(10000);
 	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 	lmcSettings::setAutoStart(autoStart);
@@ -132,17 +137,26 @@ bool lmcCore::start(void) {
 //	This is the initial point where settings are used in the application
 void lmcCore::loadSettings(void) {
 	pSettings = new lmcSettings();
-	bool silent = Helper::StringToBool(pInitParams->data(XN_SILENTMODE));
+	bool silent = Helper::stringToBool(pInitParams->data(XN_SILENTMODE));
 	if(!pSettings->migrateSettings() && !silent) {
 		// settings were reset. Show an alert if not in silent mode
 		QString message = tr("Your preferences file is corrupt or invalid.\n\n%1 is unable to recover your settings.");
 		QMessageBox::warning(NULL, lmcStrings::appName(), message.arg(lmcStrings::appName()));
+	}
+	if(pInitParams->dataExists(XN_CONFIG)) {
+		QString configFile = pInitParams->data(XN_CONFIG);
+		if(!pSettings->loadFromConfig(configFile) && !silent) {
+			QString message = tr("Preferences could not be imported from '%1'.\n\n"\
+								 "File may not exist, or may not be compatible with this version of %2.");
+			QMessageBox::warning(NULL, lmcStrings::appName(), message.arg(configFile, lmcStrings::appName()));
+		}
 	}
 	lang = pSettings->value(IDS_LANGUAGE, IDS_LANGUAGE_VAL).toString();
 	Application::setLanguage(lang);
 	Application::setLayoutDirection(tr("LAYOUT_DIRECTION") == RTL_LAYOUT ? Qt::RightToLeft : Qt::LeftToRight);
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
 	pubMessagePop = pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool();
+	refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
 }
 
 void lmcCore::settingsChanged(void) {
@@ -171,8 +185,8 @@ void lmcCore::settingsChanged(void) {
 
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
 	pubMessagePop = pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool();
-	int refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt();
-	pTimer->setInterval(refreshTime * 1000);
+	refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
+	pTimer->setInterval(refreshTime);
 	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 	lmcSettings::setAutoStart(autoStart);
 	QString appLang = pSettings->value(IDS_LANGUAGE, IDS_LANGUAGE_VAL).toString();
@@ -262,8 +276,10 @@ void lmcCore::timer_timeout(void) {
 		//	Then keep refreshing at that interval.
 		int nextInterval = pTimer->interval() * 2;
 		int maxInterval = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
-		int refreshTime = qMin(nextInterval, maxInterval);
+		int interval = qMin(nextInterval, maxInterval);
 		adaptiveRefresh = (nextInterval >= maxInterval) ? false : true;
+		pTimer->setInterval(interval);
+	} else if(refreshTime > pTimer->interval()) {
 		pTimer->setInterval(refreshTime);
 	}
 }
@@ -355,42 +371,42 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 		return doNotExit;
 	}
 
-	QStringList messageList = szMessage.split(" ", QString::SkipEmptyParts);
+	QStringList messageList = szMessage.split("\n", QString::SkipEmptyParts);
 	//	remove duplicates
 	messageList = messageList.toSet().toList();
 
-	if(messageList.contains("/new")) {
-		if(messageList.contains("/loopback"))
+	if(messageList.contains("/new", Qt::CaseInsensitive)) {
+		if(messageList.contains("/loopback", Qt::CaseInsensitive))
 			pMessaging->setLoopback(true);
 	}
-	if(messageList.contains("/nohistory")) {
+	if(messageList.contains("/nohistory", Qt::CaseInsensitive)) {
 		QFile::remove(History::historyFile());
 		if(pHistoryWindow)
 			pHistoryWindow->updateList();
 	}
-	if(messageList.contains("/nofilehistory")) {
+	if(messageList.contains("/nofilehistory", Qt::CaseInsensitive)) {
 		QFile::remove(StdLocation::transferHistory());
 		if(pTransferWindow)
 			pTransferWindow->updateList();
 	}
-	if(messageList.contains("/noconfig")) {
+	if(messageList.contains("/noconfig", Qt::CaseInsensitive)) {
 		QFile::remove(StdLocation::avatarFile());
 		QFile::remove(pSettings->fileName());
 		pSettings->sync();
 		settingsChanged();
 	}
-	if(messageList.contains("/sync")) {
+	if(messageList.contains("/sync", Qt::CaseInsensitive)) {
 		bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 		lmcSettings::setAutoStart(autoStart);
 	}
-	if(messageList.contains("/unsync")) {
+	if(messageList.contains("/unsync", Qt::CaseInsensitive)) {
 		lmcSettings::setAutoStart(false);
 	}
-	if(messageList.contains("/term")) {
+	if(messageList.contains("/term", Qt::CaseInsensitive)) {
 		doNotExit = false;
 		exitApp();
 	}
-	if(messageList.contains("/quit")) {
+	if(messageList.contains("/quit", Qt::CaseInsensitive)) {
 		doNotExit  = false;
 	}
 

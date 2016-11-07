@@ -114,9 +114,10 @@
 #define IDS_NODNDSOUND			"Alerts/NoDNDSound"
 #define IDS_NODNDSOUND_VAL		true
 #define IDS_SOUNDEVENTHDR		"SoundEvents"
-#define IDS_EVENT				"Event"
+#define IDS_SOUNDEVENT			"Event"
+#define IDS_SOUNDEVENT_VAL		Qt::Checked
 #define IDS_SOUNDFILEHDR		"SoundFiles"
-#define IDS_FILE				"File"
+#define IDS_SOUNDFILE				"File"
 #define IDS_CONNECTION			"Connection/Connection"
 #define IDS_CONNECTION_VAL		AUTO_CONNECTION
 #define IDS_TIMEOUT				"Connection/Timeout"
@@ -138,6 +139,7 @@
 #define IDS_FILETOP				"FileTransfer/FileTop"
 #define IDS_FILETOP_VAL			false
 #define IDS_FILESTORAGEPATH		"FileTransfer/StoragePath"
+#define IDS_FILESTORAGEPATH_VAL	""
 #define IDS_THEME_OLD			"Themes/Theme"
 #define IDS_THEME_OLD_VAL		":/themes/Classic"
 #define IDS_THEME				"Appearance/Theme"
@@ -171,14 +173,29 @@
 #define IDS_BROADCASTHDR		"BroadcastList"
 #define IDS_BROADCAST			"Broadcast"
 
-class lmcSettings : public QSettings {
+class lmcSettingsBase : public QSettings {
 public:
-	lmcSettings(void) : QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT) {}
+	lmcSettingsBase(void);
+	lmcSettingsBase(const QString& fileName, Format format);
+	lmcSettingsBase(Format format, Scope scope, const QString& organization, const QString& application);
+	~lmcSettingsBase(void);
+
+	using QSettings::setValue;
+	void setValue(const QString& key, const QVariant& value, const QVariant& defaultValue);
+};
+
+class lmcSettings : public lmcSettingsBase {
+public:
+	lmcSettings(void) : lmcSettingsBase(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT) {}
 	~lmcSettings(void) {}
 
 	bool migrateSettings(void);
+	bool loadFromConfig(const QString& configFile);
 
     static void setAutoStart(bool on);
+
+private:
+	bool migrateSettings(const QString& configFile);
 };
 
 #endif // SETTINGS_H

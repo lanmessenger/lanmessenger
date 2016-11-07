@@ -76,16 +76,15 @@ int main(int argc, char *argv[]) {
     QApplication::setWindowIcon(QIcon(IDR_APPICON));
 
 	QString messageList;
-	QString message;
+	QStringList arguments = QApplication::arguments();
 
-	for(int index = 1; index < argc; index++) {
-		message = QString(argv[index]).toLower();
-		if(message.compare("/?") == 0)
+	for(int index = 0; index < arguments.count(); index++) {
+		if(arguments.at(index).compare("/?", Qt::CaseInsensitive) == 0)
 			return showSwitches();
-		else if(message.compare("/inst") == 0)
+		else if(arguments.at(index).compare("/inst", Qt::CaseInsensitive) == 0)
 			return application.isRunning() ? 1 : 0;
 		else
-			messageList += message + " ";
+			messageList += arguments.at(index) + "\n";
 	}
 
 	if(application.sendMessage(messageList))
@@ -97,14 +96,14 @@ int main(int argc, char *argv[]) {
 
 	//	Enable tracing for Windows and Mac
 #ifndef Q_WS_X11
-	messageList += "/trace ";
+	messageList += "/trace\n";
 #endif
 
 	lmcCore core;
 	//	handle command line args if this is first instance
 	//	some args are handled when the application is initializing
 	core.init(messageList);
-	messageList += "/new ";	//	indicates this is a new instance
+	messageList += "/new\n";	//	indicates this is a new instance
 	//	the remaining args are handled after initializing all the layers
 	if(!core.receiveAppMessage(messageList))
 		return 0;

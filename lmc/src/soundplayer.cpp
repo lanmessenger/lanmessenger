@@ -48,14 +48,14 @@ void lmcSoundPlayer::settingsChanged(void) {
 	int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), (int)SE_Max);
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		eventState[index] = pSettings->value(IDS_EVENT).toInt();
+		eventState[index] = pSettings->value(IDS_SOUNDEVENT, IDS_SOUNDEVENT_VAL).toInt();
 	}
 	pSettings->endArray();
 
 	size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), (int)SE_Max);
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		sounds[index] = pSettings->value(IDS_FILE).toString();
+		sounds[index] = pSettings->value(IDS_SOUNDFILE, soundFile[index]).toString();
 	}
 	pSettings->endArray();
 

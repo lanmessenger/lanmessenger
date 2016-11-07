@@ -60,6 +60,7 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget *parent) : QWidget(parent) {
 	ui.txtMessage->installEventFilter(this);
 	infoFlag = IT_Ok;
 	dataSaved = false;
+	windowLoaded = false;
 
 	localId = QString::null;
 	localName = QString::null;
@@ -149,6 +150,11 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 	addUser(pLocalUser);
 }
 
+void lmcChatRoomWindow::show(void) {
+	windowLoaded = true;
+	QWidget::show();
+}
+
 void lmcChatRoomWindow::stop(void) {
 	bool saveHistory = pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool();
 	// Save history if there is conversation to be saved, and option to save history
@@ -161,7 +167,7 @@ void lmcChatRoomWindow::stop(void) {
 		dataSaved = true;
 	}
 
-	if(!groupMode) {
+	if(!groupMode && windowLoaded) {
 		pSettings->setValue(IDS_WINDOWPUBLICCHAT, saveGeometry());
 		pSettings->setValue(IDS_SPLITTERPUBLICCHATV, ui.vSplitter->saveState());
 		pSettings->setValue(IDS_SPLITTERPUBLICCHATH, ui.hSplitter->saveState());

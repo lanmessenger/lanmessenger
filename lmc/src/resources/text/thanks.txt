@@ -15,6 +15,7 @@ Holger Gebhard - German localization
 Inanc Tanriover - Turkish localization
 Kim Chul-Hyun - Korean localization
 Krasen Borisov - Bulgarian localization
+Victor K H - Russian localization
 
 
 Some of the images used were created by Mythique Design and used under the Creative Commons Public License.

@@ -125,6 +125,7 @@ private:
 	bool							pubMessagePop;
 	QString							lang;
 	bool							adaptiveRefresh;
+	int								refreshTime;
 	XmlMessage*						pInitParams;
 };
 

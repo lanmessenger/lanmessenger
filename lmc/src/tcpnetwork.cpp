@@ -42,7 +42,7 @@ void lmcTcpNetwork::init(int nPort) {
 }
 
 void lmcTcpNetwork::start(void) {
-	lmcTrace::write("Starting TCP server...");
+	lmcTrace::write("Starting TCP server");
 	isRunning = server->listen(QHostAddress::Any, tcpPort);
 	lmcTrace::write((isRunning ? "Success" : "Failed"));
 }
@@ -93,16 +93,23 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
 	if(lpszReceiverId->compare(localId) == 0)
 		msgStream = locMsgStream;
 	else
-		msgStream = messageMap.value(*lpszReceiverId);
+		msgStream = messageMap.value(*lpszReceiverId, NULL);
 
 	if(msgStream) {
 		lmcTrace::write("Sending TCP data stream to user " + *lpszReceiverId);
 		QByteArray clearData = lpszData->toUtf8();
 		QByteArray cipherData = crypto->encrypt(lpszReceiverId, clearData);
+		if(cipherData.isEmpty()) {
+			lmcTrace::write("Warning: Message could not be sent");
+			return;
+		}
 		//	cipherData should now contain encrypted content
 		Datagram::addHeader(DT_Message, cipherData);
 		msgStream->sendMessage(cipherData);
+		return;
 	}
+
+	lmcTrace::write("Warning: Socket not found. Message sending failed");
 }
 
 void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData) {
@@ -248,6 +255,10 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
 	case DT_Message:
 		// decrypt message with aes
         clearData = crypto->decrypt(&pHeader->userId, cipherData);
+		if(clearData.isEmpty()) {
+			lmcTrace::write("Warning: Message could not be retrieved");
+			break;
+		}
 		szMessage = QString::fromUtf8(clearData.data(), clearData.length());
 		emit messageReceived(pHeader, &szMessage);
 		break;

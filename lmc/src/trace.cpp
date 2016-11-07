@@ -34,8 +34,12 @@ lmcTrace::~lmcTrace(void) {
 }
 
 void lmcTrace::init(XmlMessage* pInitParams) {
-	traceMode = Helper::StringToBool(pInitParams->data(XN_TRACEMODE));
+	traceMode = Helper::stringToBool(pInitParams->data(XN_TRACEMODE));
 	fileName = pInitParams->data(XN_LOGFILE);
+
+	write("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"\
+		  "         "IDA_TITLE" "IDA_VERSION" application log\n"\
+		  "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 }
 
 void lmcTrace::write(const QString& string) {

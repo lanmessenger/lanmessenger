@@ -217,6 +217,8 @@ void lmcMessaging::saveGroups(void) {
 	}
 	groupSettings.endArray();
 
+	groupSettings.sync();
+
 	// make sure the correct version is set in the preferences file
 	// so the group settings will not be wrongly migrated next time
 	// application starts
@@ -379,6 +381,7 @@ void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUser
 	case MT_Group:
 		pUser->group = szUserData;
 		userGroupMap.insert(pUser->id, pUser->group);
+		saveGroups();
 		break;
 	default:
 		break;

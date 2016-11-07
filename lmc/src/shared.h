@@ -108,11 +108,12 @@ public:
 	static QString getLogonName(void);
 	static QString getHostName(void);
 	static QString getOSName(void);
-	static QString escapeDelimiter(QString *lpszData);
+	static QString escapeDelimiter(QString* lpszData);
 	static QString unescapeDelimiter(QString* lpszData);
 	static int compareVersions(const QString& version1, const QString& version2);
-	static QString BoolToString(bool value);
-	static bool StringToBool(const QString& value);
+	static QString boolToString(bool value);
+	static bool stringToBool(const QString& value);
+	static bool copyFile(const QString& source, const QString& destination);
 };
 
 #endif // SHARED_H

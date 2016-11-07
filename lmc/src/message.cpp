@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 
+#include "trace.h"
 #include "message.h"
 
 QString Message::addHeader(MessageType type, qint64 id, QString* lpszLocalId, QString* lpszPeerId, XmlMessage* pMessage) {

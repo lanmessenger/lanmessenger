@@ -257,17 +257,17 @@
     <message>
         <location filename="settingsdialog.ui" line="1842"/>
         <source>Contacts List</source>
-        <translation type="unfinished"></translation>
+        <translation>Kişi Listesi</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1850"/>
         <source>Contacts list view:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kişi listesi görünümü:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1875"/>
         <source>Show status as tooltip</source>
-        <translation type="unfinished"></translation>
+        <translation>Durumu araç bilgisi olarak göster</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1941"/>
@@ -1266,7 +1266,7 @@
     <message>
         <location filename="chatwindow.cpp" line="620"/>
         <source>%1 is away.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 uzakta.</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="624"/>
@@ -1717,7 +1717,7 @@ LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</transla
     <message>
         <location filename="strings.cpp" line="69"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="75"/>
@@ -1792,7 +1792,7 @@ LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</transla
     <message>
         <location filename="strings.cpp" line="101"/>
         <source>Incoming public message</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelen genel mesaj</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="108"/>
@@ -1837,12 +1837,12 @@ LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</transla
     <message>
         <location filename="strings.cpp" line="122"/>
         <source>Detailed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayrıntılı</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="123"/>
         <source>Compact</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompakt</translation>
     </message>
 </context>
 <context>

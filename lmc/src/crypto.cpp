@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 
+#include "trace.h"
 #include "crypto.h"
 
 lmcCrypto::lmcCrypto(void) {
@@ -113,27 +114,47 @@ void lmcCrypto::retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv) {
 QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
 	int outLen = clearData.length() + AES_BLOCK_SIZE;
 	unsigned char* outBuffer = (unsigned char*)malloc(outLen);
+	if(outBuffer == NULL) {
+		lmcTrace::write("Error: Buffer not allocated");
+		return QByteArray();
+	}
 	int foutLen = 0;
 
 	EVP_CIPHER_CTX ctx = encryptMap.value(*lpszUserId);
-	EVP_EncryptInit_ex(&ctx, NULL, NULL, NULL, NULL);
-	EVP_EncryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length());
-	EVP_EncryptFinal_ex(&ctx, outBuffer + outLen, &foutLen);
-
-	outLen += foutLen;
-	return QByteArray((char*)outBuffer, outLen);
+	if(EVP_EncryptInit_ex(&ctx, NULL, NULL, NULL, NULL)) {
+		if(EVP_EncryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length())) {
+			if(EVP_EncryptFinal_ex(&ctx, outBuffer + outLen, &foutLen)) {
+				outLen += foutLen;
+				QByteArray byteArray((char*)outBuffer, outLen);
+				free(outBuffer);
+				return byteArray;
+			}
+		}
+	}
+	lmcTrace::write("Error: Message encryption failed");
+	return QByteArray();
 }
 
 QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
 	int outLen = cipherData.length();
 	unsigned char* outBuffer = (unsigned char*)malloc(outLen);
+	if(outBuffer == NULL) {
+		lmcTrace::write("Error: Buffer not allocated");
+		return QByteArray();
+	}
 	int foutLen = 0;
 
 	EVP_CIPHER_CTX ctx = decryptMap.value(*lpszUserId);
-	EVP_DecryptInit_ex(&ctx, NULL, NULL, NULL, NULL);
-	EVP_DecryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length());
-	EVP_DecryptFinal_ex(&ctx, outBuffer + outLen, &foutLen);
-
-	outLen += foutLen;
-	return QByteArray((char*)outBuffer, outLen);
+	if(EVP_DecryptInit_ex(&ctx, NULL, NULL, NULL, NULL)) {
+		if(EVP_DecryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length())) {
+			if(EVP_DecryptFinal_ex(&ctx, outBuffer + outLen, &foutLen)) {
+				outLen += foutLen;
+				QByteArray byteArray((char*)outBuffer, outLen);
+				free(outBuffer);
+				return byteArray;
+			}
+		}
+	}
+	lmcTrace::write("Error: Message decryption failed");
+	return QByteArray();
 }

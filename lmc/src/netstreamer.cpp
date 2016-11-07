@@ -24,6 +24,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include "trace.h"
 #include "netstreamer.h"
 
 const qint64 bufferSize = 65535;
@@ -330,7 +331,9 @@ void MsgStream::sendMessage(QByteArray& data) {
 	stream << (quint32)data.length();
 	stream.writeRawData(data.data(), data.length());
 
-	socket->write(outData);
+	qint64 numBytesWritten = socket->write(outData);
+	if(numBytesWritten < 0)
+		lmcTrace::write("Error: Socket write failed");
 }
 
 void MsgStream::connected(void) {
@@ -340,7 +343,9 @@ void MsgStream::connected(void) {
 
 	//	send an id message and then wait for public key message 
 	//	from receiver, which will trigger readyRead signal
-	socket->write(outData);
+	qint64 numBytesWritten = socket->write(outData);
+	if(numBytesWritten < 0)
+		lmcTrace::write("Error: Socket write failed");
 }
 
 void MsgStream::disconnected(void) {
@@ -381,7 +386,12 @@ void MsgStream::bytesWritten(qint64 bytes) {
 	outDataLen -= bytes;
 	if(outDataLen == 0)
 		return;
-	
+
+	if(outDataLen > 0)
+		lmcTrace::write("Warning: Socket write operation not completed");
+	if(outDataLen < 0)
+		lmcTrace::write("Warning: Socket write overrun");
+
 	//	TODO: handle situation when entire message is not written to stream in one write operation
 	//	The following code is not functional currently, hence commented out.
 	/*outData = outData.mid(outDataLen);

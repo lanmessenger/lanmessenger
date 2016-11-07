@@ -60,6 +60,7 @@ public:
 	~lmcChatRoomWindow();
 
 	void init(User* pLocalUser, bool connected, QString thread = QString::null);
+	void show(void);
 	void stop(void);
 	void addUser(User* pUser);
 	void updateUser(User* pUser);
@@ -141,6 +142,7 @@ private:
 	lmcSoundPlayer* pSoundPlayer;
 	QColor messageColor;
 	bool dataSaved;
+	bool windowLoaded;
 };
 
 #endif // CHATROOMWINDOW_H

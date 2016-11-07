@@ -40,6 +40,7 @@
 #define SL_GROUPFILE			"group.cfg"
 #define SL_AVATARFILE			"avt_local.png"
 #define SL_LOGDIR				"logs"
+#define SL_TEMPCONFIG			"lmctmpconf.ini"
 
 class StdLocation {
 public:
@@ -115,6 +116,11 @@ public:
 		QString fileName = "lmc_" +
 			QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()) + ".log";
 		return QDir::toNativeSeparators(logDir() + "/" + fileName);
+	}
+
+	static QString tempConfigFile(void) {
+		return QDir::toNativeSeparators(QDesktopServices::storageLocation(
+			QDesktopServices::TempLocation) + "/"SL_TEMPCONFIG);
 	}
 };
 

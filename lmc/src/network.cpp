@@ -62,7 +62,7 @@ void lmcNetwork::init(XmlMessage *pInitParams) {
 
 	lmcTrace::write("IP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
 					"\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
-		"\nConnection status: " + (isConnected ? "OK" : "Fail"));
+					"\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
 	int port = pInitParams->data(XN_PORT).toInt();
 	pUdpNetwork->init(port);

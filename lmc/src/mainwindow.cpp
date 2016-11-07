@@ -40,6 +40,8 @@ lmcMainWindow::lmcMainWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 		this, SLOT(tvUserList_currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
 	connect(ui.txtNote, SIGNAL(returnPressed()), this, SLOT(txtNote_returnPressed()));
 	connect(ui.txtNote, SIGNAL(lostFocus()), this, SLOT(txtNote_lostFocus()));
+
+	windowLoaded = false;
 }
 
 lmcMainWindow::~lmcMainWindow(void) {
@@ -109,6 +111,11 @@ void lmcMainWindow::start(void) {
 		show();
 }
 
+void lmcMainWindow::show(void) {
+	windowLoaded = true;
+	QWidget::show();
+}
+
 void lmcMainWindow::restore(void) {
 	//	if window is minimized, restore it to previous state
 	if(windowState().testFlag(Qt::WindowMinimized))
@@ -126,8 +133,11 @@ void lmcMainWindow::minimize(void) {
 }
 
 void lmcMainWindow::stop(void) {
-	pSettings->setValue(IDS_WINDOWMAIN, saveGeometry());
-	pSettings->setValue(IDS_MINIMIZEMSG, showMinimizeMsg);
+	//	These settings are saved only if the window was opened at least once by the user
+	if(windowLoaded) {
+		pSettings->setValue(IDS_WINDOWMAIN, saveGeometry());
+		pSettings->setValue(IDS_MINIMIZEMSG, showMinimizeMsg, IDS_MINIMIZEMSG_VAL);
+	}
 
 	pSettings->beginWriteArray(IDS_GROUPEXPHDR);
 	for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++) {
@@ -650,7 +660,7 @@ void lmcMainWindow::txtNote_returnPressed(void) {
 
 void lmcMainWindow::txtNote_lostFocus(void) {
 	QString note = ui.txtNote->text();
-	pSettings->setValue(IDS_NOTE, note);
+    pSettings->setValue(IDS_NOTE, note, IDS_NOTE_VAL);
 	pLocalUser->note = note;
 	sendMessage(MT_Note, NULL, &note);
 }

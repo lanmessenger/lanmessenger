@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="es_ES">
+<TS version="2.0" language="ru_UA">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="aboutdialog.ui" line="17"/>
         <source>Dialog</source>
-        <translation></translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="40"/>
         <source>&lt;Logo&gt;</source>
-        <translation></translation>
+        <translation>&lt;Logo&gt;</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="47"/>
         <source>&lt;Application Title&gt;</source>
-        <translation></translation>
+        <translation>&lt;Application Title&gt;</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="60"/>
         <source>About</source>
-        <translation>Acerca de</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="81"/>
         <source>&lt;Description&gt;</source>
-        <translation></translation>
+        <translation>&lt;Description&gt;</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="107"/>
         <source>Thanks</source>
-        <translation>Gracias</translation>
+        <translation>Благодарность</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="136"/>
         <source>License</source>
-        <translation>Licencia</translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="195"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -49,33 +49,33 @@
     <message>
         <location filename="broadcastwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="143"/>
         <source>Send</source>
-        <translation>Enviar</translation>
+        <translation>Отправить</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="153"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="239"/>
         <source>Select All</source>
-        <translation>Seleccionar todos</translation>
+        <translation>Выбрать все</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="246"/>
         <source>Select None</source>
-        <translation>Seleccionar ninguno</translation>
+        <translation>Отменить выбор</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="178"/>
         <location filename="broadcastwindow.ui" line="213"/>
         <source>Send To:</source>
-        <translation>Enviar a:</translation>
+        <translation>Кому отправить:</translation>
     </message>
 </context>
 <context>
@@ -83,7 +83,7 @@
     <message>
         <location filename="chatroomwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
 </context>
 <context>
@@ -91,7 +91,7 @@
     <message>
         <location filename="chatwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
 </context>
 <context>
@@ -99,42 +99,42 @@
     <message>
         <location filename="filemodelview.cpp" line="39"/>
         <source>0 bytes</source>
-        <translation>0 bytes</translation>
+        <translation>0 байт</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="40"/>
         <source>0 bytes/sec</source>
-        <translation>0 bytes/seg</translation>
+        <translation>0 байт/сек</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="41"/>
         <source>Calculating time</source>
-        <translation>Calculando el tiempo</translation>
+        <translation>Расчет времени</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="79"/>
         <source>To: </source>
-        <translation>Para: </translation>
+        <translation>Кому: </translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="79"/>
         <source>From: </source>
-        <translation>De: </translation>
+        <translation>От: </translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="103"/>
         <source>Completed</source>
-        <translation>Finalizado</translation>
+        <translation>Завершено</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="106"/>
         <source>Canceled</source>
-        <translation>Cancelado</translation>
+        <translation>Отменено</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="109"/>
         <source>Interrupted</source>
-        <translation>Interrumpido</translation>
+        <translation>Прервано</translation>
     </message>
 </context>
 <context>
@@ -142,12 +142,12 @@
     <message>
         <location filename="helpwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="helpwindow.ui" line="55"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -155,27 +155,27 @@
     <message>
         <location filename="historywindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="76"/>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="81"/>
         <source>Date</source>
-        <translation>Fecha</translation>
+        <translation>Дата</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="133"/>
         <source>Clear History</source>
-        <translation>Borrar Historial</translation>
+        <translation>Очистить историю</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="156"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -183,32 +183,32 @@
     <message>
         <location filename="mainwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="124"/>
         <source>Username</source>
-        <translation>Nombre de usuario</translation>
+        <translation>Имя пользователя</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="168"/>
         <source>Status</source>
-        <translation>Estado</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="186"/>
         <source>Type a note</source>
-        <translation>Escriba una nota</translation>
+        <translation>Введите заметку</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="211"/>
         <source>Change avatar</source>
-        <translation>Cambiar avatar</translation>
+        <translation>Изменить аватар</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="324"/>
         <source>Contacts</source>
-        <translation>Contactos</translation>
+        <translation>Контакты</translation>
     </message>
 </context>
 <context>
@@ -216,80 +216,81 @@
     <message>
         <location filename="settingsdialog.ui" line="17"/>
         <source>Dialog</source>
-        <translation></translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1148"/>
         <source>Reset All</source>
-        <translation>Reiniciar todo</translation>
+        <translation>Сбросить все</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1320"/>
         <source>Broadcast address:</source>
         <oldsource>Broadcast Address:</oldsource>
-        <translation>Dirección de difusión:</translation>
+        <translation>Широковещательный адрес:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1357"/>
         <source>&lt;- Add</source>
-        <translation>&lt;- Agregar</translation>
+        <translation>&lt;- Добавить
+</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1384"/>
         <source>Delete</source>
-        <translation>Borrar</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1413"/>
         <source>Advanced</source>
-        <translation>Avanzado</translation>
+        <translation>Подробнее</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1421"/>
         <source>Multicast address:</source>
-        <translation>Dirección de multidifusión:</translation>
+        <translation>Групповой адрес:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1782"/>
         <source>Chat Theme</source>
-        <translation>Tema de la ventana de chat</translation>
+        <translation>Тема чата</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1842"/>
         <source>Contacts List</source>
-        <translation>Lista de contactos</translation>
+        <translation>Список контактов</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1850"/>
         <source>Contacts list view:</source>
-        <translation>Vista de lista de contactos:</translation>
+        <translation>Вид списка контактов:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1875"/>
         <source>Show status as tooltip</source>
-        <translation>Mostrar estdo como tooltip</translation>
+        <translation>Показать статус в виде подсказки</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1941"/>
         <source>Send messages using:</source>
-        <translation>Clave para enviar el mensaje:</translation>
+        <translation>Отправлять сообщения используя:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1966"/>
         <source>&lt;Enter&gt;</source>
         <oldsource>Enter</oldsource>
-        <translation></translation>
+        <translation>&lt;Enter&gt;</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1973"/>
         <source>&lt;Cmd + Enter&gt;</source>
         <oldsource>Ctrl + Enter</oldsource>
-        <translation></translation>
+        <translation>&lt;Cmd + Enter&gt;</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="2034"/>
         <source>Reset Preferences</source>
-        <translation>Reiniciar preferencias</translation>
+        <translation>Сбросить Настройки</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="2054"/>
@@ -299,256 +300,240 @@
     <message>
         <location filename="settingsdialog.ui" line="2064"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="59"/>
         <location filename="settingsdialog.ui" line="141"/>
         <source>General</source>
-        <translation>General</translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="94"/>
         <location filename="settingsdialog.ui" line="1775"/>
         <source>Appearance</source>
-        <translation>Apariencia</translation>
+        <translation>Внешний вид</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="148"/>
         <source>System</source>
-        <translation>Sistema</translation>
+        <translation>Система</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="154"/>
         <source>Start %1 on system startup</source>
-        <translation>Iniciar %1 al iniciar el sistema</translation>
+        <translation>Запускать %1 при старте операционной системы</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="161"/>
         <source>Show main window when %1 starts</source>
-        <translation>Mostrar la ventana principal cuando %1 inicie</translation>
+        <translation>Показать главное окно %1 после запуска системы</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="171"/>
         <source>System Tray</source>
-        <translation>Bandeja del Sistema</translation>
+        <translation>Системная область уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="177"/>
         <source>Show system tray icon</source>
-        <translation>Mostrar el icono en la bandeja del sistema</translation>
+        <translation>Показать значок в области уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="184"/>
         <source>Minimize main window to system tray</source>
-        <translation>Minimiza la ventana principal a la bandeja del sistema</translation>
+        <translation>Минимизировать главное окно в область уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="191"/>
         <source>Single click on tray icon to open</source>
-        <translation>Un solo clic en el icono de la bandeja para abrir</translation>
+        <translation>Открытие одиночным кликом на значке области уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="198"/>
         <source>Show balloon notifications in tray</source>
-        <translation>Mostrar el globo de notificaciones en la bandeja</translation>
+        <translation>Показывать всплывающие сообщения в области уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="215"/>
         <source>Language</source>
-        <translation>Idioma</translation>
+        <translation>Язык</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="223"/>
         <source>Select language:</source>
-        <translation>Seleccione el idioma:</translation>
+        <translation>Выбрать язык:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="64"/>
         <location filename="settingsdialog.ui" line="329"/>
         <source>Account</source>
-        <translation>Cuenta</translation>
+        <translation>Учетная запись</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="336"/>
         <source>Personal</source>
-        <translation>Personal</translation>
+        <translation>Личные</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="344"/>
         <source>User name as seen by contacts:</source>
-        <translation>Nombre de usuario visto por los contactos:</translation>
+        <translation>Отображаемое имя в контактах:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="373"/>
         <source>First Name:</source>
-        <translation>Nombre:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="403"/>
         <source>Last Name:</source>
-        <translation>Apellido:</translation>
+        <translation>Фамилия:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="419"/>
         <source>About:</source>
-        <translation>Acerca de:</translation>
+        <translation>О себе:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="447"/>
         <source>Contacts</source>
-        <translation>Contactos</translation>
+        <translation>Контакты</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="455"/>
         <source>Refresh contacts list every</source>
-        <translation>Actualizar la lista de contactos cada</translation>
+        <translation>Обновлять список контактов каждые</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="485"/>
         <source>seconds</source>
-        <translation>segundos</translation>
+        <translation>секунд</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
         <location filename="settingsdialog.ui" line="1930"/>
         <source>Messages</source>
-        <translation>Mensajes</translation>
+        <translation>Сообщения</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="542"/>
         <source>Message Window</source>
-        <translation>Ventana de mensajes</translation>
+        <translation>Окно сообщения</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="605"/>
         <source>Show emoticons in instant messages</source>
-        <translation>Mostrar emoticones en los mensajes instantáneos</translation>
+        <translation>Показывать смайлики в мгновенных сообщениях</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
-        <translation>Agregar fecha y hora a los mensajes instantáneos</translation>
+        <translation>Добавлять временную отметку в мгновенных сообщениях</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="637"/>
         <source>Show date in time stamp</source>
-        <translation>Mostrar el tiempo en fecha y hora</translation>
+        <translation>Показывать дату во временной отметке</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
-        <translation>Establecer en primer plano los mensajes recibidos</translation>
+        <translation>Показывать входящие сообщения на переднем плане</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="555"/>
         <source>Minimize incoming messages to taskbar</source>
-        <translation>Minimizar los mensajes recibidos a la barra de tareas</translation>
+        <translation>Минимизировать входящие сообщения в панель задач</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="690"/>
         <source>Message Font</source>
-        <translation>Fuente del mensaje</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">Vista previa:</translation>
-    </message>
-    <message>
-        <source>Small size</source>
-        <translation type="obsolete">Tamaño pequeño</translation>
-    </message>
-    <message>
-        <source>Medium size</source>
-        <translation type="obsolete">Tamaño mediano</translation>
-    </message>
-    <message>
-        <source>Large size</source>
-        <translation type="obsolete">Tamaño grande</translation>
+        <translation>Шрифт сообщения</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
         <location filename="settingsdialog.ui" line="819"/>
         <source>History</source>
-        <translation>Historial</translation>
+        <translation>История</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
         <location filename="settingsdialog.ui" line="1923"/>
         <source>Hotkeys</source>
-        <translation>Teclas Rápidas</translation>
+        <translation>Горячие клавиши</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="205"/>
         <source>Minimize main window using tray icon</source>
-        <translation>Minimiza la ventana principal a la bandeja del sistema</translation>
+        <translation>Минимизировать главное окно используя значок области уведомлений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="580"/>
         <source>Apply to public messages</source>
         <oldsource>Apply  to public messages</oldsource>
-        <translation>Aplican a los mensajes públicos</translation>
+        <translation>Применять к общедоступным сообщениям</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
-        <translation>Permitir los hipervínculos en los mensajes instantáneos</translation>
+        <translation>Разрешать гиперссылки в мгновенных сообщениях</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="671"/>
         <source>Convert network paths to links</source>
-        <translation>Convierte las rutas de red en enlaces</translation>
+        <translation>Преобразовывать сетевые пути в ссылки</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="680"/>
         <source>Remove whitespace from start and end of messages</source>
-        <translation>Eliminar espacios en blanco desde el inicio y al final de los mensajes</translation>
+        <translation>Удалять пробелы в начале и конце сообщений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="698"/>
         <source>Change Font...</source>
-        <translation>Cambiar fuente...</translation>
+        <translation>Изменить шрифт...</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="722"/>
         <source>Change Color...</source>
-        <translation>Cambiar color...</translation>
+        <translation>Изменить цвет...</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="746"/>
         <source>Incoming message text size:</source>
-        <translation>Tamaño del texto del mensaje recibido:</translation>
+        <translation>Размер текста входящего сообщения:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="826"/>
         <source>Message History</source>
-        <translation>Historial de mensajes</translation>
+        <translation>История сообщений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="832"/>
         <source>Keep a history of conversations</source>
-        <translation>Mantener un historial de conversaciones</translation>
+        <translation>Хранить историю переговоров</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="841"/>
         <source>Clear Message History</source>
-        <translation>Borrar historial</translation>
+        <translation>Очистить историю сообщений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="866"/>
         <source>History File Location</source>
-        <translation>Ubicación del archivo del historial</translation>
+        <translation>Расположение файла истории</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="872"/>
         <source>System default location</source>
-        <translation>Ubicación por defecto del Sistema</translation>
+        <translation>Системное расположение по умолчанию</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="879"/>
         <source>Custom location</source>
-        <translation>Ubicación personalizada</translation>
+        <translation>Пользовательское расположение</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="917"/>
@@ -560,156 +545,156 @@
     <message>
         <location filename="settingsdialog.ui" line="929"/>
         <source>File Transfer History</source>
-        <translation>Historial de transferencias de Archivo</translation>
+        <translation>История передачи файлов</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="935"/>
         <source>Keep a history of file transfers</source>
-        <translation>Mantener un historial de transferencias de archivos</translation>
+        <translation>Хранить историю передачи файлов</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="944"/>
         <source>Clear Transfer History</source>
-        <translation>Borrar historial</translation>
+        <translation>Очистить историю передачи</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="79"/>
         <location filename="settingsdialog.ui" line="1007"/>
         <source>Alerts</source>
-        <translation>Alertas</translation>
+        <translation>Предупреждения</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1014"/>
         <source>Status Alerts</source>
-        <translation>Alertas de estados</translation>
+        <translation>Состояние предупреждений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1020"/>
         <source>Display status alerts</source>
-        <translation>Mostrar las alertas de estados</translation>
+        <translation>Отображать состояние предупреждений</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1027"/>
         <source>Suspend alerts when my status is Busy</source>
-        <translation>Suspender las alertas cuando mi estado sea Ocupado</translation>
+        <translation>Не выводить предупреждения когда мой статус Занят</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
-        <translation>Suspender las alertas cuando mi estado sea No molestar</translation>
+        <translation>Не выводить предупреждения когда мой статус Не беспокоить</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1044"/>
         <source>Sounds</source>
-        <translation>Sonidos</translation>
+        <translation>Звуки</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1050"/>
         <source>Provide feedback with sounds</source>
-        <translation>Informar mediante sonidos</translation>
+        <translation>Включить сопровождение событий звуками</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1161"/>
         <source>Suspend sounds when my status is Busy</source>
-        <translation>Suspender sonidos cuando mi estado sea Ocupado</translation>
+        <translation>Выключить звуки когда мой статус Занят</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
-        <translation>Suspender el sonido cuando mi estado sea No molestar</translation>
+        <translation>Выключить звуки когда мой статус Не беспокоить</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1077"/>
         <source>Play sounds for these events:</source>
-        <translation>Reproducir los sonidos para estos eventos:</translation>
+        <translation>Проигрывать звки для этих событий:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="84"/>
         <location filename="settingsdialog.ui" line="1216"/>
         <source>Network</source>
-        <translation>Red</translation>
+        <translation>Сеть</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1223"/>
         <source>Connection</source>
-        <translation>Conexión</translation>
+        <translation>Соединение</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1231"/>
         <source>Connection timeout (seconds):</source>
-        <translation>Tiempo de espera de conexión (segundos):</translation>
+        <translation>Время между соединениями (в секундах):</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1265"/>
         <source>Maximum number of retries:</source>
-        <translation>El número máximo de intentos:</translation>
+        <translation>Максимальное число попыток:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1300"/>
         <source>Broadcast</source>
         <oldsource>Broadcast Settings</oldsource>
-        <translation>Configuración de la difusión</translation>
+        <translation>Широковещательная рассылка</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1306"/>
         <source>Broadcast list:</source>
-        <translation>Lista de difusión:</translation>
+        <translation>Список широковещательной рассылки:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1464"/>
         <source>UDP Port*:</source>
-        <translation>El puerto UDP *:</translation>
+        <translation>Порт UDP*:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1507"/>
         <source>TCP Port*:</source>
-        <translation>Puerto TCP *:</translation>
+        <translation>Порт TCP*:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1551"/>
         <source>* Takes effect after you restart %1.</source>
-        <translation>* Toma los cambios despues de reiniciar el %1.</translation>
+        <translation>* Вступит в силу после перезапуска %1.</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="89"/>
         <location filename="settingsdialog.ui" line="1596"/>
         <source>File Transfer</source>
-        <translation>Transferencia de archivos</translation>
+        <translation>Передача файлов</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1603"/>
         <source>Incoming File Request</source>
-        <translation>Solicitud de archivo recibido</translation>
+        <translation>Входящий файловый запрос</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1641"/>
         <source>Bring window to foreground</source>
-        <translation>Traer ventana al primer plano</translation>
+        <translation>Переместить окно на передний план</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1668"/>
         <source>Minimize window to taskbar</source>
-        <translation>Minimizar la ventana a la barra de tareas</translation>
+        <translation>Минимизировать окно в панель задач</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1609"/>
         <source>Accept and start receiving files automatically</source>
-        <translation>Aceptar y empezar a recibir archivos de forma automática</translation>
+        <translation>Принимать и отправлять файлы автоматически</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1616"/>
         <source>Show File Transfer window when sending or receiving files</source>
-        <translation>Mostrar la ventana de transferencia al enviar o recibir archivos</translation>
+        <translation>Показывать окно передачи файлов при получении или отправке файлов</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1680"/>
         <source>Store Received Files in this Folder</source>
-        <translation>Almacenar archivos recibidos en esta carpeta</translation>
+        <translation>Сохранять полученные файлы в этой папке</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1712"/>
         <source>View Files</source>
-        <translation>Ver archivos</translation>
+        <translation>Показывать файлы</translation>
     </message>
 </context>
 <context>
@@ -717,17 +702,17 @@
     <message>
         <location filename="transferwindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="transferwindow.ui" line="88"/>
         <source>Clear List</source>
-        <translation>Borrar lista</translation>
+        <translation>Очистить список</translation>
     </message>
     <message>
         <location filename="transferwindow.ui" line="108"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -735,72 +720,17 @@
     <message>
         <location filename="updatewindow.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="updatewindow.ui" line="82"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="updatewindow.ui" line="92"/>
         <source>Recheck Version</source>
-        <translation>Recomprobar versión</translation>
-    </message>
-</context>
-<context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialogo</translation>
-    </message>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">Información Personal</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">Nombre:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">Apellido:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">N/A</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">Acerca de:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">Información del Sistema</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">Sistema Operativo:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">Dirección IP:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">Versión del Messenger:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">Nombre del equipo:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">Nombre de inicio de sesión:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Cerrar</translation>
+        <translation>Повторная проверка версии</translation>
     </message>
 </context>
 <context>
@@ -808,109 +738,109 @@
     <message>
         <location filename="userinfowindow.ui" line="14"/>
         <source>Dialog</source>
-        <translation>Dialogo</translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="34"/>
         <source>&lt;Avatar&gt;</source>
-        <translation></translation>
+        <translation>&lt;Avatar&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="43"/>
         <source>&lt;User Name&gt;</source>
-        <translation></translation>
+        <translation>&lt;User Name&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="50"/>
         <source>&lt;Status&gt;</source>
-        <translation></translation>
+        <translation>&lt;Status&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="84"/>
         <source>Personal Information</source>
-        <translation>Información Personal</translation>
+        <translation>Личные данные</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="94"/>
         <source>First Name:</source>
-        <translation>Nombre:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="101"/>
         <location filename="userinfowindow.ui" line="122"/>
         <location filename="userinfowindow.ui" line="160"/>
         <source>N/A</source>
-        <translation>N/A</translation>
+        <translation>Н/Д</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="115"/>
         <source>Last Name:</source>
-        <translation>Apellido:</translation>
+        <translation>Фамилия:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="138"/>
         <source>About:</source>
-        <translation>Acerca de:</translation>
+        <translation>О себе:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="170"/>
         <source>System Information</source>
-        <translation>Información del Sistema</translation>
+        <translation>Системная информация</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="176"/>
         <source>IP Address:</source>
-        <translation>Dirección IP:</translation>
+        <translation>IP-адрес:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="186"/>
         <source>&lt;IP Address&gt;</source>
-        <translation></translation>
+        <translation>&lt;IP Address&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="193"/>
         <source>Logon Name:</source>
-        <translation>Nombre de inicio de sesión:</translation>
+        <translation>Имя учетной записи:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="203"/>
         <source>&lt;Logon Name&gt;</source>
-        <translation></translation>
+        <translation>&lt;Logon Name&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="210"/>
         <source>Computer Name:</source>
-        <translation>Nombre del equipo:</translation>
+        <translation>Имя компьютера:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="220"/>
         <source>&lt;Computer Name&gt;</source>
-        <translation></translation>
+        <translation>&lt;Computer Name&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="227"/>
         <source>Operating System:</source>
-        <translation>Sistema Operativo:</translation>
+        <translation>Операционная система:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="237"/>
         <source>&lt;Operating System&gt;</source>
-        <translation></translation>
+        <translation>&lt;Operating System&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="244"/>
         <source>Messenger Version:</source>
-        <translation>Versión del Messenger:</translation>
+        <translation>Версия мессенджера:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="254"/>
         <source>&lt;Messenger Version&gt;</source>
-        <translation></translation>
+        <translation>&lt;Messenger Version&gt;</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="280"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -918,12 +848,12 @@
     <message>
         <location filename="userselectdialog.ui" line="17"/>
         <source>Dialog</source>
-        <translation>Dialogo</translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="userselectdialog.ui" line="36"/>
         <source>Contacts</source>
-        <translation>Contactos</translation>
+        <translation>Контакты</translation>
     </message>
     <message>
         <location filename="userselectdialog.ui" line="59"/>
@@ -933,7 +863,7 @@
     <message>
         <location filename="userselectdialog.ui" line="69"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -941,7 +871,7 @@
     <message>
         <location filename="aboutdialog.cpp" line="70"/>
         <source>About %1</source>
-        <translation>Acerca de %1</translation>
+        <translation>О программе %1</translation>
     </message>
 </context>
 <context>
@@ -949,32 +879,32 @@
     <message>
         <location filename="broadcastwindow.cpp" line="295"/>
         <source>Send Broadcast Message</source>
-        <translation>Enviar mensaje a todos</translation>
+        <translation>Отправить широковещательное сообщение</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="298"/>
         <source>Change Font Size</source>
-        <translation>Cambiar tamaño de la fuente</translation>
+        <translation>Изменить размер шрифта</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="299"/>
         <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
+        <translation>Вставить смайлик</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="335"/>
         <source>No recipient selected</source>
-        <translation>Ningun destinatario seleccionado</translation>
+        <translation>Нет выбранных получателей</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="336"/>
         <source>Please select at least one recipient to send a broadcast.</source>
-        <translation>Por favor, seleccione al menos un destinatario para enviar el mensaje.</translation>
+        <translation>Пожалуйста, введите хотя бы одного получателя для широковещательной рассылки.</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="358"/>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
-        <translation>Usted ya no está conectado. Mensaje de difusión no pueden ser enviados.</translation>
+        <translation>Вы больше не соединены. Широковещательное сообщение не может быть отправлено.</translation>
     </message>
 </context>
 <context>
@@ -982,305 +912,237 @@
     <message>
         <location filename="chatroomwindow.cpp" line="160"/>
         <source>Group Conversation</source>
-        <translation>Conversación del grupo</translation>
+        <translation>Беседа группы</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="295"/>
         <source>%1 says...</source>
-        <translation>%1 dice...</translation>
+        <translation>%1 говорит...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="451"/>
         <source>Select Font</source>
-        <translation></translation>
+        <translation>Выбрать шрифт</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="457"/>
         <source>Select Color</source>
-        <translation>Seleccione el color</translation>
+        <translation>Выбрать цвет</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="466"/>
         <source>Save Conversation</source>
-        <translation>Guardar conversación</translation>
+        <translation>Сохранить беседу</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="606"/>
         <source>Participants</source>
-        <translation>Participantes</translation>
+        <translation>Участники</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="608"/>
         <source>&amp;Conversation</source>
-        <translation>&amp;Conversación</translation>
+        <translation>&amp;Беседа</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="609"/>
         <source>Send &amp;File</source>
-        <translation>Enviar &amp;Archivo</translation>
+        <translation>Отправить &amp;Файл</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="610"/>
         <source>Get &amp;Information</source>
-        <translation>Obtener &amp;Información</translation>
+        <translation>Получить &amp;информацию</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="611"/>
         <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
+        <translation>Вставить смайлик</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="612"/>
         <source>&amp;Save As...</source>
-        <translation>&amp;Guardar como...</translation>
+        <translation>&amp;Сохранить как...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="613"/>
         <source>Save this conversation</source>
-        <translation>Guardar esta conversación</translation>
+        <translation>Сохранить эту беседу</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="614"/>
         <source>Change Font...</source>
-        <translation>Cambiar fuente...</translation>
+        <translation>Изменить шрифт...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="615"/>
         <source>Change message font</source>
-        <translation>Cambiar fuente del mensaje</translation>
+        <translation>Изменить шрифт сообщения</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="616"/>
         <source>Change Color...</source>
-        <translation>Cambiar color...</translation>
+        <translation>Изменить цвет...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="617"/>
         <source>Change message text color</source>
-        <translation>Cambiar el color del texto del mensaje</translation>
+        <translation>Изменить цвет текста сообщения</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="620"/>
         <source>&amp;Add Contacts...</source>
         <oldsource>&amp;Add A Contact...</oldsource>
-        <translation>&amp;Agregar Contactos...</translation>
+        <translation>&amp;Добавить контакты...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="621"/>
         <source>Add people to this conversation</source>
         <oldsource>Add contacts to this conversation</oldsource>
-        <translation>agregar personas a la conversación</translation>
+        <translation>Добавить людей в эту беседу</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="691"/>
         <source>You are no longer connected.</source>
-        <translation>Usted ya no está conectado.</translation>
+        <translation>Вы больше не соединены.</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="715"/>
         <source>Conversation</source>
-        <translation>Conversación</translation>
+        <translation>Беседа</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="717"/>
         <source>Public Chat</source>
-        <translation>Chat público</translation>
+        <translation>Общий чат</translation>
     </message>
 </context>
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>Chat with %1</source>
-        <translation type="obsolete">Chatear con %1</translation>
-    </message>
-    <message>
-        <source>Change Font Size</source>
-        <translation type="obsolete">Cambiar tamaño de la fuente</translation>
-    </message>
-    <message>
         <location filename="chatwindow.cpp" line="486"/>
         <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
+        <translation>Вставить смайлик</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="487"/>
         <source>Send A &amp;File...</source>
-        <translation>Enviar un &amp;Archivo...</translation>
+        <translation>Отправить &amp;Файл...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="488"/>
         <source>&amp;Save As...</source>
-        <translation>&amp;Guardar como...</translation>
+        <translation>&amp;Сохранить как...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="489"/>
         <source>&amp;History</source>
-        <translation>&amp;Historial</translation>
+        <translation>&amp;История</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="490"/>
         <source>File &amp;Transfers</source>
-        <translation>Transferencia &amp;de archivos</translation>
+        <translation>&amp;Передача файлов</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="492"/>
         <source>Send a file to %1</source>
-        <translation>Enviar un archivo a %1</translation>
+        <translation>Отправить файл %1</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="495"/>
         <source>Save this conversation</source>
-        <translation>Guardar esta conversación</translation>
+        <translation>Сохранить эту беседу</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="496"/>
         <source>View History</source>
-        <translation>Ver el historial</translation>
+        <translation>Просмотр истории</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="497"/>
         <source>View File Transfers</source>
-        <translation>Ver las transferencias de archivos</translation>
+        <translation>Просмотр передачи файлов</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="498"/>
         <source>Change Font...</source>
-        <translation>Cambiar fuente...</translation>
+        <translation>Изменить шрифт...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="499"/>
         <source>Change message font</source>
-        <translation>Cambiar fuente del mensaje</translation>
+        <translation>Изменить шрифт сообщения</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="500"/>
         <source>Change Color...</source>
-        <translation>Cambiar color...</translation>
+        <translation>Изменить цвет...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="501"/>
         <source>Change message text color</source>
-        <translation>Cambiar el color del texto del mensaje</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Usted ha aceptado el archivo.</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Ha rechazado el archivo.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="obsolete">Cancelado</translation>
+        <translation>Изменить цвет текста сообщения</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="354"/>
         <source>Select Font</source>
-        <translation>Seleccione la Fuente</translation>
+        <translation>Выбрать шрифт</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="360"/>
         <source>Select Color</source>
-        <translation>Seleccione el color</translation>
+        <translation>Выбрать цвет</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="378"/>
         <source>Save Conversation</source>
-        <translation>Guardar conversación</translation>
+        <translation>Сохранить беседу</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="149"/>
         <source>Group Conversation</source>
-        <translation>Conversación del grupo</translation>
+        <translation>Переговоры группы</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="168"/>
         <source>%1 says...</source>
-        <translation>%1 dice...</translation>
+        <translation>%1 говорит...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="176"/>
         <source>Broadcast from %1</source>
-        <translation>Emisión de %1</translation>
+        <translation>Широковещательное сообщение от %1</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="215"/>
         <source>%1 sends a file...</source>
-        <translation>%1 envía un archivo...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">Aceptado</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">Declinó</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="obsolete">Difusión de mensajes de %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="obsolete">Este mensaje no fue entregado a %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="obsolete">Su mensaje no fue enviado.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="obsolete">Enviando &apos;%1&apos; a %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1 le está enviando un archivo:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">El archivo ha sido aceptado de forma automática.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="obsolete">%1 le envía un archivo:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="obsolete">Aceptar</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="obsolete">Declinar</translation>
+        <translation>%1 отправляет файл...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="613"/>
         <source>You are no longer connected.</source>
-        <translation>Usted ya no está conectado.</translation>
+        <translation>Вы больше не соединены.</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="616"/>
         <source>%1 is offline.</source>
-        <translation>%1 no está en línea.</translation>
+        <translation>%1 отключился.</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="620"/>
         <source>%1 is away.</source>
-        <translation>%1 está ausente.</translation>
+        <translation>%1 вышел.</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="624"/>
         <source>%1 is busy. You may be interrupting.</source>
-        <translation>%1 está ocupado(a). Puede que le interrumpas.</translation>
+        <translation>%1 занят. Вы можете побеспокоить.</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="648"/>
         <source>Conversation</source>
-        <translation>Conversación</translation>
+        <translation>Беседа</translation>
     </message>
 </context>
 <context>
@@ -1289,26 +1151,26 @@
         <location filename="lmc.cpp" line="143"/>
         <location filename="lmc.cpp" line="182"/>
         <source>LAYOUT_DIRECTION</source>
-        <translation></translation>
+        <translation>LAYOUT_DIRECTION</translation>
     </message>
     <message>
         <location filename="lmc.cpp" line="971"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
-        <translation>Un conflicto con la dirección del puerto ha sido detectado. %1 se cerrará ahora.</translation>
+        <translation>Обнаружен конфликт адреса порта. %1 будет сейчас закрыт.</translation>
     </message>
     <message>
         <location filename="lmc.cpp" line="973"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
-        <translation>%1 No se puede iniciar debido a que otra aplicación está utilizando el puerto configurado para su uso con %2.</translation>
+        <translation>%1 не может запустить потому, что другое приложение использует порт, настроенный для использования с %2.</translation>
     </message>
     <message>
         <location filename="lmc.cpp" line="138"/>
         <source>Your preferences file is corrupt or invalid.
 
 %1 is unable to recover your settings.</source>
-        <translation>El archivo de preferencias está dañado o no válido.
+        <translation>Ваш файл настроек поврежден или неправильный.
 
-%1 no se puede recuperar la configuración.</translation>
+%1 не может восстановить Ваши настройки.</translation>
     </message>
 </context>
 <context>
@@ -1316,12 +1178,12 @@
     <message>
         <location filename="helpwindow.cpp" line="83"/>
         <source>Help</source>
-        <translation>Ayuda</translation>
+        <translation>Справка</translation>
     </message>
     <message>
         <location filename="helpwindow.cpp" line="89"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Help&lt;/h3&gt;&lt;p&gt;You can find documentation on LAN Messenger&apos;s &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Before asking any question, please refer yourself to the &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You might then get (and give) help on the &lt;a href=&apos;%3&apos;&gt;Support Forums&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Bienvenido a la Ayuda de LAN Messenger&lt;/h2&gt;&lt;h3&gt;Ayuda&lt;/h3&gt;&lt;p&gt;Usted puede encontrar documentación sobre LAN Messenger en este sitio web &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Antes de preguntar cualquier duda, consulte usted mismo a la &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;A continuación, puede obtener (y dar) ayuda en los &lt;a href=&apos;%3&apos;&gt;Foros de soporte&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribuir con el proyecto&lt;/h3&gt;&lt;p&gt;Usted puede ayudar al proyecto LAN Messenger dando parte de su tiempo para ayudar a la comunidad, para traducir la aplicación o la documentación, y para probar el programa. Y, por supuesto, usted puede &lt;b&gt;promover&lt;/b&gt; el LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Добро пожаловать в Справку LAN Messenger&lt;/h2&gt;&lt;h3&gt;Справка&lt;/h3&gt;&lt;p&gt;Вы можете найти документацию по программе LAN Messenger на вебсайте &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Перед тем как задать любой вопрос, пожалуйста, обратитесь к &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt; (часто задаваемым вопросам).&lt;/p&gt;&lt;p&gt;Вы можете затем получить (и дать) справку на &lt;a href=&apos;%3&apos;&gt;Форуме поддержки&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Поддержка для проекта&lt;/h3&gt;&lt;p&gt;Вы можете помочь проекту LAN Messenger, уделяя немного Вашего времени для помощи сообществу, для перевода приложения или документации, и для тестирования программы. И конечно же, Вы можете &lt;b&gt;продвинуть&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1329,7 +1191,7 @@
     <message>
         <location filename="historywindow.cpp" line="110"/>
         <source>Message History</source>
-        <translation>Historial de mensajes</translation>
+        <translation>История сообщений</translation>
     </message>
 </context>
 <context>
@@ -1337,189 +1199,189 @@
     <message>
         <location filename="mainwindow.cpp" line="181"/>
         <source>%1 is online.</source>
-        <translation>%1 está en línea.</translation>
+        <translation>%1 доступен.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="216"/>
         <source>%1 is offline.</source>
-        <translation>%1 no está en línea.</translation>
+        <translation>%1 отключился.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="272"/>
         <source>You are online.</source>
-        <translation>Usted está en línea.</translation>
+        <translation>Вы на связи.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1076"/>
         <source>%1 - Not Connected</source>
-        <translation>%1 - No conectado</translation>
+        <translation>%1 - Не подключен</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="274"/>
         <source>You are no longer connected.</source>
-        <translation>Usted ya no está conectado.</translation>
+        <translation>Вы больше не соединены.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="435"/>
         <source>Select avatar picture</source>
-        <translation>Seleccione la imagen del avatar</translation>
+        <translation>Выбрать аватар</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="554"/>
         <source>Add New Group</source>
-        <translation>Agregar nuevo grupo</translation>
+        <translation>Добавить новую группу</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="554"/>
         <source>Enter a name for the group</source>
-        <translation>Escriba un nombre para el grupo</translation>
+        <translation>Введите имя для группы</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="560"/>
         <location filename="mainwindow.cpp" line="593"/>
         <source>A group named &apos;%1&apos; already exists. Please enter a different name.</source>
-        <translation>Un grupo llamado &apos;%1&apos; ya existe. Por favor, introduzca un nombre diferente.</translation>
+        <translation>Группа с именем &apos;%1&apos; уже существует. Пожалуйста, введите другое имя.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="586"/>
         <source>Rename Group</source>
-        <translation>Cambiar nombre de grupo</translation>
+        <translation>Переименовать группу</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="587"/>
         <source>Enter a new name for the group</source>
-        <translation>Introducir un nuevo nombre para el grupo</translation>
+        <translation>Введите новое имя для группы</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="820"/>
         <source>&amp;Messenger</source>
-        <translation>&amp;Aplicación</translation>
+        <translation>&amp;Мессенджер</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="821"/>
         <location filename="mainwindow.cpp" line="854"/>
         <source>&amp;New Chat Room</source>
-        <translation>&amp;Nueva sala de chat</translation>
+        <translation>&amp;Новая дискуссионная группа</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="823"/>
         <source>&amp;Refresh Contacts List</source>
-        <translation>&amp;Actualizar lista de contactos</translation>
+        <translation>&amp;Обновить список контактов</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="822"/>
         <location filename="mainwindow.cpp" line="855"/>
         <source>&amp;Public Chat</source>
-        <translation>&amp;Chat público</translation>
+        <translation>&amp;Общий чат</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="824"/>
         <location filename="mainwindow.cpp" line="842"/>
         <source>E&amp;xit</source>
-        <translation>&amp;Salir</translation>
+        <translation>Вы&amp;ход</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="825"/>
         <source>&amp;Tools</source>
-        <translation>&amp;Herramientas</translation>
+        <translation>&amp;Инструменты</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="826"/>
         <location filename="mainwindow.cpp" line="838"/>
         <source>&amp;History</source>
-        <translation>&amp;Historial</translation>
+        <translation>&amp;История</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="827"/>
         <location filename="mainwindow.cpp" line="839"/>
         <source>File &amp;Transfers</source>
-        <translation>Transferencia &amp;de archivos</translation>
+        <translation>&amp;Передача файлов</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="828"/>
         <location filename="mainwindow.cpp" line="840"/>
         <source>&amp;Preferences</source>
-        <translation>&amp;Preferencias</translation>
+        <translation>&amp;Настройки</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="829"/>
         <location filename="mainwindow.cpp" line="830"/>
         <source>&amp;Help</source>
-        <translation>A&amp;yuda</translation>
+        <translation>&amp;Справка</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="831"/>
         <source>%1 &amp;online</source>
-        <translation>%1 &amp;en línea</translation>
+        <translation>%1 &amp;сайт</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="833"/>
         <source>Check for &amp;Updates...</source>
-        <translation>&amp;Comprobar actualizaciones...</translation>
+        <translation>Проверить о&amp;бновления...</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="834"/>
         <location filename="mainwindow.cpp" line="841"/>
         <source>&amp;About</source>
-        <translation>&amp;Acerca de</translation>
+        <translation>&amp;О программе</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="835"/>
         <source>&amp;Show %1</source>
-        <translation>&amp;Mostrar %1</translation>
+        <translation>&amp;Показать %1</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="837"/>
         <source>&amp;Change Status</source>
-        <translation>&amp;Cambio de estado</translation>
+        <translation>&amp;Изменить статус</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="843"/>
         <source>Add &amp;New Group</source>
-        <translation>Agregar &amp;Nuevo Grupo</translation>
+        <translation>Добавить &amp;новую группу</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="844"/>
         <source>&amp;Rename This Group</source>
-        <translation>&amp;Cambiar el nombre de este grupo</translation>
+        <translation>&amp;Переименовать эту группу</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="845"/>
         <source>&amp;Delete This Group</source>
-        <translation>&amp;Eliminar este grupo</translation>
+        <translation>&amp;Удалить эту группу</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="846"/>
         <location filename="mainwindow.cpp" line="851"/>
         <source>&amp;Conversation</source>
-        <translation>&amp;Conversación</translation>
+        <translation>&amp;Беседа</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="847"/>
         <location filename="mainwindow.cpp" line="853"/>
         <source>Send &amp;Broadcast Message</source>
-        <translation>Enviar &amp;mensaje de difusión</translation>
+        <translation>Отправить &amp;широковещательное сообщение</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="848"/>
         <location filename="mainwindow.cpp" line="852"/>
         <source>Send &amp;File</source>
-        <translation>Enviar &amp;Archivo</translation>
+        <translation>Отправить &amp;Файл</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="849"/>
         <source>Get &amp;Information</source>
-        <translation>Obtener &amp;Información</translation>
+        <translation>Получить &amp;информацию</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="850"/>
         <source>&amp;Browse for more pictures...</source>
-        <translation>E&amp;xaminar para más imagenes...</translation>
+        <translation>&amp;Обзор других рисунков...</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="878"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
-        <translation>%1 seguirá funcionando en segundo plano. Activar este icono para restaurar la ventana de la aplicación.</translation>
+        <translation>%1 продожает работать в фоновом режиме. Активируйте этот значок для восстановления окна приложения.</translation>
     </message>
 </context>
 <context>
@@ -1527,179 +1389,175 @@
     <message>
         <location filename="messagelog.cpp" line="408"/>
         <source>Broadcast message from %1:</source>
-        <translation>Difusión de mensajes de %1:</translation>
+        <translation>Широковещательное сообщение от %1:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="150"/>
         <source>This message was not delivered to %1:</source>
-        <translation>Este mensaje no fue entregado a %1:</translation>
+        <translation>Это сообщение не было доставлено к %1:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="163"/>
         <source>Your message was not sent.</source>
-        <translation>Su mensaje no fue enviado.</translation>
+        <translation>Ваше сообщение не было отправлено.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="523"/>
         <source>Sending &apos;%1&apos; to %2.</source>
-        <translation>Enviando &apos;%1&apos; a %2.</translation>
+        <translation>Отправка &apos;%1&apos; к %2.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="533"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="548"/>
         <source>%1 is sending you a file:</source>
-        <translation>%1 le está enviando un archivo:</translation>
+        <translation>%1 отправляет Вам файл:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="554"/>
         <source>%1 sends you a file:</source>
-        <translation>%1 le envía un archivo:</translation>
+        <translation>%1 отправил Вам файл:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="567"/>
         <source>File has been accepted automatically.</source>
-        <translation>El archivo ha sido aceptado de forma automática.</translation>
+        <translation>Файл был принят автоматически.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="569"/>
         <source>Accept</source>
-        <translation>Aceptar</translation>
+        <translation>Принять</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="570"/>
         <source>Decline</source>
-        <translation>Declinar</translation>
+        <translation>Отклонить</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="621"/>
         <source>Accepted</source>
-        <translation>Aceptado</translation>
+        <translation>Принят</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="621"/>
         <source>You have accepted the file.</source>
-        <translation>Usted ha aceptado el archivo.</translation>
+        <translation>Вы приняли файл.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="624"/>
         <source>Declined</source>
-        <translation>Declinó</translation>
+        <translation>Отклонен</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="624"/>
         <source>You have declined the file.</source>
-        <translation>Ha rechazado el archivo.</translation>
+        <translation>Вы отклонили файл.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="627"/>
         <source>Canceled</source>
-        <translation>Cancelado</translation>
+        <translation>Отменено</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="641"/>
         <source>%1 is typing...</source>
-        <translation>%1 está tecleando...</translation>
+        <translation>%1 вводит с клавиатуры...</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="644"/>
         <source>%1 has entered text</source>
-        <translation>%1 ha introducido el texto</translation>
+        <translation>%1 вставил текст</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="658"/>
         <source>%1 has joined this conversation</source>
-        <translation>%1 se ha unido a esta conversación</translation>
+        <translation>%1 присоединился к этой беседе</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="661"/>
         <source>%1 has left this conversation</source>
-        <translation>%1 ha dejado a esta conversación</translation>
+        <translation>%1 покинул эту беседу</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="769"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Copiar</translation>
+        <translation>&amp;Копировать</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="770"/>
         <source>Select &amp;All</source>
-        <translation>Seleccionar &amp;todos</translation>
+        <translation>Выбрать&amp;все</translation>
     </message>
 </context>
 <context>
     <name>lmcSettingsDialog</name>
     <message>
-        <source>AaBbYyZz</source>
-        <translation type="obsolete">AaBbYyZz</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.cpp" line="194"/>
         <source>Save History</source>
-        <translation>Guardar historial</translation>
+        <translation>Сохранить историю</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="201"/>
         <source>Select folder</source>
-        <translation>Seleccione la carpeta</translation>
+        <translation>Выбрать папку</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="232"/>
         <source>Select Font</source>
-        <translation>Seleccione la fuente</translation>
+        <translation>Выбрать шрифт</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="238"/>
         <source>Select Color</source>
-        <translation>Seleccione el color</translation>
+        <translation>Выбрать цвет</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="244"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
-        <translation>¿Esta seguro que quiere reiniciar su %1 preferencias?</translation>
+        <translation>Вы уверены, что хотите сбросить ваши настройки %1?</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="245"/>
         <source>Reset Preferences</source>
-        <translation>Reiniciar preferencias</translation>
+        <translation>Сброс настроек</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="350"/>
         <source>&lt;File Not Found&gt;</source>
-        <translation>&lt;Archivo no encontrado&gt;</translation>
+        <translation>&lt;File Not Found&gt;</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="364"/>
         <source>Select sound</source>
-        <translation>seleccionar el sonido</translation>
+        <translation>Выбрать звук</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="392"/>
         <source>Preferences</source>
-        <translation>Preferencias</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="400"/>
         <source>System Tray (Not Available)</source>
-        <translation>La bandeja del sistema (no disponible)</translation>
+        <translation>Область уведомлений (не доступно)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="404"/>
         <source>Status Alerts (Not Available)</source>
-        <translation>Alertas de Estado (no disponible)</translation>
+        <translation>Статус предупреждений (не доступно)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="408"/>
         <source>Sounds (Not Available)</source>
-        <translation>Sonidos (No disponible)</translation>
+        <translation>Звуки (не доступно)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="422"/>
         <source>Check for updates</source>
-        <translation>Comprobar actualizaciones</translation>
+        <translation>Проверить обновления</translation>
     </message>
 </context>
 <context>
@@ -1707,146 +1565,145 @@
     <message>
         <location filename="strings.cpp" line="55"/>
         <source>LAN Messenger</source>
-        <translation></translation>
+        <translation>LAN Messenger</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="61"/>
         <source>LAN Messenger is a free peer-to-peer messaging application for
 intra-network communication and does not require a server.
 LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN Messenger es una aplicación de mensajería gratuito para la comunicación punto a punto en una intranet y no requiere de un servidor.
-
-LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más populares.</translation>
+        <translation>LAN Messenger - это бесплатное приложение для одноранговых сообщений в локальной сети и не требующее сервера.
+LAN Messenger работает по существу во всех популярных операционных системах.</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="69"/>
         <source>Automatic</source>
-        <translation>Automático</translation>
+        <translation>Автоматический</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="75"/>
         <source>Small text</source>
-        <translation>Texto pequeño</translation>
+        <translation>Мелкий текст</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="76"/>
         <source>Medium text</source>
-        <translation>Texto mediano</translation>
+        <translation>Средний текст</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="77"/>
         <source>Large text</source>
-        <translation>Texto grande</translation>
+        <translation>Крупный текст</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="84"/>
         <source>Available</source>
-        <translation>Disponible</translation>
+        <translation>Доступен</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="85"/>
         <source>Busy</source>
-        <translation>Ocupado</translation>
+        <translation>Занят</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="86"/>
         <source>Do Not Disturb</source>
-        <translation>No molestar</translation>
+        <translation>Не беспокоить</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="87"/>
         <source>Be Right Back</source>
-        <translation>Vuelvo enseguida</translation>
+        <translation>Сейчас буду</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="88"/>
         <source>Away</source>
-        <translation>Lejos</translation>
+        <translation>Вышел</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="89"/>
         <source>Appear Offline</source>
-        <translation>Aparecer desconectado</translation>
+        <translation>Отключился</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="96"/>
         <source>Incoming message</source>
-        <translation>Mensaje recibido</translation>
+        <translation>Входящее сообщение</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="97"/>
         <source>User is online</source>
-        <translation>El usuario está en línea</translation>
+        <translation>Пользователь подключен</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="98"/>
         <source>User is offline</source>
-        <translation>Usuario está sin conexión</translation>
+        <translation>Пользователь отключен</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="99"/>
         <source>Incoming file transfer</source>
-        <translation>Transferencia de archivos recibidos</translation>
+        <translation>Входящая передача файла</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="100"/>
         <source>File transfer completed</source>
-        <translation>Transferencia de archivos terminada</translation>
+        <translation>Передача файла завершена</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="101"/>
         <source>Incoming public message</source>
-        <translation>los mensajes recibidos públicos</translation>
+        <translation>Входящее общее сообщение</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="108"/>
         <source>5 minutes</source>
-        <translation>5 minutos</translation>
+        <translation>5 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="109"/>
         <source>10 minutes</source>
-        <translation>10 minutos</translation>
+        <translation>10 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="110"/>
         <source>15 minutes</source>
-        <translation>15 minutos</translation>
+        <translation>15 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="111"/>
         <source>20 minutes</source>
-        <translation>20 minutos</translation>
+        <translation>20 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="112"/>
         <source>30 minutes</source>
-        <translation>30 minutos</translation>
+        <translation>30 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="113"/>
         <source>45 minutes</source>
-        <translation>45 minutos</translation>
+        <translation>45 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="114"/>
         <source>60 minutes</source>
-        <translation>60 minutos</translation>
+        <translation>60 минут</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="115"/>
         <source>Never</source>
-        <translation>Nunca</translation>
+        <translation>Никогда</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="122"/>
         <source>Detailed</source>
-        <translation>Detallado</translation>
+        <translation>Подробно</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="123"/>
         <source>Compact</source>
-        <translation>Compacto</translation>
+        <translation>Кратко</translation>
     </message>
 </context>
 <context>
@@ -1854,48 +1711,48 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
     <message>
         <location filename="transferwindow.cpp" line="230"/>
         <source>&apos;%1&apos; has been sent to %2.</source>
-        <translation>&apos;%1&apos; ha sido enviado a %2.</translation>
+        <translation>&apos;%1&apos; был отправлен к %2.</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="232"/>
         <location filename="transferwindow.cpp" line="247"/>
         <source>File Transfer Completed</source>
-        <translation>Transferencia de archivos completados</translation>
+        <translation>Передача файла завершена</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="245"/>
         <source>&apos;%1&apos; has been received from %2.</source>
-        <translation>&apos;%1&apos; se ha recibido de %2.</translation>
+        <translation>&apos;%1&apos; был получен от %2.</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="356"/>
         <source>File Transfers</source>
-        <translation>Transferencia de archivos</translation>
+        <translation>Передача файлов</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="358"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="359"/>
         <source>Show In Folder</source>
-        <translation>Mostrar en carpeta</translation>
+        <translation>Показать в папке</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="360"/>
         <source>Remove From List</source>
-        <translation>Eliminar de la lista</translation>
+        <translation>Удалить из списка</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="411"/>
         <source>Calculating time</source>
-        <translation>Calcular el tiempo</translation>
+        <translation>Расчет времени</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="453"/>
         <source>/sec</source>
-        <translation>/seg</translation>
+        <translation>/сек</translation>
     </message>
 </context>
 <context>
@@ -1903,34 +1760,27 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
     <message>
         <location filename="updatewindow.cpp" line="116"/>
         <source>%1 updates</source>
-        <translation>Actualizaciones del %1</translation>
+        <translation>%1 обновлений</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="135"/>
         <source>Launching an update request...</source>
-        <translation>Realizando solicitude de actualizaciones...</translation>
+        <translation>Запуск запроса на обновление...</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="138"/>
         <source>An error occured while checking for updates.</source>
-        <translation>Ocurrió un error al buscar actualizaciones.</translation>
+        <translation>Ошибка возникла при проверке обновлений.</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="141"/>
         <source>The new version %1 is available on %2 web site.</source>
-        <translation>La nueva versión %1 está disponible en el Sitio Web de %2.</translation>
+        <translation>Новая версия %1 доступна на веб-сайте %2.</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="144"/>
         <source>You have the latest version of %1.</source>
-        <translation>Tiene la última versión del %1.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">Información del usuario</translation>
+        <translation>У Вас уже имеется последняя версия %1.</translation>
     </message>
 </context>
 <context>
@@ -1938,7 +1788,7 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
     <message>
         <location filename="userinfowindow.cpp" line="77"/>
         <source>User Information</source>
-        <translation>Información del usuario</translation>
+        <translation>Информация пользователя</translation>
     </message>
 </context>
 <context>
@@ -1946,7 +1796,7 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
     <message>
         <location filename="userselectdialog.cpp" line="132"/>
         <source>Select Contacts</source>
-        <translation>Seleccionar contactos</translation>
+        <translation>Выбрать контакты</translation>
     </message>
 </context>
 </TS>

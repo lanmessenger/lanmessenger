@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #endif
 #include <QStringList>
+#include <QFile>
 
 int Helper::indexOf(const QString array[], int size, const QString& value) {
 	for(int index = 0; index < size; index++) {
@@ -178,10 +179,31 @@ int Helper::compareVersions(const QString& version1, const QString& version2) {
 	return 0;
 }
 
-QString Helper::BoolToString(bool value) {
+QString Helper::boolToString(bool value) {
 	return value ? LMC_TRUE : LMC_FALSE;
 }
 
-bool Helper::StringToBool(const QString& value) {
+bool Helper::stringToBool(const QString& value) {
 	return value.compare(LMC_TRUE) == 0 ? true : false;
+}
+
+//	Function that copies content of source to destination
+//	Destination file will be overwritten
+//	Supports only small files
+bool Helper::copyFile(const QString& source, const QString& destination) {
+	QFile srcFile(source);
+	if(!srcFile.open(QIODevice::ReadOnly))
+		return false;
+
+	QByteArray data = srcFile.readAll();
+	srcFile.close();
+
+	QFile destFile(destination);
+	if(!destFile.open(QIODevice::WriteOnly))
+		return false;
+
+	destFile.write(data);
+	destFile.close();
+
+	return true;
 }

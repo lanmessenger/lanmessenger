@@ -90,7 +90,7 @@ void lmcSettingsDialog::init(void) {
 		QListWidgetItem* pListItem = new QListWidgetItem(ui.lvSounds);
 		pListItem->setText(lmcStrings::soundDesc()[index]);
 		pListItem->setData(Qt::UserRole, soundFile[index]);
-		pListItem->setCheckState(Qt::Checked);
+		pListItem->setCheckState(IDS_SOUNDEVENT_VAL);
 	}
 
 	Themes themes = lmcTheme::availableThemes();
@@ -185,9 +185,10 @@ void lmcSettingsDialog::rdbSysHistoryPath_toggled(bool checked) {
 	ui.txtHistoryPath->setEnabled(!checked);
 	ui.btnHistoryPath->setEnabled(!checked);
 
-	if(checked) {
+	if(!checked)
 		ui.txtHistoryPath->setText(History::historyFile());
-	}
+	else
+		ui.txtHistoryPath->clear();
 }
 
 void lmcSettingsDialog::btnHistoryPath_clicked(void) {
@@ -482,7 +483,6 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkHistory->setChecked(pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool());
 	ui.rdbSysHistoryPath->setChecked(pSettings->value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool());
 	ui.rdbCustomHistoryPath->setChecked(!pSettings->value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool());
-	ui.txtHistoryPath->setText(History::historyFile());
 	ui.chkFileHistory->setChecked(pSettings->value(IDS_FILEHISTORY, IDS_FILEHISTORY_VAL).toBool());
 
 	ui.chkAlert->setChecked(pSettings->value(IDS_ALERT, IDS_ALERT_VAL).toBool());
@@ -494,13 +494,13 @@ void lmcSettingsDialog::loadSettings(void) {
 	int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), ui.lvSounds->count());
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_EVENT).toInt());
+		ui.lvSounds->item(index)->setCheckState((Qt::CheckState)pSettings->value(IDS_SOUNDEVENT).toInt());
 	}
 	pSettings->endArray();
 	size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), ui.lvSounds->count());
 	for(int index = 0; index < size; index++) {
 		pSettings->setArrayIndex(index);
-		ui.lvSounds->item(index)->setData(Qt::UserRole, pSettings->value(IDS_FILE).toString());
+		ui.lvSounds->item(index)->setData(Qt::UserRole, pSettings->value(IDS_SOUNDFILE).toString());
 	}
 	pSettings->endArray();
 	ui.chkNoBusySound->setChecked(pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool());
@@ -544,81 +544,108 @@ void lmcSettingsDialog::loadSettings(void) {
 void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_VERSION, IDA_VERSION);
 
-	pSettings->setValue(IDS_AUTOSTART, ui.chkAutoStart->isChecked());
-	pSettings->setValue(IDS_AUTOSHOW, ui.chkAutoShow->isChecked());
-	pSettings->setValue(IDS_SYSTRAY, ui.chkSysTray->isChecked());
-	pSettings->setValue(IDS_MINIMIZETRAY, ui.chkMinimizeTray->isChecked());
-	pSettings->setValue(IDS_SINGLECLICKTRAY, ui.chkSingleClickTray->isChecked());
-	pSettings->setValue(IDS_SYSTRAYMSG, ui.chkSysTrayMsg->isChecked());
-	pSettings->setValue(IDS_ALLOWSYSTRAYMIN, ui.chkAllowSysTrayMin->isChecked());
+	pSettings->setValue(IDS_AUTOSTART, ui.chkAutoStart->isChecked(), IDS_AUTOSTART_VAL);
+	pSettings->setValue(IDS_AUTOSHOW, ui.chkAutoShow->isChecked(), IDS_AUTOSHOW_VAL);
+	pSettings->setValue(IDS_SYSTRAY, ui.chkSysTray->isChecked(), IDS_SYSTRAY_VAL);
+	pSettings->setValue(IDS_MINIMIZETRAY, ui.chkMinimizeTray->isChecked(), IDS_MINIMIZETRAY_VAL);
+	pSettings->setValue(IDS_SINGLECLICKTRAY, ui.chkSingleClickTray->isChecked(), IDS_SINGLECLICKTRAY_VAL);
+	pSettings->setValue(IDS_SYSTRAYMSG, ui.chkSysTrayMsg->isChecked(), IDS_SYSTRAYMSG_VAL);
+	pSettings->setValue(IDS_ALLOWSYSTRAYMIN, ui.chkAllowSysTrayMin->isChecked(), IDS_ALLOWSYSTRAYMIN_VAL);
 	QString langCode = ui.cboLanguage->itemData(ui.cboLanguage->currentIndex(), Qt::UserRole).toString();
-	pSettings->setValue(IDS_LANGUAGE, langCode);
+	pSettings->setValue(IDS_LANGUAGE, langCode, IDS_LANGUAGE_VAL);
 
-	pSettings->setValue(IDS_USERNAME, ui.txtUserName->text());
-	pSettings->setValue(IDS_USERFIRSTNAME, ui.txtFirstName->text());
-	pSettings->setValue(IDS_USERLASTNAME, ui.txtLastName->text());
-	pSettings->setValue(IDS_USERABOUT, ui.txtAbout->toPlainText());
-	pSettings->setValue(IDS_REFRESHTIME, ui.spnRefreshTime->value());
+	pSettings->setValue(IDS_USERNAME, ui.txtUserName->text(), IDS_USERNAME_VAL);
+	pSettings->setValue(IDS_USERFIRSTNAME, ui.txtFirstName->text(), IDS_USERFIRSTNAME_VAL);
+	pSettings->setValue(IDS_USERLASTNAME, ui.txtLastName->text(), IDS_USERLASTNAME_VAL);
+	pSettings->setValue(IDS_USERABOUT, ui.txtAbout->toPlainText(), IDS_USERABOUT_VAL);
+	pSettings->setValue(IDS_REFRESHTIME, ui.spnRefreshTime->value(), IDS_REFRESHTIME_VAL);
 
-	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked());
-	pSettings->setValue(IDS_PUBMESSAGEPOP, ui.chkPublicMessagePop->isChecked());
-	pSettings->setValue(IDS_EMOTICON, ui.chkEmoticon->isChecked());
-	pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked());
-	pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked());
-	pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked());
-	pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked());
-	pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked());
-	pSettings->setValue(IDS_FONT, font.toString());
-	pSettings->setValue(IDS_COLOR, color.name());
-	pSettings->setValue(IDS_FONTSIZE, ui.cboFontSize->currentIndex());
+	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked(), IDS_MESSAGETOP_VAL);
+	pSettings->setValue(IDS_PUBMESSAGEPOP, ui.chkPublicMessagePop->isChecked(), IDS_PUBMESSAGEPOP_VAL);
+	pSettings->setValue(IDS_EMOTICON, ui.chkEmoticon->isChecked(), IDS_EMOTICON_VAL);
+	pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked(), IDS_MESSAGETIME_VAL);
+	pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked(), IDS_MESSAGEDATE_VAL);
+	pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked(), IDS_ALLOWLINKS_VAL);
+	pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked(), IDS_PATHTOLINK_VAL);
+	pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked(), IDS_TRIMMESSAGE_VAL);
+	pSettings->setValue(IDS_FONT, font.toString(), IDS_FONT_VAL);
+	pSettings->setValue(IDS_COLOR, color.name(), IDS_COLOR_VAL);
+	pSettings->setValue(IDS_FONTSIZE, ui.cboFontSize->currentIndex(), IDS_FONTSIZE_VAL);
 
-	pSettings->setValue(IDS_HISTORY, ui.chkHistory->isChecked());
-	pSettings->setValue(IDS_SYSHISTORYPATH, ui.rdbSysHistoryPath->isChecked());
-	pSettings->setValue(IDS_HISTORYPATH, ui.txtHistoryPath->text());
-	pSettings->setValue(IDS_FILEHISTORY, ui.chkFileHistory->isChecked());
+	pSettings->setValue(IDS_HISTORY, ui.chkHistory->isChecked(), IDS_HISTORY_VAL);
+	pSettings->setValue(IDS_SYSHISTORYPATH, ui.rdbSysHistoryPath->isChecked(), IDS_SYSHISTORYPATH_VAL);
+	pSettings->setValue(IDS_HISTORYPATH, ui.txtHistoryPath->text(), IDS_HISTORYPATH_VAL);
+	pSettings->setValue(IDS_FILEHISTORY, ui.chkFileHistory->isChecked(), IDS_FILEHISTORY_VAL);
 
-	pSettings->setValue(IDS_ALERT, ui.chkAlert->isChecked());
-	pSettings->setValue(IDS_NOBUSYALERT, ui.chkNoBusyAlert->isChecked());
-	pSettings->setValue(IDS_NODNDALERT, ui.chkNoDNDAlert->isChecked());
-	pSettings->setValue(IDS_SOUND, ui.chkSound->isChecked());
-	pSettings->beginWriteArray(IDS_SOUNDEVENTHDR);
-	for(int index = 0; index < ui.lvSounds->count(); index++) {
-		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_EVENT, ui.lvSounds->item(index)->checkState());
+	pSettings->setValue(IDS_ALERT, ui.chkAlert->isChecked(), IDS_ALERT_VAL);
+	pSettings->setValue(IDS_NOBUSYALERT, ui.chkNoBusyAlert->isChecked(), IDS_NOBUSYALERT_VAL);
+	pSettings->setValue(IDS_NODNDALERT, ui.chkNoDNDAlert->isChecked(), IDS_NODNDALERT_VAL);
+	pSettings->setValue(IDS_SOUND, ui.chkSound->isChecked(), IDS_SOUND_VAL);
+	int checkCount = 0;
+	int soundFileCount = 0;
+	if(ui.lvSounds->count() > 0) {
+		pSettings->beginWriteArray(IDS_SOUNDEVENTHDR);
+		for(int index = 0; index < ui.lvSounds->count(); index++) {
+			pSettings->setArrayIndex(index);
+			pSettings->setValue(IDS_SOUNDEVENT, ui.lvSounds->item(index)->checkState());
+			if(ui.lvSounds->item(index)->checkState() == IDS_SOUNDEVENT_VAL)
+				checkCount++;
+		}
+		pSettings->endArray();
+		pSettings->beginWriteArray(IDS_SOUNDFILEHDR);
+		for(int index = 0; index < ui.lvSounds->count(); index++) {
+			pSettings->setArrayIndex(index);
+			pSettings->setValue(IDS_SOUNDFILE, ui.lvSounds->item(index)->data(Qt::UserRole).toString());
+			if(ui.lvSounds->item(index)->data(Qt::UserRole).toString().compare(soundFile[index]) == 0)
+				soundFileCount++;
+		}
+		pSettings->endArray();
 	}
-	pSettings->endArray();
-	pSettings->beginWriteArray(IDS_SOUNDFILEHDR);
-	for(int index = 0; index < ui.lvSounds->count(); index++) {
-		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_FILE, ui.lvSounds->item(index)->data(Qt::UserRole).toString());
+	if(ui.lvSounds->count() == 0 || checkCount == ui.lvSounds->count()) {
+		pSettings->beginGroup(IDS_SOUNDEVENTHDR);
+		pSettings->remove("");
+		pSettings->endGroup();
 	}
-	pSettings->endArray();
-	pSettings->setValue(IDS_NOBUSYSOUND, ui.chkNoBusySound->isChecked());
-	pSettings->setValue(IDS_NODNDSOUND, ui.chkNoDNDSound->isChecked());
-
-	pSettings->setValue(IDS_TIMEOUT, ui.spnTimeout->value());
-	pSettings->setValue(IDS_MAXRETRIES, ui.spnMaxRetries->value());
-	pSettings->beginWriteArray(IDS_BROADCASTHDR);
-	for(int index = 0; index < ui.lvBroadcasts->count(); index++) {
-		pSettings->setArrayIndex(index);
-		pSettings->setValue(IDS_BROADCAST, ui.lvBroadcasts->item(index)->text());
+	if(ui.lvSounds->count() == 0 || soundFileCount == ui.lvSounds->count()) {
+		pSettings->beginGroup(IDS_SOUNDFILEHDR);
+		pSettings->remove("");
+		pSettings->endGroup();
 	}
-	pSettings->endArray();
-	pSettings->setValue(IDS_MULTICAST, ui.txtMulticast->text());
-	pSettings->setValue(IDS_UDPPORT, ui.txtUDPPort->text());
-	pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text());
+	pSettings->setValue(IDS_NOBUSYSOUND, ui.chkNoBusySound->isChecked(), IDS_NOBUSYSOUND_VAL);
+	pSettings->setValue(IDS_NODNDSOUND, ui.chkNoDNDSound->isChecked(), IDS_NODNDSOUND_VAL);
 
-	pSettings->setValue(IDS_AUTOFILE, ui.chkAutoFile->isChecked());
-	pSettings->setValue(IDS_AUTOSHOWFILE, ui.chkAutoShowFile->isChecked());
-	pSettings->setValue(IDS_FILETOP, ui.rdbFileTop->isChecked());
-	pSettings->setValue(IDS_FILESTORAGEPATH, ui.txtFilePath->text());
+	pSettings->setValue(IDS_TIMEOUT, ui.spnTimeout->value(), IDS_TIMEOUT_VAL);
+	pSettings->setValue(IDS_MAXRETRIES, ui.spnMaxRetries->value(), IDS_MAXRETRIES_VAL);
+	//	If any broadcast address is specified, settings written to settings file
+	//	Otherwise, the entire group is removed from the settings file
+	if(ui.lvBroadcasts->count() > 0) {
+		pSettings->beginWriteArray(IDS_BROADCASTHDR);
+		for(int index = 0; index < ui.lvBroadcasts->count(); index++) {
+			pSettings->setArrayIndex(index);
+			pSettings->setValue(IDS_BROADCAST, ui.lvBroadcasts->item(index)->text());
+		}
+		pSettings->endArray();
+	}
+	if(ui.lvBroadcasts->count() == 0){
+		pSettings->beginGroup(IDS_BROADCASTHDR);
+		pSettings->remove("");
+		pSettings->endGroup();
+	}
+	pSettings->setValue(IDS_MULTICAST, ui.txtMulticast->text(), IDS_MULTICAST_VAL);
+	pSettings->setValue(IDS_UDPPORT, ui.txtUDPPort->text(), IDS_UDPPORT_VAL);
+	pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text(), IDS_TCPPORT_VAL);
+
+	pSettings->setValue(IDS_AUTOFILE, ui.chkAutoFile->isChecked(), IDS_AUTOFILE_VAL);
+	pSettings->setValue(IDS_AUTOSHOWFILE, ui.chkAutoShowFile->isChecked(), IDS_AUTOSHOWFILE_VAL);
+	pSettings->setValue(IDS_FILETOP, ui.rdbFileTop->isChecked(), IDS_FILETOP_VAL);
+	pSettings->setValue(IDS_FILESTORAGEPATH, ui.txtFilePath->text(), IDS_FILESTORAGEPATH_VAL);
 
 	QString themePath = ui.cboTheme->itemData(ui.cboTheme->currentIndex(), Qt::UserRole).toString();
-	pSettings->setValue(IDS_THEME, themePath);
-	pSettings->setValue(IDS_USERLISTVIEW, ui.cboUserListView->currentIndex());
-	pSettings->setValue(IDS_STATUSTOOLTIP, ui.chkUserListToolTip->isChecked());
+	pSettings->setValue(IDS_THEME, themePath, IDS_THEME_VAL);
+	pSettings->setValue(IDS_USERLISTVIEW, ui.cboUserListView->currentIndex(), IDS_USERLISTVIEW_VAL);
+	pSettings->setValue(IDS_STATUSTOOLTIP, ui.chkUserListToolTip->isChecked(), IDS_STATUSTOOLTIP_VAL);
 
-	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCmdEnter->isChecked());
+	pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCmdEnter->isChecked(), IDS_SENDKEYMOD_VAL);
 
 	pSettings->sync();
 }
