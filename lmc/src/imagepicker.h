@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,8 +27,7 @@
 
 #include <QTableWidget>
 
-class lmcImagePicker : public QTableWidget
-{
+class lmcImagePicker : public QTableWidget {
 	Q_OBJECT
 
 public:
@@ -39,6 +38,7 @@ protected:
 	void currentChanged(const QModelIndex& current, const QModelIndex& preious);
 	void mouseMoveEvent(QMouseEvent* e);
 	void paintEvent(QPaintEvent* e);
+	void leaveEvent(QEvent* e);
 	
 private:
 	int* selected;

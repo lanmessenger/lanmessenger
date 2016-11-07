@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include "imagepickeraction.h"
 #include "toolbutton.h"
 #include "chatdefinitions.h"
+#include "xmlmessage.h"
 
 class lmcBroadcastWindow : public QWidget
 {
@@ -51,7 +52,7 @@ public:
 	void settingsChanged(void);
 
 signals:
-	void messageSent(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 
 protected:
 	bool eventFilter(QObject* pObject, QEvent* pEvent);

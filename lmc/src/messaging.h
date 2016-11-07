@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,11 +27,46 @@
 
 #include <QObject>
 #include <QTimer>
-#include <QFileInfo>
 #include "shared.h"
 #include "message.h"
 #include "network.h"
 #include "settings.h"
+#include "xmlmessage.h"
+
+
+struct PendingMsg {
+	qint64 msgId;
+	bool active;
+	QDateTime timeStamp;
+	MessageType type;
+	QString userId;
+	XmlMessage xmlMessage;
+	int retry;
+
+	PendingMsg(void) {}
+	PendingMsg(qint64 nMsgId, bool bActive, QDateTime timeStamp, MessageType mtType, QString szUserId, XmlMessage xmlMessage, int nRetry) {
+		this->msgId = nMsgId;
+		this->active = bActive;
+		this->timeStamp = timeStamp;
+		this->type = mtType;
+		this->userId = szUserId;
+		this->xmlMessage = xmlMessage;
+		this->retry = nRetry;
+	}
+};
+
+struct ReceivedMsg {
+	qint64 msgId;
+	QString userId;
+
+	ReceivedMsg(void) {}
+	ReceivedMsg(qint64 nMsgId, QString szUserId) {
+		this->msgId = nMsgId;
+		this->userId = szUserId;
+	}
+
+	bool operator == (const ReceivedMsg& v) const { return ((this->msgId == v.msgId) && (this->userId.compare(v.userId) == 0)); }
+};
 
 class lmcMessaging : public QObject {
 	Q_OBJECT
@@ -48,8 +83,8 @@ public:
 	bool canReceive(void);
 	void setLoopback(bool on);
 	User* getUser(QString* lpszUserId);
-	void sendBroadcast(MessageType type, QString* lpszData);
-	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszData);
+	void sendBroadcast(MessageType type, XmlMessage* pMessage);
+	void sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void settingsChanged(void);
 
 	User* localUser;
@@ -58,7 +93,7 @@ public:
 	QMap<QString, QString> groupMap;
 
 signals:
-	void messageReceived(MessageType type, QString* lpszUserId, QString* lpszData);
+	void messageReceived(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void connectionStateChanged(void);
 
 private slots:
@@ -73,23 +108,23 @@ private slots:
 private:
 	QString createUserId(QString* lpszAddress, QString* lpszUserName);
 	QString getUserName(void);
-	QString getUserInfo(void);
-	void sendUserData(MessageType type, QString* lpszUserId, QString* lpszAddress);
-	void prepareBroadcast(MessageType type, QString* lpszData);
-	void prepareMessage(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, QString* lpszData);
-	void prepareFile(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, QString* lpszData);
-	void processBroadcast(MessageHeader* pHeader, QString* lpszData);
-	void processMessage(MessageHeader* pHeader, QString* lpszData);
-	void processFile(MessageHeader* pHeader, QString* lpszData);
+	void getUserInfo(XmlMessage* pMessage);
+	void sendUserData(MessageType type, QueryOp op, QString* lpszUserId, QString* lpszAddress);
+	void prepareBroadcast(MessageType type, XmlMessage* pMessage);
+	void prepareMessage(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, XmlMessage* pMessage);
+	void prepareFile(MessageType type, qint64 msgId, bool retry, QString* lpszUserId, XmlMessage* pMessage);
+	void processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage);
+	void processMessage(MessageHeader* pHeader, XmlMessage* pMessage);
+	void processFile(MessageHeader* pHeader, XmlMessage* pMessage);
 	bool addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar);
-	void updateUser(QString szUserId, QString szUserData);
+	void updateUser(MessageType type, QString szUserId, QString szUserData);
 	void removeUser(QString szUserId);
 	bool addReceivedMsg(qint64 msgId, QString userId);
-	void addPendingMsg(qint64 msgId, MessageType type, QString userId, QString data);
+	void addPendingMsg(qint64 msgId, MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void removePendingMsg(qint64);
 	void removeAllPendingMsg(QString* lpszUserId);
 	void checkPendingMsg(void);
-	void resendMessage(MessageType type, qint64 msgId, QString* lpszUserId, QString* lpszData);
+	void resendMessage(MessageType type, qint64 msgId, QString* lpszUserId, XmlMessage* pMessage);
 
 	lmcNetwork*		pNetwork;
 	lmcSettings*	pSettings;

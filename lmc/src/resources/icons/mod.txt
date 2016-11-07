@@ -1,0 +1,25 @@
+base image: onlinebubble.ico
+all others modified from base
+
+program used: IcoFx 1.6
+
+awaybubble.ico
+swap red-blue channels
+h 25
+s -10
+b 0
+
+offlinebubble.ico
+h 0
+s -100
+b 30
+
+busybubble.ico
+h 175
+s 10
+b 0
+
+nodisturbbubble.ico
+h 150
+s 10
+b 0

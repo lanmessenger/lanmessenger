@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "udpnetwork.h"
 #include "tcpnetwork.h"
 #include "crypto.h"
+#include "xmlmessage.h"
 
 class lmcNetwork : public QObject {
 	Q_OBJECT

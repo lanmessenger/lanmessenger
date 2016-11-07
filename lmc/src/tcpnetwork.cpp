@@ -1,10 +1,10 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** This file is part of LAN Messenger.
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -84,37 +84,40 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
 		QByteArray clearData = lpszData->toUtf8();
 		QByteArray cipherData = crypto->encrypt(lpszReceiverId, clearData);
 		//	cipherData should now contain encrypted content
-		QByteArray datagram = Datagram::addHeader(DT_Message, &localId, cipherData);
-		msgStream->sendMessage(datagram);
+		Datagram::addHeader(DT_Message, cipherData);
+		msgStream->sendMessage(cipherData);
 	}
 }
 
 void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData) {
-	QStringList fileData = lpszData->split(DELIMITER, QString::SkipEmptyParts);
+	XmlMessage xmlMessage(*lpszData);
+	int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
-	FileSender* sender = new FileSender(fileData[FD_Id], *lpszReceiverId, fileData[FD_Path], fileData[FD_Name], 
-		fileData[FD_Size].toLongLong(), *lpszAddress, tcpPort);
-	connect(sender, SIGNAL(progressUpdated(FileOp, QString*, QString*, QString*)),
-		this, SLOT(update(FileOp, QString*, QString*, QString*)));
+	FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), *lpszReceiverId, xmlMessage.data(XN_FILEPATH), 
+		xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, tcpPort, (FileType)type);
+	connect(sender, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
+		this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
 	sendList.prepend(sender);
 }
 
 void lmcTcpNetwork::initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData) {
-	QStringList fileData = lpszData->split(DELIMITER, QString::SkipEmptyParts);
+	XmlMessage xmlMessage(*lpszData);
+	int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
-	FileReceiver* receiver = new FileReceiver(fileData[FD_Id], *lpszSenderId, fileData[FD_Path], fileData[FD_Name],
-		fileData[FD_Size].toLongLong(), *lpszAddress, tcpPort);
-	connect(receiver, SIGNAL(progressUpdated(FileOp, QString*, QString*, QString*)),
-		this, SLOT(update(FileOp, QString*, QString*, QString*)));
+	FileReceiver* receiver = new FileReceiver(xmlMessage.data(XN_FILEID), *lpszSenderId, xmlMessage.data(XN_FILEPATH), 
+		xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, tcpPort, (FileType)type);
+	connect(receiver, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
+		this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
 	receiveList.prepend(receiver);
 }
 
 void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData) {
     Q_UNUSED(lpszUserId);
 
-	QStringList fileData = lpszData->split(DELIMITER, QString::SkipEmptyParts);
-	int fileOp = fileData[FD_Op].toInt();
-	QString id = fileData[FD_Id];
+	XmlMessage xmlMessage(*lpszData);
+
+	int fileOp = Helper::indexOf(FileOpNames, FO_Max, xmlMessage.data(XN_FILEOP));
+	QString id = xmlMessage.data(XN_FILEID);
 
 	if(mode == FM_Send) {
 		FileSender* sender = getSender(id);
@@ -122,9 +125,8 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 			return;
 
 		switch(fileOp) {
-		case FO_CancelSend:
-		case FO_CancelReceive:
-		case FO_AbortReceive:	
+		case FO_Cancel:
+		case FO_Abort:	
 			sender->stop();
 			break;
 		case FO_Accept:
@@ -137,9 +139,8 @@ void lmcTcpNetwork::fileOperation(FileMode mode, QString* lpszUserId, QString* l
 			return;
 
 		switch(fileOp) {
-		case FO_CancelSend:
-		case FO_CancelReceive:
-		case FO_AbortSend:	
+		case FO_Cancel:
+		case FO_Abort:	
 			receiver->stop();
 			break;
 		}
@@ -174,26 +175,29 @@ void lmcTcpNetwork::msgStream_connectionLost(QString* lpszUserId) {
 	emit connectionLost(lpszUserId);
 }
 
-void lmcTcpNetwork::update(FileOp op, QString* lpszId, QString* lpszUserId, QString* lpszData) {
-	QString fileData;
+void lmcTcpNetwork::update(FileMode mode, FileOp op, FileType type, QString* lpszId, QString* lpszUserId, QString* lpszData) {
+	XmlMessage xmlMessage;
+	xmlMessage.addHeader(XN_FROM, *lpszUserId);
+	xmlMessage.addHeader(XN_TO, localId);
+	xmlMessage.addData(XN_MODE, FileModeNames[mode]);
+	xmlMessage.addData(XN_FILETYPE, FileTypeNames[type]);
+	xmlMessage.addData(XN_FILEOP, FileOpNames[op]);
+	xmlMessage.addData(XN_FILEID, *lpszId);
 
 	switch(op) {
-	case FO_CompleteSend:
-	case FO_CompleteReceive:
-	case FO_ErrorSend:
-	case FO_ErrorReceive:
-		fileData.append(QString::number(op) + DELIMITER + *lpszId + DELIMITER + *lpszData);
-		emit progressReceived(lpszUserId, &fileData);
+	case FO_Complete:
+	case FO_Error:
+		xmlMessage.addData(XN_FILEPATH, *lpszData);
 		break;
-	case FO_ProgressSend:
-	case FO_ProgressReceive:
-		fileData.append(QString::number(op) + DELIMITER + *lpszId + DELIMITER + "<path>"
-			+ DELIMITER + "<name>" + DELIMITER + *lpszData);
-		emit progressReceived(lpszUserId, &fileData);
+	case FO_Progress:
+		xmlMessage.addData(XN_FILESIZE, *lpszData);
 		break;
     default:
         break;
 	}
+
+	QString szMessage = xmlMessage.toString();
+	emit progressReceived(lpszUserId, &szMessage);
 }
 
 void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QByteArray& datagram) {
@@ -201,13 +205,15 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
 	if(!Datagram::getHeader(datagram, &pHeader))
 		return;
 	
+	pHeader->userId = *lpszUserId;
 	pHeader->address = *lpszAddress;
 	QByteArray cipherData = Datagram::getData(datagram);
     QByteArray clearData;
-	QString szData;
+	QString szMessage;
+	XmlMessage xmlMessage;
 
 	switch(pHeader->type) {
-	case DT_Broadcast:
+	case DT_PublicKey:
 		//	send a session key back
 		sendSessionKey(lpszUserId, cipherData);
 		break;
@@ -219,8 +225,8 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
 	case DT_Message:
 		// decrypt message with aes
         clearData = crypto->decrypt(&pHeader->userId, cipherData);
-		szData = QString::fromUtf8(clearData.data(), clearData.length());
-		emit messageReceived(pHeader, &szData);
+		szMessage = QString::fromUtf8(clearData.data(), clearData.length());
+		emit messageReceived(pHeader, &szMessage);
 		break;
     default:
         break;
@@ -251,8 +257,9 @@ void lmcTcpNetwork::sendPublicKey(QString* lpszUserId) {
 	MsgStream* msgStream = messageMap.value(*lpszUserId);
 	if(msgStream) {
 		QByteArray publicKey = crypto->publicKey;
-		QByteArray datagram = Datagram::addHeader(DT_Broadcast, &localId, publicKey);
-		msgStream->sendMessage(datagram);
+		QString sh = DatagramTypeNames[DT_PublicKey];
+		Datagram::addHeader(DT_PublicKey, publicKey);
+		msgStream->sendMessage(publicKey);
 	}
 }
 
@@ -268,8 +275,8 @@ void lmcTcpNetwork::sendSessionKey(QString* lpszUserId, QByteArray& publicKey) {
 
 	if(msgStream) {
 		QByteArray sessionKey = crypto->generateAES(lpszUserId, publicKey);
-		QByteArray datagram = Datagram::addHeader(DT_Handshake, &localId, sessionKey);
-		msgStream->sendMessage(datagram);
+		Datagram::addHeader(DT_Handshake, sessionKey);
+		msgStream->sendMessage(sessionKey);
 	}
 }
 

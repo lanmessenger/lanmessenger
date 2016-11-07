@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -41,16 +41,18 @@ class FileSender : public QObject {
 
 public:
 	FileSender(void);
-	FileSender(QString szId, QString szUserId, QString szFilePath, QString szFileName, qint64 nFileSize, QString szAddress, int nPort);
+	FileSender(QString szId, QString szPeerId, QString szFilePath, QString szFileName, qint64 nFileSize, 
+		QString szAddress, int nPort, FileType nType);
 	~FileSender(void);
 
 	void init(void);
 	void stop(void);
 
 	QString id;
+	FileType type;
 
 signals:
-	void progressUpdated(FileOp fileOp, QString* lpszId, QString* lpszUserId, QString* lpszData);
+	void progressUpdated(FileMode mode, FileOp fileOp, FileType type, QString* lpszId, QString* lpszUserId, QString* lpszData);
 
 private slots:
 	void connected(void);
@@ -62,7 +64,7 @@ private slots:
 private:
 	void sendFile(void);
 
-	QString userId;
+	QString peerId;
 	QString filePath;
 	QString fileName;
 	qint64 fileSize;
@@ -87,16 +89,18 @@ class FileReceiver : public QObject {
 
 public:
 	FileReceiver(void);
-	FileReceiver(QString szId, QString szUserId, QString szFilePath, QString szFileName, qint64 nFileSize, QString szAddress, int nPort);
+	FileReceiver(QString szId, QString szPeerId, QString szFilePath, QString szFileName, qint64 nFileSize, 
+		QString szAddress, int nPort, FileType nType);
 	~FileReceiver(void);
 
 	void init(QTcpSocket* socket);
 	void stop(void);
 	
 	QString id;
+	FileType type;
 
 signals:
-	void progressUpdated(FileOp fileOp, QString* lpszId, QString* lpszUserId, QString* lpszData);
+	void progressUpdated(FileMode mode, FileOp fileOp, FileType type, QString* lpszId, QString* lpszUserId, QString* lpszData);
 
 private slots:
 	void disconnected(void);
@@ -106,7 +110,7 @@ private slots:
 private:
 	void receiveFile(void);
 
-	QString userId;
+	QString peerId;
 	QString filePath;
 	QString fileName;
 	qint64 fileSize;

@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -45,6 +45,8 @@
 #include "aboutdialog.h"
 #include "soundplayer.h"
 #include "broadcastwindow.h"
+#include "stdlocation.h"
+#include "xmlmessage.h"
 
 class lmcMainWindow : public QWidget {
 	Q_OBJECT
@@ -60,14 +62,14 @@ public:
 	void addUser(User* pUser);
 	void updateUser(User* pUser);
 	void removeUser(QString* lpszUserId);
-	void receiveMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void connectionStateChanged(bool connected);
 	void settingsChanged(bool init = false);
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
 
 signals:
 	void appExiting(void);
-	void messageSent(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void chatStarting(QString* lpszUserId);
 	void showTransfers(void);
 	void showHistory(void);
@@ -79,7 +81,7 @@ protected:
 	void changeEvent(QEvent* pEvent);
 
 private slots:
-	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void trayShowAction_triggered(void);
 	void trayHistoryAction_triggered(void);
 	void trayFileAction_triggered(void);
@@ -88,6 +90,7 @@ private slots:
 	void trayExitAction_triggered(void);
 	void statusAction_triggered(QAction* action);
 	void avatarAction_triggered(void);
+	void avatarBrowseAction_triggered(void);
 	void helpAction_triggered(void);
 	void homePageAction_triggered(void);
 	void refreshAction_triggered(void);
@@ -116,9 +119,12 @@ private:
 	void showMinimizeMessage(void);
 	void initGroups(QList<QString>* pGroupList);
 	void updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus);
-	void setAvatar(void);
+	void setAvatar(QString fileName = QString());
 	QTreeWidgetItem* getUserItem(QString* lpszUserId);
 	QTreeWidgetItem* getGroupItem(QString* lpszGroupName);
+	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void sendAvatar(QString* lpszUserId);
+	void setUserAvatar(QString* lpszUserId);
 
 	Ui::MainWindow ui;
 	lmcSettings* pSettings;
@@ -171,6 +177,7 @@ private:
 	QAction* userBroadcastAction;
 	QAction* userFileAction;
 	QAction* userInfoAction;
+	QAction* avatarBrowseAction;
 };
 
 #endif // MAINWINDOW_H

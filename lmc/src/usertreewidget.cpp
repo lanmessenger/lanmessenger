@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,6 +24,21 @@
 
 #include "uidefinitions.h"
 #include "usertreewidget.h"
+
+bool lmcUserTreeWidgetUserItem::operator < (const QTreeWidgetItem& other) const {
+	int column = treeWidget()->sortColumn();
+	if(column == 0) {
+		//	sort based on status and user name
+		if(data(column, StatusRole).toInt() < other.data(column, StatusRole).toInt())
+			return true;
+		else if(data(column, StatusRole).toInt() > other.data(column, StatusRole).toInt())
+			return false;
+		else
+			return text(column).toLower() < other.text(column).toLower();
+	}
+
+	return text(column).toLower() < other.text(column).toLower();
+}
 
 void lmcUserTreeWidget::mousePressEvent(QMouseEvent* event) {
 	if(event->button() == Qt::LeftButton) {

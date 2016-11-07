@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -59,6 +59,13 @@ void lmcBroadcastWindow::init(bool connected) {
 	createToolBar();
 
 	setWindowIcon(QIcon(IDR_APPICON));
+
+	ui.tvUserList->setIconSize(QSize(32, 32));
+	ui.tvUserList->header()->setMovable(false);
+	ui.tvUserList->header()->setStretchLastSection(false);
+	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui.tvUserList->header()->setResizeMode(1, QHeaderView::Fixed);
+	ui.tvUserList->header()->resizeSection(1, 38);
 
 	//	load settings
 	pSettings = new lmcSettings();
@@ -123,7 +130,7 @@ bool lmcBroadcastWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
 			ui.txtMessage->clear();
 			close();
 			return true;
-		} else if(pKeyEvent->key() == Qt::Key_Return && pObject == ui.txtMessage) {
+		} else if((pKeyEvent->key() == Qt::Key_Return || pKeyEvent->key() == Qt::Key_Enter) && pObject == ui.txtMessage) {
 			sendMessage();
 			return true;
 		}
@@ -247,7 +254,7 @@ void lmcBroadcastWindow::createToolBar(void) {
 
 	//	create the smiley tool button
 	pbtnSmiley = new lmcToolButton(pToolBar);
-	pbtnSmiley->setIcon(QIcon(IDR_SMILEY));
+	pbtnSmiley->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
 	pbtnSmiley->setPopupMode(QToolButton::InstantPopup);
 	pbtnSmiley->setMenu(pSmileyMenu);
 	pToolBar->addWidget(pbtnSmiley);
@@ -282,12 +289,14 @@ void lmcBroadcastWindow::sendMessage(void) {
 		
 		//	send broadcast
 		int sendCount = 0;
+		XmlMessage xmlMessage;
+		xmlMessage.addData(XN_BROADCAST, szMessage);
 		for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++) {
 			for(int childIndex = 0; childIndex < ui.tvUserList->topLevelItem(index)->childCount(); childIndex++) {
 				QTreeWidgetItem* item = ui.tvUserList->topLevelItem(index)->child(childIndex);
 				if(item->checkState(0) == Qt::Checked) {
                     QString szUserId = item->data(0, IdRole).toString();
-                    emit messageSent(MT_Broadcast, &szUserId, &szMessage);
+					emit messageSent(MT_Broadcast, &szUserId, &xmlMessage);
 					sendCount++;
 				}
 			}

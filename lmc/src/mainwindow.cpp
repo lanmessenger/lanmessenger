@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -60,14 +60,19 @@ void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool conn
 	createGroupMenu();
 	createUserMenu();
 
-	ui.tvUserList->setIconSize(QSize(18, 18));
+	ui.tvUserList->setIconSize(QSize(32, 32));
+	ui.tvUserList->header()->setMovable(false);
+	ui.tvUserList->header()->setStretchLastSection(false);
+	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui.tvUserList->header()->setResizeMode(1, QHeaderView::Fixed);
+	ui.tvUserList->header()->resizeSection(1, 38);
 	ui.btnStatus->setIconSize(QSize(20, 20));
 	int index = Helper::statusIndexFromCode(pLocalUser->status);
-	if(index != -1) {
-		ui.btnStatus->setIcon(QIcon(statusPic[index]));
-		statusGroup->actions()[index]->setChecked(true);
-		ui.lblStatus->setText(statusGroup->checkedAction()->text());
-	}
+	//	if status is not recognized, default to available
+	index = qMax(index, 0);
+	ui.btnStatus->setIcon(QIcon(QPixmap(statusPic[index], "PNG")));
+	statusGroup->actions()[index]->setChecked(true);
+	ui.lblStatus->setText(statusGroup->checkedAction()->text());
 	nAvatar = pLocalUser->avatar;
 
 	pSoundPlayer = new lmcSoundPlayer();
@@ -83,11 +88,11 @@ void lmcMainWindow::init(User* pLocalUser, QList<QString>* pGroupList, bool conn
 
 void lmcMainWindow::start() {
 	//	if no avatar is set, select a random avatar (useful when running for the first time)
-	if(nAvatar < 0) {
+	if(nAvatar > AVT_COUNT) {
 		qsrand((uint)QTime::currentTime().msec());
 		nAvatar = qrand() % AVT_COUNT;
 	}
-	// This method should only called from here, otherwise an MT_Notify message is sent
+	// This method should only be called from here, otherwise an MT_Notify message is sent
 	// and the program will connect to the network before start() is called.
 	setAvatar();
 	pTrayIcon->setVisible(showSysTray);
@@ -126,23 +131,32 @@ void lmcMainWindow::addUser(User* pUser) {
 	if(!pUser)
 		return;
 
+	int index = Helper::statusIndexFromCode(pUser->status);
+
 	lmcUserTreeWidgetUserItem *pItem = new lmcUserTreeWidgetUserItem();
 	pItem->setData(0, IdRole, pUser->id);
 	pItem->setData(0, TypeRole, "User");
+	pItem->setData(0, StatusRole, index);
 	pItem->setText(0, pUser->name);
-	pItem->setSizeHint(0, QSize(0, 20));
-	int index = Helper::statusIndexFromCode(pUser->status);
+	pItem->setSizeHint(0, QSize(0, 36));
+	
 	if(index != -1)
-		pItem->setIcon(0, QIcon(statusPic[index]));
+		pItem->setIcon(0, QIcon(QPixmap(statusPic[index], "PNG")));
 
 	QTreeWidgetItem* pGroupItem = getGroupItem(&pUser->group);
 	pGroupItem->addChild(pItem);
+	pGroupItem->sortChildren(0, Qt::AscendingOrder);
+
+	// this should be called after item has been added to tree
+	setUserAvatar(&pUser->id);
 
 	if(isHidden() || !isActiveWindow()) {
 		QString msg = tr("%1 is online.");
 		showTrayMessage(TM_Status, msg.arg(pItem->text(0)));
 		pSoundPlayer->play(SE_UserOnline);
 	}
+
+	sendAvatar(&pUser->id);
 }
 
 void lmcMainWindow::updateUser(User* pUser) {
@@ -152,7 +166,10 @@ void lmcMainWindow::updateUser(User* pUser) {
 	QTreeWidgetItem* pItem = getUserItem(&pUser->id);
 	if(pItem) {
 		updateStatusImage(pItem, &pUser->status);
+		pItem->setData(0, StatusRole, Helper::statusIndexFromCode(pUser->status));
 		pItem->setText(0, pUser->name);
+		QTreeWidgetItem* pGroupItem = pItem->parent();
+		pGroupItem->sortChildren(0, Qt::AscendingOrder);
 	}
 }
 
@@ -171,10 +188,49 @@ void lmcMainWindow::removeUser(QString* lpszUserId) {
 	}
 }
 
-void lmcMainWindow::receiveMessage(MessageType type, QString* lpszUserId, QString *lpszMessage) {
-    Q_UNUSED(type);
-    Q_UNUSED(lpszUserId);
-    Q_UNUSED(lpszMessage);
+void lmcMainWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
+    QStringList fileData;
+	QString data;
+	QDir cacheDir;
+	QString fileName;
+	QString oldName;
+	QString filePath;
+	QString oldPath;
+	XmlMessage reply;
+	int fileOp;
+	int fileMode;
+
+	switch(type) {
+	case MT_Avatar:
+		fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
+		fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
+		if(fileOp == FO_Request) {
+			cacheDir = QDir(StdLocation::cacheDir());
+			fileName = "avt_" + * lpszUserId + "_part.png";
+			filePath = cacheDir.absoluteFilePath(fileName);
+			reply.addData(XN_MODE, FileModeNames[FM_Receive]);
+			reply.addData(XN_FILETYPE, FileTypeNames[FT_Avatar]);
+			reply.addData(XN_FILEOP, FileOpNames[FO_Accept]);
+			reply.addData(XN_FILEID, pMessage->data(XN_FILEID));
+			reply.addData(XN_FILEPATH, filePath);
+			reply.addData(XN_FILENAME, fileName);
+			reply.addData(XN_FILESIZE, pMessage->data(XN_FILESIZE));
+			sendMessage(MT_Avatar, lpszUserId, &reply);
+		} else if(fileOp == FO_Complete && fileMode == FM_Receive) {
+			cacheDir = QDir(StdLocation::cacheDir());
+			fileName = "avt_" + *lpszUserId + ".png";
+			filePath = cacheDir.absoluteFilePath(fileName);
+			QFile::remove(filePath);
+			oldName = "avt_" + * lpszUserId + "_part.png";
+			oldPath = cacheDir.absoluteFilePath(oldName);
+			QFile::rename(oldPath, filePath);
+			setUserAvatar(lpszUserId);
+			sendMessage(MT_LocalAvatar, lpszUserId, (QString*)NULL);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void lmcMainWindow::connectionStateChanged(bool connected) {
@@ -281,8 +337,8 @@ void lmcMainWindow::changeEvent(QEvent* pEvent) {
 	QWidget::changeEvent(pEvent);
 }
 
-void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage) {
-	emit messageSent(type, lpszUserId, lpszMessage);
+void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
+	emit messageSent(type, lpszUserId, pMessage);
 }
 
 void lmcMainWindow::trayShowAction_triggered(void) {
@@ -318,12 +374,12 @@ void lmcMainWindow::statusAction_triggered(QAction* action) {
 	QString status = action->data().toString();
 	int index = Helper::statusIndexFromCode(status);
 	if(index != -1) {
-		ui.btnStatus->setIcon(QIcon(statusPic[index]));
+		ui.btnStatus->setIcon(QIcon(QPixmap(statusPic[index], "PNG")));
 		ui.lblStatus->setText(statusGroup->checkedAction()->text());
 		pLocalUser->status = statusCode[index];
 		pSettings->setValue(IDS_STATUS, pLocalUser->status);
 
-		emit messageSent(MT_Status, NULL, &status);
+		sendMessage(MT_Status, NULL, &status);
 	}
 }
 
@@ -331,10 +387,21 @@ void lmcMainWindow::avatarAction_triggered(void) {
 	setAvatar();
 }
 
+void lmcMainWindow::avatarBrowseAction_triggered(void) {
+	QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Select avatar picture"), dir,
+		"Images (*.bmp *.gif *.jpg *.jpeg *.png *.tif *.tiff)");
+	if(!fileName.isEmpty()) {
+		pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
+		setAvatar(fileName);
+	}
+}
+
 void lmcMainWindow::refreshAction_triggered(void) {
     QString szUserId;
     QString szMessage;
-    emit messageSent(MT_Refresh, &szUserId, &szMessage);
+
+	sendMessage(MT_Refresh, &szUserId, &szMessage);
 }
 
 void lmcMainWindow::helpAction_triggered(void) {
@@ -406,6 +473,8 @@ void lmcMainWindow::tvUserList_itemDragDropped(QTreeWidgetItem* pItem) {
         QString szUserId = pItem->data(0, IdRole).toString();
         QString szMessage = pItem->parent()->data(0, IdRole).toString();
         sendMessage(MT_Group, &szUserId, &szMessage);
+		QTreeWidgetItem* pGroupItem = pItem->parent();
+		pGroupItem->sortChildren(0, Qt::AscendingOrder);
     }
 	else if(dynamic_cast<lmcUserTreeWidgetGroupItem*>(pItem)) {
 		pGroupList->clear();
@@ -477,6 +546,7 @@ void lmcMainWindow::groupDeleteAction_triggered(void) {
         QString szMessage = pUserItem->parent()->data(0, IdRole).toString();
         sendMessage(MT_Group, &szUserId, &szMessage);
 	}
+	pDefGroupItem->sortChildren(0, Qt::AscendingOrder);
 	ui.tvUserList->takeTopLevelItem(ui.tvUserList->indexOfTopLevelItem(pGroupItem));
 	pGroupList->removeOne(groupName);
 }
@@ -495,8 +565,8 @@ void lmcMainWindow::userConversationAction_triggered(void) {
 void lmcMainWindow::userBroadcastAction_triggered(void) {
 	if(!pBroadcastWindow) {
 		pBroadcastWindow = new lmcBroadcastWindow();
-		connect(pBroadcastWindow, SIGNAL(messageSent(MessageType, QString*, QString*)),
-			this, SLOT(sendMessage(MessageType, QString*, QString*)));
+		connect(pBroadcastWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
+			this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
 		pBroadcastWindow->init(bConnected);
 	}
 	
@@ -521,7 +591,7 @@ void lmcMainWindow::userFileAction_triggered(void) {
 		if(!fileName.isEmpty()) {
 			pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
             QString szUserId = pItem->data(0, IdRole).toString();
-            emit messageSent(MT_LocalFileReq, &szUserId, &fileName);
+			sendMessage(MT_LocalFile, &szUserId, &fileName);
 		}
 	}
 }
@@ -531,33 +601,33 @@ void lmcMainWindow::userInfoAction_triggered(void) {
 
     QString szUserId = pAction->data().toString();
     QString szMessage;
-    sendMessage(MT_UserQuery, &szUserId, &szMessage);
+    sendMessage(MT_Query, &szUserId, &szMessage);
 }
 
 void lmcMainWindow::createMainMenu(void) {
 	pMainMenu = new QMenuBar(this);
 	pFileMenu = pMainMenu->addMenu("&Messenger");
-	refreshAction = pFileMenu->addAction(QIcon(IDR_REFRESH), "&Refresh contacts list", 
+	refreshAction = pFileMenu->addAction(QIcon(QPixmap(IDR_REFRESH, "PNG")), "&Refresh contacts list", 
 		this, SLOT(refreshAction_triggered()), QKeySequence::Refresh);
 	pFileMenu->addSeparator();
-	exitAction = pFileMenu->addAction(QIcon(IDR_CLOSE), "E&xit", 
+	exitAction = pFileMenu->addAction(QIcon(QPixmap(IDR_CLOSE, "PNG")), "E&xit", 
 		this, SLOT(trayExitAction_triggered()));
 	pToolsMenu = pMainMenu->addMenu("&Tools");
-	historyAction = pToolsMenu->addAction(QIcon(IDR_HISTORY), "&History", 
+	historyAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", 
 		this, SLOT(trayHistoryAction_triggered()), QKeySequence(Qt::CTRL + Qt::Key_H));
-	transferAction = pToolsMenu->addAction(QIcon(IDR_TRANSFER), "File &Transfers", 
+	transferAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", 
 		this, SLOT(trayFileAction_triggered()), QKeySequence(Qt::CTRL + Qt::Key_J));
 	pToolsMenu->addSeparator();
-	settingsAction = pToolsMenu->addAction(QIcon(IDR_TOOLS), "&Preferences", 
+	settingsAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TOOLS, "PNG")), "&Preferences", 
 		this, SLOT(traySettingsAction_triggered()), QKeySequence::Preferences);
 	pHelpMenu = pMainMenu->addMenu("&Help");
-	helpAction = pHelpMenu->addAction(QIcon(IDR_QUESTION), "&Help",
+	helpAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_QUESTION, "PNG")), "&Help",
 		this, SLOT(helpAction_triggered()), QKeySequence::HelpContents);
 	pHelpMenu->addSeparator();
 	QString text = "%1 &online";
-	onlineAction = pHelpMenu->addAction(QIcon(IDR_WEB), text.arg(lmcStrings::appName()), 
+	onlineAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_WEB, "PNG")), text.arg(lmcStrings::appName()), 
 		this, SLOT(homePageAction_triggered()));
-	aboutAction = pHelpMenu->addAction(QIcon(IDR_INFO), "&About", this, SLOT(trayAboutAction_triggered()));
+	aboutAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_INFO, "PNG")), "&About", this, SLOT(trayAboutAction_triggered()));
 
 	layout()->setMenuBar(pMainMenu);
 }
@@ -566,23 +636,23 @@ void lmcMainWindow::createTrayMenu(void) {
 	pTrayMenu = new QMenu(this);
 	
 	QString text = "&Show %1";
-	trayShowAction = pTrayMenu->addAction(QIcon(IDR_MESSENGER), text.arg(lmcStrings::appName()), 
+	trayShowAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_MESSENGER, "PNG")), text.arg(lmcStrings::appName()), 
 		this, SLOT(trayShowAction_triggered()));
 	pTrayMenu->addSeparator();
 	trayStatusAction = pTrayMenu->addMenu(pStatusMenu);
 	trayStatusAction->setText("&Change Status");
 	pTrayMenu->addSeparator();
-	trayHistoryAction = pTrayMenu->addAction(QIcon(IDR_HISTORY), "&History",
+	trayHistoryAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History",
 		this, SLOT(trayHistoryAction_triggered()));
-	trayTransferAction = pTrayMenu->addAction(QIcon(IDR_TRANSFER), "File &Transfers",
+	trayTransferAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers",
 		this, SLOT(trayFileAction_triggered()));
 	pTrayMenu->addSeparator();
-	traySettingsAction = pTrayMenu->addAction(QIcon(IDR_TOOLS), "&Preferences",
+	traySettingsAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_TOOLS, "PNG")), "&Preferences",
 		this, SLOT(traySettingsAction_triggered()));
-	trayAboutAction = pTrayMenu->addAction(QIcon(IDR_INFO), "&About",
+	trayAboutAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_INFO, "PNG")), "&About",
 		this, SLOT(trayAboutAction_triggered()));
 	pTrayMenu->addSeparator();
-	trayExitAction = pTrayMenu->addAction(QIcon(IDR_CLOSE), "E&xit", this, SLOT(trayExitAction_triggered()));
+	trayExitAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_CLOSE, "PNG")), "E&xit", this, SLOT(trayExitAction_triggered()));
 
 	pTrayMenu->setDefaultAction(trayShowAction);
 }
@@ -603,7 +673,7 @@ void lmcMainWindow::createStatusMenu(void) {
 	connect(statusGroup, SIGNAL(triggered(QAction*)), this, SLOT(statusAction_triggered(QAction*)));
 
 	for(int index = 0; index < ST_COUNT; index++) {
-		QAction* pAction = new QAction(QIcon(statusPic[index]), lmcStrings::statusDesc()[index], this);
+		QAction* pAction = new QAction(QIcon(QPixmap(statusPic[index], "PNG")), lmcStrings::statusDesc()[index], this);
 		pAction->setData(statusCode[index]);
 		pAction->setCheckable(true);
 		statusGroup->addAction(pAction);
@@ -619,6 +689,8 @@ void lmcMainWindow::createAvatarMenu(void) {
 	lmcImagePickerAction* pAction = new lmcImagePickerAction(this, avtPic, AVT_COUNT, 48, 4, &nAvatar);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(avatarAction_triggered()));
 	pAvatarMenu->addAction(pAction);
+	pAvatarMenu->addSeparator();
+	avatarBrowseAction = pAvatarMenu->addAction("&Select picture...", this, SLOT(avatarBrowseAction_triggered()));
 
 	ui.btnAvatar->setMenu(pAvatarMenu);
 }
@@ -675,6 +747,7 @@ void lmcMainWindow::setUIText(void) {
 	userBroadcastAction->setText(tr("Send &Broadcast Message"));
 	userFileAction->setText(tr("Send &File"));
 	userInfoAction->setText(tr("Get &Information"));
+	avatarBrowseAction->setText(tr("&Browse for more pictures..."));
 
 	for(int index = 0; index < statusGroup->actions().count(); index++)
 		statusGroup->actions()[index]->setText(lmcStrings::statusDesc()[index]);
@@ -714,13 +787,46 @@ void lmcMainWindow::initGroups(QList<QString>* pGroupList) {
 void lmcMainWindow::updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus) {
 	int index = Helper::statusIndexFromCode(*lpszStatus);
 	if(index != -1)
-		pItem->setIcon(0, QIcon(statusPic[index]));
+		pItem->setIcon(0, QIcon(QPixmap(statusPic[index], "PNG")));
 }
 
-void lmcMainWindow::setAvatar(void) {
-	ui.btnAvatar->setIcon(QIcon(avtPic[nAvatar]));
+void lmcMainWindow::setAvatar(QString fileName) {
+	//	create cache folder if it does not exist
+	QDir cacheDir(StdLocation::cacheDir());
+	if(!cacheDir.exists())
+		cacheDir.mkdir(cacheDir.absolutePath());
+	QString filePath = cacheDir.absoluteFilePath("avt_local.png");
+
+	//	Save the image as a file in the cache folder
+	QPixmap avatar;
+	if(!fileName.isEmpty()) {
+		//	save a backup of the image in the cache folder
+		avatar = QPixmap(fileName);
+		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
+		avatar.save(filePath);
+		nAvatar = -1;
+	} else {
+		//	nAvatar = -1 means custom avatar is set, otherwise load from resource
+		if(nAvatar < 0) {
+			//	load avatar from image file if file exists, else load default
+			if(QFile::exists(filePath))
+				avatar = QPixmap(filePath);
+			else
+				avatar = QPixmap(AVT_DEFAULT);
+		} else
+			avatar = QPixmap(avtPic[nAvatar]);
+	}
+
+	avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
+	fileName = "avt_" + pLocalUser->id + ".png";
+	filePath = cacheDir.absoluteFilePath(fileName);
+	avatar.save(filePath);
+
+	ui.btnAvatar->setIcon(QIcon(QPixmap(filePath, "PNG")));
 	pLocalUser->avatar = nAvatar;
-	emit messageSent(MT_Avatar, NULL, NULL);
+
+	sendMessage(MT_LocalAvatar, NULL, (QString*)NULL);
+	sendAvatar(NULL);
 }
 
 QTreeWidgetItem* lmcMainWindow::getUserItem(QString* lpszUserId) {
@@ -743,4 +849,75 @@ QTreeWidgetItem* lmcMainWindow::getGroupItem(QString* lpszGroupName) {
 	}
 
 	return NULL;
+}
+
+void lmcMainWindow::sendMessage(MessageType type, QString* lpszUserId, QString* lpszMessage) {
+	XmlMessage xmlMessage;
+	
+	switch(type) {
+	case MT_Status:
+		xmlMessage.addData(XN_STATUS, *lpszMessage);
+		break;
+	case MT_Refresh:
+		break;
+	case MT_Group:
+		xmlMessage.addData(XN_GROUP, *lpszMessage);
+		break;
+	case MT_LocalFile:
+		xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
+		xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+		xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
+		xmlMessage.addData(XN_FILEPATH, *lpszMessage);
+		break;
+	case MT_Query:
+		xmlMessage.addData(XN_QUERYOP, QueryOpNames[QO_Get]);
+		break;
+	case MT_LocalAvatar:
+		break;
+	default:
+		break;
+	}
+
+	sendMessage(type, lpszUserId, &xmlMessage);
+}
+
+void lmcMainWindow::sendAvatar(QString* lpszUserId) {
+	QDir cacheDir(StdLocation::cacheDir());
+	QString fileName = "avt_" + pLocalUser->id + ".png";
+	QString filePath = cacheDir.absoluteFilePath(fileName);
+
+	if(!QFile::exists(filePath))
+		return;
+
+	QFileInfo fileInfo = QFileInfo(filePath);
+	XmlMessage xmlMessage;
+	xmlMessage.addData(XN_MODE, FileModeNames[FM_Send]);
+	xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Avatar]);
+	xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Request]);
+	xmlMessage.addData(XN_FILEPATH, fileInfo.filePath());
+	xmlMessage.addData(XN_FILENAME, fileInfo.fileName());
+	xmlMessage.addData(XN_FILESIZE, QString::number(fileInfo.size()));
+
+	sendMessage(MT_Avatar, lpszUserId, &xmlMessage);
+}
+
+void lmcMainWindow::setUserAvatar(QString* lpszUserId) {
+	QTreeWidgetItem* pUserItem = getUserItem(lpszUserId);
+	if(!pUserItem)
+		return;
+
+	QDir cacheDir(StdLocation::cacheDir());
+	QString fileName = "avt_" + *lpszUserId + ".png";
+	QString filePath = cacheDir.absoluteFilePath(fileName);
+	QPixmap avatar;
+	if(!QFile::exists(filePath)) {
+		avatar.load(AVT_DEFAULT);
+		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
+		avatar.save(filePath);
+	}
+
+	avatar.load(filePath);
+	avatar = avatar.scaled(QSize(32, 32));
+
+	pUserItem->setIcon(1, QIcon(avatar));
 }

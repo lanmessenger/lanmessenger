@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ void lmcTransferWindow::init(void) {
 	restoreGeometry(pSettings->value(IDS_WINDOWTRANSFERS).toByteArray());
 	setUIText();
 
-	ui.lvTransferList->loadData(FileTransfer::historyFile());
+	ui.lvTransferList->loadData(StdLocation::transferHistory());
 	if(ui.lvTransferList->count() > 0)
 		ui.lvTransferList->setCurrentRow(0);
 
@@ -71,36 +71,38 @@ void lmcTransferWindow::stop(void) {
 		FileView* view = ui.lvTransferList->item(index);
 
 		if(view->state < FileView::TS_Complete) {
-			QString data = QString::null;
-			int op = (view->mode == FileView::TM_Send) ? FO_CancelSend : FO_CancelReceive;
-			data.append(QString::number(op) + DELIMITER + view->id);
-			emit messageSent(MT_FileOp, &view->userId, &data);
+			int mode = view->mode == FileView::TM_Send ? FM_Send : FM_Receive;
+			XmlMessage xmlMessage;
+			xmlMessage.addData(XN_MODE, FileModeNames[mode]);
+			xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+			xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Cancel]);
+			xmlMessage.addData(XN_FILEID, view->id);
+			emit messageSent(MT_File, &view->userId, &xmlMessage);
+
 			view->state = FileView::TS_Cancel;
 		}
 	}
 
 	bool saveHistory = pSettings->value(IDS_FILEHISTORY, IDS_FILEHISTORY_VAL).toBool();
 	if(saveHistory)
-		ui.lvTransferList->saveData(FileTransfer::historyFile());
+		ui.lvTransferList->saveData(StdLocation::transferHistory());
 	pSettings->setValue(IDS_WINDOWTRANSFERS, saveGeometry());
 }
 
-void lmcTransferWindow::createTransfer(FileMode mode, QString* lpszUserId, QString* lpszUserName, QString* lpszData) {
-	QStringList fileData = lpszData->split(DELIMITER, QString::SkipEmptyParts);
-	
-	FileView fileView(fileData[FD_Id]);
-	fileView.fileSize = fileData[FD_Size].toLongLong();
+void lmcTransferWindow::createTransfer(FileMode mode, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage) {
+	FileView fileView(pMessage->data(XN_FILEID));
+	fileView.fileSize = pMessage->data(XN_FILESIZE).toLongLong();
 	fileView.sizeDisplay = Helper::formatSize(fileView.fileSize);
 	fileView.userId = *lpszUserId;
 	fileView.userName = *lpszUserName;
 	if(mode == FM_Send) {
-		fileView.fileName = fileData[FD_Name];
-		fileView.filePath = fileData[FD_Path];
+		fileView.fileName = pMessage->data(XN_FILENAME);
+		fileView.filePath = pMessage->data(XN_FILEPATH);
 		fileView.mode = FileView::TM_Send;
 		fileView.state = FileView::TS_Wait;
 	} else {
-		fileView.fileName = getFreeFileName(fileData[FD_Name]);
-		fileView.filePath =	QDir(FileTransfer::storageFolder()).absoluteFilePath(fileView.fileName);
+		fileView.fileName = getFreeFileName(pMessage->data(XN_FILENAME));
+		fileView.filePath =	QDir(StdLocation::fileStorageDir()).absoluteFilePath(fileView.fileName);
 		fileView.mode = FileView::TM_Receive;
 		fileView.state = FileView::TS_Confirm;
 	}
@@ -116,22 +118,20 @@ void lmcTransferWindow::createTransfer(FileMode mode, QString* lpszUserId, QStri
 	}
 }
 
-void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, QString* lpszMessage) {
+void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
     Q_UNUSED(type);
     Q_UNUSED(lpszUserId);
-
-	QStringList fileData = lpszMessage->split(DELIMITER, QString::SkipEmptyParts);
 	
-	int fileOp = fileData[FD_Op].toInt();
-	QString id = fileData[FD_Id];
+	int fileMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
+	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
+	QString id = pMessage->data(XN_FILEID);
 
 	FileView* view = NULL;
     int itemIndex = -1;
 	QString trayMsg;
 
-	switch(fileOp) {
-	case FO_Accept:
-		//	receiver has accepted
+	if(fileOp == FO_Accept) {
+		// receiver has accepted
 		//	add the transfer to the list view
 		for(int index = 0; index < pendingSendList.count(); index++) {
 			if(pendingSendList[index].id.compare(id) == 0) {
@@ -143,106 +143,113 @@ void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, QS
 			}
 		}
 		itemIndex = 0;
-		break;
-	case FO_Decline:
-		//	receiver has declined
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		view->state = FileView::TS_Decline;
-		break;
-	case FO_CancelSend:
-		//	sender has canceled
-		view = ui.lvTransferList->item(id, FileView::TM_Receive);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
-		view->state = FileView::TS_Cancel;
-		break;
-	case FO_CancelReceive:
-		//	receiver has canceled
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		view->state = FileView::TS_Cancel;
-		break;
-	case FO_ProgressSend:
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		updateProgress(view, fileData[FD_Size].toLongLong());
-		break;
-	case FO_ProgressReceive:
-		view = ui.lvTransferList->item(id, FileView::TM_Receive);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
-		updateProgress(view, fileData[FD_Size].toLongLong());
-		break;
-	case FO_ErrorSend:
-		//	sender has aborted due to error
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		view->state = FileView::TS_Abort;
-		break;
-	case FO_ErrorReceive:
-		//	receiver has aborted due to error
-		view = ui.lvTransferList->item(id, FileView::TM_Receive);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
-		view->state = FileView::TS_Abort;
-		break;
-	case FO_AbortSend:
-		//	sender has aborted due to error
-		view = ui.lvTransferList->item(id, FileView::TM_Receive);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
-		view->state = FileView::TS_Abort;
-		break;
-	case FO_AbortReceive:
-		//	receiver has aborted due to error
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		view->state = FileView::TS_Abort;
-		break;
-	case FO_CompleteSend:
-		view = ui.lvTransferList->item(id, FileView::TM_Send);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
-		view->state = FileView::TS_Complete;
-		if(isHidden() || !isActiveWindow()) {
-			trayMsg = tr("'%1' has been sent to %2.");
-			emit showTrayMessage(TM_Transfer, trayMsg.arg(view->fileName, view->userName), 
-				tr("File Transfer Completed"), TMI_Info);
-			pSoundPlayer->play(SE_FileDone);
+	} else {
+		switch(fileOp) {
+		case FO_Decline:
+			//	receiver has declined
+			view = ui.lvTransferList->item(id, FileView::TM_Send);
+			if(!view)
+				return;
+			itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+			view->state = FileView::TS_Decline;
+			break;
+		case FO_Cancel:
+			if(fileMode == FM_Send) {
+				//	sender has canceled
+				view = ui.lvTransferList->item(id, FileView::TM_Receive);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
+				view->state = FileView::TS_Cancel;
+			} else {
+				//	receiver has canceled
+				view = ui.lvTransferList->item(id, FileView::TM_Send);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+				view->state = FileView::TS_Cancel;
+			}
+			break;
+		case FO_Progress:
+			if(fileMode == FM_Send) {
+				view = ui.lvTransferList->item(id, FileView::TM_Send);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+				updateProgress(view, pMessage->data(XN_FILESIZE).toLongLong());
+			} else {
+				view = ui.lvTransferList->item(id, FileView::TM_Receive);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
+				updateProgress(view, pMessage->data(XN_FILESIZE).toLongLong());
+			}
+			break;
+		case FO_Error:
+			if(fileMode == FM_Send) {
+				//	sender has aborted due to error
+				view = ui.lvTransferList->item(id, FileView::TM_Send);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+				view->state = FileView::TS_Abort;
+			} else {
+				//	receiver has aborted due to error
+				view = ui.lvTransferList->item(id, FileView::TM_Receive);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
+				view->state = FileView::TS_Abort;
+			}
+			break;
+		case FO_Abort:
+			if(fileMode == FM_Send) {
+				//	sender has aborted due to error
+				view = ui.lvTransferList->item(id, FileView::TM_Receive);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
+				view->state = FileView::TS_Abort;
+			} else {
+				//	receiver has aborted due to error
+				view = ui.lvTransferList->item(id, FileView::TM_Send);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+				view->state = FileView::TS_Abort;
+			}
+			break;
+		case FO_Complete:
+			if(fileMode == FM_Send) {
+				view = ui.lvTransferList->item(id, FileView::TM_Send);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Send);
+				view->state = FileView::TS_Complete;
+				if(isHidden() || !isActiveWindow()) {
+					trayMsg = tr("'%1' has been sent to %2.");
+					emit showTrayMessage(TM_Transfer, trayMsg.arg(view->fileName, view->userName), 
+						tr("File Transfer Completed"), TMI_Info);
+					pSoundPlayer->play(SE_FileDone);
+				}
+			} else {
+				view = ui.lvTransferList->item(id, FileView::TM_Receive);
+				if(!view)
+					return;
+				itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
+				view->filePath = QDir::fromNativeSeparators(pMessage->data(XN_FILEPATH));
+				view->icon = getIcon(view->filePath);
+				pactShowFolder->setEnabled(QFile::exists(view->filePath));
+				view->state = FileView::TS_Complete;
+				if(isHidden() || !isActiveWindow()) {
+					trayMsg = tr("'%1' has been received from %2.");
+					emit showTrayMessage(TM_Transfer, trayMsg.arg(view->fileName, view->userName), 
+						tr("File Transfer Completed"), TMI_Info);
+					pSoundPlayer->play(SE_FileDone);
+				}
+			}
+			break;
 		}
-		break;
-	case FO_CompleteReceive:
-		view = ui.lvTransferList->item(id, FileView::TM_Receive);
-		if(!view)
-			return;
-		itemIndex = ui.lvTransferList->itemIndex(id, FileView::TM_Receive);
-		view->filePath = QDir::fromNativeSeparators(fileData[FD_Path]);
-		view->icon = getIcon(view->filePath);
-		pactShowFolder->setEnabled(QFile::exists(view->filePath));
-		view->state = FileView::TS_Complete;
-		if(isHidden() || !isActiveWindow()) {
-			trayMsg = tr("'%1' has been received from %2.");
-			emit showTrayMessage(TM_Transfer, trayMsg.arg(view->fileName, view->userName), 
-				tr("File Transfer Completed"), TMI_Info);
-			pSoundPlayer->play(SE_FileDone);
-		}
-		break;
 	}
 
 	ui.lvTransferList->itemChanged(itemIndex);
@@ -287,10 +294,13 @@ void lmcTransferWindow::lvTransferList_activated(const QModelIndex& index) {
 void lmcTransferWindow::btnCancel_clicked(void) {
 	FileView* view = ui.lvTransferList->currentItem();
 
-	QString data = QString::null;
-	int op = (view->mode == FileView::TM_Send) ? FO_CancelSend : FO_CancelReceive;
-	data.append(QString::number(op) + DELIMITER + view->id);
-	emit messageSent(MT_FileOp, &view->userId, &data);
+	int mode = view->mode == FileView::TM_Send ? FM_Send : FM_Receive;
+	XmlMessage xmlMessage;
+	xmlMessage.addData(XN_MODE, FileModeNames[mode]);
+	xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+	xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Cancel]);
+	xmlMessage.addData(XN_FILEID, view->id);
+	emit messageSent(MT_File, &view->userId, &xmlMessage);
 
 	view->state = FileView::TS_Cancel;
 
@@ -323,12 +333,12 @@ void lmcTransferWindow::createToolBar(void) {
 	pToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.toolBarLayout->addWidget(pToolBar);
 
-	pactCancel = pToolBar->addAction(QIcon(IDR_STOP),"Cancel", 
+	pactCancel = pToolBar->addAction(QIcon(QPixmap(IDR_STOP, "PNG")), "Cancel", 
 		this, SLOT(btnCancel_clicked()));
 	pToolBar->addSeparator();
-	pactShowFolder = pToolBar->addAction(QIcon(IDR_FOLDER), "Show In Folder", 
+	pactShowFolder = pToolBar->addAction(QIcon(QPixmap(IDR_FOLDER, "PNG")), "Show In Folder", 
 		this, SLOT(btnShowFolder_clicked()));
-	pactRemove = pToolBar->addAction(QIcon(IDR_DECLINE), "Remove From List",
+	pactRemove = pToolBar->addAction(QIcon(QPixmap(IDR_DECLINE, "PNG")), "Remove From List",
 		this, SLOT(btnRemove_clicked()));
 }
 
@@ -439,7 +449,7 @@ void lmcTransferWindow::updateProgress(FileView* view, qint64 currentPos) {
 QString lmcTransferWindow::getFreeFileName(QString fileName) {
 	QString freeFileName = fileName;
 
-	QString fileDir = FileTransfer::storageFolder();
+	QString fileDir = StdLocation::fileStorageDir();
 	QDir dir(fileDir);
 	QString filePath = dir.absoluteFilePath(fileName);
 	QString baseName = fileName.mid(0, fileName.lastIndexOf("."));
@@ -459,10 +469,15 @@ void lmcTransferWindow::acceptFile(void) {
 	FileView* view = ui.lvTransferList->currentItem();
 	view->lastUpdated = QDateTime::currentDateTime();
 
-	QString data = QString::null;
-	data.append(QString::number(FO_Accept) + DELIMITER + view->id + DELIMITER + view->filePath
-		+ DELIMITER + view->fileName + DELIMITER + QString::number(view->fileSize));
-	emit messageSent(MT_FileOp, &view->userId, &data);
+	XmlMessage xmlMessage;
+	xmlMessage.addData(XN_MODE, FileModeNames[FM_Receive]);
+	xmlMessage.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+	xmlMessage.addData(XN_FILEOP, FileOpNames[FO_Accept]);
+	xmlMessage.addData(XN_FILEID, view->id);
+	xmlMessage.addData(XN_FILEPATH, view->filePath);
+	xmlMessage.addData(XN_FILENAME, view->fileName);
+	xmlMessage.addData(XN_FILESIZE, QString::number(view->fileSize));
+	emit messageSent(MT_File, &view->userId, &xmlMessage);
 
 	view->state = FileView::TS_Receive;
 }

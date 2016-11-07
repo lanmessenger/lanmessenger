@@ -27,7 +27,10 @@ echo Copying plugins...
 if exist %1imageformats goto plug_exists
 mkdir %1imageformats
 :plug_exists
+xcopy %QTDIR%\plugins\imageformats\qgif4.dll %1imageformats /I /F /Y
 xcopy %QTDIR%\plugins\imageformats\qico4.dll %1imageformats /I /F /Y
+xcopy %QTDIR%\plugins\imageformats\qjpeg4.dll %1imageformats /I /F /Y
+xcopy %QTDIR%\plugins\imageformats\qtiff4.dll %1imageformats /I /F /Y
 
 goto end
 

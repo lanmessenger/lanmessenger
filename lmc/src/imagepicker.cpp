@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ lmcImagePicker::lmcImagePicker(QWidget *parent, QList<QString>* source, int picS
 	setShowGrid(false);
 	horizontalHeader()->setVisible(false);
 	verticalHeader()->setVisible(false);
+	setStyleSheet("QTableWidget { padding: 4px }");	// padding around table
 
 	max_col = columns;
 	int max_row = qCeil(source->count() / (qreal)max_col);
@@ -58,8 +59,9 @@ lmcImagePicker::lmcImagePicker(QWidget *parent, QList<QString>* source, int picS
 	horizontalHeader()->setDefaultSectionSize(cellSize);
 	horizontalHeader()->setMinimumSectionSize(cellSize);
 
-	setMinimumSize(max_col * cellSize, max_row * cellSize);
-	setMaximumSize(max_col * cellSize, max_row * cellSize);
+	//	set min and max size of table, with padding included
+	setMinimumSize(max_col * cellSize + 8, max_row * cellSize + 8);
+	setMaximumSize(max_col * cellSize + 8, max_row * cellSize + 8);
 
 	for(int i = 0; i < max_row; i++) {
 		for(int j = 0; j < max_col; j++) {
@@ -104,11 +106,14 @@ void lmcImagePicker::currentChanged(const QModelIndex& current, const QModelInde
 }
 
 void lmcImagePicker::mouseMoveEvent(QMouseEvent* e) {
-	QTableWidget::mouseMoveEvent(e);
+	QTableWidget::mouseMoveEvent(e);	
 
-	hoverItem = itemAt(e->pos());
-	if(hoverItem)
-		update(visualItemRect(hoverItem));
+	QTableWidgetItem* currentItem = itemAt(e->pos());
+	if(currentItem != hoverItem) {
+		hoverItem = currentItem;
+		if(hoverItem)
+			update(visualItemRect(hoverItem));
+	}
 }
 
 void lmcImagePicker::paintEvent(QPaintEvent* e) {
@@ -122,4 +127,10 @@ void lmcImagePicker::paintEvent(QPaintEvent* e) {
 		QPainter painter(viewport());
 		style()->drawPrimitive(QStyle::PE_FrameButtonBevel, &opt, &painter);
 	}
+}
+
+void lmcImagePicker::leaveEvent(QEvent* e) {
+	QTableWidget::leaveEvent(e);
+
+	hoverItem = NULL;
 }

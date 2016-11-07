@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <QString>
 #include <QStringList>
 #include "shared.h"
+#include "xmlmessage.h"
 
 enum DatagramHeaderMember
 {
@@ -39,7 +40,7 @@ enum DatagramHeaderMember
 
 class Datagram {
 public:
-	static QByteArray addHeader(DatagramType type, QString* lpszUserId, QByteArray& baData);
+	static void addHeader(DatagramType type, QByteArray& baData);
 	static bool getHeader(QByteArray& baDatagram, DatagramHeader** ppHeader);
 	static QByteArray getData(QByteArray& baDatagram);
 };

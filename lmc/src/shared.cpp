@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -29,6 +29,16 @@
 #else
 #include <stdlib.h>
 #endif
+#include <QStringList>
+
+int Helper::indexOf(const QString array[], int size, const QString& value) {
+	for(int index = 0; index < size; index++) {
+		if(value == array[index])
+			return index;
+	}
+
+	return -1;
+}
 
 int Helper::statusIndexFromCode(QString status) {
 	for(int index = 0; index < ST_COUNT; index++)
@@ -62,7 +72,7 @@ QString Helper::getLogonName(void) {
 #ifdef Q_WS_WIN	//	if platform is Windows
 	TCHAR szUserName[UNLEN + 1];
 	DWORD nSize = sizeof(szUserName);
-	GetUserName(szUserName, &nSize);
+    GetUserName(szUserName, &nSize);
 	return QString::fromStdWString(szUserName);
 #else	// this code should work for MAC and Linux
 	char* szUserName;
@@ -115,4 +125,18 @@ QString Helper::escapeDelimiter(QString *lpszData) {
 
 QString Helper::unescapeDelimiter(QString* lpszData) {
 	return lpszData->replace(DELIMITER_ESC, DELIMITER, Qt::CaseSensitive);
+}
+
+int Helper::compareVersions(QString& version1, QString& version2) {
+	QStringList v1 = version1.split(".", QString::SkipEmptyParts);
+	QStringList v2 = version2.split(".", QString::SkipEmptyParts);
+
+	//	Assuming that the version is in x.x.x format, we only need to iterate 3 times
+	for(int index = 0; index < 3; index++) {
+		int comp = v1[index].toInt() - v2[index].toInt();
+		if(comp != 0)
+			return comp;
+	}
+
+	return 0;
 }

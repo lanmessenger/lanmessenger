@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -70,8 +70,10 @@
 #define IDS_MESSAGEDATE_VAL		false
 #define IDS_MESSAGETOP			"Messages/MessageTop"
 #define IDS_MESSAGETOP_VAL		false
-#define IDS_FONT				"Messages/Font"			
+#define IDS_FONT				"Messages/Font"
+#define IDS_FONT_VAL			QApplication::font().toString()
 #define IDS_COLOR				"Messages/Color"
+#define IDS_COLOR_VAL			QApplication::palette().text().color().name()
 #define IDS_FONTSIZE			"Messages/FontSize"
 #define IDS_FONTSIZE_VAL		FS_MEDIUM
 #define IDS_HISTORY				"History/History"
@@ -118,7 +120,7 @@
 #define IDS_STATUS				"User/Status"
 #define IDS_STATUS_VAL			statusCode[0]
 #define IDS_AVATAR				"User/Avatar"
-#define IDS_AVATAR_VAL			-1
+#define IDS_AVATAR_VAL			65535	//	this should be a number bigger than AVT_COUNT, 65535 set arbitrarily
 #define IDS_USERNAME			"User/Name"
 #define IDS_USERNAME_VAL		""
 #define IDS_USERFIRSTNAME		"User/FirstName"

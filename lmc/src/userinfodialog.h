@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include "ui_userinfodialog.h"
 #include "shared.h"
 #include "settings.h"
+#include "stdlocation.h"
+#include "xmlmessage.h"
 
 class lmcUserInfoDialog : public QDialog
 {
@@ -39,7 +41,7 @@ public:
 	~lmcUserInfoDialog();
 
 	void init(void);
-	void setInfo(QString* lpszUserInfo);
+	void setInfo(XmlMessage* pMessage);
 	void settingsChanged(void);
 
 protected:
@@ -51,7 +53,7 @@ private:
 
 	Ui::UserInfoDialog ui;
 	lmcSettings* pSettings;
-	QStringList userInfo;
+	XmlMessage userInfo;
 };
 
 #endif // USERINFODIALOG_H

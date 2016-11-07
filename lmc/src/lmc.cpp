@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -28,13 +28,14 @@
 
 lmcCore::lmcCore(void) {
 	pMessaging = new lmcMessaging();
-	connect(pMessaging, SIGNAL(messageReceived(MessageType, QString*, QString*)), 
-		this, SLOT(receiveMessage(MessageType, QString*, QString*)));
+	connect(pMessaging, SIGNAL(messageReceived(MessageType, QString*, XmlMessage*)), 
+		this, SLOT(receiveMessage(MessageType, QString*, XmlMessage*)));
 	connect(pMessaging, SIGNAL(connectionStateChanged()), this, SLOT(connectionStateChanged()));
 	pMainWindow = new lmcMainWindow();
 	connect(pMainWindow, SIGNAL(appExiting()), this, SLOT(exitApp()));
 	connect(pMainWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
-	connect(pMainWindow, SIGNAL(messageSent(MessageType, QString*, QString*)), this, SLOT(sendMessage(MessageType, QString*, QString*)));
+	connect(pMainWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)), 
+		this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
 	connect(pMainWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
 	connect(pMainWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
 	connect(pMainWindow, SIGNAL(showSettings()), this, SLOT(showSettings()));
@@ -182,7 +183,7 @@ void lmcCore::timer_timeout(void) {
 void lmcCore::startChat(QString* lpszUserId) {
 	//	return if a chat window is already open for this user
 	for(int index = 0; index < chatWindows.count(); index++)
-		if(chatWindows[index]->remoteUserId.compare(lpszUserId) == 0) {
+		if(!chatWindows[index]->groupMode && chatWindows[index]->remoteUserIds[0].compare(lpszUserId) == 0) {
 			showChatWindow(chatWindows[index], true);
 			return;
 		}
@@ -191,42 +192,56 @@ void lmcCore::startChat(QString* lpszUserId) {
 	showChatWindow(chatWindows.last(), true);
 }
 
-void lmcCore::sendMessage(MessageType type, QString* lpszUserId, QString* lpszData) {
-	QString fileData;
-	QFileInfo fileInfo;
-	int fileOp;
+void lmcCore::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
+	QString data;
 
 	switch(type) {
+	case MT_Broadcast:
+	case MT_Status:
+	case MT_UserName:
+	case MT_Message:
+	case MT_GroupMessage:
+	case MT_Query:
+	case MT_Group:
+		pMessaging->sendMessage(type, lpszUserId, pMessage);
+		break;
 	case MT_Refresh:
 		pMessaging->update();
 		break;
-	case MT_LocalFileReq:	// this message was sent from main window
-		routeMessage(type, lpszUserId, lpszData);
-		break;
-	case MT_LocalFileOp:	// this message was sent from chat window
-		fileOp = lpszData->split(DELIMITER, QString::SkipEmptyParts)[0].toInt();
-		switch(fileOp) {
-		case FO_Accept:
-			initFileTransfer(FM_Receive, lpszUserId, lpszData);
-			// transfer window will then send a message to messaging layer after some processing
-			break;
-		default:
-			pMessaging->sendMessage(MT_FileOp, lpszUserId, lpszData);
-			break;
+	case MT_LocalFile:
+		data = pMessage->data(XN_FILEOP);
+		if(data == FileOpNames[FO_Request]) {
+			// this request message was sent from main window, route to chat window
+			routeMessage(type, lpszUserId, pMessage);
+		} else if(data == FileOpNames[FO_Accept]) { // accept message sent from chat window
+			// init file transfer, transfer window will send message to messaging layer after validating filepath
+			initFileTransfer(FM_Receive, lpszUserId, pMessage);
+		} else {
+			// any other file op send from chat window, send to messaging layer after rebadging as file message
+			pMessaging->sendMessage(MT_File, lpszUserId, pMessage);
 		}
 		break;
-	case MT_FileReq:
-		initFileTransfer(FM_Send, lpszUserId, lpszData);
-		pMessaging->sendMessage(type, lpszUserId, lpszData);
+	case MT_File:
+		data = pMessage->data(XN_FILEOP);
+		if(data == FileOpNames[FO_Request]) {
+			// this request message was sent from chat window
+			initFileTransfer(FM_Send, lpszUserId, pMessage);
+		}
+		pMessaging->sendMessage(type, lpszUserId, pMessage);
+		break;
+	case MT_Avatar:
+		pMessaging->sendMessage(type, lpszUserId, pMessage);
+		break;
+	case MT_LocalAvatar:
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	default:
-		pMessaging->sendMessage(type, lpszUserId, lpszData);
 		break;
 	}
 }
 
-void lmcCore::receiveMessage(MessageType type, QString* lpszUserId, QString* lpszData) {
-	processMessage(type, lpszUserId, lpszData);
+void lmcCore::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
+	processMessage(type, lpszUserId, pMessage);
 }
 
 bool lmcCore::receiveAppMessage(const QString& szMessage) {
@@ -251,7 +266,7 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 			pHistoryWindow->updateList();
 	}
 	if(messageList.contains("/nofilehistory")) {
-		QFile::remove(FileTransfer::historyFile());
+		QFile::remove(StdLocation::transferHistory());
 		if(pTransferWindow)
 			pTransferWindow->updateList();
 	}
@@ -346,91 +361,103 @@ void lmcCore::showTrayMessage(TrayMessageType type, QString szMessage, QString s
 	pMainWindow->showTrayMessage(type, szMessage, szTitle, icon);
 }
 
-void lmcCore::processMessage(MessageType type, QString* lpszUserId, QString* lpszData) {
+void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	QString data = QString::null;
 
 	switch(type) {
-	case MT_Online:
+	case MT_Announce:
 		pMainWindow->addUser(pMessaging->getUser(lpszUserId));
 		break;
-	case MT_Offline:
+	case MT_Depart:
 		pMainWindow->removeUser(lpszUserId);
 		break;
 	case MT_Status:
 	case MT_UserName:
 		pMainWindow->updateUser(pMessaging->getUser(lpszUserId));
-		routeMessage(type, lpszUserId, lpszData);
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Avatar:
-		routeMessage(type, lpszUserId, lpszData);
+		pMainWindow->receiveMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Message:
-		routeMessage(type, lpszUserId, lpszData);
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Broadcast:
-		routeMessage(type, lpszUserId, lpszData);
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Failed:
-		routeMessage(type, lpszUserId, lpszData);
+		routeMessage(type, lpszUserId, pMessage);
 		break;
 	case MT_Error:
 		break;
-	case MT_UserInfo:
-		showUserInfo(lpszData);
+	case MT_Query:
+		showUserInfo(pMessage);
 		break;
-	case MT_UserAction:
+	case MT_ChatState:
 		break;
-	case MT_FileReq:
-    case MT_FileOp:
-        processFile(type, lpszUserId, lpszData);
+	case MT_File:
+        processFile(type, lpszUserId, pMessage);
 		break;
     default:
         break;
 	}
 }
 
-void lmcCore::processFile(MessageType type, QString *lpszUserId, QString *lpszData) {
-    QStringList fileData = lpszData->split(DELIMITER, QString::SkipEmptyParts);
+void lmcCore::processFile(MessageType type, QString *lpszUserId, XmlMessage* pMessage) {
+	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
+	switch(fileOp) {
+	case FO_Accept:
+		showTransferWindow();
+		break;
+	}
+	if(fileOp != FO_Request && pTransferWindow)
+		pTransferWindow->receiveMessage(type, lpszUserId, pMessage);
 
-    int fileOp;
-    switch(type) {
-    case MT_FileOp:
-        fileOp = fileData[FD_Op].toInt();
-        switch(fileOp) {
-        case FO_Accept:
-            showTransferWindow();
-            break;
-        }
-		if(pTransferWindow)
-			pTransferWindow->receiveMessage(type, lpszUserId, lpszData);
-        break;
-    default:
-        break;
-    }
-
-    routeMessage(type,lpszUserId, lpszData);
+	routeMessage(type, lpszUserId, pMessage);
 }
 
-void lmcCore::routeMessage(MessageType type, QString* lpszUserId, QString* lpszData) {
+void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
 	bool windowExists = false;
-	bool needsNotice = (type == MT_Message || type == MT_Broadcast || type == MT_FileReq 
-		|| type == MT_LocalFileReq || type == MT_Failed);
+	bool needsNotice = (type == MT_Message || type == MT_Broadcast || type == MT_Failed
+		|| (type == MT_File && pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
+		|| (type == MT_LocalFile && pMessage->data(XN_FILEOP) == FileOpNames[FO_Request])
+		|| type == MT_GroupMessage);
 
-	for(int index = 0; index < chatWindows.count(); index++) {
-		if(chatWindows[index]->remoteUserId.compare(lpszUserId) == 0) {
-			chatWindows[index]->receiveMessage(type, lpszUserId, lpszData);
-			if(needsNotice)
-				showChatWindow(chatWindows[index], messageTop, needsNotice);
-			windowExists = true;
+	//	If no specific user is specified, send this message to all windows
+	if(!lpszUserId) {
+		for(int index = 0; index < chatWindows.count(); index++) {
+			chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
+		}
+	} else {
+		QString threadId = pMessage->data(XN_THREAD);
+		
+		switch(type) {
+		case MT_LocalAvatar:
+		case MT_Status:
+		case MT_UserName:
+			for(int index = 0; index < chatWindows.count(); index++)
+				if(chatWindows[index]->remoteUserIds.contains(*lpszUserId))
+					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);		
+			break;
+		default:
+			for(int index = 0; index < chatWindows.count(); index++) {
+				if(chatWindows[index]->remoteUserIds.contains(*lpszUserId) && chatWindows[index]->threadId == threadId) {
+					chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
+					if(needsNotice)
+						showChatWindow(chatWindows[index], messageTop, needsNotice);
+					windowExists = true;
+					break;
+				}
+			}
 			break;
 		}
 	}
 
 	//	create a new window if no chat window with this user exists, and also the
-	//	incoming message is of type 'Message', 'Broadcast', 'FileReq' or 'Failed'
+	//	incoming message is of type that needs notice
 	if(!windowExists && needsNotice) {
 		createChatWindow(lpszUserId);
-		chatWindows.last()->receiveMessage(type, lpszUserId, lpszData);
+		chatWindows.last()->receiveMessage(type, lpszUserId, pMessage);
 		if(needsNotice)
 			showChatWindow(chatWindows.last(), messageTop, needsNotice);
 	}
@@ -439,8 +466,8 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, QString* lpszD
 void lmcCore::createTransferWindow(void) {
     if(!pTransferWindow) {
         pTransferWindow = new lmcTransferWindow();
-        connect(pTransferWindow, SIGNAL(messageSent(MessageType, QString*, QString*)),
-            this, SLOT(sendMessage(MessageType, QString*, QString*)));
+        connect(pTransferWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
+            this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
         connect(pTransferWindow, SIGNAL(showTrayMessage(TrayMessageType, QString, QString, TrayMessageIcon)),
             this, SLOT(showTrayMessage(TrayMessageType, QString, QString, TrayMessageIcon)));
         pTransferWindow->init();
@@ -469,22 +496,22 @@ void lmcCore::showTransferWindow(bool show) {
 	}
 }
 
-void lmcCore::initFileTransfer(FileMode mode, QString* lpszUserId, QString* lpszData) {
+void lmcCore::initFileTransfer(FileMode mode, QString* lpszUserId, XmlMessage* pMessage) {
     createTransferWindow();
     if(mode == FM_Receive)
         showTransferWindow();
 	
 	User* pUser = pMessaging->getUser(lpszUserId);
-	pTransferWindow->createTransfer(mode, lpszUserId, &pUser->name, lpszData);
+	pTransferWindow->createTransfer(mode, lpszUserId, &pUser->name, pMessage);
 }
 
-void lmcCore::showUserInfo(QString* lpszUserInfo) {
+void lmcCore::showUserInfo(XmlMessage* pMessage) {
 	if(!pUserInfoDialog) {
 		pUserInfoDialog = new lmcUserInfoDialog(pMainWindow);
 		pUserInfoDialog->init();
 	}
 
-	pUserInfoDialog->setInfo(lpszUserInfo);
+	pUserInfoDialog->setInfo(pMessage);
 	pUserInfoDialog->show();
 }
 
@@ -494,7 +521,8 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
 	chatWindows.append(pChatWindow);
 	User* pLocalUser = pMessaging->localUser;
 	User* pRemoteUser = pMessaging->getUser(lpszUserId);
-	connect(pChatWindow, SIGNAL(messageSent(MessageType, QString*, QString*)), this, SLOT(sendMessage(MessageType, QString*, QString*)));
+	connect(pChatWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)), 
+		this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
 	connect(pChatWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
 	connect(pChatWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
 	pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());

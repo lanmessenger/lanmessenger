@@ -1,10 +1,10 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** This file is part of LAN Messenger.
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -59,6 +59,10 @@ void lmcMessaging::init(void) {
 	
 	pSettings = new lmcSettings();
 	QString userStatus = pSettings->value(IDS_STATUS, IDS_STATUS_VAL).toString();
+	int sIndex = Helper::statusIndexFromCode(userStatus);
+	//	if status not recognized, default to available
+	if(sIndex < 0)
+		userStatus = statusCode[0];
 	QString userName = getUserName();
 
 	int nAvatar = pSettings->value(IDS_AVATAR, IDS_AVATAR_VAL).toInt();
@@ -97,19 +101,19 @@ void lmcMessaging::init(void) {
 void lmcMessaging::start(void) {
 	pNetwork->start();
 
-	sendBroadcast(MT_Offline, NULL);
-	sendBroadcast(MT_Online, NULL);
+	sendBroadcast(MT_Depart, NULL);
+	sendBroadcast(MT_Announce, NULL);
 }
 
 void lmcMessaging::update(void) {
-	sendBroadcast(MT_Online, NULL);
+	sendBroadcast(MT_Announce, NULL);
 
 	for(int index = 0; index < userList.count(); index++)
 		sendMessage(MT_Ping, &userList[index].id, NULL);
 }
 
 void lmcMessaging::stop(void) {
-    sendBroadcast(MT_Offline, NULL);
+    sendBroadcast(MT_Depart, NULL);
 	pNetwork->stop();
 
 	pSettings->setValue(IDS_STATUS, localUser->status);
@@ -163,7 +167,9 @@ void lmcMessaging::settingsChanged(void) {
 	QString userName = getUserName();
 	if(localUser->name.compare(userName) != 0) {
 		localUser->name = userName;
-		sendMessage(MT_UserName, NULL, &userName);
+		XmlMessage xmlMessage;
+		xmlMessage.addData(XN_NAME, userName);
+		sendMessage(MT_UserName, NULL, &xmlMessage);
 	}
 }
 
@@ -181,6 +187,7 @@ void lmcMessaging::timer_timeout(void) {
 QString lmcMessaging::createUserId(QString* lpszAddress, QString* lpszUserName) {
 	QString userId = *lpszAddress;
 	userId.append(lpszUserName);
+	userId.remove(":");
 
 	return userId;
 }
@@ -192,7 +199,7 @@ QString lmcMessaging::getUserName(void) {
 	return userName;
 }
 
-QString lmcMessaging::getUserInfo(void) {
+void lmcMessaging::getUserInfo(XmlMessage* pMessage) {
 	QString info;
 	QString firstName = pSettings->value(IDS_USERFIRSTNAME, IDS_USERFIRSTNAME_VAL).toString();
 	QString lastName = pSettings->value(IDS_USERLASTNAME, IDS_USERLASTNAME_VAL).toString();
@@ -201,12 +208,17 @@ QString lmcMessaging::getUserInfo(void) {
 	lastName = lastName.isEmpty() ? "N/A" : lastName;
 	about = about.isEmpty() ? "N/A" : about;
 
-	info.append(localUser->id + DELIMITER + localUser->name + DELIMITER + localUser->address +
-			DELIMITER + localUser->version + DELIMITER + localUser->status + DELIMITER + 
-			QString::number(localUser->avatar) + DELIMITER + Helper::getLogonName() + DELIMITER + 
-			Helper::getHostName() + DELIMITER + Helper::getOSName() + DELIMITER + firstName +
-			DELIMITER + lastName + DELIMITER + about);
-	return info;
+	pMessage->addData(XN_USERID, localUser->id);
+	pMessage->addData(XN_NAME, localUser->name);
+	pMessage->addData(XN_ADDRESS, localUser->address);
+	pMessage->addData(XN_VERSION, localUser->version);
+	pMessage->addData(XN_STATUS, localUser->status);
+	pMessage->addData(XN_LOGON, Helper::getLogonName());
+	pMessage->addData(XN_HOST, Helper::getHostName());
+	pMessage->addData(XN_OS, Helper::getOSName());
+	pMessage->addData(XN_FIRSTNAME, firstName);
+	pMessage->addData(XN_LASTNAME, lastName);
+	pMessage->addData(XN_ABOUT, about);
 }
 
 bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddress, QString szName, QString szStatus, QString szAvatar) {
@@ -217,69 +229,69 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
 	if(!groupMap.contains(szUserId))
 		groupMap.insert(szUserId, groupList[0]);
 
-	int nAvatar = szAvatar.toInt();
+	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();
 
 	userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, groupMap[szUserId], nAvatar));
 	if(!szStatus.isNull()) {
-		emit messageReceived(MT_Status, &szUserId, &szStatus);
+		XmlMessage xmlMessage;
+		xmlMessage.addHeader(XN_FROM, szUserId);
+		xmlMessage.addData(XN_STATUS, szStatus);
+		//	send a status message to app layer, this is different from announce message
+		emit messageReceived(MT_Status, &szUserId, &xmlMessage);
 		int statusIndex = Helper::statusIndexFromCode(szStatus);
 		if(statusType[statusIndex] == StatusTypeOffline) // offline status
 			return false;	//	no need to send a new user message to app layer
 	}
 
-	emit messageReceived(MT_Online, &szUserId, NULL);
+	emit messageReceived(MT_Announce, &szUserId, NULL);
 	return true;
 }
 
-void lmcMessaging::updateUser(QString szUserId, QString szUserData) {
+void lmcMessaging::updateUser(MessageType type, QString szUserId, QString szUserData) {
 	User* pUser = getUser(&szUserId);
 	if(!pUser)
 		return;
 
-	QStringList userData = szUserData.split(DELIMITER, QString::SkipEmptyParts);
-	if(userData.count() > 1) {
-		int type = userData[0].toInt();
-		QString szData = userData[1];
-		switch(type) {
-		case MT_Status:
-			if(pUser->status.compare(userData[1]) != 0) {
-				int statusIndex = Helper::statusIndexFromCode(pUser->status);
-				if(statusType[statusIndex] == StatusTypeOffline) // old status is offline
-					emit messageReceived(MT_Online, &szUserId, &szUserData);
+	XmlMessage updateMsg;	
+	switch(type) {
+	case MT_Status:
+		if(pUser->status.compare(szUserData) != 0) {
+			int statusIndex = Helper::statusIndexFromCode(pUser->status);
+			if(statusType[statusIndex] == StatusTypeOffline) // old status is offline
+				emit messageReceived(MT_Announce, &szUserId, NULL);
 				
-				pUser->status = userData[1];
-				emit messageReceived(MT_Status, &szUserId, &szData);
+			pUser->status = szUserData;
+			updateMsg.addData(XN_STATUS, pUser->status);
+			emit messageReceived(MT_Status, &szUserId, &updateMsg);
 
-				statusIndex = Helper::statusIndexFromCode(pUser->status);
-				if(statusType[statusIndex] == StatusTypeOffline) // new status is offline
-					emit messageReceived(MT_Offline, &szUserId, &szUserData);
-			}
-			break;
-		case MT_Avatar:
-			if(pUser->avatar != userData[1].toInt()) {
-				pUser->avatar = userData[1].toInt();
-				emit messageReceived(MT_Avatar, &szUserId, &szData);
-			}
-			break;
-		case MT_UserName:
-			if(pUser->name.compare(userData[1]) != 0) {
-				pUser->name = userData[1];
-				emit messageReceived(MT_UserName, &szUserId, &szData);
-			}
-			break;
-		case MT_Group:
-			pUser->group = userData[1];
-			groupMap.insert(pUser->id, pUser->group);
-			break;
+			statusIndex = Helper::statusIndexFromCode(pUser->status);
+			if(statusType[statusIndex] == StatusTypeOffline) // new status is offline
+				emit messageReceived(MT_Depart, &szUserId, NULL);
 		}
+		break;
+	case MT_UserName:
+		if(pUser->name.compare(szUserData) != 0) {
+			pUser->name = szUserData;
+			updateMsg.addData(XN_NAME, pUser->name);
+			emit messageReceived(MT_UserName, &szUserId, &updateMsg);
+		}
+		break;
+	case MT_Group:
+		pUser->group = szUserData;
+		groupMap.insert(pUser->id, pUser->group);
+		break;
+	default:
+		break;
 	}
 }
 
 void lmcMessaging::removeUser(QString szUserId) {
 	for(int index = 0; index < userList.count(); index++)
 		if(userList.value(index).id.compare(szUserId) == 0) {
-			emit messageReceived(MT_Status, &szUserId, (QString*)&statusCode[ST_COUNT - 1]);
-			emit messageReceived(MT_Offline, &szUserId, NULL);
+			XmlMessage statusMsg;
+			statusMsg.addData(XN_STATUS, statusCode[ST_COUNT - 1]);
+			emit messageReceived(MT_Status, &szUserId, &statusMsg);
+			emit messageReceived(MT_Depart, &szUserId, NULL);
 			userList.removeAt(index);
 			return;
 		}
@@ -295,8 +307,11 @@ bool lmcMessaging::addReceivedMsg(qint64 msgId, QString userId) {
 	return true;
 }
 
-void lmcMessaging::addPendingMsg(qint64 msgId, MessageType type, QString userId, QString data) {
-	pendingList.append(PendingMsg(msgId, true, QDateTime::currentDateTime(), type, userId, data, 0));
+void lmcMessaging::addPendingMsg(qint64 msgId, MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
+	XmlMessage xmlMessage;
+	if(pMessage)
+		xmlMessage = pMessage->clone();
+	pendingList.append(PendingMsg(msgId, true, QDateTime::currentDateTime(), type, *lpszUserId, xmlMessage, 0));
 }
 
 void lmcMessaging::removePendingMsg(qint64 msgId) {
@@ -326,17 +341,19 @@ void lmcMessaging::checkPendingMsg(void) {
 				//	send the message once more
 				pendingList[index].retry++;
 				pendingList[index].timeStamp = QDateTime::currentDateTime();
-				resendMessage(pendingList[index].type, pendingList[index].msgId, &pendingList[index].userId, &pendingList[index].data);
+				resendMessage(pendingList[index].type, pendingList[index].msgId, &pendingList[index].userId, &pendingList[index].xmlMessage);
 			}
 			else {
+				XmlMessage statusMsg;
 				//	max retries exceeded. mark message as failed.
 				switch(pendingList[index].type) {
 				case MT_Message:
-					emit messageReceived(MT_Failed, &pendingList[index].userId, &pendingList[index].data);
+					emit messageReceived(MT_Failed, &pendingList[index].userId, &pendingList[index].xmlMessage);
 					break;
 				case MT_Ping:
-					emit messageReceived(MT_Status, &pendingList[index].userId, (QString*)&statusCode[ST_COUNT - 1]);
-					emit messageReceived(MT_Offline, &pendingList[index].userId, &pendingList[index].data);
+					statusMsg.addData(XN_STATUS, statusCode[ST_COUNT - 1]);
+					emit messageReceived(MT_Status, &pendingList[index].userId, &statusMsg);
+					emit messageReceived(MT_Depart, &pendingList[index].userId, NULL);
 					removeUser(pendingList[index].userId);
 					break;
                 default:
@@ -350,9 +367,9 @@ void lmcMessaging::checkPendingMsg(void) {
 	}
 }
 
-void lmcMessaging::resendMessage(MessageType type, qint64 msgId, QString* lpszUserId, QString* lpszData) {
+void lmcMessaging::resendMessage(MessageType type, qint64 msgId, QString* lpszUserId, XmlMessage* pMessage) {
 	if(lpszUserId && !getUser(lpszUserId))
 		return;
 
-	prepareMessage(type, msgId, true, lpszUserId, lpszData);
+	prepareMessage(type, msgId, true, lpszUserId, pMessage);
 }

@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@ void lmcUserInfoDialog::init(void) {
 	setUIText();
 }
 
-void lmcUserInfoDialog::setInfo(QString* lpszUserInfo) {
-	userInfo = lpszUserInfo->split(DELIMITER, QString::SkipEmptyParts);
+void lmcUserInfoDialog::setInfo(XmlMessage* pMessage) {
+	userInfo = *pMessage;
 	setUIText();
 	ui.tabWidget->setCurrentIndex(0);
 }
@@ -65,26 +65,35 @@ void lmcUserInfoDialog::setUIText(void) {
 	ui.retranslateUi(this);
 	setWindowTitle(tr("User Information"));
 
-	if(userInfo.isEmpty())
+	if(userInfo.header(XN_TYPE).isNull())
 		return;
 
-	ui.lblAvatar->setPixmap(QPixmap(avtPic[userInfo[UD_Avatar].toInt()]));
-	ui.lblUserName->setText(userInfo[UD_Name]);
-	ui.lblStatus->setText(lmcStrings::statusDesc()[Helper::statusIndexFromCode(userInfo[UD_Status])]);
-
-	// in case the remote user does not send this info, skip this block
-	if(userInfo.count() > UD_FirstName) {
-		if(userInfo[UD_FirstName].compare("N/A") != 0)
-			ui.txtFirstName->setText(userInfo[UD_FirstName]);
-		if(userInfo[UD_LastName].compare("N/A") != 0)
-			ui.txtLastName->setText(userInfo[UD_LastName]);
-		if(userInfo[UD_About].compare("N/A") != 0)
-			ui.txtAbout->setPlainText(userInfo[UD_About]);
+	QDir cacheDir(StdLocation::cacheDir());
+	QString fileName = "avt_" + userInfo.data(XN_USERID) + ".png";
+	QString filePath = cacheDir.absoluteFilePath(fileName);
+	//	if image not found, use the default avatar image for this user
+	if(!QFile::exists(filePath)) {
+		QPixmap avatar(AVT_DEFAULT);
+		avatar = avatar.scaled(QSize(AVT_WIDTH, AVT_HEIGHT));
+		avatar.save(filePath);
 	}
+	ui.lblAvatar->setPixmap(QPixmap(filePath));
+	ui.lblUserName->setText(userInfo.data(XN_NAME));
+	ui.lblStatus->setText(lmcStrings::statusDesc()[Helper::statusIndexFromCode(userInfo.data(XN_STATUS))]);
 
-	ui.lblIPAddress->setText(userInfo[UD_Address]);
-	ui.lblLogonName->setText(userInfo[UD_Logon]);
-	ui.lblComputerName->setText(userInfo[UD_Host]);
-	ui.lblOSName->setText(userInfo[UD_OS]);
-	ui.lblVersion->setText(userInfo[UD_Version]);
+	QString data = userInfo.data(XN_FIRSTNAME);
+	if(!data.isNull() && data.compare("N/A") != 0)
+		ui.txtFirstName->setText(data);
+	data = userInfo.data(XN_LASTNAME);
+	if(!data.isNull() && data.compare("N/A") != 0)
+		ui.txtLastName->setText(data);
+	data = userInfo.data(XN_ABOUT);
+	if(!data.isNull() && data.compare("N/A") != 0)
+		ui.txtAbout->setPlainText(data);
+
+	ui.lblIPAddress->setText(userInfo.data(XN_ADDRESS));
+	ui.lblLogonName->setText(userInfo.data(XN_LOGON));
+	ui.lblComputerName->setText(userInfo.data(XN_HOST));
+	ui.lblOSName->setText(userInfo.data(XN_OS));
+	ui.lblVersion->setText(userInfo.data(XN_VERSION));
 }

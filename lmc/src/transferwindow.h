@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,8 +34,9 @@
 #include "ui_transferwindow.h"
 #include "shared.h"
 #include "settings.h"
-#include "filetransfer.h"
+#include "stdlocation.h"
 #include "soundplayer.h"
+#include "xmlmessage.h"
 
 class lmcTransferWindow : public QWidget
 {
@@ -48,12 +49,12 @@ public:
 	void init(void);
 	void updateList(void);
 	void stop(void);
-	void createTransfer(FileMode mode, QString* lpszUserId, QString* lpszUserName, QString *lpszData);
-	void receiveMessage(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void createTransfer(FileMode mode, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
+	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void settingsChanged(void);
 
 signals:
-	void messageSent(MessageType type, QString* lpszUserId, QString* lpszMessage);
+	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle, TrayMessageIcon icon);
 
 protected:

@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,55 +25,27 @@
 #include <QDataStream>
 #include "datagram.h"
 
-QByteArray Datagram::addHeader(DatagramType type, QString* lpszUserId, QByteArray& baData) {
-	QString szAppId("LMC");
-	QByteArray userId = lpszUserId->toUtf8();
-	quint32 headerLen = sizeof(quint32) + sizeof(quint32) + szAppId.length() + sizeof(qint16)
-		+ sizeof(quint32) + lpszUserId->length();
-	quint32 datagramLen = headerLen + sizeof(quint32) + baData.length();
-	QByteArray datagram(datagramLen, '\0');
-	QDataStream stream(&datagram, QIODevice::WriteOnly);
-	
-	stream << headerLen << szAppId << (qint16)type << *lpszUserId << (quint32)baData.length();
-	stream.writeRawData(baData.data(), baData.length());
-
-	return datagram;
+void Datagram::addHeader(DatagramType type, QByteArray& baData) {
+	QByteArray datagramType = DatagramTypeNames[type].toLocal8Bit();
+	baData.insert(0, datagramType);
 }
 
 bool Datagram::getHeader(QByteArray& baDatagram, DatagramHeader** ppHeader) {
-	quint32 headerLen;
-	QString szAppId;
-	qint16 type;
-	QString szUserId;
-
-	QDataStream stream(baDatagram);
-	stream >> headerLen >> szAppId >> type >> szUserId;
-
-	if(szAppId.compare("LMC") != 0)
+	QString datagramType(baDatagram.mid(0, 6));	// first 6 bytes represent datagram type
+	int type = Helper::indexOf(DatagramTypeNames, DT_Max, datagramType);
+	if(type < 0)
 		return false;
 
 	*ppHeader = new DatagramHeader(
 					(DatagramType)type,
-					szUserId,
+					QString(),
 					QString());
 	return true;
 }
 
 QByteArray Datagram::getData(QByteArray& baDatagram) {
-	quint32 headerLen;
-	QString szAppId;
-	qint16 type;
-	QString szUserId;
-	quint32 dataLen;
-
-	QDataStream stream(baDatagram);
-	stream >> headerLen >> szAppId >> type >> szUserId >> dataLen;
-
-	if(dataLen > 0) {
-		char* buffer = new char[dataLen];
-		stream.readRawData(buffer, dataLen);
-		return QByteArray(buffer, dataLen);
-	}
+	if(baDatagram.length() > 6)
+		return baDatagram.mid(6);
 
 	return QByteArray();
 }

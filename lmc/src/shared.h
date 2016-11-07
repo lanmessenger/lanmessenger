@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 #include <QDateTime>
 #include <QUuid>
 #include <QHostInfo>
-#include <QDataStream>
 #include "definitions.h"
 #ifdef QWIDGET_H
 #include "uidefinitions.h"
@@ -54,40 +53,6 @@ struct User {
 		this->group = szGroup;
 		this->avatar = nAvatar;
 	}
-};
-
-struct PendingMsg {
-	qint64 msgId;
-	bool active;
-	QDateTime timeStamp;
-	MessageType type;
-	QString userId;
-	QString data;
-	int retry;
-
-	PendingMsg(void) {}
-	PendingMsg(qint64 nMsgId, bool bActive, QDateTime timeStamp, MessageType mtType, QString szUserId, QString szData, int nRetry) {
-		this->msgId = nMsgId;
-		this->active = bActive;
-		this->timeStamp = timeStamp;
-		this->type = mtType;
-		this->userId = szUserId;
-		this->data = szData;
-		this->retry = nRetry;
-	}
-};
-
-struct ReceivedMsg {
-	qint64 msgId;
-	QString userId;
-
-	ReceivedMsg(void) {}
-	ReceivedMsg(qint64 nMsgId, QString szUserId) {
-		this->msgId = nMsgId;
-		this->userId = szUserId;
-	}
-
-	bool operator == (const ReceivedMsg& v) const { return ((this->msgId == v.msgId) && (this->userId.compare(v.userId) == 0)); }
 };
 
 struct DatagramHeader {
@@ -117,6 +82,7 @@ struct MessageHeader {
 
 class Helper {
 public:
+	static int indexOf(const QString array[], int size, const QString& value);
 	static int statusIndexFromCode(QString status);
 	static QString formatSize(qint64 size);
 	static QString getUuid(void);
@@ -125,6 +91,7 @@ public:
 	static QString getOSName(void);
 	static QString escapeDelimiter(QString *lpszData);
 	static QString unescapeDelimiter(QString* lpszData);
+	static int compareVersions(QString& version1, QString& version2);
 };
 
 #endif // SHARED_H

@@ -1,8 +1,8 @@
 Package: lmc
-Version: 1.1.58
+Version: 1.2.0
 Architecture: i386
 Maintainer: Dilip Radhakrishnan <dilipvradhakrishnan@gmail.com>
-Installed-Size: 20179
+Installed-Size: 20288
 Section: web
 Priority: optional
 Depends: libaudio2

@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -26,18 +26,17 @@
 #include <QSound>
 #include <QSystemTrayIcon>
 #include <QLocale>
+#include <QMessageBox>
 #include "settingsdialog.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialog(parent, flags) {
 	ui.setupUi(this);
+	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 	connect(ui.lvCategories, SIGNAL(currentRowChanged(int)), this, SLOT(lvCategories_currentRowChanged(int)));
 	connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOk_clicked()));
 	connect(ui.chkMessageTime, SIGNAL(toggled(bool)), this, SLOT(chkMessageTime_toggled(bool)));
-	connect(ui.rdbSmallFont, SIGNAL(toggled(bool)), this, SLOT(rdbFontSize_toggled(bool)));
-	connect(ui.rdbMedFont, SIGNAL(toggled(bool)), this, SLOT(rdbFontSize_toggled(bool)));
-	connect(ui.rdbLargeFont, SIGNAL(toggled(bool)), this, SLOT(rdbFontSize_toggled(bool)));
 	connect(ui.rdbSysHistoryPath, SIGNAL(toggled(bool)), this, SLOT(rdbSysHistoryPath_toggled(bool)));
 	connect(ui.btnHistoryPath, SIGNAL(clicked()), this, SLOT(btnHistoryPath_clicked()));
 	connect(ui.btnFilePath, SIGNAL(clicked()), this, SLOT(btnFilePath_clicked()));
@@ -46,6 +45,9 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	connect(ui.btnViewFiles, SIGNAL(clicked()), this, SLOT(btnViewFiles_clicked()));
 	connect(ui.chkSound, SIGNAL(toggled(bool)), this, SLOT(chkSound_toggled(bool)));
 	connect(ui.chkAutoShowFile, SIGNAL(toggled(bool)), this, SLOT(chkAutoShowFile_toggled(bool)));
+	connect(ui.btnFont, SIGNAL(clicked()), this, SLOT(btnFont_clicked()));
+	connect(ui.btnColor, SIGNAL(clicked()), this, SLOT(btnColor_clicked()));
+	connect(ui.btnReset, SIGNAL(clicked()), this, SLOT(btnReset_clicked()));
 
 	QMap<QString, QString> languages;
 	//	Loop through available languages and add them to a map. This ensures that
@@ -60,6 +62,9 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	for(int index = 0; index < languages.count(); index++)
 		ui.cboLanguage->addItem(languages.keys().value(index), languages.values().value(index));
 
+	for(int index = 0; index < FS_COUNT; index++)
+		ui.cboFontSize->addItem(lmcStrings::fontSize()[index], index);
+
 	for(int index = 0; index < SE_Max; index++) {
 		QListWidgetItem* pListItem = new QListWidgetItem(ui.lvSounds);
 		pListItem->setText(lmcStrings::soundDesc()[index]);
@@ -67,6 +72,8 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialo
 	}
 
 	fontSize = 0;
+	font = QApplication::font();
+	color = QApplication::palette().text().color();
 	ui.lvCategories->setCurrentRow(0);
 	init();
 }
@@ -78,13 +85,13 @@ void lmcSettingsDialog::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
 
 	ui.lvCategories->setIconSize(QSize(32, 32));
-	ui.lvCategories->item(0)->setIcon(QIcon(IDR_GENERALSET));
-	ui.lvCategories->item(1)->setIcon(QIcon(IDR_ACCOUNTSET));
-	ui.lvCategories->item(2)->setIcon(QIcon(IDR_MESSAGESET));
-	ui.lvCategories->item(3)->setIcon(QIcon(IDR_HISTORYSET));
-	ui.lvCategories->item(4)->setIcon(QIcon(IDR_ALERTSET));
-	ui.lvCategories->item(5)->setIcon(QIcon(IDR_NETWORKSET));
-	ui.lvCategories->item(6)->setIcon(QIcon(IDR_TRANSFERSET));
+	ui.lvCategories->item(0)->setIcon(QIcon(QPixmap(IDR_GENERALSET, "PNG")));
+	ui.lvCategories->item(1)->setIcon(QIcon(QPixmap(IDR_ACCOUNTSET, "PNG")));
+	ui.lvCategories->item(2)->setIcon(QIcon(QPixmap(IDR_MESSAGESET, "PNG")));
+	ui.lvCategories->item(3)->setIcon(QIcon(QPixmap(IDR_HISTORYSET, "PNG")));
+	ui.lvCategories->item(4)->setIcon(QIcon(QPixmap(IDR_ALERTSET, "PNG")));
+	ui.lvCategories->item(5)->setIcon(QIcon(QPixmap(IDR_NETWORKSET, "PNG")));
+	ui.lvCategories->item(6)->setIcon(QIcon(QPixmap(IDR_TRANSFERSET, "PNG")));
 
 	pPortValidator = new QIntValidator(1, 65535, this);
 	ui.txtUDPPort->setValidator(pPortValidator);
@@ -125,19 +132,6 @@ void lmcSettingsDialog::chkMessageTime_toggled(bool checked) {
 	ui.chkMessageDate->setEnabled(ui.chkMessageTime->isChecked());
 }
 
-void lmcSettingsDialog::rdbFontSize_toggled(bool checked) {
-    Q_UNUSED(checked);
-
-	QRadioButton* pButton = (QRadioButton*)sender();
-	if(pButton == ui.rdbSmallFont)
-		fontSize = FS_SMALL;
-	else if(pButton == ui.rdbLargeFont)
-		fontSize = FS_LARGE;
-	else
-		fontSize = FS_MEDIUM;
-	ui.lblFontPreview->setText("<span style='" + fontStyle[fontSize] + "'>" + tr("AaBbYyZz") + "</span>");
-}
-
 void lmcSettingsDialog::rdbSysHistoryPath_toggled(bool checked) {
 	ui.txtHistoryPath->setEnabled(!checked);
 	ui.btnHistoryPath->setEnabled(!checked);
@@ -167,7 +161,7 @@ void lmcSettingsDialog::btnClearHistory_clicked(void) {
 }
 
 void lmcSettingsDialog::btnClearFileHistory_clicked(void) {
-	QFile::remove(FileTransfer::historyFile());
+	QFile::remove(StdLocation::transferHistory());
 	emit fileHistoryCleared();
 }
 
@@ -182,6 +176,29 @@ void lmcSettingsDialog::chkAutoShowFile_toggled(bool checked) {
 
 void lmcSettingsDialog::btnViewFiles_clicked(void) {
 	QDesktopServices::openUrl(QUrl::fromLocalFile(ui.txtFilePath->text()));
+}
+
+void lmcSettingsDialog::btnFont_clicked(void) {
+	bool ok;
+	QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
+	if(ok)
+		font = newFont;
+}
+
+void lmcSettingsDialog::btnColor_clicked(void) {
+	QColor newColor = QColorDialog::getColor(color, this, tr("Select Color"));
+	if(newColor.isValid())
+		color = newColor;
+}
+
+void lmcSettingsDialog::btnReset_clicked(void) {
+	QString message = tr("Are you sure you want to reset your %1 preferences?");
+	if(QMessageBox::question(this, tr("Reset Preferences"), message.arg(lmcStrings::appName()), QMessageBox::Yes, QMessageBox::No)
+		== QMessageBox::Yes) {
+		QFile::remove(pSettings->fileName());
+		pSettings->sync();
+		accept();
+	}
 }
 
 void lmcSettingsDialog::setUIText(void) {
@@ -206,10 +223,18 @@ void lmcSettingsDialog::setUIText(void) {
 		ui.grpSounds->setTitle(tr("Sounds (Not Available)"));
 	}
 
+	for(int index = 0; index < ui.cboFontSize->count(); index++)
+		ui.cboFontSize->setItemText(index, lmcStrings::fontSize()[index]);
+
 	for(int index = 0; index < ui.lvSounds->count(); index++)
 		ui.lvSounds->item(index)->setText(lmcStrings::soundDesc()[index]);
 
-	ui.lblFontPreview->setText("<span style='" + fontStyle[fontSize] + "'>" + tr("AaBbYyZz") + "</span>");
+	QString updateLink = QString(IDA_DOMAIN"/downloads.php#translations");
+	ui.lblUpdateLink->setText("<a href='" + updateLink + "'><span style='text-decoration: underline; color:#0000ff;'>" + 
+		tr("Check for updates") + "</span></a>");
+
+	//	set minimum possible size
+	layout()->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
 void lmcSettingsDialog::loadSettings(void) {
@@ -245,18 +270,11 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkMessageDate->setChecked(pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool());
 	ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
 	ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
+	font.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
+	color.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
 	fontSize = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
-	switch(fontSize) {
-	case FS_SMALL:
-		ui.rdbSmallFont->setChecked(true);
-		break;
-	case FS_LARGE:
-		ui.rdbLargeFont->setChecked(true);
-		break;
-	default:
-		ui.rdbMedFont->setChecked(true);
-		break;
-	}
+	fontSize = qMin(FS_LARGE, qMax(FS_SMALL, fontSize));
+	ui.cboFontSize->setCurrentIndex(fontSize);
 	
 	ui.chkHistory->setChecked(pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool());
 	ui.rdbSysHistoryPath->setChecked(pSettings->value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool());
@@ -287,7 +305,7 @@ void lmcSettingsDialog::loadSettings(void) {
 	ui.chkAutoShowFile->setChecked(pSettings->value(IDS_AUTOSHOWFILE, IDS_AUTOSHOWFILE_VAL).toBool());
 	ui.rdbFileTop->setChecked(pSettings->value(IDS_FILETOP, IDS_FILETOP_VAL).toBool());
 	ui.rdbFileBottom->setChecked(!pSettings->value(IDS_FILETOP, IDS_FILETOP_VAL).toBool());
-	ui.txtFilePath->setText(FileTransfer::storageFolder());
+	ui.txtFilePath->setText(StdLocation::fileStorageDir());
 }
 
 void lmcSettingsDialog::saveSettings(void) {
@@ -310,7 +328,9 @@ void lmcSettingsDialog::saveSettings(void) {
 	pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked());
 	pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked());
 	pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked());
-	pSettings->setValue(IDS_FONTSIZE, fontSize);
+	pSettings->setValue(IDS_FONT, font.toString());
+	pSettings->setValue(IDS_COLOR, color.name());
+	pSettings->setValue(IDS_FONTSIZE, ui.cboFontSize->currentIndex());
 
 	pSettings->setValue(IDS_HISTORY, ui.chkHistory->isChecked());
 	pSettings->setValue(IDS_SYSHISTORYPATH, ui.rdbSysHistoryPath->isChecked());

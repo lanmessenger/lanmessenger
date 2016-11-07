@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -58,6 +58,9 @@ int showSwitches(void) {
 int main(int argc, char *argv[]) {
 	Application application(appId, argc, argv);
 	QDir::setCurrent(application.applicationDirPath());
+	QStringList libPaths;
+	libPaths.append(application.applicationDirPath());
+	QApplication::setLibraryPaths(libPaths);
 	QResource::registerResource("lmc.rcc");
 	QApplication::setWindowIcon(QIcon(IDR_APPICON));
 

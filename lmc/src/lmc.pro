@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network xml
 
 TARGET = lmc
 TEMPLATE = app
@@ -40,7 +40,8 @@ SOURCES += \
     crypto.cpp \
     chatwindow.cpp \
     broadcastwindow.cpp \
-    aboutdialog.cpp
+	aboutdialog.cpp \
+	xmlmessage.cpp
 
 HEADERS  += \
     usertreewidget.h \
@@ -73,11 +74,12 @@ HEADERS  += \
     chatdefinitions.h \
     broadcastwindow.h \
     history.h \
-    filetransfer.h \
+	stdlocation.h \
     definitions.h \
     datagram.h \
     crypto.h \
-    aboutdialog.h
+	aboutdialog.h \
+	xmlmessage.h
 
 FORMS += \
     userinfodialog.ui \
@@ -91,8 +93,12 @@ FORMS += \
     aboutdialog.ui
 
 TRANSLATIONS += \
-	lmc_en.ts \
-	lmc_ml.ts
+	en_US.ts \
+	ml_IN.ts \
+	fr_FR.ts \
+	de_DE.ts \
+	tr_TR.ts \
+	es_ES.ts
 
 win32:RC_FILE = lmc.rc
 

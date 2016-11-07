@@ -30,7 +30,10 @@ echo "Copying plugins..."
 if [ ! -d "$1/imageformats" ]; then
   mkdir $1/imageformats
 fi
+cp -v /usr/lib/qt4/plugins/imageformats/libqico.so $1/imageformats/libqgif.so
 cp -v /usr/lib/qt4/plugins/imageformats/libqico.so $1/imageformats/libqico.so
+cp -v /usr/lib/qt4/plugins/imageformats/libqico.so $1/imageformats/libqjpeg.so
+cp -v /usr/lib/qt4/plugins/imageformats/libqico.so $1/imageformats/libqtiff.so
 echo "Done."
 
 exit 0

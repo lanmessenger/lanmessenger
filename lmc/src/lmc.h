@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #include "mainwindow.h"
 #include "chatwindow.h"
 #include "history.h"
-#include "filetransfer.h"
+#include "stdlocation.h"
 #include "transferwindow.h"
 #include "historywindow.h"
 #include "settingsdialog.h"
@@ -58,8 +58,8 @@ private slots:
 	void aboutToExit(void);
 	void timer_timeout(void);
 	void startChat(QString* lpszUserId);
-	void sendMessage(MessageType type, QString* lpszUserId, QString* lpszData);
-	void receiveMessage(MessageType type, QString* lpszUserId, QString* lpszData);
+	void sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void connectionStateChanged(void);
 	void showTransfers(void);
 	void showHistory(void);
@@ -73,13 +73,13 @@ private:
 	void stop(void);
 	void loadSettings(void);
 	void settingsChanged(void);
-	void processMessage(MessageType type, QString* lpszUserId, QString* lpszData);
-    void processFile(MessageType type, QString* lpszUserId, QString* lpszData);
-	void routeMessage(MessageType type, QString* lpszUserId, QString* lpszData);
+	void processMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+    void processFile(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+	void routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
     void createTransferWindow(void);
 	void showTransferWindow(bool show = false);
-	void initFileTransfer(FileMode mode, QString* lpszUserId, QString* lpszData);
-	void showUserInfo(QString* lpszUserInfo);
+	void initFileTransfer(FileMode mode, QString* lpszUserId, XmlMessage* pMessage);
+	void showUserInfo(XmlMessage* pMessage);
 	void createChatWindow(QString* lpszUserId);
 	void showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert = false);
 

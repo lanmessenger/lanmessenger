@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -36,11 +36,11 @@ const int timeout = 2000;
 FileSender::FileSender(void) {
 }
 
-FileSender::FileSender(QString szId, QString szUserId, QString szFilePath, QString szFileName, 
-	qint64 nFileSize, QString szAddress, int nPort) {
+FileSender::FileSender(QString szId, QString szPeerId, QString szFilePath, QString szFileName, 
+	qint64 nFileSize, QString szAddress, int nPort, FileType nType) {
 
 		id = szId;
-		userId = szUserId;
+		peerId = szPeerId;
 		filePath = szFilePath;
 		fileName = szFileName;
 		fileSize = nFileSize;
@@ -52,6 +52,7 @@ FileSender::FileSender(QString szId, QString szUserId, QString szFilePath, QStri
 		file = NULL;
 		socket = NULL;
 		timer = NULL;
+		type = nType;
 }
 
 FileSender::~FileSender(void) {
@@ -90,7 +91,7 @@ void FileSender::connected(void) {
 void FileSender::disconnected(void) {
 	if(active) {
 		QString data;
-        emit progressUpdated(FO_ErrorSend, &id, &userId, &data);
+		emit progressUpdated(FM_Send, FO_Error, type, &id, &peerId, &data);
 	}
 }
 
@@ -104,7 +105,7 @@ void FileSender::timer_timeout(void) {
 		return;
 	
 	QString transferred = QString::number(file->pos());
-	emit progressUpdated(FO_ProgressSend, &id, &userId, &transferred);
+	emit progressUpdated(FM_Send, FO_Progress, type, &id, &peerId, &transferred);
 }
 
 void FileSender::bytesWritten(qint64 bytes) {
@@ -120,7 +121,7 @@ void FileSender::bytesWritten(qint64 bytes) {
 		file->close();
 		socket->close();
         QString data;
-        emit progressUpdated(FO_CompleteSend, &id, &userId, &data);
+		emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &data);
 		return;
 	}
 
@@ -130,7 +131,7 @@ void FileSender::bytesWritten(qint64 bytes) {
 
 	if(file->pos() > milestone) {
 		QString transferred = QString::number(file->pos());
-		emit progressUpdated(FO_ProgressSend, &id, &userId, &transferred);
+		emit progressUpdated(FM_Send, FO_Progress, type, &id, &peerId, &transferred);
 		milestone += mile;
 	}
 }
@@ -153,7 +154,7 @@ void FileSender::sendFile(void) {
 	} else {
 		socket->close();
         QString data;
-        emit progressUpdated(FO_ErrorSend, &id, &userId, &data);
+		emit progressUpdated(FM_Send, FO_Error, type, &id, &peerId, &data);
 	}
 }
 
@@ -165,11 +166,11 @@ void FileSender::sendFile(void) {
 FileReceiver::FileReceiver(void) {
 }
 
-FileReceiver::FileReceiver(QString szId, QString szUserId, QString szFilePath, QString szFileName, 
-	qint64 nFileSize, QString szAddress, int nPort) {
+FileReceiver::FileReceiver(QString szId, QString szPeerId, QString szFilePath, QString szFileName, 
+	qint64 nFileSize, QString szAddress, int nPort, FileType nType) {
 
 		id = szId;
-		userId = szUserId;
+		peerId = szPeerId;
 		filePath = szFilePath;
 		fileName = szFileName;
 		fileSize = nFileSize;
@@ -181,6 +182,7 @@ FileReceiver::FileReceiver(QString szId, QString szUserId, QString szFilePath, Q
 		file = NULL;
 		socket = NULL;
 		timer = NULL;
+		type = nType;
 }
 
 FileReceiver::~FileReceiver(void) {
@@ -217,7 +219,7 @@ void FileReceiver::stop(void) {
 void FileReceiver::disconnected(void) {
 	if(active) {
 		QString data;
-        emit progressUpdated(FO_ErrorReceive, &id, &userId, &data);
+		emit progressUpdated(FM_Receive, FO_Error, type, &id, &peerId, &data);
 	}
 }
 
@@ -233,13 +235,13 @@ void FileReceiver::readyRead(void) {
 		active = false;
 		file->close();
 		socket->close();
-		emit progressUpdated(FO_CompleteReceive, &id, &userId, &filePath);
+		emit progressUpdated(FM_Receive, FO_Complete, type, &id, &peerId, &filePath);
 		return;
 	}
 
 	if(file->pos() > milestone) {
 		QString transferred = QString::number(file->pos());
-		emit progressUpdated(FO_ProgressReceive, &id, &userId, &transferred);
+		emit progressUpdated(FM_Receive, FO_Progress, type, &id, &peerId, &transferred);
 		milestone += mile;
 	}
 }
@@ -249,7 +251,7 @@ void FileReceiver::timer_timeout(void) {
 		return;
 
 	QString transferred = QString::number(file->pos());
-	emit progressUpdated(FO_ProgressReceive, &id, &userId, &transferred);
+	emit progressUpdated(FM_Receive, FO_Progress, type, &id, &peerId, &transferred);
 }
 
 void FileReceiver::receiveFile(void) {
@@ -268,7 +270,7 @@ void FileReceiver::receiveFile(void) {
 		timer->start(timeout);
 	} else {
 		socket->close();
-		emit progressUpdated(FO_ErrorReceive, &id, &userId, &filePath);
+		emit progressUpdated(FM_Receive, FO_Error, type, &id, &peerId, &filePath);
 	}
 }
 

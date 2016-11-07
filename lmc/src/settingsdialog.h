@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -28,12 +28,14 @@
 #include <QDialog>
 #include <QListWidget>
 #include <QFileDialog>
+#include <QFontDialog>
+#include <QColorDialog>
 #include <QDesktopServices>
 #include "ui_settingsdialog.h"
 #include "shared.h"
 #include "settings.h"
 #include "history.h"
-#include "filetransfer.h"
+#include "stdlocation.h"
 #include "application.h"
 
 class lmcSettingsDialog : public QDialog {
@@ -57,7 +59,6 @@ private slots:
 	void lvCategories_currentRowChanged(int currentRow);
 	void btnOk_clicked(void);
 	void chkMessageTime_toggled(bool checked);
-	void rdbFontSize_toggled(bool checked);
 	void rdbSysHistoryPath_toggled(bool checked);
 	void btnHistoryPath_clicked(void);
 	void btnFilePath_clicked(void);
@@ -66,6 +67,9 @@ private slots:
 	void chkSound_toggled(bool checked);
 	void chkAutoShowFile_toggled(bool checked);
 	void btnViewFiles_clicked(void);
+	void btnFont_clicked(void);
+	void btnColor_clicked(void);
+	void btnReset_clicked(void);
 
 private:
 	void setUIText(void);
@@ -75,6 +79,8 @@ private:
 	Ui::SettingsDialog ui;
 	lmcSettings* pSettings;
 	int fontSize;
+	QFont font;
+	QColor color;
 	QIntValidator* pPortValidator;
 };
 

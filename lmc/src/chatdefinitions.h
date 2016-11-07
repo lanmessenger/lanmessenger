@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -37,13 +37,15 @@ const QString htmlLineHeader(
 	"<style type='text/css'>"\
 		"body {font-family:'Arial';}"\
 		"p{margin-top:0px;margin-bottom:0px;}"\
-		"span.usr{font-weight:bold;}"\
+		"a{font-size:9pt;}"\
+		"span.usr{font-size:9pt; font-weight:bold;}"\
 		"span.msg{margin-left:18px;}"\
-		"span.inf{color:rgb(96,96,96);}"\
-		"span.fil{color:rgb(0,0,232);}"\
+		"span.inf{font-size:9pt; color:rgb(96,96,96);}"\
+		"span.fil{font-size:9pt; color:rgb(0,0,232);}"\
 		"img.pic{float:left;}"\
 		"tr.inf{background-color:rgb(234,234,255);}"\
 		"tr.brd{background-color:rgb(248,252,214);}"\
+		"tr.cbk{background-color:rgb(234,255,254);}"\
 	"</style>"\
 	"</head>"\
 	"<body>");

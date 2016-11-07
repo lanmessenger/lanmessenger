@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
 #define IDR_FILE			":/images/file"
 #define IDR_TRANSFER		":/images/transfer"
 #define IDR_FONT			":/images/font"
+#define IDR_FONTCOLOR		":/images/fontcolor"
 #define IDR_SMILEY			":/images/smiley"
 #define IDR_SAVE			":/images/save"
 #define IDR_PAINT			":/images/paint"
@@ -72,7 +73,8 @@
 enum ItemDataRole {
 	IdRole = Qt::UserRole + 1,
 	TypeRole,
-	DataRole
+	DataRole,
+	StatusRole
 };
 
 //	font size definitions
@@ -219,6 +221,9 @@ const QString smileyPic[] = {
 #define AVT_COUNT	20
 const QString avtPic[] = {AVT_0, AVT_1, AVT_2, AVT_3, AVT_4, AVT_5, AVT_6, AVT_7, AVT_8, AVT_9, 
 	AVT_10, AVT_11, AVT_12, AVT_13, AVT_14, AVT_15, AVT_16, AVT_17, AVT_18, AVT_19};
+
+#define AVT_WIDTH		48
+#define AVT_HEIGHT		48
 
 //	Sound events definitions
 enum SoundEvent {

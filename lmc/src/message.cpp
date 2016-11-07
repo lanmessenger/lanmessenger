@@ -4,7 +4,7 @@
 ** 
 ** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 ** 
-** Contact:  dilipvradhakrishnan@gmail.com
+** Contact:  dilipvrk@gmail.com
 ** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,42 +24,33 @@
 
 #include "message.h"
 
-QString Message::addHeader(MessageType type, qint64 id, QString* lpszUserId, QString* lpszData) {
-	if(!lpszData)
-		lpszData = new QString();
+QString Message::addHeader(MessageType type, qint64 id, QString* lpszLocalId, QString* lpszPeerId, XmlMessage* pMessage) {
+	if(!pMessage)
+		pMessage = new XmlMessage();
 
-	QString message = escapeDelimiter(lpszData);
+	pMessage->addHeader(XN_FROM, *lpszLocalId);
+	if(lpszPeerId)
+		pMessage->addHeader(XN_TO, *lpszPeerId);
+	pMessage->addHeader(XN_MESSAGEID, QString::number(id));
+	pMessage->addHeader(XN_TYPE, MessageTypeNames[type]);
 
-	message.insert(0, DELIMITER);
-	message.insert(0, *lpszUserId);
-	message.insert(0, DELIMITER);
-	message.insert(0, QString::number(id));
-	message.insert(0, DELIMITER);
-	message.insert(0, QString::number((type)));
-	message.insert(0, DELIMITER);
-	message.insert(0, "LMC");
-
-	return message;
+	return pMessage->toString();
 }
 
-bool Message::getHeader(QString* lpszMessage, MessageHeader** ppHeader) {
-	QStringList headerList =  lpszMessage->split(DELIMITER, QString::SkipEmptyParts);
-	if(headerList[MH_AppId].compare("LMC") != 0)
+bool Message::getHeader(QString* lpszMessage, MessageHeader** ppHeader, XmlMessage** ppMessage) {
+	*ppMessage = new XmlMessage(*lpszMessage);
+	if(!((*ppMessage)->isValid()))
+		return false;
+
+	int type = Helper::indexOf(MessageTypeNames, MT_Max, (*ppMessage)->header(XN_TYPE));
+	if(type < 0)
 		return false;
 
 	*ppHeader = new MessageHeader(
-					(MessageType)headerList[MH_Type].toInt(),
-					headerList[MH_Id].toLongLong(),
-					headerList[MH_UserId]);
+					(MessageType)type,
+					(*ppMessage)->header(XN_MESSAGEID).toLongLong(),
+					(*ppMessage)->header(XN_FROM));
 	return true;
-}
-
-QString Message::getData(QString* lpszDatagram) {
-	QStringList list = lpszDatagram->split(DELIMITER, QString::SkipEmptyParts);
-	if(list.count() > MH_Max)
-		return unescapeDelimiter(&list[MH_Max]);
-
-	return QString::null;
 }
 
 QString Message::escapeDelimiter(QString *lpszData) {

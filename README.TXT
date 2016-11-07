@@ -25,6 +25,11 @@ The code is identical for all platforms, but there are a few differences
 in the way application is built and run on each platform. Please read
 the platform specific notes to know more.
 
+Note: I used MS Visual Studio 2010 IDE with MSVC 2010 compiler on Windows and
+Qt Creator IDE with gcc compiler on Linux. If you are using any other IDE and
+compilers on these platforms, I can only provide generic help if you run into
+any trouble.
+
 Compiling OpenSSL
 =================
 The steps for this varies depending on your platform.

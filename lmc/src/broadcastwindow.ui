@@ -162,12 +162,26 @@
            <height>0</height>
           </size>
          </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
          <property name="indentation">
           <number>16</number>
+         </property>
+         <property name="animated">
+          <bool>true</bool>
+         </property>
+         <property name="allColumnsShowFocus">
+          <bool>true</bool>
          </property>
          <column>
           <property name="text">
            <string>Send To:</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>.</string>
           </property>
          </column>
         </widget>
