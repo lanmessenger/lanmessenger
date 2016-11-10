@@ -35,3 +35,9 @@ Makefile*
 
 # QtCtreator CMake
 CMakeLists.txt.user*
+
+/openssl
+/lmc/debug
+/lmc/release*
+/lmc/setup/lmc*.exe
+/lmc/setup/lmc*.zip

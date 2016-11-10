@@ -26,7 +26,7 @@
 #define SETTINGS_H
 
 #include <QSettings>
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QDir>
 #include "shared.h"
 
@@ -34,9 +34,9 @@
 #define IDS_VERSION				"Application/Version"
 #define IDS_VERSION_VAL			"1.2.10"
 #define IDS_OPENPATH			"Application/OpenPath"
-#define IDS_OPENPATH_VAL		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)
+#define IDS_OPENPATH_VAL		QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
 #define IDS_SAVEPATH			"Application/SavePath"
-#define IDS_SAVEPATH_VAL		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)
+#define IDS_SAVEPATH_VAL		QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
 #define IDS_WINDOWMAIN			"Window/Main"
 #define IDS_WINDOWTRANSFERS		"Window/Transfers"
 #define IDS_WINDOWHISTORY		"Window/History"

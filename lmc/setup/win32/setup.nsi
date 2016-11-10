@@ -34,9 +34,9 @@ SetCompressor /SOLID lzma
   
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
-  !define ProductVersion "1.2.35"
-  !define InstallerVersion "1.2.3.5"
-  !define ProductUrl "http://lanmsngr.sourceforge.net"
+  !define ProductVersion "1.2.37"
+  !define InstallerVersion "1.2.3.7"
+  !define ProductUrl "http://lanmessenger.github.io"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"
   !define AppRegKey "${CompanyRegKey}\${ProductName}"
   !define UninstKey "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
@@ -148,12 +148,7 @@ Section
   
   ;Copy application files to the installation directory  
   File "..\..\release\${AppExec}"
-  File "..\..\release\lmc.rcc"
   File "..\..\release\COPYING.txt"
-  File "..\..\release\*.dll"
-  CreateDirectory "$INSTDIR\imageformats"
-  SetOutPath "$INSTDIR\imageformats"
-  File "..\..\release\imageformats\*.*"
   CreateDirectory "$INSTDIR\sounds"
   SetOutPath "$INSTDIR\sounds"
   File /r "..\..\release\sounds\*.*"
@@ -266,11 +261,7 @@ Section "Uninstall"
   
   ;Delete application files and folder
   Delete "$INSTDIR\${AppExec}"
-  Delete "$INSTDIR\lmc.rcc"
   Delete "$INSTDIR\COPYING.txt"
-  Delete "$INSTDIR\*.dll"
-  Delete "$INSTDIR\imageformats\*.*"
-  RMDir "$INSTDIR\imageformats"
   RMDir /r "$INSTDIR\sounds"
   RMDir /r "$INSTDIR\lang"
   RMDir /r "$INSTDIR\themes"

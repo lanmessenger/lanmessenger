@@ -38,7 +38,7 @@ void lmcTrace::init(XmlMessage* pInitParams) {
 	fileName = pInitParams->data(XN_LOGFILE);
 
 	write("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"\
-		  "         "IDA_TITLE" "IDA_VERSION" application log\n"\
+          "         " IDA_TITLE " " IDA_VERSION " application log\n"\
 		  "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 }
 

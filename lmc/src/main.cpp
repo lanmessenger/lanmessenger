@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	Application application(appId, argc, argv);
 	QDir::setCurrent(QApplication::applicationDirPath());
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     QDir dir(QApplication::applicationDirPath());
     dir.cdUp();
     dir.cd("Plugins");
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 	application.loadTranslations(StdLocation::userLangDir());
 
 	//	Enable tracing for Windows and Mac
-#ifndef Q_WS_X11
+#ifndef Q_OS_X11
 	messageList += "/trace\n";
 #endif
 

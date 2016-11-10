@@ -25,7 +25,7 @@
 #include <QDesktopWidget>
 #include "historywindow.h"
 
-lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent, flags) {
+lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WindowFlags flags) : QWidget(parent, flags) {
 	ui.setupUi(this);
 
 	//	Destroy the window when it closes
@@ -57,7 +57,7 @@ lmcHistoryWindow::~lmcHistoryWindow() {
 
 void lmcHistoryWindow::init(void) {
 	setWindowIcon(QIcon(IDR_APPICON));
-	ui.splitter->setStyleSheet("QSplitter::handle { image: url("IDR_HGRIP"); }");
+    ui.splitter->setStyleSheet("QSplitter::handle { image: url(" IDR_HGRIP "); }");
 
 	pMessageLog->setAutoScroll(false);
 

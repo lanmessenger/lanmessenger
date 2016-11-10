@@ -140,7 +140,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		caption = getChatStateMessage((ChatState)Helper::indexOf(ChatStateNames, CS_Max, message));
 		if(!caption.isNull()) {
 			html = themeData.stateMsg;
-			html.replace("%iconpath%", "qrc"IDR_BLANK);
+            html.replace("%iconpath%", "qrc" IDR_BLANK);
 			html.replace("%sender%", caption.arg(*lpszUserName));
 			html.replace("%message%", "");
 			appendMessageLog(&html);
@@ -155,7 +155,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		caption = tr("This message was not delivered to %1:");
 		fontStyle = getFontStyle(&font, &color, true);
 		decodeMessage(&message);
-		html.replace("%iconpath%", "qrc"IDR_CRITICALMSG);
+        html.replace("%iconpath%", "qrc" IDR_CRITICALMSG);
 		html.replace("%sender%", caption.arg(*lpszUserName));
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", message);
@@ -164,7 +164,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		break;
 	case MT_Error:
 		html = themeData.sysMsg;
-		html.replace("%iconpath%", "qrc"IDR_CRITICALMSG);
+        html.replace("%iconpath%", "qrc" IDR_CRITICALMSG);
 		html.replace("%sender%", tr("Your message was not sent."));
 		html.replace("%message%", "");
 		appendMessageLog(&html);
@@ -184,7 +184,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		caption = getChatRoomMessage((GroupMsgOp)Helper::indexOf(GroupMsgOpNames, GMO_Max, message));
 		if(!caption.isNull()) {
 			html = themeData.sysMsg;
-			html.replace("%iconpath%", "qrc"IDR_BLANK);
+            html.replace("%iconpath%", "qrc" IDR_BLANK);
 			html.replace("%sender%", caption.arg(*lpszUserName));
 			html.replace("%message%", "");
 			appendMessageLog(&html);
@@ -470,7 +470,7 @@ void lmcMessageLog::appendBroadcast(QString* lpszUserId, QString* lpszUserName, 
 
 	QString html = themeData.pubMsg;
 	QString caption = tr("Broadcast message from %1:");
-	html.replace("%iconpath%", "qrc"IDR_BROADCASTMSG);
+    html.replace("%iconpath%", "qrc" IDR_BROADCASTMSG);
 	html.replace("%sender%", caption.arg(*lpszUserName));
 	html.replace("%time%", getTimeString(pTime));
 	html.replace("%style%", "");
@@ -494,7 +494,7 @@ void lmcMessageLog::appendMessage(QString* lpszUserId, QString* lpszUserName, QS
 		//	get the avatar image for this user from the cache folder
 		QString filePath = participantAvatars.value(*lpszUserId);
 		//	if image not found, use the default avatar image for this user
-		QString iconPath = QFile::exists(filePath) ? QUrl::fromLocalFile(filePath).toString() : "qrc"AVT_DEFAULT;
+        QString iconPath = QFile::exists(filePath) ? QUrl::fromLocalFile(filePath).toString() : "qrc" AVT_DEFAULT;
 
 		html.replace("%iconpath%", iconPath);
 		html.replace("%sender%", *lpszUserName);
@@ -539,7 +539,7 @@ void lmcMessageLog::appendPublicMessage(QString* lpszUserId, QString* lpszUserNa
 		//	get the avatar image for this user from the cache folder
 		QString filePath = participantAvatars.value(*lpszUserId);
 		//	if image not found, use the default avatar image for this user
-		QString iconPath = QFile::exists(filePath) ? QUrl::fromLocalFile(filePath).toString() : "qrc"AVT_DEFAULT;
+        QString iconPath = QFile::exists(filePath) ? QUrl::fromLocalFile(filePath).toString() : "qrc" AVT_DEFAULT;
 
 		html.replace("%iconpath%", iconPath);
 		html.replace("%sender%", *lpszUserName);
@@ -592,7 +592,7 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
     }
 
 	htmlMsg = themeData.reqMsg;
-	htmlMsg.replace("%iconpath%", "qrc"IDR_FILEMSG);
+    htmlMsg.replace("%iconpath%", "qrc" IDR_FILEMSG);
 
 	FileOp fileOp = (FileOp)Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
     FileMode fileMode = (FileMode)Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));

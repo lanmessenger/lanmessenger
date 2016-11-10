@@ -23,7 +23,7 @@
 
 
 #include "shared.h"
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <windows.h>
 #include <LMCons.h>
 #else
@@ -70,7 +70,7 @@ QString Helper::getUuid(void) {
 }
 
 QString Helper::getLogonName(void) {
-#if defined Q_WS_WIN	//	if platform is Windows
+#if defined Q_OS_WIN	//	if platform is Windows
 	TCHAR szUserName[UNLEN + 1];
 	DWORD nSize = sizeof(szUserName);
     GetUserName(szUserName, &nSize);
@@ -79,7 +79,7 @@ QString Helper::getLogonName(void) {
 	char* szUserName;
 	szUserName = getenv("USER");
 	if(szUserName)
-		return QString::fromAscii(szUserName);
+        return QString::fromLatin1(szUserName);
 #endif
 
 	return QString::null;
@@ -92,7 +92,7 @@ QString Helper::getHostName(void) {
 QString Helper::getOSName(void) {
 	QString osName = "Unknown";
 
-#if defined Q_WS_WIN
+#if defined Q_OS_WIN
 	switch(QSysInfo::WindowsVersion) {
 	case QSysInfo::WV_NT:
 		osName = "Windows NT";
@@ -116,7 +116,7 @@ QString Helper::getOSName(void) {
         osName = "Windows";
         break;
 	}
-#elif defined Q_WS_MAC
+#elif defined Q_OS_MAC
     switch(QSysInfo::MacintoshVersion) {
     case QSysInfo::MV_CHEETAH:
         osName = "Mac OS X 10.0";
@@ -146,7 +146,7 @@ QString Helper::getOSName(void) {
         osName = "Mac OS X";
         break;
     }
-#elif defined Q_WS_X11
+#elif defined Q_OS_X11
 	osName = "Linux/X11";
 #endif
 

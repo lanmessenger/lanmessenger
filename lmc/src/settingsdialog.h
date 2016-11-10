@@ -46,7 +46,7 @@ class lmcSettingsDialog : public QDialog {
 	Q_OBJECT
 
 public:
-	lmcSettingsDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
+    lmcSettingsDialog(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~lmcSettingsDialog(void);
 
 	void init(void);

@@ -25,7 +25,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QSystemTrayIcon>
 #include <QMenuBar>
 #include <QMenu>
@@ -51,7 +51,7 @@ class lmcMainWindow : public QWidget {
 	Q_OBJECT
 
 public:
-	lmcMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    lmcMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~lmcMainWindow(void);
 
 	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);

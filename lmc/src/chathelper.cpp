@@ -23,6 +23,7 @@
 
 
 #include <QFile>
+#include <QDataStream>
 #include "chathelper.h"
 
 QDataStream &operator << (QDataStream &out, const SingleMessage &message) {

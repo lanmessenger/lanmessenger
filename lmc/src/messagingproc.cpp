@@ -90,7 +90,7 @@ void lmcMessaging::sendWebMessage(MessageType type, XmlMessage *pMessage) {
 
 	switch(type) {
 	case MT_Version:
-		szUrl = QString(IDA_DOMAIN"/webservice.php?q=version&p="IDA_PLATFORM);
+        szUrl = QString(IDA_DOMAIN "/webservice.php?q=version&p=" IDA_PLATFORM);
 		pNetwork->sendWebMessage(&szUrl, NULL);
 		break;
 	default:

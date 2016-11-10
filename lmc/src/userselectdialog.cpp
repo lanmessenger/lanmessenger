@@ -42,9 +42,9 @@ lmcUserSelectDialog::~lmcUserSelectDialog() {
 
 void lmcUserSelectDialog::init(QList<QTreeWidgetItem*>* pContactsList) {
 	ui.tvUserList->setIconSize(QSize(16, 16));
-	ui.tvUserList->header()->setMovable(false);
+    ui.tvUserList->header()->setSectionsMovable(false);
 	ui.tvUserList->header()->setStretchLastSection(false);
-	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
+    ui.tvUserList->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 	ui.tvUserList->setCheckable(true);
 
 	ui.tvUserList->clear();

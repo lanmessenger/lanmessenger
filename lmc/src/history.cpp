@@ -30,8 +30,8 @@
 QString History::historyFile(void) {
 	lmcSettings settings;
 	bool sysPath = settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool();
-	QString path = QDir::toNativeSeparators(QDesktopServices::storageLocation(
-		QDesktopServices::DataLocation) + "/"HC_FILENAME);
+    QString path = QDir::toNativeSeparators(QStandardPaths::writableLocation(
+        QStandardPaths::DataLocation) + "/" HC_FILENAME);
 	if(!sysPath)
 		path = settings.value(IDS_HISTORYPATH, path).toString();
 	return path;

@@ -171,8 +171,8 @@ QDataStream &operator >> (QDataStream &in, FileView &view) {
 **	Description: Delegates rendering and user input
 ****************************************************************************/
 void FileDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	if(qVariantCanConvert<FileView>(index.data())) {
-		FileView fileView = qVariantValue<FileView>(index.data());
+    if(index.data().canConvert<FileView>()) {
+        FileView fileView = index.data().value<FileView>();
 
 		FileView::DisplayMode mode = FileView::DM_Normal;
 		if(option.state & QStyle::State_Selected) {
@@ -191,8 +191,8 @@ void FileDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, 
 }
 
 QSize FileDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	if(qVariantCanConvert<FileView>(index.data())) {
-		FileView fileView = qVariantValue<FileView>(index.data());
+    if(index.data().canConvert<FileView>()) {
+        FileView fileView = index.data().value<FileView>();
 		return fileView.sizeHint();
 	}
 	else {

@@ -24,11 +24,12 @@
 
 #include <QDesktopServices>
 #include <QTimer>
+#include <QMimeData>
 #include "chatwindow.h"
 
 const qint64 pauseTime = 5000;
 
-lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent, flags) {
+lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WindowFlags flags) : QWidget(parent, flags) {
 	ui.setupUi(this);
 	//	Destroy the window when it closes
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -46,7 +47,7 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WFlags flags) : QWidget(parent
 	sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
 	sizes.append(bottomPanelHeight);
 	ui.splitter->setSizes(sizes);
-	ui.splitter->setStyleSheet("QSplitter::handle { image: url("IDR_VGRIP"); }");
+    ui.splitter->setStyleSheet("QSplitter::handle { image: url(" IDR_VGRIP "); }");
 
 	ui.lblInfo->setBackgroundRole(QPalette::Base);
 	ui.lblInfo->setAutoFillBackground(true);

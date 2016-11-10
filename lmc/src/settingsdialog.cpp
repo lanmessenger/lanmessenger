@@ -27,9 +27,10 @@
 #include <QSystemTrayIcon>
 #include <QLocale>
 #include <QMessageBox>
+#include <QAudioDeviceInfo>
 #include "settingsdialog.h"
 
-lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WFlags flags) : QDialog(parent, flags) {
+lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WindowFlags flags) : QDialog(parent, flags) {
 	ui.setupUi(this);
 	//	remove the help button from window button group
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -404,7 +405,7 @@ void lmcSettingsDialog::setUIText(void) {
 		ui.grpAlerts->setEnabled(false);
 		ui.grpAlerts->setTitle(tr("Status Alerts (Not Available)"));
 	}
-    if(!QSound::isAvailable()) {
+    if(QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).isEmpty()) {
 		ui.grpSounds->setEnabled(false);
 		ui.grpSounds->setTitle(tr("Sounds (Not Available)"));
 	}
@@ -424,7 +425,7 @@ void lmcSettingsDialog::setUIText(void) {
 
 	cboTheme_currentIndexChanged(ui.cboTheme->currentIndex());
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	ui.rdbEnter->setText("Return");
 	ui.rdbCmdEnter->setText(QString(QChar(0x2318)) + " + Return"); // U+2318 is the hex code for Bowen Knot symbol
 #else
@@ -438,7 +439,7 @@ void lmcSettingsDialog::setUIText(void) {
 
 void lmcSettingsDialog::loadSettings(void) {
     //	Auto start function not implemented on Mac since Mac itself provides an easy UI for it
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	ui.chkAutoStart->setChecked(false);
     ui.chkAutoStart->hide();
 #else

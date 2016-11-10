@@ -25,12 +25,12 @@
 #ifndef USERTREEWIDGET_H
 #define USERTREEWIDGET_H
 
-#include <QApplication>
-#include <QTreeWidget>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QTreeWidget>
 #include <QMouseEvent>
 #include <QDragMoveEvent>
 #include <QString>
-#include <QStyledItemDelegate>
+#include <QtWidgets/QStyledItemDelegate>
 #include <QPainter>
 #include "uidefinitions.h"
 

@@ -4,12 +4,25 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network xml webkit
+QT       += core gui network xml widgets multimedia
+#webenginecore
+#webenginewidgets
+
+INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include
+INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include/QtWebKit
+INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include/QtWebKitWidgets
+LIBS += -L"C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/WebKitBuild/Release/lib" -lQt5WebKit -lQt5WebKitWidgets
+#INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.7.0/qtwebkit/WebKitBuild/Release/include
+#INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.7.0/qtwebkit/WebKitBuild/Release/include/QtWebKit
+#INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.7.0/qtwebkit/WebKitBuild/Release/include/QtWebKitWidgets
+#LIBS += -L"C:/Qt/Static/src/qt-everywhere-opensource-src-5.7.0/qtwebkit/WebKitBuild/Release/lib" -lQt5WebKit -lQt5WebKitWidgets
 
 win32: TARGET = lmc
 unix: TARGET = lan-messenger
 macx: TARGET  = "LAN-Messenger"
 TEMPLATE = app
+
+RESOURCES = resource.qrc
 
 SOURCES += \
     usertreewidget.cpp \
@@ -139,14 +152,14 @@ CONFIG(debug, debug|release) {
     DESTDIR = ../release
 }
 
-win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp2
-else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd2
+win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd
 unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-win32: LIBS += -L$$PWD/../../openssl/lib/ -leay32
+win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include

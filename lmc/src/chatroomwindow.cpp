@@ -47,12 +47,12 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget *parent) : QWidget(parent) {
 	sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
 	sizes.append(bottomPanelHeight);
 	ui.hSplitter->setSizes(sizes);
-	ui.hSplitter->setStyleSheet("QSplitter::handle { image: url("IDR_VGRIP"); }");
+    ui.hSplitter->setStyleSheet("QSplitter::handle { image: url(" IDR_VGRIP "); }");
 	sizes.clear();
 	sizes.append(width() * 0.7);
 	sizes.append(width() - width() * 0.7 - ui.vSplitter->handleWidth());
 	ui.vSplitter->setSizes(sizes);
-	ui.vSplitter->setStyleSheet("QSplitter::handle { image: url("IDR_HGRIP"); }");
+    ui.vSplitter->setStyleSheet("QSplitter::handle { image: url(" IDR_HGRIP "); }");
 
 	ui.lblInfo->setBackgroundRole(QPalette::Base);
 	ui.lblInfo->setAutoFillBackground(true);
@@ -96,9 +96,9 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 	pSoundPlayer = new lmcSoundPlayer();
 
 	ui.tvUserList->setIconSize(QSize(16, 16));
-	ui.tvUserList->header()->setMovable(false);
+    ui.tvUserList->header()->setSectionsMovable(false);
 	ui.tvUserList->header()->setStretchLastSection(false);
-	ui.tvUserList->header()->setResizeMode(0, QHeaderView::Stretch);
+    ui.tvUserList->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
 	lmcUserTreeWidgetGroupItem *pItem = new lmcUserTreeWidgetGroupItem();
 	pItem->setData(0, IdRole, GroupId);
