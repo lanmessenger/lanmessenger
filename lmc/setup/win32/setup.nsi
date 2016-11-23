@@ -148,6 +148,7 @@ Section
   
   ;Copy application files to the installation directory  
   File "..\..\release\${AppExec}"
+  File "..\..\release\libeay32.dll"
   File "..\..\release\COPYING.txt"
   CreateDirectory "$INSTDIR\sounds"
   SetOutPath "$INSTDIR\sounds"
@@ -261,6 +262,7 @@ Section "Uninstall"
   
   ;Delete application files and folder
   Delete "$INSTDIR\${AppExec}"
+  Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\COPYING.txt"
   RMDir /r "$INSTDIR\sounds"
   RMDir /r "$INSTDIR\lang"
