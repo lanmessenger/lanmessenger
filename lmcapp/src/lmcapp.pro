@@ -26,7 +26,8 @@ HEADERS += \
     qtsingleapplication.h \
     qtlockedfile.h \
     qtlocalpeer.h \
-    application.h
+    application.h \
+    ../../lmc/src/settings.h
 
 win32: RC_FILE = lmcappwin32.rc
 

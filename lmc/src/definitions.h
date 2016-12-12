@@ -46,7 +46,7 @@
 #define IDA_PLATFORM	"Windows"
 #elif defined Q_OS_MAC
 #define IDA_PLATFORM	"Macintosh"
-#elif defined Q_OS_X11
+#elif defined Q_OS_LINUX
 #define IDA_PLATFORM	"Linux"
 #endif
 

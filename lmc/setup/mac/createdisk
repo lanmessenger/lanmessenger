@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # Copy the app bundle to the setup folder
 cp -v -r ../../release/LAN-Messenger.app LAN-Messenger.app
@@ -11,9 +12,9 @@ echo "Done."
 # Copy all the required dependencies into the app bundle, and set correct lookup paths
 $QTDIR/bin/macdeployqt LAN-Messenger.app -verbose=2
 
-install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
-install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
-install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/5/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
 
 # create a blank disk with sufficient space
 hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+ -volname LAN-Messenger
@@ -21,7 +22,51 @@ hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+
 # mount and copy files onto volume
 hdid LAN-Messenger.dmg
 cp -R -v LAN-Messenger.app /Volumes/LAN-Messenger
-cp -R -v ./package/Applications /Volumes/LAN-Messenger/Applications
-cp -R -v ./package/images/background.jpg /Volumes/LAN-Messenger/background.jpg
+#cp -R -v ./package/Applications /Volumes/LAN-Messenger/Applications
+#cp -R -v ./package/images/background.jpg /Volumes/LAN-Messenger/background.jpg
+
+# add a link to the Applications dir
+echo "Add link to /Applications"
+pushd /Volumes/LAN-Messenger
+ln -s /Applications
+popd
+ 
+# add a background image
+echo "Copy background image"
+mkdir /Volumes/LAN-Messenger/.background
+cp ./package/images/background.jpg /Volumes/LAN-Messenger/.background/
+
+
+echo "Remove hidden system folders"
+sudo rm -r -f /Volumes/LAN-Messenger/.DS_Store
+sudo rm -r -f /Volumes/LAN-Messenger/.fseventsd
+sudo rm -r -f /Volumes/LAN-Messenger/.Trashes
+ 
+echo "Tell the Finder to resize the window, set the background"
+# tell the Finder to resize the window, set the background,
+#  change the icon size, place the icons in the right position, etc.
+echo '
+   tell application "Finder"
+     tell disk "LAN-Messenger"
+           open
+           set current view of container window to icon view
+           set toolbar visible of container window to false
+           set statusbar visible of container window to false
+           set the bounds of container window to {400, 100, 950, 470}
+           set viewOptions to the icon view options of container window
+           set arrangement of viewOptions to not arranged
+           set icon size of viewOptions to 72
+           set background picture of viewOptions to file ".background:background.jpg"
+           set position of item "LAN-Messenger.app" of container window to {160, 205}
+           set position of item "Applications" of container window to {360, 205}
+           close
+           open
+           update without registering applications
+           delay 2
+     end tell
+   end tell
+' | osascript
+ 
+sync
 
 exit 0

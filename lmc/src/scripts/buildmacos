@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [ "$1" = "" ]; then
   echo "Error: Missing output folder path"

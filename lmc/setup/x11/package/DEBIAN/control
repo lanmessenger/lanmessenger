@@ -1,10 +1,10 @@
 Package: lmc
-Version: 1.2.32
-Architecture: i386
+Version: VERSION
+Architecture: ARCH
 Maintainer: Qualia Digital Solutions <lanmsngr@gmail.com>
 Installed-Size: 50000
 Section: web
 Priority: optional
-Depends: libaudio2
+Depends: libaudio2, libqt5core5a, libqt5gui5, libqt5network5, libqt5xml5, libqt5webkit5, libssl1.0.0
 Homepage: http://lanmessenger.github.io/
 Description: LAN Messenger is an instant messaging application for communication over a local network. It does not require a server.

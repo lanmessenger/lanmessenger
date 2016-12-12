@@ -66,7 +66,10 @@ int main(int argc, char *argv[]) {
     dir.cd("Plugins");
     QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
 #else
-	QApplication::setLibraryPaths(QStringList(QApplication::applicationDirPath()));
+// no local copy Qt libs fo X11
+//#ifndef Q_OS_X11
+//	QApplication::setLibraryPaths(QStringList(QApplication::applicationDirPath()));
+//#endif
 #endif
 	QResource::registerResource(StdLocation::resourceFile());
 

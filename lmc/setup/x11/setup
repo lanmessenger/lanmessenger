@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [ "$1" = "" ]; then
   echo "Usage: setup <App Version>"
@@ -6,15 +7,19 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
-QTDIR=/home/dilip/QtSDK/Desktop/Qt/4.8.0/gcc
+QTDIRLIB=$(dirname $(find / $PWD -type f -name "*libQt5Core.so.5*" 2> /dev/null) | head -1) > /dev/null
 
 sudo echo "COPYING FILES..."
-sudo cp -v $QTDIR/lib/libQtCore.so.4 ./package/usr/lib/lmc/libQtCore.so.4
-sudo cp -v $QTDIR/lib/libQtGui.so.4 ./package/usr/lib/lmc/libQtGui.so.4
-sudo cp -v $QTDIR/lib/libQtNetwork.so.4 ./package/usr/lib/lmc/libQtNetwork.so.4
-sudo cp -v $QTDIR/lib/libQtXml.so.4 ./package/usr/lib/lmc/libQtXml.so.4
-sudo cp -v $QTDIR/lib/libQtWebKit.so.4 ./package/usr/lib/lmc/libQtWebKit.so.4
-sudo cp -v ../../release/libcrypto.so.1.0.0 ./package/usr/lib/lmc/libcrypto.so.1.0.0
+if [ "$PACKAGE_MODE" != "_min" ]; then
+  sudo cp -v $QTDIRLIB/libQt5Core.so.5 ./package/usr/lib/lmc/libQt5Core.so.5
+  sudo cp -v $QTDIRLIB/libQt5Gui.so.5 ./package/usr/lib/lmc/libQt5Gui.so.5
+  sudo cp -v $QTDIRLIB/libQt5Network.so.5 ./package/usr/lib/lmc/libQt5Network.so.5
+  sudo cp -v $QTDIRLIB/libQt5Xml.so.5 ./package/usr/lib/lmc/libQt5Xml.so.5
+  sudo cp -v $QTDIRLIB/libQt5WebKit.so.5 ./package/usr/lib/lmc/libQt5WebKit.so.5
+  sudo cp -v ../../release/libssl.so.1.0.0 ./package/usr/lib/lmc
+  sudo cp -v ../../release/libcrypto.so.1.0.0 ./package/usr/lib/lmc
+  sudo cp -v -r ../../release/imageformats ./package/usr/lib/lmc
+fi
 sudo cp -v ../../release/liblmcapp.so.2 ./package/usr/lib/lmc/liblmcapp.so.2
 sudo cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc
 sudo cp -v ../../release/lan-messenger ./package/usr/lib/lmc/lan-messenger
@@ -22,10 +27,17 @@ sudo cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING
 sudo cp -v -r ../../release/lang ./package/usr/lib/lmc
 sudo cp -v -r ../../release/sounds ./package/usr/lib/lmc
 sudo cp -v -r ../../release/themes ./package/usr/lib/lmc
-sudo cp -v -r ../../release/imageformats ./package/usr/lib/lmc
 
 echo "BUILDING PACKAGE..."
-sudo dpkg-deb -z9 -Zlzma -b package ../lmc_$1_i386.deb
+DEB_BUILD_ARCH=$(dpkg-architecture -qDEB_BUILD_ARCH)
+sudo sed -i -e "s/VERSION/$1/g" ./package/DEBIAN/control
+sudo sed -i -e "s/ARCH/$DEB_BUILD_ARCH/g" ./package/DEBIAN/control
+sudo chmod 755 ./package/DEBIAN/postinst
+sudo chmod 755 ./package/DEBIAN/postrm
+sudo chmod 755 ./package/DEBIAN/prerm
+sudo chmod 755 ./package/usr/lib/lmc/lmc.sh
+sudo chmod 755 ./package/usr/lib/lmc/whitelist
+sudo dpkg-deb -z9 -Zlzma -b package ../lmc_$1_$(arch)$PACKAGE_MODE.deb
 
 echo "DONE."
 exit 0

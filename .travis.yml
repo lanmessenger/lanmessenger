@@ -1,0 +1,108 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+env:
+  matrix:
+    - CONFIG=release
+    #- CONFIG=debug
+
+install:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+         lsb_release -a
+      && sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+      && sudo apt-add-repository -y ppa:beineri/opt-qt551
+      && sudo apt-get -qq update
+      && sudo apt-get -qq install g++-4.8 qt55tools qt55multimedia qt55webkit qt55script openssl libssl-dev alien dpkg-dev
+      && export CXX="g++-4.8"
+      && export CC="gcc-4.8"
+      && export PACKAGE_MODE="_min"
+      ;
+    else
+         brew update > /dev/null
+      && brew tap homebrew/versions
+      && brew install qt55
+      && chmod -R 755 /usr/local/opt/qt@5.5/*
+      ;
+    fi
+#     && brew install openssl
+#     && brew link openssl --force
+  - which openssl
+  - openssl version
+  - LMVER=1.2.37
+
+script:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+         export QTDIR="/opt/qt55"
+      && PATH="$QTDIR/bin:$PATH"
+      && qt55-env.sh
+      && mkdir -p ./openssl/lib
+      && cp -v $(find / $PWD -type f -name "*libssl.so.1.0.*" 2> /dev/null) ./openssl/lib
+      && cp -v $(find / $PWD -type f -name "*libcrypto.so.1.0.*" 2> /dev/null) ./openssl/lib
+      ;
+    else
+         export QTDIR="/usr/local/opt/qt@5.5"
+      && PATH="$QTDIR/bin:$PATH"
+      && LDFLAGS=-L$QTDIR/lib
+      && CPPFLAGS=-I$QTDIR/include
+      && cp -v -r /usr/local/opt/openssl ./
+      ;
+    fi
+  - cd ./lmcapp/src
+  - qmake lmcapp.pro CONFIG+=$CONFIG
+  - make
+  - cd ../../lmc/src
+  - qmake lmc.pro CONFIG+=$CONFIG
+  - make
+# LINUX
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod 755 ./scripts/buildx11; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sh ./scripts/buildx11 ../release; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cd ../setup/x11; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod 755 ./setup; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sh ./setup $LMVER; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod 755 ./rpm_setup; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sh ./rpm_setup $LMVER; fi
+# OSX
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then chmod 755 ./scripts/buildmacos; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ./scripts/buildmacos ../release/LAN-Messenger.app/Contents/MacOS; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cd ../setup/mac; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then chmod 755 ./createdisk; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ./createdisk; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then chmod 755 ./addlicense; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then chmod 755 ./licenseDMG.py; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ./addlicense $LMVER; fi
+
+notifications:
+  email:
+    recipients:
+      - bruce65536@gmail.com
+
+before_deploy:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.37_x86_64${PACKAGE_MODE}.deb ${TRAVIS_BUILD_DIR}; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc-1.2.37.x86_64${PACKAGE_MODE}.rpm ${TRAVIS_BUILD_DIR}; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.37_intel.dmg ${TRAVIS_BUILD_DIR}; fi
+deploy:
+  - provider: releases
+    api_key:
+      secure: MTKOTVvUdCDVls36tTsTi4N4EkeBewAuqjFkxXPTVdtHnI1g2ECSLsFlnqHsNLjcA88nZL7OUXd9DFLYNzxWVe7WVkiX5ViyQq9qKsn7Nqfgiq0f9OAotH8tKFwICDK1nIREvE0Gr1riRBkvseqtdlonfeLzA8PeruUpefpMoSIEtdy7NjIB4zowzDLuqjlWSp6+ZniMrgWZ+McRr6BqJAMfnIQjURB2IneK+cIMbsM4C5g1UgyMntg/QgLrHkeW5+x9DaW5BpcjujZWEiTH2ZLOTtX3bmeqN1VUMd+F5EP24Ls9+WUG21PHmlvywzbkjT3givyVTTKmZ7iex1qo49jvSxeEb+QFW6W9wHxAyG1Vli96CQp2bFaYL/WRPmUGPmr0RIAfIkr3HvzxhJTmnDOVyBSsaMdidh2K32gagrIzWaqlskBgj9WdXxJj+8aGkyC7zyTeqEl2VNpIXFo/QgqDdMVvHlX23ilzAIS7nkfAajTAFl9Z3eDownANmzWtIIPvGjXMb4Ta+TPdO/BCrfdqCaYhTedq1Qkm24l03Dk4Q8xfXduUlpgjuhro5VZCugDHalpTMY9+n3+hMQgQ8pU7l+IVANr93hKxxnJ210TjCHlSvtXmuQbYn0WQTqoTSc76bxet7Hx2tpJ2gfMdS3fzYZkSwkfdkL+ugz946ZM=
+    file:
+      - ${TRAVIS_BUILD_DIR}/lmc_${LMVER}_x86_64${PACKAGE_MODE}.deb
+      - ${TRAVIS_BUILD_DIR}/lmc-${LMVER}.x86_64${PACKAGE_MODE}.rpm
+    skip_cleanup: true
+    overwrite: true
+    on:
+      condition: $TRAVIS_OS_NAME = linux
+      tags: true
+      branch: release
+  - provider: releases
+    api_key:
+      secure: MTKOTVvUdCDVls36tTsTi4N4EkeBewAuqjFkxXPTVdtHnI1g2ECSLsFlnqHsNLjcA88nZL7OUXd9DFLYNzxWVe7WVkiX5ViyQq9qKsn7Nqfgiq0f9OAotH8tKFwICDK1nIREvE0Gr1riRBkvseqtdlonfeLzA8PeruUpefpMoSIEtdy7NjIB4zowzDLuqjlWSp6+ZniMrgWZ+McRr6BqJAMfnIQjURB2IneK+cIMbsM4C5g1UgyMntg/QgLrHkeW5+x9DaW5BpcjujZWEiTH2ZLOTtX3bmeqN1VUMd+F5EP24Ls9+WUG21PHmlvywzbkjT3givyVTTKmZ7iex1qo49jvSxeEb+QFW6W9wHxAyG1Vli96CQp2bFaYL/WRPmUGPmr0RIAfIkr3HvzxhJTmnDOVyBSsaMdidh2K32gagrIzWaqlskBgj9WdXxJj+8aGkyC7zyTeqEl2VNpIXFo/QgqDdMVvHlX23ilzAIS7nkfAajTAFl9Z3eDownANmzWtIIPvGjXMb4Ta+TPdO/BCrfdqCaYhTedq1Qkm24l03Dk4Q8xfXduUlpgjuhro5VZCugDHalpTMY9+n3+hMQgQ8pU7l+IVANr93hKxxnJ210TjCHlSvtXmuQbYn0WQTqoTSc76bxet7Hx2tpJ2gfMdS3fzYZkSwkfdkL+ugz946ZM=
+    file: ${TRAVIS_BUILD_DIR}/lmc_${LMVER}_intel.dmg
+    skip_cleanup: true
+    overwrite: true
+    on:
+      condition: $TRAVIS_OS_NAME = osx
+      tags: true
+      branch: release

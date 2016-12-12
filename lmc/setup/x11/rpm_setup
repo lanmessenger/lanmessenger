@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [ "$1" = "" ]; then
   echo "Usage: rpm_setup <App Version>"
@@ -6,7 +7,8 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
-sudo alien -r -c -v --test ../lmc_$1_i386.deb
-sudo mv -f -v lmc-$1-2.i386.rpm ../
+sudo alien -r -c -v --test ../lmc_$1_$(arch)$PACKAGE_MODE.deb
+sudo mv -f -v lmc-$1-2.$(arch).rpm lmc-$1.$(arch)$PACKAGE_MODE.rpm
+sudo mv -f -v lmc-$1.$(arch)$PACKAGE_MODE.rpm ../
 
 exit 0

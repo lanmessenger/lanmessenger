@@ -26,6 +26,8 @@
 #include <QTranslator>
 #include "application.h"
 
+#define IDS_LANGUAGE_VAL "en_US"
+
 QTranslator* Application::current = 0;
 QTranslator* Application::sysCurrent = 0;
 Translators Application::translators;
