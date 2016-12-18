@@ -137,7 +137,8 @@ TRANSLATIONS += \
 	sl_SI.ts \
         pt_BR.ts \
         ru_RU.ts \
-        it_IT.ts
+        it_IT.ts \
+        sv_SE.ts
 
 win32: RC_FILE = lmcwin32.rc
 macx: ICON = lmc.icns
