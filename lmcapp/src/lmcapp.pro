@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += network widgets
+QT       += core network widgets
 
 TARGET = lmcapp
 TEMPLATE = lib
