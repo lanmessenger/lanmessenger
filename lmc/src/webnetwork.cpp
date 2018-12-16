@@ -60,7 +60,7 @@ void lmcWebNetwork::slotError(QNetworkReply::NetworkError code) {
 }
 
 void lmcWebNetwork::replyFinished(QNetworkReply *reply) {
-	if(reply->error() != QNetworkReply::NoError)
+    if(reply->error() != QNetworkReply::NoError)
 		return;
 
 	// check if there was an HTTP redirection

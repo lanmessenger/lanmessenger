@@ -74,10 +74,16 @@ void lmcUpdateWindow::stop(void) {
 void lmcUpdateWindow::receiveMessage(MessageType type, QString *lpszUserId, XmlMessage *pMessage) {
 	Q_UNUSED(lpszUserId);
 
-	switch(type) {
+    switch(type) {
 	case MT_Version:
-		webVersion = pMessage->data(XN_VERSION);
-		if(Helper::compareVersions(webVersion, QString(IDA_VERSION)) > 0)
+#if defined(Q_OS_WIN)
+        webVersion = pMessage->data(XN_WINVERSION);
+#elif defined(Q_OS_LINUX)
+        webVersion = pMessage->data(XN_LINVERSION);
+#elif defined(Q_OS_MAC)
+        webVersion = pMessage->data(XN_MACVERSION);
+#endif
+        if(Helper::compareVersions(webVersion, QString(IDA_VERSION)) > 0)
 			status = US_New;	// newer version available online
 		else
 			status = US_Latest;
