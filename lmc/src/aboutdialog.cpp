@@ -72,6 +72,10 @@ void lmcAboutDialog::setUIText(void) {
 
 	ui.lblTitle->setText(lmcStrings::appName() + "\n" IDA_VERSION);
 	ui.lblLogoSmall->setPixmap(QPixmap(IDR_LOGOSMALL));
+    ui.lblQtVersion->setText(QString("Qt %1  %2\n%3 %4").arg(QT_VERSION_STR,
+                                                           QSysInfo::buildCpuArchitecture(),
+                                                           QSysInfo::productType(),
+                                                           QSysInfo::productVersion()));
 
 	QString description(lmcStrings::appDesc() + "\n\n");
 	description.append(IDA_COPYRIGHT "\n" IDA_DOMAIN);
