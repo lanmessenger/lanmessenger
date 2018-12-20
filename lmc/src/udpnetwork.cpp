@@ -32,8 +32,8 @@ lmcUdpNetwork::lmcUdpNetwork(void) {
 	canReceive = false;
 	isRunning = false;
 	pCrypto = NULL;
-	ipAddress = QHostAddress::Any;
-	subnetMask = QHostAddress::Any;
+    ipAddress = QHostAddress::Any;
+    subnetMask = QHostAddress::Any;
 	defBroadcast = QHostAddress::Broadcast;
 	broadcastList.clear();
 }
@@ -155,7 +155,7 @@ void lmcUdpNetwork::sendDatagram(QHostAddress remoteAddress, QByteArray& datagra
 bool lmcUdpNetwork::startReceiving(void) {
 	lmcTrace::write("Binding UDP listener to port " + QString::number(nUdpPort));
 
-    if(pUdpReceiver->bind(nUdpPort)) {
+    if(pUdpReceiver->bind(QHostAddress::Any, nUdpPort, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
 		lmcTrace::write("Success");
 		lmcTrace::write("Joining multicast group " + multicastAddress.toString() +
 			" on interface " + multicastInterface.humanReadableName());

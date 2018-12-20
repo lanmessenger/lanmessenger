@@ -42,7 +42,6 @@ typedef QList<Theme> Themes;
 
 struct ThemeData {
 	QString themePath;
-	QString document;
 	QString inMsg;
 	QString inNextMsg;
 	QString outMsg;

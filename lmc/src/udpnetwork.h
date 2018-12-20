@@ -74,7 +74,7 @@ private:
 	lmcCrypto*			pCrypto;
 
 	bool				isRunning;
-	int					nUdpPort;
+    quint16				nUdpPort;
 	QHostAddress		multicastAddress;
 	QString				localId;
 	QNetworkInterface	multicastInterface;

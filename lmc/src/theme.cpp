@@ -71,17 +71,10 @@ const ThemeData lmcTheme::loadTheme(const QString &path) {
 
 	themeData.themePath = path;
 
-	file.setFileName(path + "/main.css");
-	if(!file.open(QIODevice::ReadOnly))
-		return loadTheme(defTheme);
-	QString style = QString(file.readAll().constData());
-	themeData.document = docTemplate.arg(style);
-	file.close();
-
 	file.setFileName(path + "/Incoming/Content.html");
 	if(!file.open(QIODevice::ReadOnly))
 		return loadTheme(defTheme);
-	themeData.inMsg = "<div class='_lmc_chatdiv'>" + QString(file.readAll().constData()) + "</div>";
+    themeData.inMsg = QString(file.readAll().constData());
 	file.close();
 
 	file.setFileName(path + "/Incoming/NextContent.html");
@@ -93,7 +86,7 @@ const ThemeData lmcTheme::loadTheme(const QString &path) {
 	file.setFileName(path + "/Outgoing/Content.html");
 	if(!file.open(QIODevice::ReadOnly))
 		return loadTheme(defTheme);
-	themeData.outMsg = "<div class='_lmc_chatdiv'>" + QString(file.readAll().constData()) + "</div>";
+    themeData.outMsg = QString(file.readAll().constData());
 	file.close();
 
 	file.setFileName(path + "/Outgoing/NextContent.html");
@@ -105,15 +98,15 @@ const ThemeData lmcTheme::loadTheme(const QString &path) {
 	file.setFileName(path + "/Broadcast.html");
 	if(!file.open(QIODevice::ReadOnly))
 		return loadTheme(defTheme);
-	themeData.pubMsg = "<div class='_lmc_publicdiv'>" + QString(file.readAll().constData()) + "</div>";
+    themeData.pubMsg = QString(file.readAll().constData());
 	file.close();
 
 	file.setFileName(path + "/Status.html");
 	if(!file.open(QIODevice::ReadOnly))
 		return loadTheme(defTheme);
 	QString sys = QString(file.readAll().constData());
-	themeData.sysMsg = "<div class='_lmc_sysdiv'>" + sys + "</div>";
-	themeData.stateMsg = "<div class='_lmc_statediv'>" + sys + "</div>";
+    themeData.sysMsg = sys;
+    themeData.stateMsg = sys;
 	file.close();
 
 	file.setFileName(path + "/NextStatus.html");
@@ -125,7 +118,7 @@ const ThemeData lmcTheme::loadTheme(const QString &path) {
 	file.setFileName(path + "/Request.html");
 	if(!file.open(QIODevice::ReadOnly))
 		return loadTheme(defTheme);
-	themeData.reqMsg = "<div class='_lmc_reqdiv'>" + QString(file.readAll().constData()) + "</div>";
+    themeData.reqMsg = QString(file.readAll().constData());
 	file.close();
 
 	return themeData;

@@ -22,7 +22,6 @@ install:
       ;
     else
          brew update > /dev/null
-      && brew tap homebrew-core/versions
       && brew install qt510
       && chmod -R 755 /usr/local/opt/qt@5.10/*
       ;
