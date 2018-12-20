@@ -155,7 +155,7 @@ void lmcUdpNetwork::sendDatagram(QHostAddress remoteAddress, QByteArray& datagra
 bool lmcUdpNetwork::startReceiving(void) {
 	lmcTrace::write("Binding UDP listener to port " + QString::number(nUdpPort));
 
-    if(pUdpReceiver->bind(QHostAddress::Any, nUdpPort, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+    if(pUdpReceiver->bind(QHostAddress::AnyIPv4, nUdpPort, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
 		lmcTrace::write("Success");
 		lmcTrace::write("Joining multicast group " + multicastAddress.toString() +
 			" on interface " + multicastInterface.humanReadableName());
