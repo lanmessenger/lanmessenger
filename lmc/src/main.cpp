@@ -113,6 +113,16 @@ int main(int argc, char *argv[]) {
 	if(!core.start())
 		return 1;
 
+#ifdef QT_NO_SSL
+    if(QMessageBox::critical(nullptr, IDA_TITLE, "Qt is compiled with QT_NO_SSL. Some functions will not work correctly. Quit application?", QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+        return 2;
+#else
+    if(!QSslSocket::supportsSsl()) {
+        if(QMessageBox::critical(nullptr, IDA_TITLE, "Messenger does not find ssl at startup. Probably missing openssl dll. Some functions will not work correctly. Quit application?", QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+            return 3;
+    }
+#endif
+
 	QObject::connect(&application, SIGNAL(messageReceived(const QString&)),
 		&core, SLOT(receiveAppMessage(const QString&)));
 	QObject::connect(&application, SIGNAL(aboutToQuit()), &core, SLOT(aboutToExit()));
