@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>543</width>
-    <height>485</height>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,11 +110,20 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="pageGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_5">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -302,7 +311,16 @@
        </widget>
        <widget class="QWidget" name="pageAccount">
         <layout class="QVBoxLayout" name="verticalLayout_11">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -508,7 +526,16 @@
        </widget>
        <widget class="QWidget" name="pageMessages">
         <layout class="QVBoxLayout" name="verticalLayout_14">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -799,7 +826,16 @@
        </widget>
        <widget class="QWidget" name="pageHistory">
         <layout class="QVBoxLayout" name="verticalLayout_18">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -987,7 +1023,16 @@
        </widget>
        <widget class="QWidget" name="pageAlerts">
         <layout class="QVBoxLayout" name="verticalLayout_22">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -1196,7 +1241,16 @@
        </widget>
        <widget class="QWidget" name="pageNetwork">
         <layout class="QVBoxLayout" name="verticalLayout_25">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -1500,7 +1554,7 @@
                  </size>
                 </property>
                 <property name="inputMask">
-                 <string notr="true">00000; </string>
+                 <string notr="true">00000</string>
                 </property>
                </widget>
               </item>
@@ -1543,7 +1597,7 @@
                  </size>
                 </property>
                 <property name="inputMask">
-                 <string notr="true">00000; </string>
+                 <string notr="true">00000</string>
                 </property>
                </widget>
               </item>
@@ -1576,7 +1630,16 @@
        </widget>
        <widget class="QWidget" name="pageFileTransfer">
         <layout class="QVBoxLayout" name="verticalLayout_28">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -1755,7 +1818,16 @@
        </widget>
        <widget class="QWidget" name="pageThemes">
         <layout class="QVBoxLayout" name="verticalLayout_31">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -1814,6 +1886,13 @@
                 </property>
                </spacer>
               </item>
+              <item>
+               <widget class="QPushButton" name="btnRefresfTheme">
+                <property name="text">
+                 <string>Refresh</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
             <item>
@@ -1831,7 +1910,16 @@
                <enum>QFrame::Sunken</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_29">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <item>
@@ -1903,7 +1991,16 @@
        </widget>
        <widget class="QWidget" name="pageHotkeys">
         <layout class="QVBoxLayout" name="verticalLayout_34">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>

@@ -23,12 +23,11 @@
 
 
 #include <QUrl>
-#include <QSound>
 #include <QSystemTrayIcon>
 #include <QLocale>
 #include <QMessageBox>
-#include <QAudioDeviceInfo>
 #include "settingsdialog.h"
+#include "soundplayer.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WindowFlags flags) : QDialog(parent, flags) {
 	ui.setupUi(this);
@@ -39,6 +38,9 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WindowFlags flags) : Q
 
 	pMessageLog = new lmcMessageLog(ui.fraMessageLog);
 	ui.logLayout->addWidget(pMessageLog);
+
+    statusTimerId = 0;
+    statusNow = 0;
 
 	connect(ui.lvCategories, SIGNAL(currentRowChanged(int)), this, SLOT(lvCategories_currentRowChanged(int)));
 	connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOk_clicked()));
@@ -65,6 +67,7 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget *parent, Qt::WindowFlags flags) : Q
 	connect(ui.btnPlaySound, SIGNAL(clicked()), this, SLOT(btnPlaySound_clicked()));
 	connect(ui.btnSoundPath, SIGNAL(clicked()), this, SLOT(btnSoundPath_clicked()));
 	connect(ui.btnResetSounds, SIGNAL(clicked()), this, SLOT(btnResetSounds_clicked()));
+    connect(ui.btnRefresfTheme, SIGNAL(clicked()), this, SLOT(btnRefreshTheme_clicked()));
 }
 
 lmcSettingsDialog::~lmcSettingsDialog(void) {
@@ -139,7 +142,7 @@ void lmcSettingsDialog::init(void) {
 	pIpValidator = new QRegExpValidator(ipRegExp, this);
 	ui.txtMulticast->setValidator(pIpValidator);
 
-	pMessageLog->setAutoScroll(false);
+    pMessageLog->setAutoScroll(false);
 
 	pSettings = new lmcSettings();
 	setUIText();
@@ -159,7 +162,33 @@ void lmcSettingsDialog::changeEvent(QEvent* pEvent) {
         break;
 	}
 
-	QDialog::changeEvent(pEvent);
+    QDialog::changeEvent(pEvent);
+}
+
+void lmcSettingsDialog::timerEvent(QTimerEvent *event)
+{
+    if(event->timerId() == statusTimerId) {
+        XmlMessage msg;
+        msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+        msg.addData(XN_FONT, QFont().toString());
+        msg.addData(XN_COLOR, QColor::fromRgb(96, 96, 96).name());
+        QString userId = "Jack";
+        QString userName = "Jack";
+        msg.removeData(XN_MESSAGE);
+        switch (statusNow++) {
+        case 0:
+            msg.addData(XN_CHATSTATE, "");
+            break;
+        case 1:
+            msg.addData(XN_CHATSTATE, "composing");
+            break;
+        default:
+            msg.addData(XN_CHATSTATE, "paused");
+            statusNow = 0;
+            break;
+        }
+        pMessageLog->appendMessageLog(MT_ChatState, &userId, &userName, &msg, true);
+    }
 }
 
 void lmcSettingsDialog::lvCategories_currentRowChanged(int currentRow) {
@@ -259,7 +288,7 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 	pMessageLog->localId = "Myself";
 	pMessageLog->peerId = "Jack";
 	pMessageLog->messageTime = true;
-	pMessageLog->initMessageLog(themePath);
+    pMessageLog->initMessageLog(themePath);
 
 	XmlMessage msg;
 	msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
@@ -272,7 +301,7 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 	msg.addData(XN_MESSAGE, "Hello, this is an incoming message.");
 	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
-	msg.removeData(XN_MESSAGE);
+    msg.removeData(XN_MESSAGE);
 	msg.addData(XN_MESSAGE, "Hello, this is a consecutive incoming message.");
 	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
@@ -294,9 +323,27 @@ void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
 	userId = "Jack";
 	userName = "Jack";
 
+    pMessageLog->autoFile = false;
+    XmlMessage fileMsg;
+    auto fileId = Helper::getUuid();
+    fileMsg.addData(XN_FILEPATH, "C:\\unreal file path\\file name.txt");
+    fileMsg.addData(XN_FILEID, fileId);
+    fileMsg.addData(XN_MODE, FileModeNames[FileMode::FM_Receive]);
+    fileMsg.addData(XN_FILENAME, "test_file.txt");
+    fileMsg.addData(XN_FILESIZE, "800000");
+    fileMsg.addData(XN_FILEOP, FileOpNames[FileOp::FO_Request]);
+    bool bReload = true;
+#ifndef QT_NO_DEBUG
+    bReload = false;
+#endif
+    pMessageLog->appendMessageLog(MT_File, &userId, &userName, &fileMsg, bReload);
+
 	msg.removeData(XN_MESSAGE);
 	msg.addData(XN_MESSAGE, "This is another incoming message.");
 	pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
+
+    killTimer(statusTimerId);
+    statusTimerId = startTimer(3000);
 }
 
 void lmcSettingsDialog::lvBroadcasts_currentRowChanged(int index) {
@@ -356,7 +403,7 @@ void lmcSettingsDialog::btnPlaySound_clicked(void) {
 	if(ui.lvSounds->currentRow() < 0)
 		return;
 
-	QSound::play(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
+    lmcSoundPlayer::play(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
 }
 
 void lmcSettingsDialog::btnSoundPath_clicked(void) {
@@ -376,7 +423,13 @@ void lmcSettingsDialog::btnResetSounds_clicked(void) {
 		QListWidgetItem* pListItem = ui.lvSounds->item(index);
 		pListItem->setData(Qt::UserRole, soundFile[index]);
 	}
-	lvSounds_currentRowChanged(ui.lvSounds->currentRow());
+    lvSounds_currentRowChanged(ui.lvSounds->currentRow());
+}
+
+void lmcSettingsDialog::btnRefreshTheme_clicked()
+{
+    pMessageLog->reloadTheme();
+    cboTheme_currentIndexChanged(ui.cboTheme->currentIndex());
 }
 
 void lmcSettingsDialog::setPageHeaderStyle(QLabel* pLabel) {
@@ -405,7 +458,7 @@ void lmcSettingsDialog::setUIText(void) {
 		ui.grpAlerts->setEnabled(false);
 		ui.grpAlerts->setTitle(tr("Status Alerts (Not Available)"));
 	}
-    if(QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).isEmpty()) {
+    if(!lmcSoundPlayer::isAvailable()) {
 		ui.grpSounds->setEnabled(false);
 		ui.grpSounds->setTitle(tr("Sounds (Not Available)"));
 	}

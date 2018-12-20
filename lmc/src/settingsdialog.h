@@ -31,7 +31,6 @@
 #include <QFontDialog>
 #include <QColorDialog>
 #include <QDesktopServices>
-#include <QSound>
 #include "ui_settingsdialog.h"
 #include "shared.h"
 #include "settings.h"
@@ -58,6 +57,7 @@ signals:
 
 protected:
 	void changeEvent(QEvent* pEvent);
+    void timerEvent(QTimerEvent *event);
 
 private slots:
 	void lvCategories_currentRowChanged(int currentRow);
@@ -84,12 +84,14 @@ private slots:
 	void btnPlaySound_clicked(void);
 	void btnSoundPath_clicked(void);
 	void btnResetSounds_clicked(void);
+    void btnRefreshTheme_clicked(void);
 
 private:
     void setPageHeaderStyle(QLabel* pLabel);
 	void setUIText(void);
 	void loadSettings(void);
 	void saveSettings(void);
+    void insertStatusMessageinLog();
 
 	Ui::SettingsDialog ui;
 	lmcSettings* pSettings;
@@ -100,6 +102,8 @@ private:
 	QRegExp	ipRegExp;
 	QRegExpValidator* pIpValidator;
 	lmcMessageLog* pMessageLog;
+    int statusTimerId;
+    int statusNow;
 };
 
 #endif // SETTINGSDIALOG_H
