@@ -13,9 +13,9 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
          lsb_release -a
       && sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-      && sudo apt-add-repository -y ppa:beineri/opt-qt551
+      && sudo add-apt-repository -y ppa:beineri/opt-qt-5.10.1-trusty
       && sudo apt-get -qq update
-      && sudo apt-get -qq install g++-4.8 qt55tools qt55multimedia qt55webkit qt55script openssl libssl-dev alien dpkg-dev
+      && sudo apt-get -qq install g++-4.8 qt510tools qt510multimedia qt510script openssl libssl-dev alien dpkg-dev
       && export CXX="g++-4.8"
       && export CC="gcc-4.8"
       && export PACKAGE_MODE="_min"
@@ -23,8 +23,8 @@ install:
     else
          brew update > /dev/null
       && brew tap homebrew/versions
-      && brew install qt55
-      && chmod -R 755 /usr/local/opt/qt@5.5/*
+      && brew install qt510
+      && chmod -R 755 /usr/local/opt/qt@5.10/*
       ;
     fi
 #     && brew install openssl
