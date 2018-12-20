@@ -21,8 +21,20 @@
 **
 ****************************************************************************/
 
-
+#include <QtGlobal>
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#include <QLibrary>
+#else
+#include <QSound>
+#include <QAudioDeviceInfo>
+#endif
 #include "soundplayer.h"
+
+#ifdef Q_OS_WIN
+typedef BOOL (*sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
+static sndPlaySoundFunc sndPlaySoundFromDll = nullptr;
+#endif
 
 lmcSoundPlayer::lmcSoundPlayer(void) {
 	pSettings = new lmcSettings();
@@ -30,7 +42,31 @@ lmcSoundPlayer::lmcSoundPlayer(void) {
 		eventState[index] = Qt::Checked;
 		sounds[index] = soundFile[index];
 	}
-	settingsChanged();
+    settingsChanged();
+#ifdef Q_OS_WIN
+    if(sndPlaySoundFromDll == nullptr) {
+        QLibrary winmmDll("winmm");
+        sndPlaySoundFromDll = (sndPlaySoundFunc) winmmDll.resolve("sndPlaySoundA");
+    }
+#endif
+}
+
+bool lmcSoundPlayer::isAvailable()
+{
+#ifdef Q_OS_WIN
+    return sndPlaySoundFromDll != nullptr;
+#else
+    return QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).isEmpty();
+#endif
+}
+
+void lmcSoundPlayer::play(const QString &filename)
+{
+#ifdef Q_OS_WIN
+    sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
+#else
+    QSound::play(filename);
+#endif
 }
 
 void lmcSoundPlayer::play(SoundEvent event) {
@@ -41,7 +77,7 @@ void lmcSoundPlayer::play(SoundEvent event) {
 	if(!eventState[event])
 		return;
 
-	QSound::play(sounds[event]);
+    play(sounds[event]);
 }
 
 void lmcSoundPlayer::settingsChanged(void) {

@@ -22,7 +22,7 @@ install:
       ;
     else
          brew update > /dev/null
-      && brew tap homebrew/versions
+      && brew tap homebrew-core/versions
       && brew install qt510
       && chmod -R 755 /usr/local/opt/qt@5.10/*
       ;
@@ -35,9 +35,9 @@ install:
 
 script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-         export QTDIR="/opt/qt55"
+         export QTDIR="/opt/qt510"
       && PATH="$QTDIR/bin:$PATH"
-      && qt55-env.sh
+      && qt510-env.sh
       && mkdir -p ./openssl/lib
       && cp -v $(find / $PWD -type f -name "*libssl.so.1.0.*" 2> /dev/null) ./openssl/lib
       && cp -v $(find / $PWD -type f -name "*libcrypto.so.1.0.*" 2> /dev/null) ./openssl/lib

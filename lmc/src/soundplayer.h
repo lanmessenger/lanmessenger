@@ -25,7 +25,6 @@
 #ifndef SOUNDPLAYER_H
 #define SOUNDPLAYER_H
 
-#include <QSound>
 #include "uidefinitions.h"
 #include "settings.h"
 
@@ -33,7 +32,9 @@ class lmcSoundPlayer {
 public:
 	lmcSoundPlayer(void);
 
-	void play(SoundEvent event);
+    static bool isAvailable();
+    static void play(const QString &filename);
+    void play(SoundEvent event);
 	void settingsChanged(void);
 
 private:
