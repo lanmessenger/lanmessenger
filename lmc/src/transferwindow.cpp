@@ -124,7 +124,7 @@ void lmcTransferWindow::receiveMessage(MessageType type, QString* lpszUserId, Xm
 	int fileOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
 	QString id = pMessage->data(XN_FILEID);
 
-	FileView* view = NULL;
+    FileView* view = nullptr;
     FileView::TransferMode transferMode = fileMode == FM_Send ? FileView::TM_Send : FileView::TM_Receive;
     int itemIndex = -1;
 	QString trayMsg;
