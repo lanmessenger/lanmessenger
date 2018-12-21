@@ -24,8 +24,8 @@
 
 #include "shared.h"
 #ifdef Q_OS_WIN
-#include <windows.h>
-#include <LMCons.h>
+#include <Windows.h>
+#include <lmcons.h>
 #else
 #include <stdlib.h>
 #endif

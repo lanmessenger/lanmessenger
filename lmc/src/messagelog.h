@@ -25,26 +25,25 @@
 #ifndef MESSAGELOG_H
 #define MESSAGELOG_H
 
-#include <QWebView>
-#include <QWebFrame>
-#include <QWebElement>
 #include "shared.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
 #include "xmlmessage.h"
 #include "theme.h"
+#include "qmessagebrowser.h"
 
 enum OutputFormat{ HtmlFormat, TextFormat };
 
-class lmcMessageLog : public QWebView
+class lmcMessageLog : public QMessageBrowser
 {
     Q_OBJECT
 
 public:
-	lmcMessageLog(QWidget *parent = 0);
-	~lmcMessageLog(void);
+    lmcMessageLog(QWidget *parent = nullptr);
+    ~lmcMessageLog(void) override;
 
 	void initMessageLog(QString themePath, bool clearLog = true);
+    void reloadTheme();
 	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage,
 		bool bReload = false);
 	void updateFileMessage(FileMode mode, FileOp op, QString fileId);
@@ -77,28 +76,35 @@ signals:
 	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 
 protected:
-	void changeEvent(QEvent* event);
+    virtual void changeEvent(QEvent* event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+
+    void scrollToEnd(QTextCursor &cursor);
 
 private slots:
-	void log_linkClicked(QUrl url);
-	void log_contentsSizeChanged(QSize size);
+    // TODO
+    //void log_linkClicked(QUrl url);
 	void log_linkHovered(const QString& link, const QString& title, const QString& textContent);
 	void showContextMenu(const QPoint& pos);
 	void copyAction_triggered(void);
 	void copyLinkAction_triggered(void);
 	void selectAllAction_triggered(void);
+    void onAnchorClicked(const QUrl &arg1);
 
 private:
 	void createContextMenu(void);
-	void appendMessageLog(QString* lpszHtml);
-	void removeMessageLog(QString divClass);
+    void appendMessageLog(QString* lpszHtml, MessageType type, QTextBlockData *data = nullptr);
+    void removeMessageLog(MessageType type);
+    void replaceMessageLog(MessageType type, QString id, QString html);
+    void insertMessageLog(QTextCursor cursor, QString& html, MessageType type, QTextBlockData *data);
+    bool isSameBlock(QTextCursor& cursor, MessageType type, QString& id) const;
 	void appendBroadcast(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime);
 	void appendMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime,
 		QFont* pFont, QColor* pColor);
 	void appendPublicMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime,
-		QFont* pFont, QColor* pColor);
-	void appendFileMessage(MessageType type, QString* lpszUserName, XmlMessage* pMessage, bool bReload = false);
-	QString getFontStyle(QFont* pFont, QColor* pColor, bool size = false);
+        QFont* pFont, QColor* pColor, MessageType messageType);
+    QString getFileMessageText(MessageType type, QString* lpszUserName, XmlMessage* pMessage, bool bReload = false);
+    QString getFontStyle(QFont* pFont, QColor* pColor, bool size = false);
 	QString getFileStatusMessage(FileMode mode, FileOp op);
 	QString getChatStateMessage(ChatState chatState);
 	QString getChatRoomMessage(GroupMsgOp op);
@@ -107,6 +113,8 @@ private:
 	void processMessageText(QString* lpszMessageText, bool useDefaults);
 	QString getTimeString(QDateTime* pTime);
 	void setUIText(void);
+    QString getFileTempId(FileMode mode, QString fileId) const;
+    QString getFileTempId(XmlMessage* pMessage) const;
 
 	QMap<QString, XmlMessage> sendFileMap;
 	QMap<QString, XmlMessage> receiveFileMap;

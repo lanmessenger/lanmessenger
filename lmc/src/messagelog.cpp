@@ -24,23 +24,21 @@
 
 #include <QMenu>
 #include <QAction>
+#include <QScrollBar>
+#include <QTextBlock>
 #include "messagelog.h"
 
 const QString acceptOp("accept");
 const QString declineOp("decline");
 const QString cancelOp("cancel");
 
-lmcMessageLog::lmcMessageLog(QWidget *parent) : QWebView(parent) {
-	connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(log_linkClicked(QUrl)));
-	connect(this->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
-			this, SLOT(log_contentsSizeChanged(QSize)));
-	connect(this->page(), SIGNAL(linkHovered(QString, QString, QString)),
-			this, SLOT(log_linkHovered(QString, QString, QString)));
+lmcMessageLog::lmcMessageLog(QWidget *parent) : QMessageBrowser (parent) {
+// TODO
+//	connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(log_linkClicked(QUrl)));
+//	connect(this->page(), SIGNAL(linkHovered(QString, QString, QString)),
+//			this, SLOT(log_linkHovered(QString, QString, QString)));
 
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-	setRenderHints(QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-    settings()->setObjectCacheCapacities(0, 0, 0);
+    connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(onAnchorClicked(const QUrl &)));
 
 	createContextMenu();
 
@@ -69,20 +67,16 @@ void lmcMessageLog::initMessageLog(QString themePath, bool clearLog) {
 		messageLog.clear();
 	lastId = QString::null;
 	this->themePath = themePath;
-	themeData = lmcTheme::loadTheme(themePath);
-	setHtml(themeData.document);
+    reloadTheme();
+}
+
+void lmcMessageLog::reloadTheme()
+{
+    themeData = lmcTheme::loadTheme(themePath);
+    clear();
 }
 
 void lmcMessageLog::createContextMenu(void) {
-	QAction* action = pageAction(QWebPage::Copy);
-	action->setShortcut(QKeySequence::Copy);
-	addAction(action);
-	action = pageAction(QWebPage::CopyLinkToClipboard);
-	addAction(action);
-	action = pageAction(QWebPage::SelectAll);
-	action->setShortcut(QKeySequence::SelectAll);
-	addAction(action);
-
 	contextMenu = new QMenu(this);
 	copyAction = contextMenu->addAction("&Copy", this, SLOT(copyAction_triggered()), QKeySequence::Copy);
 	copyLinkAction = contextMenu->addAction("&Copy Link", this, SLOT(copyLinkAction_triggered()));
@@ -109,7 +103,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 	QString id = QString::null;
 	bool addToLog = true;
 
-	removeMessageLog("_lmc_statediv");
+    removeMessageLog(MT_ChatState);
 
 	switch(type) {
 	case MT_Message:
@@ -126,7 +120,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		message = pMessage->data(XN_MESSAGE);
 		font.fromString(pMessage->data(XN_FONT));
 		color.setNamedColor(pMessage->data(XN_COLOR));
-		appendPublicMessage(lpszUserId, lpszUserName, &message, &time, &font, &color);
+        appendPublicMessage(lpszUserId, lpszUserName, &message, &time, &font, &color, type);
 		lastId = *lpszUserId;
 		break;
 	case MT_Broadcast:
@@ -138,12 +132,12 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 	case MT_ChatState:
 		message = pMessage->data(XN_CHATSTATE);
 		caption = getChatStateMessage((ChatState)Helper::indexOf(ChatStateNames, CS_Max, message));
-		if(!caption.isNull()) {
+        if(!caption.isNull()) {
 			html = themeData.stateMsg;
             html.replace("%iconpath%", "qrc" IDR_BLANK);
 			html.replace("%sender%", caption.arg(*lpszUserName));
 			html.replace("%message%", "");
-			appendMessageLog(&html);
+            appendMessageLog(&html, type);
 		}
 		addToLog = false;
 		break;
@@ -159,7 +153,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		html.replace("%sender%", caption.arg(*lpszUserName));
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", message);
-		appendMessageLog(&html);
+        appendMessageLog(&html, type);
 		lastId  = QString::null;
 		break;
 	case MT_Error:
@@ -167,16 +161,16 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
         html.replace("%iconpath%", "qrc" IDR_CRITICALMSG);
 		html.replace("%sender%", tr("Your message was not sent."));
 		html.replace("%message%", "");
-		appendMessageLog(&html);
+        appendMessageLog(&html, type);
 		lastId  = QString::null;
 		addToLog = false;
 		break;
 	case MT_File:
     case MT_Folder:
-		appendFileMessage(type, lpszUserName, pMessage, bReload);
-		id = pMessage->data(XN_TEMPID);
-		pMessage->removeData(XN_TEMPID);
+        id = getFileTempId(pMessage);
+        html = getFileMessageText(type, lpszUserName, pMessage, bReload);
 		lastId = QString::null;
+        appendMessageLog(&html, MT_File, new QTextBlockData(id));
 		break;
 	case MT_Join:
 	case MT_Leave:
@@ -187,7 +181,7 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
             html.replace("%iconpath%", "qrc" IDR_BLANK);
 			html.replace("%sender%", caption.arg(*lpszUserName));
 			html.replace("%message%", "");
-			appendMessageLog(&html);
+            appendMessageLog(&html, type);
 		}
 		lastId = QString::null;
 	default:
@@ -199,20 +193,12 @@ void lmcMessageLog::appendMessageLog(MessageType type, QString* lpszUserId, QStr
 		QString userId = lpszUserId ? *lpszUserId : QString::null;
 		QString userName = lpszUserName ? *lpszUserName : QString::null;
 		messageLog.append(SingleMessage(type, userId, userName, xmlMessage, id));
-	}
+    }
 }
 
-void lmcMessageLog::updateFileMessage(FileMode mode, FileOp op, QString fileId) {
-	QString szMessage = getFileStatusMessage(mode, op);
-	QWebFrame* frame = page()->mainFrame();
-	QWebElement document = frame->documentElement();
-	QWebElement body = document.findFirst("body");
-	QString selector = "span#";
-	QString tempId = (mode == FM_Send) ? "send" : "receive";
-	tempId.append(fileId);
-	selector.append(tempId);
-	QWebElement span = body.findFirst(selector);
-	span.setPlainText(szMessage);
+void lmcMessageLog::updateFileMessage(FileMode mode, FileOp op, QString fileId)
+{
+    QString tempId = getFileTempId(mode, fileId);
 
 	//	update the entry in message log
 	for(int index = 0; index < messageLog.count(); index++) {
@@ -222,7 +208,10 @@ void lmcMessageLog::updateFileMessage(FileMode mode, FileOp op, QString fileId) 
 			xmlMessage.removeData(XN_FILEOP);
 			xmlMessage.addData(XN_FILEOP, FileOpNames[op]);
 			msg.message = xmlMessage;
-			break;
+
+            QString html = getFileMessageText(msg.type, &msg.userName, &msg.message);
+            replaceMessageLog(MT_File, tempId, html);
+            break;
 		}
 	}
 }
@@ -369,56 +358,60 @@ void lmcMessageLog::changeEvent(QEvent* event) {
 		break;
 	}
 
-	QWidget::changeEvent(event);
+    QWidget::changeEvent(event);
 }
 
-void lmcMessageLog::log_linkClicked(QUrl url) {
-	QString linkPath = url.toString();
+void lmcMessageLog::resizeEvent(QResizeEvent *event)
+{
+    QMessageBrowser::resizeEvent(event);
 
-	//	this is a hack so qdesktopservices can open a network path
-	if(linkPath.startsWith("file")) {
-		// strip out the 'file:' prefix and get the path
-		linkPath = linkPath.mid(5);
-		// use a url that contains native separators
-		QDesktopServices::openUrl(QUrl(QDir::toNativeSeparators(linkPath)));
-		return;
-	} else if(linkPath.startsWith("www")) {
-		// prepend 'http://' to link
-		linkPath.prepend("http://");
-		QDesktopServices::openUrl(QUrl(linkPath));
-		return;
-	} else if(!linkPath.startsWith("lmc")) {
-		QDesktopServices::openUrl(url);
-		return;
-	}
+    if(autoScroll) {
+        QTextCursor cursor = textCursor();
+        scrollToEnd(cursor);
+    }
+}
 
-	QStringList linkData = linkPath.split("/", QString::SkipEmptyParts);
-	FileMode mode;
-	FileOp op;
+void lmcMessageLog::onAnchorClicked(const QUrl &url)
+{
+    QString linkPath = url.toString();
+
+    //	this is a hack so qdesktopservices can open a network path
+    if(linkPath.startsWith("file")) {
+        // strip out the 'file:' prefix and get the path
+        linkPath = linkPath.mid(5);
+        // use a url that contains native separators
+        QDesktopServices::openUrl(QUrl(QDir::toNativeSeparators(linkPath)));
+        return;
+    } else if(linkPath.startsWith("www")) {
+        // prepend 'http://' to link
+        linkPath.prepend("http://");
+        QDesktopServices::openUrl(QUrl(linkPath));
+        return;
+    } else if(!linkPath.startsWith("lmc")) {
+        QDesktopServices::openUrl(url);
+        return;
+    }
+
+    QStringList linkData = linkPath.split("/", QString::SkipEmptyParts);
+    FileMode mode;
+    FileOp op;
 
     if(linkData[2].compare(acceptOp) == 0) {
-		mode = FM_Receive;
-		op = FO_Accept;
+        mode = FM_Receive;
+        op = FO_Accept;
     } else if(linkData[2].compare(declineOp) == 0) {
-		mode = FM_Receive;
-		op = FO_Decline;
+        mode = FM_Receive;
+        op = FO_Decline;
     } else if(linkData[2].compare(cancelOp) == 0) {
-		mode = FM_Send;
-		op = FO_Cancel;
-	} else	// unknown link command
-		return;
+        mode = FM_Send;
+        op = FO_Cancel;
+    } else	// unknown link command
+        return;
 
-	//	Remove the link and show a confirmation message.
+    //	Remove the link and show a confirmation message.
     updateFileMessage(mode, op, linkData[3]);
 
     fileOperation(linkData[3], linkData[2], linkData[1], mode);
-}
-
-void lmcMessageLog::log_contentsSizeChanged(QSize size) {
-	if(autoScroll) {
-		QWebFrame* frame = page()->mainFrame();
-		frame->scroll(0, size.height());
-	}
 }
 
 void lmcMessageLog::log_linkHovered(const QString& link, const QString& title, const QString& textContent) {
@@ -428,39 +421,120 @@ void lmcMessageLog::log_linkHovered(const QString& link, const QString& title, c
 }
 
 void lmcMessageLog::showContextMenu(const QPoint& pos) {
-	copyAction->setEnabled(!selectedText().isEmpty());
+    QTextCursor cursor = textCursor();
+    copyAction->setEnabled(cursor.selectionStart() != cursor.selectionEnd());
 	copyLinkAction->setEnabled(linkHovered);
 	//	Copy Link is currently hidden since it performs the same action as regular Copy
-	//copyLinkAction->setVisible(false);
-	selectAllAction->setEnabled(!page()->mainFrame()->documentElement().findFirst("body").firstChild().isNull());
+    copyLinkAction->setVisible(false);
+    selectAllAction->setEnabled(!document()->isEmpty());
 	contextMenu->exec(mapToGlobal(pos));
 }
 
 void lmcMessageLog::copyAction_triggered(void) {
-	pageAction(QWebPage::Copy)->trigger();
+    copy();
 }
 
 void lmcMessageLog::copyLinkAction_triggered(void) {
-	pageAction(QWebPage::CopyLinkToClipboard)->trigger();
+//  TODO
+//	pageAction(QWebPage::CopyLinkToClipboard)->trigger();
 }
 
 void lmcMessageLog::selectAllAction_triggered(void) {
-	pageAction(QWebPage::SelectAll)->trigger();
+    selectAll();
 }
 
-void lmcMessageLog::appendMessageLog(QString *lpszHtml) {
-	QWebFrame* frame = page()->mainFrame();
-	QWebElement document = frame->documentElement();
-	QWebElement body = document.findFirst("body");
-	body.appendInside(*lpszHtml);
+void lmcMessageLog::scrollToEnd(QTextCursor &cursor)
+{
+    cursor.movePosition(QTextCursor::MoveOperation::End);
+    setTextCursor(cursor);
+    ensureCursorVisible();
+
+    QScrollBar *scrollBar = verticalScrollBar();
+    scrollBar->setValue(scrollBar->maximum());
 }
 
-void lmcMessageLog::removeMessageLog(QString divClass) {
-	QWebFrame* frame = page()->mainFrame();
-	QWebElement document = frame->documentElement();
-	QWebElement body = document.findFirst("body");
-	QWebElement element = body.findFirst("div." + divClass);
-	element.removeFromDocument();
+void lmcMessageLog::appendMessageLog(QString *lpszHtml, MessageType type, QTextBlockData *data) {
+
+    QTextCursor cursor = textCursor();
+    cursor.movePosition(QTextCursor::MoveOperation::End);
+
+    insertMessageLog(cursor, *lpszHtml, type, data);
+
+    if(autoScroll)
+        scrollToEnd(cursor);
+}
+
+void lmcMessageLog::removeMessageLog(MessageType type) {
+
+    replaceMessageLog(type, QString::null, QString::null);
+}
+
+void lmcMessageLog::replaceMessageLog(MessageType type, QString id, QString html)
+{
+    auto frames = document()->rootFrame()->childFrames();
+
+    for(int i=frames.size()-1; i>=0; i--) {
+
+        QTextFrame *frame = frames.at(i);
+        QTextCursor cursor = frame->firstCursorPosition();
+
+        cursor.movePosition(QTextCursor::MoveOperation::StartOfBlock);
+
+        if(isSameBlock(cursor, type, id)) {
+            QTextCursor insertCursor = textCursor();
+            insertCursor.setPosition(frame->lastPosition() + 1);
+            insertMessageLog(insertCursor, html, type, new QTextBlockData(id));
+
+            QTextCursor deleteCursor = textCursor();
+            deleteCursor.setPosition(frame->firstPosition());
+            if(frame != frames.last())
+                deleteCursor.setPosition(frame->lastPosition() + 1, QTextCursor::MoveMode::KeepAnchor);
+            else
+                deleteCursor.movePosition(QTextCursor::MoveOperation::End, QTextCursor::MoveMode::KeepAnchor);
+            deleteCursor.removeSelectedText();
+            break;
+        }
+    }
+}
+
+void lmcMessageLog::insertMessageLog(QTextCursor cursor, QString &html, MessageType type, QTextBlockData *data)
+{
+    QTextFrameFormat frameFormat;
+    frameFormat.setMargin(0);
+    frameFormat.setTopMargin(-12);
+    frameFormat.setPadding(0);
+    frameFormat.setBorder(0);
+    QTextFrame *frame = cursor.insertFrame(frameFormat);
+    frame->frameFormat().setMargin(0);
+    frame->firstCursorPosition().insertHtml(html);
+
+    QTextBlock block = frame->firstCursorPosition().block();
+
+    block.setUserState(type);
+    if(data != nullptr)
+        block.setUserData(data);
+}
+
+bool lmcMessageLog::isSameBlock(QTextCursor &cursor, MessageType type, QString &id) const
+{
+    bool result = false;
+
+    QTextBlock block = cursor.block();
+
+    if(block.userState() == type) {
+        if(id.isNull()) {
+            result = true;
+        }
+        else {
+            QTextBlockUserData *data = block.userData();
+            if(data != nullptr) {
+                if(static_cast<QTextBlockData*>(data)->id == id)
+                    result = true;
+            }
+        }
+    }
+
+    return result;
 }
 
 void lmcMessageLog::appendBroadcast(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime) {
@@ -476,7 +550,7 @@ void lmcMessageLog::appendBroadcast(QString* lpszUserId, QString* lpszUserName, 
 	html.replace("%style%", "");
 	html.replace("%message%", *lpszMessage);
 
-	appendMessageLog(&html);
+    appendMessageLog(&html, MT_Broadcast);
 }
 
 void lmcMessageLog::appendMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage, QDateTime* pTime,
@@ -502,29 +576,21 @@ void lmcMessageLog::appendMessage(QString* lpszUserId, QString* lpszUserName, QS
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", *lpszMessage);
 
-		QWebFrame* frame = page()->mainFrame();
-		QWebElement document = frame->documentElement();
-		QWebElement body = document.findFirst("body");
-		body.appendInside(html);
-	} else {
+    } else {
 		html = localUser ? themeData.outNextMsg : themeData.inNextMsg;
 		html.replace("%time%", getTimeString(pTime));
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", *lpszMessage);
 
-		QWebFrame* frame = page()->mainFrame();
-		QWebElement document = frame->documentElement();
-		QWebElement body = document.findFirst("body");
-		QWebElement last = body.lastChild();
-		QWebElement insert = last.findFirst("div#insert");
-		insert.replace(html);
-	}
+    }
+
+    appendMessageLog(&html, MT_Message);
 
 	hasData = true;
 }
 
 void lmcMessageLog::appendPublicMessage(QString* lpszUserId, QString* lpszUserName, QString* lpszMessage,
-										QDateTime *pTime, QFont *pFont, QColor *pColor) {
+                                        QDateTime *pTime, QFont *pFont, QColor *pColor, MessageType messageType) {
 	QString html = QString::null;
 	bool localUser = (lpszUserId->compare(localId) == 0);
 
@@ -547,35 +613,25 @@ void lmcMessageLog::appendPublicMessage(QString* lpszUserId, QString* lpszUserNa
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", *lpszMessage);
 
-		QWebFrame* frame = page()->mainFrame();
-		QWebElement document = frame->documentElement();
-		QWebElement body = document.findFirst("body");
-		body.appendInside(html);
-	} else {
+    } else {
 		html = outStyle ? themeData.outNextMsg : themeData.inNextMsg;
 		html.replace("%time%", getTimeString(pTime));
 		html.replace("%style%", fontStyle);
 		html.replace("%message%", *lpszMessage);
 
-		QWebFrame* frame = page()->mainFrame();
-		QWebElement document = frame->documentElement();
-		QWebElement body = document.findFirst("body");
-		QWebElement last = body.lastChild();
-		QWebElement insert = last.findFirst("div#insert");
-		insert.replace(html);
-	}
+    }
+
+    appendMessageLog(&html, messageType);
 
 	hasData = true;
 }
 
 // This function is called to display a file request message on chat box
-void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, XmlMessage* pMessage,
-									  bool bReload) {
-    Q_UNUSED(type);
-    QString htmlMsg;
+QString lmcMessageLog::getFileMessageText(MessageType type, QString* lpszUserName, XmlMessage* pMessage, bool bReload)
+{
+    QString html;
 	QString caption;
     QString fileId = pMessage->data(XN_FILEID);
-	QString tempId;
 	QString szStatus;
     QString fileType;
 
@@ -587,28 +643,24 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
         fileType = "folder";
         break;
     default:
-        return;
-        break;
+        throw std::logic_error("lmcMessageLog::generateFileMessageText: not yet implemented");
     }
 
-	htmlMsg = themeData.reqMsg;
-    htmlMsg.replace("%iconpath%", "qrc" IDR_FILEMSG);
+    html = themeData.reqMsg;
+    html.replace("%iconpath%", "qrc" IDR_FILEMSG);
 
 	FileOp fileOp = (FileOp)Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
     FileMode fileMode = (FileMode)Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
 
     if(fileMode == FM_Send) {
-		tempId = "send" + fileId;
 		caption = tr("Sending '%1' to %2.");
-		htmlMsg.replace("%sender%", caption.arg(pMessage->data(XN_FILENAME), *lpszUserName));
-		htmlMsg.replace("%message%", "");
-		htmlMsg.replace("%fileid%", tempId);
+        html.replace("%sender%", caption.arg(pMessage->data(XN_FILENAME), *lpszUserName));
+        html.replace("%message%", "");
 
 		switch(fileOp) {
 		case FO_Request:
 			sendFileMap.insert(fileId, *pMessage);
-			pMessage->addData(XN_TEMPID, tempId);
-            htmlMsg.replace("%links%", "<a href='lmc://" + fileType + "/" + cancelOp + "/" + fileId + "'>" + tr("Cancel") + "</a>");
+            html.replace("%links%", "<a href='lmc://" + fileType + "/" + cancelOp + "/" + fileId + "'>" + tr("Cancel") + "</a>");
 			break;
 		case FO_Cancel:
 		case FO_Accept:
@@ -617,45 +669,41 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
         case FO_Abort:
         case FO_Complete:
 			szStatus = getFileStatusMessage(FM_Send, fileOp);
-			htmlMsg.replace("%links%", szStatus);
+            html.replace("%links%", szStatus);
 			break;
 		default:
-			return;
-			break;
+            html = QString::null;
 		}
     } else {
-		tempId = "receive" + fileId;
 		if(autoFile) {
             if(type == MT_File)
                 caption = tr("%1 is sending you a file:");
             else
                 caption = tr("%1 is sending you a folder:");
-			htmlMsg.replace("%sender%", caption.arg(*lpszUserName));
-			htmlMsg.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
+            html.replace("%sender%", caption.arg(*lpszUserName));
+            html.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
 				Helper::formatSize(pMessage->data(XN_FILESIZE).toLongLong()) + ")");
-			htmlMsg.replace("%fileid%", "");
+            html.replace("%fileid%", "");
 		} else {
             if(type == MT_File)
                 caption = tr("%1 sends you a file:");
             else
                 caption = tr("%1 sends you a folder:");
-			htmlMsg.replace("%sender%", caption.arg(*lpszUserName));
-			htmlMsg.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
+            html.replace("%sender%", caption.arg(*lpszUserName));
+            html.replace("%message%", pMessage->data(XN_FILENAME) + " (" +
 				Helper::formatSize(pMessage->data(XN_FILESIZE).toLongLong()) + ")");
-			htmlMsg.replace("%fileid%", tempId);
 		}
 
 		switch(fileOp) {
 		case FO_Request:
 			receiveFileMap.insert(fileId, *pMessage);
-			pMessage->addData(XN_TEMPID, tempId);
 
 			if(autoFile) {
-                htmlMsg.replace("%links%", tr("Accepted"));
+                html.replace("%links%", tr("Accepted"));
                 if(!bReload)
                     fileOperation(fileId, acceptOp, fileType);
 			} else {
-                htmlMsg.replace("%links%",
+                html.replace("%links%",
                     "<a href='lmc://" + fileType + "/" + acceptOp + "/" + fileId + "'>" + tr("Accept") + "</a>&nbsp;&nbsp;" +
                     "<a href='lmc://" + fileType + "/" + declineOp + "/" + fileId + "'>" + tr("Decline") + "</a>");
 			}
@@ -667,18 +715,14 @@ void lmcMessageLog::appendFileMessage(MessageType type, QString* lpszUserName, X
         case FO_Abort:
         case FO_Complete:
 			szStatus = getFileStatusMessage(FM_Receive, fileOp);
-			htmlMsg.replace("%links%", szStatus);
+            html.replace("%links%", szStatus);
 			break;
 		default:
-			return;
-			break;
-		}
+            html = QString::null;
+        }
 	}
 
-	QWebFrame* frame = page()->mainFrame();
-	QWebElement document = frame->documentElement();
-	QWebElement body = document.findFirst("body");
-	body.appendInside(htmlMsg);
+    return html;
 }
 
 QString lmcMessageLog::getFontStyle(QFont* pFont, QColor* pColor, bool size) {
@@ -876,5 +920,19 @@ QString lmcMessageLog::getTimeString(QDateTime* pTime) {
 void lmcMessageLog::setUIText(void) {
 	copyAction->setText(tr("&Copy"));
 	selectAllAction->setText(tr("Select &All"));
-	reloadMessageLog();
+    reloadMessageLog();
+}
+
+QString lmcMessageLog::getFileTempId(FileMode mode, QString fileId) const
+{
+    QString tempId = (mode == FM_Send) ? "send" : "receive";
+    tempId.append(fileId);
+    return tempId;
+}
+
+QString lmcMessageLog::getFileTempId(XmlMessage *pMessage) const
+{
+    QString fileId = pMessage->data(XN_FILEID);
+    FileMode fileMode = (FileMode)Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
+    return getFileTempId(fileMode, fileId);
 }

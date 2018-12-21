@@ -22,8 +22,8 @@ install:
       ;
     else
          brew update > /dev/null
-      && brew install qt510
-      && chmod -R 755 /usr/local/opt/qt@5.10/*
+      && brew install qt5
+      && chmod -R 755 /usr/local/opt/qt@5.12.0/*
       ;
     fi
 #     && brew install openssl

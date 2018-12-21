@@ -25,9 +25,19 @@
 #ifndef CHATHELPER_H
 #define CHATHELPER_H
 
+#include <QTextBlockUserData>
 #include "uidefinitions.h"
 #include "chatdefinitions.h"
 #include "xmlmessage.h"
+
+class QTextBlockData : public QTextBlockUserData
+{
+public:
+    QTextBlockData(QString id);
+    virtual ~QTextBlockData();
+
+    QString id;
+};
 
 struct SingleMessage {
 	MessageType type;

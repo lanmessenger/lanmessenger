@@ -41,3 +41,4 @@ CMakeLists.txt.user*
 /lmc/release*
 /lmc/setup/lmc*.exe
 /lmc/setup/lmc*.zip
+/lmcapp/lib

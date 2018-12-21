@@ -4,21 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network xml widgets multimedia
-unix: QT += webkit webkitwidgets
-macx: QT += webkit webkitwidgets
-
-win32: {
-    contains(DEFINES, QT_STATIC_BUILD) {
-        win32: INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include
-        win32: INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include/QtWebKit
-        win32: INCLUDEPATH += C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/include/QtWebKitWidgets
-        win32: LIBS += -L"C:/Qt/Static/src/qt-everywhere-opensource-src-5.5.1/qtwebkit/WebKitBuild/Release/lib" -lQt5WebKit -lQt5WebKitWidgets
-    }
-    else {
-        QT += webkit webkitwidgets
-    }
-}
+QT += core gui network xml widgets sql
 
 win32: TARGET = lmc
 unix: TARGET = lan-messenger
@@ -68,7 +54,8 @@ SOURCES += \
     userselectdialog.cpp \
     subcontrols.cpp \
     trace.cpp \
-    filemessagingproc.cpp
+    filemessagingproc.cpp \
+    qmessagebrowser.cpp
 
 HEADERS  += \
     usertreewidget.h \
@@ -114,7 +101,8 @@ HEADERS  += \
     chatroomwindow.h \
     userselectdialog.h \
     subcontrols.h \
-    trace.h
+    trace.h \
+    qmessagebrowser.h
 
 FORMS += \
     transferwindow.ui \
@@ -157,16 +145,15 @@ CONFIG(debug, debug|release) {
 }
 
 win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
-else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd
+else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd2
 unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32 -lAdvapi32
+win32: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
+win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include
 DEPENDPATH += $$PWD/../../openssl/include
-
-win32:LIBS += -liphlpapi

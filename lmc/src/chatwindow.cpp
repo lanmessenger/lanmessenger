@@ -651,8 +651,9 @@ void lmcChatWindow::updateFileMessage(FileMode mode, FileOp op, QString fileId) 
 void lmcChatWindow::showStatus(int flag, bool add) {
 	infoFlag = add ? infoFlag | flag : infoFlag & ~flag;
 
-	int relScrollPos = pMessageLog->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) -
-			pMessageLog->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+// TODO
+//	int relScrollPos = pMessageLog->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) -
+//			pMessageLog->page()->mainFrame()->scrollBarValue(Qt::Vertical);
 
 	//ui.lblInfo->setStyleSheet("QLabel { background-color:white; }");
 	if(infoFlag & IT_Disconnected) {
@@ -675,8 +676,9 @@ void lmcChatWindow::showStatus(int flag, bool add) {
 		ui.lblInfo->setVisible(false);
 	}
 
-	int scrollPos = pMessageLog->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) - relScrollPos;
-	pMessageLog->page()->mainFrame()->setScrollBarValue(Qt::Vertical, scrollPos);
+// TODO
+//	int scrollPos = pMessageLog->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) - relScrollPos;
+//	pMessageLog->page()->mainFrame()->setScrollBarValue(Qt::Vertical, scrollPos);
 }
 
 QString lmcChatWindow::getWindowTitle(void) {

@@ -34,8 +34,6 @@
 #include <QColorDialog>
 #include <QFile>
 #include <QTextStream>
-#include <QWebFrame>
-#include <QWebElement>
 #include <qevent.h>
 #include "ui_chatwindow.h"
 #include "shared.h"

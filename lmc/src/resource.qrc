@@ -166,7 +166,6 @@
     <qresource prefix="/themes">
         <file alias="Classic/Broadcast.html">resources/themes/Classic/Broadcast.html</file>
         <file alias="Classic/Request.html">resources/themes/Classic/Request.html</file>
-        <file alias="Classic/main.css">resources/themes/Classic/main.css</file>
         <file alias="Classic/NextStatus.html">resources/themes/Classic/NextStatus.html</file>
         <file alias="Classic/Status.html">resources/themes/Classic/Status.html</file>
         <file alias="Classic/Incoming/Content.html">resources/themes/Classic/Incoming/Content.html</file>

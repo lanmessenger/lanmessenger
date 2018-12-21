@@ -78,3 +78,13 @@ void ChatHelper::decodeSmileys(QString* lpszMessage) {
 		lpszMessage->replace(code, "<img src='qrc" + smileyPic[index] + "' />", Qt::CaseInsensitive);
 	}
 }
+
+QTextBlockData::QTextBlockData(QString id)
+{
+    this->id = id;
+}
+
+QTextBlockData::~QTextBlockData()
+{
+
+}
