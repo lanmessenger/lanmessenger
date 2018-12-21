@@ -6,6 +6,9 @@
 
 QT += core gui network xml widgets sql
 
+unix: QT += multimedia
+macx: QT += multimedia
+
 win32: TARGET = lmc
 unix: TARGET = lan-messenger
 macx: TARGET  = "LAN-Messenger"

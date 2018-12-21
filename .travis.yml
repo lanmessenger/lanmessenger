@@ -15,7 +15,7 @@ install:
       && sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
       && sudo add-apt-repository -y ppa:beineri/opt-qt-5.10.1-trusty
       && sudo apt-get -qq update
-      && sudo apt-get -qq install g++-4.8 qt510tools qt510multimedia qt510script openssl libssl-dev alien dpkg-dev
+      && sudo apt-get -qq install g++-6 qt510tools qt510multimedia qt510script openssl libssl-dev alien dpkg-dev
       && export CXX="g++-4.8"
       && export CC="gcc-4.8"
       && export PACKAGE_MODE="_min"
