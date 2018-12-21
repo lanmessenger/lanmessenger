@@ -481,16 +481,15 @@ void lmcMessageLog::replaceMessageLog(MessageType type, QString id, QString html
         cursor.movePosition(QTextCursor::MoveOperation::StartOfBlock);
 
         if(isSameBlock(cursor, type, id)) {
-            QTextCursor insertCursor = textCursor();
-            insertCursor.setPosition(frame->lastPosition() + 1);
-            insertMessageLog(insertCursor, html, type, new QTextBlockData(id));
+            if(!html.isEmpty()) {
+                QTextCursor insertCursor = textCursor();
+                insertCursor.setPosition(frame->lastPosition() + 1);
+                insertMessageLog(insertCursor, html, type, new QTextBlockData(id));
+            }
 
             QTextCursor deleteCursor = textCursor();
             deleteCursor.setPosition(frame->firstPosition());
-            if(frame != frames.last())
-                deleteCursor.setPosition(frame->lastPosition() + 1, QTextCursor::MoveMode::KeepAnchor);
-            else
-                deleteCursor.movePosition(QTextCursor::MoveOperation::End, QTextCursor::MoveMode::KeepAnchor);
+            deleteCursor.setPosition(frame->lastPosition() + 1, QTextCursor::MoveMode::KeepAnchor);
             deleteCursor.removeSelectedText();
             break;
         }

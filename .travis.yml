@@ -16,6 +16,10 @@ install:
       && sudo add-apt-repository -y ppa:beineri/opt-qt-5.10.1-trusty
       && sudo apt-get -qq update
       && sudo apt-get -qq install gcc-6 g++-6 qt510tools qt510multimedia qt510script openssl libssl-dev alien dpkg-dev
+      && rm /usr/bin/gcc
+      && rm /usr/bin/g++
+      && ln -s /usr/bin/gcc-6.0 /usr/bin/gcc
+      && ln -s /usr/bin/g++-6.0 /usr/bin/g++
       && export CXX="g++-6.0"
       && export CC="gcc-6.0"
       && export PACKAGE_MODE="_min"
@@ -42,7 +46,7 @@ script:
       && cp -v $(find / $PWD -type f -name "*libcrypto.so.1.0.*" 2> /dev/null) ./openssl/lib
       ;
     else
-         export QTDIR="/usr/local/opt/qt@5.5"
+         export QTDIR="/usr/local/opt/qt@5.10"
       && PATH="$QTDIR/bin:$PATH"
       && LDFLAGS=-L$QTDIR/lib
       && CPPFLAGS=-I$QTDIR/include
