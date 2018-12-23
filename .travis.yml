@@ -34,8 +34,8 @@ install:
     fi
 #     && brew install openssl
 #     && brew link openssl --force
-  - gcc -v
-  - g++ -v
+  - gcc --version
+  - g++ --version
   - which openssl
   - openssl version
   - LMVER=1.2.39
