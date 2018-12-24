@@ -156,6 +156,11 @@ win32: {
     LIBS += -L$$LMCAPP_PATH -llmcapp
 }
 unix:!symbian: {
+    CONFIG(debug, debug|release) {
+        DESTDIR = ../debug
+    } else {
+        DESTDIR = ../release
+    }
     LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
 }
 
