@@ -54,16 +54,16 @@ lmcCore::lmcCore(void) {
 	connect(pPublicChatWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
 	chatWindows.clear();
 	chatRoomWindows.clear();
-	pTransferWindow = NULL;
-	pHistoryWindow = NULL;
-	pSettingsDialog = NULL;
-	pUserInfoWindow = NULL;
-	pHelpWindow = NULL;
-	pUpdateWindow = NULL;
-	pUserSelectDialog = NULL;
-	pAboutDialog = NULL;
-	pBroadcastWindow = NULL;
-	pTimer = NULL;
+    pTransferWindow = nullptr;
+    pHistoryWindow = nullptr;
+    pSettingsDialog = nullptr;
+    pUserInfoWindow = nullptr;
+    pHelpWindow = nullptr;
+    pUpdateWindow = nullptr;
+    pUserSelectDialog = nullptr;
+    pAboutDialog = nullptr;
+    pBroadcastWindow = nullptr;
+    pTimer = nullptr;
 }
 
 lmcCore::~lmcCore(void) {
@@ -550,7 +550,7 @@ void lmcCore::processMessage(MessageType type, QString* lpszUserId, XmlMessage* 
 		break;
 	case MT_Depart:
 		pMainWindow->removeUser(lpszUserId);
-		processPublicMessage(type, lpszUserId, pMessage);
+        processPublicMessage(type, lpszUserId, pMessage);
         routeMessage(type, lpszUserId, pMessage);
 		routeGroupMessage(type, lpszUserId, pMessage);
 		break;

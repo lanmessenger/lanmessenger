@@ -87,9 +87,9 @@ notifications:
       - bruce65536@gmail.com
 
 before_deploy:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.37_x86_64${PACKAGE_MODE}.deb ${TRAVIS_BUILD_DIR}; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc-1.2.37.x86_64${PACKAGE_MODE}.rpm ${TRAVIS_BUILD_DIR}; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.37_intel.dmg ${TRAVIS_BUILD_DIR}; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.39_x86_64${PACKAGE_MODE}.deb ${TRAVIS_BUILD_DIR}; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc-1.2.39.x86_64${PACKAGE_MODE}.rpm ${TRAVIS_BUILD_DIR}; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cp -v ${HOME}/build/${TRAVIS_REPO_SLUG}/lmc/setup/lmc_1.2.39_intel.dmg ${TRAVIS_BUILD_DIR}; fi
 deploy:
   - provider: releases
     api_key:

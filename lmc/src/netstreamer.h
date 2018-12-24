@@ -25,7 +25,6 @@
 #ifndef NETSTREAMER_H
 #define NETSTREAMER_H
 
-#include <QThread>
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QTimer>
