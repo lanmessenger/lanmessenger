@@ -147,23 +147,24 @@ Section
   SetOutPath $INSTDIR
   
   ;Copy application files to the installation directory  
-  File "..\..\release\${AppExec}"
-  File "..\..\release\libeay32.dll"
-  File "..\..\release\COPYING.txt"
+  File "..\..\${ExeFolder}\${AppExec}"
+  File "..\..\${ExeFolder}\libeay32.dll"
+  File "..\..\${ExeFolder}\ssleay32.dll"
+  File "..\..\src\resources\text\license.txt"
   CreateDirectory "$INSTDIR\sounds"
   SetOutPath "$INSTDIR\sounds"
-  File /r "..\..\release\sounds\*.*"
+  File /r "..\..\${ExeFolder}\sounds\*.*"
   CreateDirectory "$INSTDIR\lang"
   SetOutPath "$INSTDIR\lang"
-  File /r "..\..\release\lang\*.*"
-  CreateDirectory "$INSTDIR\themes"
-  SetOutPath "$INSTDIR\themes"
-  File /r "..\..\release\themes\*.*"
+  File /r "..\..\${ExeFolder}\lang\*.*"
+  ;CreateDirectory "$INSTDIR\themes"
+  ;SetOutPath "$INSTDIR\themes"
+  ;File /r "..\..\release\themes\*.*"
   
   ;Create directories in user's Application Data folder
   CreateDirectory "${AppDataDir}\cache"
   CreateDirectory "${AppDataDir}\lang"
-  CreateDirectory "${AppDataDir}\themes"
+  ;CreateDirectory "${AppDataDir}\themes"
   CreateDirectory "${AppDataDir}\logs"
   
   ;Create directory in user's Documents folder storing received files
@@ -263,10 +264,10 @@ Section "Uninstall"
   ;Delete application files and folder
   Delete "$INSTDIR\${AppExec}"
   Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\COPYING.txt"
+  Delete "$INSTDIR\license.txt"
   RMDir /r "$INSTDIR\sounds"
   RMDir /r "$INSTDIR\lang"
-  RMDir /r "$INSTDIR\themes"
+  ;RMDir /r "$INSTDIR\themes"
   Delete "$INSTDIR\${Uninstaller}"
   RMDir "$INSTDIR"
   
