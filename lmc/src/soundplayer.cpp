@@ -32,7 +32,7 @@
 #include "soundplayer.h"
 
 #ifdef Q_OS_WIN
-typedef BOOL (*sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
+typedef BOOL (WINAPI *sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
 static sndPlaySoundFunc sndPlaySoundFromDll = nullptr;
 #endif
 
@@ -63,7 +63,8 @@ bool lmcSoundPlayer::isAvailable()
 void lmcSoundPlayer::play(const QString &filename)
 {
 #ifdef Q_OS_WIN
-    sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
+    if(sndPlaySoundFromDll)
+        sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
 #else
     QSound::play(filename);
 #endif
