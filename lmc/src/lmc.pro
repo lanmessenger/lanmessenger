@@ -141,20 +141,28 @@ TRANSLATIONS += \
 win32: RC_FILE = lmcwin32.rc
 macx: ICON = lmc.icns
 
-CONFIG(debug, debug|release) {
-    DESTDIR = ../debug
-} else {
-    DESTDIR = ../release
+win32-msvc* {
+    QMAKE_LFLAGS_RELEASE += /MAP
+    QMAKE_CFLAGS_RELEASE += /Zi
+    QMAKE_CFLAGS_RELEASE += /FAcs
+    QMAKE_CXXFLAGS_RELEASE += /Zi
+    QMAKE_CXXFLAGS_RELEASE += /FAcs
+    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
 }
 
-win32: CONFIG(release, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
-else:win32: CONFIG(debug, debug|release): LIBS += -L$$PWD/../../lmcapp/lib/ -llmcappd2
-unix:!symbian: LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+win32: {
+    CONFIG -= debug_and_release debug_and_release_target
+    LMCAPP_PATH = $$replace(OUT_PWD, lmc, lmcapp)
+    LIBS += -L$$LMCAPP_PATH -llmcapp
+}
+unix:!symbian: {
+    LIBS += -L$$PWD/../../lmcapp/lib/ -llmcapp
+}
 
 INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
-win32: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
+win32-msvc*: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
 win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 

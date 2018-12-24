@@ -51,10 +51,15 @@ unix:!symbian {
     INSTALLS += target
 }
 
-CONFIG(debug, debug|release) {
-	DESTDIR = ../lib
-	win32: TARGET = $$join(TARGET,,,d)
-	mac: TARGET = $$join(TARGET,,,_debug)
-} else {
-	DESTDIR = ../lib
+win32: {
+    CONFIG -= debug_and_release debug_and_release_target
+    CONFIG += skip_target_version_ext
+}
+unix:!symbian {
+    CONFIG(debug, debug|release) {
+            DESTDIR = ../lib
+            mac: TARGET = $$join(TARGET,,,_debug)
+    } else {
+            DESTDIR = ../lib
+    }
 }
