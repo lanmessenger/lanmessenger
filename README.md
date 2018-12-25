@@ -1,12 +1,12 @@
 How to compile LAN Messenger
 ============================
 
-You need Qt (http://qt.nokia.com/) to compile.
-I built LAN Messenger using Qt 4.8, so you probably need that or a 
+You need Qt (https://www.qt.io/) to compile.
+I built LAN Messenger using Qt 5.11, so you probably need that or a 
 later version.
 
 You also need OpenSSL (http://www.openssl.org/)
-I used version 1.0.0.e, so you know what to get.
+I used version 1.0.2q, so you know what to get.
 Please read the OpenSSL section for more information.
 
 The application consists of two projects - lmc and lmcapp. lmcapp is 
@@ -53,7 +53,7 @@ Get the precompiled binary distribution of OpenSSL from
 http://www.slproweb.com/products/Win32OpenSSL.html
 
 This version of LAN Messenger was built with the package named
-"Win32 OpenSSL v1.0.0e". Download the package and install to a folder
+"Win32 OpenSSL v1.0.2q". Download the package and install to a folder
 called "openssl" which should be at the same level as the folder "lmc". 
 While installing, make sure that the option to copy DLLs to the OpenSSL
 binaries directory is selected in the Additional Tasks page.
