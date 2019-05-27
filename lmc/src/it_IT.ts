@@ -1782,7 +1782,7 @@ LAN Messenger funziona su ogni piattaforma desktop .</translation>
     <message>
         <location filename="transferwindow.cpp" line="319"/>
         <source>Show In Folder</source>
-        <translation>Visulaizza nella cartella</translation>
+        <translation>Visualizza nella cartella</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="320"/>
