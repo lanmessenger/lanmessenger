@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="it_IT">
+<TS version="2.1" language="ja_JP" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -21,7 +21,7 @@
     <message>
         <location filename="aboutdialog.ui" line="60"/>
         <source>About</source>
-        <translation>A proposito di</translation>
+        <translation>このソフト</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="81"/>
@@ -31,17 +31,17 @@
     <message>
         <location filename="aboutdialog.ui" line="107"/>
         <source>Thanks</source>
-        <translation>Grazie</translation>
+        <translation>謝辞</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="136"/>
         <source>License</source>
-        <translation>Licenza</translation>
+        <translation>ライセンス</translation>
     </message>
     <message>
         <location filename="aboutdialog.ui" line="195"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>
@@ -54,28 +54,28 @@
     <message>
         <location filename="broadcastwindow.ui" line="143"/>
         <source>Send</source>
-        <translation>Invia</translation>
+        <translation>送信</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="153"/>
         <source>Cancel</source>
-        <translation>Cancella</translation>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <location filename="broadcastwindow.ui" line="239"/>
+        <source>Select All</source>
+        <translation>すべて選択</translation>
+    </message>
+    <message>
+        <location filename="broadcastwindow.ui" line="246"/>
+        <source>Select None</source>
+        <translation>選択しない</translation>
     </message>
     <message>
         <location filename="broadcastwindow.ui" line="178"/>
         <location filename="broadcastwindow.ui" line="213"/>
         <source>Send To:</source>
-        <translation>Invia a:</translation>
-    </message>
-    <message>
-        <location filename="broadcastwindow.ui" line="239"/>
-        <source>Select All</source>
-        <translation>Seleziona Tutto</translation>
-    </message>
-    <message>
-        <location filename="broadcastwindow.ui" line="246"/>
-        <source>Select None</source>
-        <translation>Nessuna Selezione</translation>
+        <translation>送信先:</translation>
     </message>
 </context>
 <context>
@@ -99,42 +99,42 @@
     <message>
         <location filename="filemodelview.cpp" line="39"/>
         <source>0 bytes</source>
-        <translation>0 bytes</translation>
+        <translation type="unfinished">0 バイト</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="40"/>
         <source>0 bytes/sec</source>
-        <translation>0 bytes/sec</translation>
+        <translation type="unfinished">0 バイト/秒</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="41"/>
         <source>Calculating time</source>
-        <translation>Calcolo del tempo</translation>
+        <translation type="unfinished">所要時間を計算中</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="79"/>
         <source>To: </source>
-        <translation>A: </translation>
+        <translation type="unfinished">送信先: </translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="79"/>
         <source>From: </source>
-        <translation>Da: </translation>
+        <translation type="unfinished">送信元: </translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="103"/>
         <source>Completed</source>
-        <translation>Completato</translation>
+        <translation>完了しました</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="106"/>
         <source>Canceled</source>
-        <translation>Cancellato</translation>
+        <translation>キャンセルされました</translation>
     </message>
     <message>
         <location filename="filemodelview.cpp" line="109"/>
         <source>Interrupted</source>
-        <translation>Interrotto</translation>
+        <translation type="unfinished">中断されました</translation>
     </message>
 </context>
 <context>
@@ -147,7 +147,7 @@
     <message>
         <location filename="helpwindow.ui" line="55"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>
@@ -160,22 +160,22 @@
     <message>
         <location filename="historywindow.ui" line="76"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="81"/>
         <source>Date</source>
-        <translation>Data</translation>
+        <translation>日時</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="133"/>
         <source>Clear History</source>
-        <translation>Cancella Cronologia</translation>
+        <translation>履歴をクリア</translation>
     </message>
     <message>
         <location filename="historywindow.ui" line="156"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>
@@ -188,27 +188,27 @@
     <message>
         <location filename="mainwindow.ui" line="124"/>
         <source>Username</source>
-        <translation>Nome Utente</translation>
+        <translation>ユーザー名</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="168"/>
         <source>Status</source>
-        <translation>Stato</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="186"/>
         <source>Type a note</source>
-        <translation>Digitare una nota</translation>
+        <translation>簡単な説明を入力</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="211"/>
         <source>Change avatar</source>
-        <translation>Cambia Avatar</translation>
+        <translation>画像の変更</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="324"/>
         <source>Contacts</source>
-        <translation>Contatti</translation>
+        <translation>コンタクト</translation>
     </message>
 </context>
 <context>
@@ -219,259 +219,325 @@
         <translation></translation>
     </message>
     <message>
+        <location filename="settingsdialog.ui" line="1155"/>
+        <source>Reset All</source>
+        <translation>すべて初期化</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1327"/>
+        <source>Broadcast address:</source>
+        <oldsource>Broadcast Address:</oldsource>
+        <translation>ブロードキャスト・アドレス:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1364"/>
+        <source>&lt;- Add</source>
+        <translation>リストに追加</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1391"/>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1420"/>
+        <source>Advanced</source>
+        <translation>上級者用</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1428"/>
+        <source>Multicast address:</source>
+        <translation>マルチキャストアドレス:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1789"/>
+        <source>Chat Theme</source>
+        <translation>会話画面のテーマ</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1849"/>
+        <source>Contacts List</source>
+        <translation>コンタクトリスト</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1857"/>
+        <source>Contacts list view:</source>
+        <translation>コンタクトリストの表示:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1882"/>
+        <source>Show status as tooltip</source>
+        <translation>ツールチップで相手の状態の設定を表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1948"/>
+        <source>Send messages using:</source>
+        <translation>メッセージ送信に使用:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1973"/>
+        <source>&lt;Enter&gt;</source>
+        <oldsource>Enter</oldsource>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1980"/>
+        <source>&lt;Cmd + Enter&gt;</source>
+        <oldsource>Ctrl + Enter</oldsource>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2041"/>
+        <source>Reset Preferences</source>
+        <translation>設定の初期化</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2061"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2071"/>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
         <location filename="settingsdialog.ui" line="59"/>
         <location filename="settingsdialog.ui" line="141"/>
         <source>General</source>
-        <translation>Generali</translation>
+        <translation>一般</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="94"/>
+        <location filename="settingsdialog.ui" line="1782"/>
+        <source>Appearance</source>
+        <translation>外観</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="148"/>
+        <source>System</source>
+        <translation>システム</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="154"/>
+        <source>Start %1 on system startup</source>
+        <translation>OS起動時に %1 を起動</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="161"/>
+        <source>Show main window when %1 starts</source>
+        <translation>%1 起動時にメイン画面を表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="171"/>
+        <source>System Tray</source>
+        <translation>システムトレイ</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="177"/>
+        <source>Show system tray icon</source>
+        <translation>システムトレイにアイコンを表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="184"/>
+        <source>Minimize main window to system tray</source>
+        <translation>システムトレイに最小化</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="191"/>
+        <source>Single click on tray icon to open</source>
+        <translation>トレイアイコンを一度クリックするだけで表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="198"/>
+        <source>Show balloon notifications in tray</source>
+        <translation>バルーン通知を利用</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="215"/>
+        <source>Language</source>
+        <translation>表示言語</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="223"/>
+        <source>Select language:</source>
+        <translation>言語の選択:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="64"/>
         <location filename="settingsdialog.ui" line="329"/>
         <source>Account</source>
-        <translation>Account</translation>
+        <translation>アカウント</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="336"/>
+        <source>Personal</source>
+        <translation>利用者</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="344"/>
+        <source>User name as seen by contacts:</source>
+        <translation>コンタクトリスト上のユーザー名:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="373"/>
+        <source>First Name:</source>
+        <translation>名:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="403"/>
+        <source>Last Name:</source>
+        <translation>性:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="419"/>
+        <source>About:</source>
+        <translation>紹介:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="447"/>
+        <source>Contacts</source>
+        <translation>コンタクト</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="455"/>
+        <source>Refresh contacts list every</source>
+        <translation>コンタクトリストの更新頻度</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="485"/>
+        <source>seconds</source>
+        <translation>秒</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="69"/>
         <location filename="settingsdialog.ui" line="535"/>
         <location filename="settingsdialog.ui" line="1937"/>
         <source>Messages</source>
-        <translation>Messaggio</translation>
+        <translation>メッセージ</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="542"/>
+        <source>Message Window</source>
+        <translation>メッセージウィンドウ</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="605"/>
+        <source>Show emoticons in instant messages</source>
+        <translation>インスタントメッセージに絵文字を表示(オフ:記号の顔文字)</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="612"/>
+        <source>Add time stamp to instant messages</source>
+        <translation>インスタントメッセージに時間を表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="637"/>
+        <source>Show date in time stamp</source>
+        <translation>インスタントメッセージに日付を表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="548"/>
+        <source>Set incoming messages foreground</source>
+        <translation>メッセージ受信時に前面に表示</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="555"/>
+        <source>Minimize incoming messages to taskbar</source>
+        <translation>メッセージ受信時にタスクバーに最小化</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="697"/>
+        <source>Message Font</source>
+        <translation>メッセージのフォント</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="74"/>
         <location filename="settingsdialog.ui" line="826"/>
         <source>History</source>
-        <translation>Cronologia</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="79"/>
-        <location filename="settingsdialog.ui" line="1014"/>
-        <source>Alerts</source>
-        <translation>Allarmi</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="84"/>
-        <location filename="settingsdialog.ui" line="1223"/>
-        <source>Network</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="89"/>
-        <location filename="settingsdialog.ui" line="1603"/>
-        <source>File Transfer</source>
-        <translation>Trasferimento File</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="94"/>
-        <location filename="settingsdialog.ui" line="1782"/>
-        <source>Appearance</source>
-        <translation>Aspetto</translation>
+        <translation>履歴</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="99"/>
         <location filename="settingsdialog.ui" line="1930"/>
         <source>Hotkeys</source>
-        <translation>Tasti di scelta rapida</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="148"/>
-        <source>System</source>
-        <translation>Sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="154"/>
-        <source>Start %1 on system startup</source>
-        <translation>Avvia %1 all&apos;avvio del sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="161"/>
-        <source>Show main window when %1 starts</source>
-        <translation>Mostra finestra principale all&apos;avvio di %1</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="171"/>
-        <source>System Tray</source>
-        <translation>Barra di sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="177"/>
-        <source>Show system tray icon</source>
-        <translation>Visualizza l&apos;icona nella barra di sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="184"/>
-        <source>Minimize main window to system tray</source>
-        <translation>Ridurre la finestra principale nella barra di sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="191"/>
-        <source>Single click on tray icon to open</source>
-        <translation>Singolo click per aprire l&apos;icona dalla barra di sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="198"/>
-        <source>Show balloon notifications in tray</source>
-        <translation>Mostra le notifiche come fumetto</translation>
+        <translation>ホットキー</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="205"/>
         <source>Minimize main window using tray icon</source>
-        <translation>Ridurre la finestra principale quando usi la barra di sistema</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="215"/>
-        <source>Language</source>
-        <translation>Lingua</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="223"/>
-        <source>Select language:</source>
-        <translation>Seleziona lingua:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="336"/>
-        <source>Personal</source>
-        <translation>Personale</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="344"/>
-        <source>User name as seen by contacts:</source>
-        <translation>Nome utente che viene visualizzato dai contatti:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="373"/>
-        <source>First Name:</source>
-        <translation>Nome:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="403"/>
-        <source>Last Name:</source>
-        <translation>Cognome:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="419"/>
-        <source>About:</source>
-        <translation>A proposito di:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="447"/>
-        <source>Contacts</source>
-        <translation>Contatti</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="455"/>
-        <source>Refresh contacts list every</source>
-        <translation>Aggiorna sempre la lista contatti</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="485"/>
-        <source>seconds</source>
-        <translation>secondi</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="542"/>
-        <source>Message Window</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="548"/>
-        <source>Set incoming messages foreground</source>
-        <translation>Impostare i messaggi in arrivo in primo piano</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="555"/>
-        <source>Minimize incoming messages to taskbar</source>
-        <translation>Minimizza i messaggi in arrivo nella barra delle applicazioni</translation>
+        <translation>トレイアイコンのクリックでも最小化</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="580"/>
         <source>Apply to public messages</source>
-        <translation>Applica a tutti i messaggi pubblici</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Visualizza emoticons nei messaggi istantanei</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Aggiungi la data nei messaggi istantanei</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Visualizza la data e l&apos;ora</translation>
+        <oldsource>Apply  to public messages</oldsource>
+        <translation type="unfinished">公開チャットにも適用</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
-        <translation>Consenti collegamenti ipertestuali nei messaggi istantanei</translation>
+        <translation>メッセージ中のアドレスにリンク</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="671"/>
         <source>Convert network paths to links</source>
-        <translation>Conversione da percorsi di rete per i collegamenti</translation>
+        <translation>ネットワーク上のパスもリンクに変換</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="680"/>
         <source>Remove whitespace from start and end of messages</source>
-        <translation>Rimuovi lo spazio all&apos;inizio e alla fine di un messaggio</translation>
+        <translation>メッセージの前後の半角空白を除去</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="687"/>
         <source>Clear messages when window is closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="697"/>
-        <source>Message Font</source>
-        <translation>Carattere del messaggio</translation>
+        <translation>ウィンドウを閉じるとメッセージをクリア</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="705"/>
         <source>Change Font...</source>
-        <translation>Cambia Carattere...</translation>
+        <translation>フォントの変更...</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="729"/>
         <source>Change Color...</source>
-        <translation>Cambia il colore...</translation>
+        <translation>色の変更...</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="753"/>
         <source>Incoming message text size:</source>
-        <translation>Dimensione del testo nei messaggi in arrivo:</translation>
+        <translation>受信メッセージの文字の大きさ:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="833"/>
         <source>Message History</source>
-        <translation>Cronologia Messaggi</translation>
+        <translation>メッセージの履歴</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="839"/>
         <source>Keep a history of conversations</source>
-        <translation>Conserva la cronologia delle conversazioni</translation>
+        <translation>会話の履歴を保存</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="848"/>
         <source>Clear Message History</source>
-        <translation>Cancella cronologia messaggi</translation>
+        <translation>メッセージの履歴をクリア</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="873"/>
         <source>History File Location</source>
-        <translation></translation>
+        <translation>履歴ファイルの場所</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="879"/>
         <source>System default location</source>
-        <translation>Percorso predefinito</translation>
+        <translation>システムの規定の場所</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="886"/>
         <source>Custom location</source>
-        <translation>Percorso personalizzato</translation>
+        <translation>フォルダを指定する</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="924"/>
@@ -483,217 +549,156 @@
     <message>
         <location filename="settingsdialog.ui" line="936"/>
         <source>File Transfer History</source>
-        <translation>Cronologia del trasferimento file</translation>
+        <translation>ファイル転送の履歴</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="942"/>
         <source>Keep a history of file transfers</source>
-        <translation>Mantieni la cronologia dei file trasferiti</translation>
+        <translation>ファイル転送の履歴を保存</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="951"/>
         <source>Clear Transfer History</source>
-        <translation>Cancella cronologia dei file trasferiti</translation>
+        <translation>転送履歴をクリア</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="79"/>
+        <location filename="settingsdialog.ui" line="1014"/>
+        <source>Alerts</source>
+        <translation>通知</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1021"/>
         <source>Status Alerts</source>
-        <translation>Avvisi</translation>
+        <translation>状態の通知</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1027"/>
         <source>Display status alerts</source>
-        <translation>Visualizza avvisi</translation>
+        <translation>状態の通知を表示</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1034"/>
         <source>Suspend alerts when my status is Busy</source>
-        <translation>Sospendi avvisi quando il mio stato è su Occupato</translation>
+        <translation>私の状態の設定が「忙しい」なら通知しない</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1041"/>
         <source>Suspend alerts when my status is Do Not Disturb</source>
-        <translation>Sospendi avvisi quando il mio stato è su Non Disturbare</translation>
+        <translation>私の状態の設定が「集中させて」なら通知しない</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1051"/>
         <source>Sounds</source>
-        <translation>Suoni</translation>
+        <translation>音</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1057"/>
         <source>Provide feedback with sounds</source>
-        <translation>Fornire un feedback con suoni</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1084"/>
-        <source>Play sounds for these events:</source>
-        <translation>Riproduci suoni per questi eventi:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1155"/>
-        <source>Reset All</source>
-        <translation>Resetta tutto</translation>
+        <translation>音を鳴らす</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1168"/>
         <source>Suspend sounds when my status is Busy</source>
-        <translation>Sospendi suoni quando il mio stato è su Occupato</translation>
+        <translation>私の状態の設定が「忙しい」なら鳴らさない</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1175"/>
         <source>Suspend sound when my status is Do Not Disturb</source>
-        <translation>Sospendi suoni quando il mio stato e su Non Disturbare</translation>
+        <translation>私の状態の設定が「集中させて」なら鳴らさない</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1084"/>
+        <source>Play sounds for these events:</source>
+        <translation>これらの通知の際に鳴らします:</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="84"/>
+        <location filename="settingsdialog.ui" line="1223"/>
+        <source>Network</source>
+        <translation>ネットワーク</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1230"/>
         <source>Connection</source>
-        <translation>Connessione</translation>
+        <translation>接続</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1238"/>
         <source>Connection timeout (seconds):</source>
-        <translation></translation>
+        <translation>接続タイムアウト(秒):</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1272"/>
         <source>Maximum number of retries:</source>
-        <translation>Numero massimo di tentativi:</translation>
+        <translation>再試行回数の限度:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1307"/>
         <source>Broadcast</source>
-        <translation>Messaggio di rete</translation>
+        <oldsource>Broadcast Settings</oldsource>
+        <translation>ブロードキャスト</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1313"/>
         <source>Broadcast list:</source>
-        <translation>Lista messaggi di rete:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1327"/>
-        <source>Broadcast address:</source>
-        <translation>Indirizzi per messaggi di rete:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1364"/>
-        <source>&lt;- Add</source>
-        <translation>&lt;- Aggiungi</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1391"/>
-        <source>Delete</source>
-        <translation>Cancella</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1420"/>
-        <source>Advanced</source>
-        <translation>Avanzate</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1428"/>
-        <source>Multicast address:</source>
-        <translation></translation>
+        <translation>ブロードキャストのリスト:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1471"/>
         <source>UDP Port*:</source>
-        <translation></translation>
+        <translation>UDPポート*:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1514"/>
         <source>TCP Port*:</source>
-        <translation></translation>
+        <translation>TCPポート*:</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1558"/>
         <source>* Takes effect after you restart %1.</source>
-        <translation>* Applica effeti dopo aver riavviato %1.</translation>
+        <translation>* 注 %1の再起動後に反映されます。</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="89"/>
+        <location filename="settingsdialog.ui" line="1603"/>
+        <source>File Transfer</source>
+        <translation>ファイル転送</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1610"/>
         <source>Incoming File Request</source>
-        <translation>File richiesto in arrivo</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1616"/>
-        <source>Accept and start receiving files automatically</source>
-        <translation>Accetta e inizia a ricevere il file automaticamente</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1623"/>
-        <source>Show File Transfer window when sending or receiving files</source>
-        <translation>Visualizza la finistra di trasferimento durante l&apos;invio e la ricezione del file</translation>
+        <translation>ファイル送受信の要求時</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1648"/>
         <source>Bring window to foreground</source>
-        <translation>Porta finestra in primo piano</translation>
+        <translation>ウインドウを前面に表示</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1675"/>
         <source>Minimize window to taskbar</source>
-        <translation>Minimizzare la finestra nella barra delle applicazioni</translation>
+        <translation>タスクバーに最小化</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1616"/>
+        <source>Accept and start receiving files automatically</source>
+        <translation>自動でファイルの受信を承認して受信する</translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="1623"/>
+        <source>Show File Transfer window when sending or receiving files</source>
+        <translation>ファイルの送受信の際にファイル転送ウインドウを表示</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1687"/>
         <source>Store Received Files in this Folder</source>
-        <translation>Conservare file ricevuti in questa cartella</translation>
+        <translation>受信ファイルを保存するフォルダ</translation>
     </message>
     <message>
         <location filename="settingsdialog.ui" line="1719"/>
         <source>View Files</source>
-        <translation>Visualizza File</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1789"/>
-        <source>Chat Theme</source>
-        <translation>Tema della chat</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1849"/>
-        <source>Contacts List</source>
-        <translation>Lista Contatti</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1857"/>
-        <source>Contacts list view:</source>
-        <translation>Visualizza la lista contatti:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1882"/>
-        <source>Show status as tooltip</source>
-        <translation>Mostra stato come tooltip</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1948"/>
-        <source>Send messages using:</source>
-        <translation>Invia messaggi utilizzando:</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1973"/>
-        <source>&lt;Enter&gt;</source>
-        <translation>&lt;Invio&gt;</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="1980"/>
-        <source>&lt;Cmd + Enter&gt;</source>
-        <translation>&lt;Cmd + Invio&gt;</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="2041"/>
-        <source>Reset Preferences</source>
-        <translation>Reset Impostazioni</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="2061"/>
-        <source>OK</source>
-        <translation>Ok</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="2071"/>
-        <source>Cancel</source>
-        <translation>Cancella</translation>
+        <translation>フォルダを開く</translation>
     </message>
 </context>
 <context>
@@ -706,12 +711,12 @@
     <message>
         <location filename="transferwindow.ui" line="88"/>
         <source>Clear List</source>
-        <translation>Cancella Elenco</translation>
+        <translation>一覧をクリア</translation>
     </message>
     <message>
         <location filename="transferwindow.ui" line="108"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>
@@ -724,12 +729,12 @@
     <message>
         <location filename="updatewindow.ui" line="82"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <location filename="updatewindow.ui" line="92"/>
         <source>Recheck Version</source>
-        <translation>Controlla Versione</translation>
+        <translation>再確認</translation>
     </message>
 </context>
 <context>
@@ -757,39 +762,39 @@
     <message>
         <location filename="userinfowindow.ui" line="84"/>
         <source>Personal Information</source>
-        <translation>Informazioni Personali</translation>
+        <translation>利用者</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="94"/>
         <source>First Name:</source>
-        <translation>Nome:</translation>
+        <translation>名:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="101"/>
         <location filename="userinfowindow.ui" line="122"/>
         <location filename="userinfowindow.ui" line="160"/>
         <source>N/A</source>
-        <translation>N / A</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="115"/>
         <source>Last Name:</source>
-        <translation>Cognome:</translation>
+        <translation>姓:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="138"/>
         <source>About:</source>
-        <translation>A proposito di:</translation>
+        <translation>紹介:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="170"/>
         <source>System Information</source>
-        <translation>Informazioni di Sistema</translation>
+        <translation>システム情報</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="176"/>
         <source>IP Address:</source>
-        <translation>Indirizzo IP:</translation>
+        <translation>LAN内 IPアドレス:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="186"/>
@@ -799,7 +804,7 @@
     <message>
         <location filename="userinfowindow.ui" line="193"/>
         <source>Logon Name:</source>
-        <translation>Nome di Accesso:</translation>
+        <translation>ログイン名:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="203"/>
@@ -809,7 +814,7 @@
     <message>
         <location filename="userinfowindow.ui" line="210"/>
         <source>Computer Name:</source>
-        <translation>Nome Computer:</translation>
+        <translation>コンピュータ名:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="220"/>
@@ -819,7 +824,7 @@
     <message>
         <location filename="userinfowindow.ui" line="227"/>
         <source>Operating System:</source>
-        <translation>Sistema Operativo:</translation>
+        <translation>OS:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="237"/>
@@ -829,7 +834,7 @@
     <message>
         <location filename="userinfowindow.ui" line="244"/>
         <source>Messenger Version:</source>
-        <translation>Versione Messanger:</translation>
+        <translation>メッセンジャーバージョン:</translation>
     </message>
     <message>
         <location filename="userinfowindow.ui" line="254"/>
@@ -839,7 +844,7 @@
     <message>
         <location filename="userinfowindow.ui" line="280"/>
         <source>Close</source>
-        <translation>Chiudi</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>
@@ -852,17 +857,17 @@
     <message>
         <location filename="userselectdialog.ui" line="36"/>
         <source>Contacts</source>
-        <translation>Contatti</translation>
+        <translation>コンタクトリスト</translation>
     </message>
     <message>
         <location filename="userselectdialog.ui" line="59"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="userselectdialog.ui" line="69"/>
         <source>Cancel</source>
-        <translation>Cancella</translation>
+        <translation>キャンセル</translation>
     </message>
 </context>
 <context>
@@ -870,7 +875,7 @@
     <message>
         <location filename="aboutdialog.cpp" line="70"/>
         <source>About %1</source>
-        <translation>A proposito di %1</translation>
+        <translation>ソフトウェア情報 %1</translation>
     </message>
 </context>
 <context>
@@ -878,32 +883,32 @@
     <message>
         <location filename="broadcastwindow.cpp" line="299"/>
         <source>Send Broadcast Message</source>
-        <translation>Invia mesaggio di rete</translation>
+        <translation>ブロードキャストでメッセージを送信</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="302"/>
         <source>Change Font Size</source>
-        <translation>Cambia la dimensione del carattere</translation>
+        <translation>フォントサイズの変更</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="303"/>
         <source>Insert Smiley</source>
-        <translation>Inserisci Smyle</translation>
+        <translation>絵文字</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
         <source>No recipient selected</source>
-        <translation>Nessun destinatario selezionato</translation>
+        <translation>参加者が選択されていません</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="340"/>
         <source>Please select at least one recipient to send a broadcast.</source>
-        <translation>Si prega di selezionare almeno un destinatario a cui inviare il messaggio di rete.</translation>
+        <translation>ブロードキャスト送信の受信者を選択してください。</translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="362"/>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
-        <translation>Non sei più collegato. Non puoi inviare un messaggio di rete.</translation>
+        <translation>接続されていません。ブロードキャストのメッセージを送信できません。</translation>
     </message>
 </context>
 <context>
@@ -911,271 +916,264 @@
     <message>
         <location filename="chatroomwindow.cpp" line="165"/>
         <source>Group Conversation</source>
-        <translation>Conversazione di gruppo</translation>
+        <translation>グループ会話</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="300"/>
         <source>%1 says...</source>
-        <translation>%1 dice...</translation>
+        <translation>%1の発言...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="465"/>
         <source>Select Font</source>
-        <translation>Selezionare il carattere</translation>
+        <translation>フォントの選択</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="471"/>
         <source>Select Color</source>
-        <translation>Selezionare il colore</translation>
+        <translation>色の選択</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="480"/>
         <source>Save Conversation</source>
-        <translation>Salva la conversazione</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="619"/>
         <source>Participants</source>
-        <translation>Partecipanti</translation>
+        <translation>参加者</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="621"/>
         <source>&amp;Conversation</source>
-        <translation>&amp;Conversazione</translation>
+        <translation>会話(&amp;C)</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="622"/>
         <source>Send &amp;File</source>
-        <translation>Invia &amp;File</translation>
+        <translation>ファイルを送る(&amp;F)</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="623"/>
         <source>Get &amp;Information</source>
-        <translation>Ottieni &amp;Informazioni</translation>
+        <translation>情報の表示(&amp;I)</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="624"/>
         <source>Insert Smiley</source>
-        <translation>Inserisci Smyle</translation>
+        <translation>絵文字</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
-        <translation>&amp;Salva come...</translation>
+        <translation>名前を付けて保存(&amp;S)...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="626"/>
         <source>Save this conversation</source>
-        <translation>Salva questa conversazione</translation>
+        <translation>この会話を保存</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="627"/>
         <source>Change Font...</source>
-        <translation>Cambia Carattere...</translation>
+        <translation>フォントの変更...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
-        <translation>Cambia il carattere del messaggio</translation>
+        <translation>メッセージのフォントの変更</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
         <source>Change Color...</source>
-        <translation>Cambia il colore...</translation>
+        <translation>色の変更...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="630"/>
         <source>Change message text color</source>
-        <translation>Cambia il colore del testo del messaggio</translation>
+        <translation>メッセージの文字色の変更</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="633"/>
         <source>&amp;Add Contacts...</source>
-        <translation>&amp;Aggiungi Contatti...</translation>
+        <oldsource>&amp;Add A Contact...</oldsource>
+        <translation>コンタクトリストに追加(&amp;A)...</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="634"/>
         <source>Add people to this conversation</source>
-        <translation>Aggiungi persone alla conversazione</translation>
+        <oldsource>Add contacts to this conversation</oldsource>
+        <translation>この会話に他の人を追加</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="704"/>
         <source>You are no longer connected.</source>
-        <translation>Non sei connesso.</translation>
+        <translation>接続されていません。</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="728"/>
         <source>Conversation</source>
-        <translation>Conversazione</translation>
+        <translation>会話</translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="730"/>
         <source>Public Chat</source>
-        <translation>Chat Pubblica</translation>
+        <translation type="unfinished">公開チャット</translation>
     </message>
 </context>
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <location filename="chatwindow.cpp" line="152"/>
-        <source>Group Conversation</source>
-        <translation>Conversazione di gruppo</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="174"/>
-        <source>%1 says...</source>
-        <translation>%1 dice...</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="182"/>
-        <source>Broadcast from %1</source>
-        <translation>Messaggio di rete a %1</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="225"/>
-        <source>%1 sends a file...</source>
-        <translation>%1 invia file ...</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="227"/>
-        <source>%1 sends a folder...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="380"/>
-        <source>Select Font</source>
-        <translation>Selezionare il carattere</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="386"/>
-        <source>Select Color</source>
-        <translation>Selezionare il colore</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="413"/>
-        <source>Save Conversation</source>
-        <translation>Salva la conversazione</translation>
-    </message>
-    <message>
         <location filename="chatwindow.cpp" line="530"/>
         <source>Insert Smiley</source>
-        <translation>Inserisci Smyle</translation>
+        <translation>絵文字</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="531"/>
         <source>Send A &amp;File...</source>
-        <translation>Invia &amp;File...</translation>
+        <translation>ファイルを送る(&amp;F)...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="532"/>
         <source>Send A Fol&amp;der...</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダを送る(&amp;D)...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="533"/>
         <source>&amp;Save As...</source>
-        <translation>&amp;Salva come...</translation>
+        <translation>名前を付けて保存(&amp;S)...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="534"/>
         <source>&amp;History</source>
-        <translation>&amp;Cronologia</translation>
+        <translation>履歴(&amp;H)</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="535"/>
         <source>File &amp;Transfers</source>
-        <translation>&amp;Trsferimento file</translation>
+        <translation>ファイル転送(&amp;T)</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="537"/>
         <source>Send a file to %1</source>
-        <translation>Invia file a %1</translation>
+        <translation>%1 へファイルを送信</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="539"/>
         <source>Send a folder to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 へフォルダを送信</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="542"/>
         <source>Save this conversation</source>
-        <translation>Salva questa conversazione</translation>
+        <translation>この会話を保存</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="543"/>
         <source>View History</source>
-        <translation>Visualizza Cronologia</translation>
+        <translation>履歴を表示</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="544"/>
         <source>View File Transfers</source>
-        <translation>Visualizza il trasferimento dei file</translation>
+        <translation>ファイル転送を表示</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="545"/>
         <source>Change Font...</source>
-        <translation>Cambia Carattere...</translation>
+        <translation>フォントの変更...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
-        <translation>Cambia il carattere del messaggio</translation>
+        <translation>メッセージのフォントの変更</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>
         <source>Change Color...</source>
-        <translation>Cambia il colore...</translation>
+        <translation>色の変更...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="548"/>
         <source>Change message text color</source>
-        <translation>Cambia il colore del testo del messaggio</translation>
+        <translation>メッセージの文字色を変更</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="380"/>
+        <source>Select Font</source>
+        <translation>フォントの選択</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="386"/>
+        <source>Select Color</source>
+        <translation>色の選択</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="413"/>
+        <source>Save Conversation</source>
+        <translation>会話の保存</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="152"/>
+        <source>Group Conversation</source>
+        <translation>グループ会話</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="174"/>
+        <source>%1 says...</source>
+        <translation>%1 の発言...</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="182"/>
+        <source>Broadcast from %1</source>
+        <translation type="unfinished">%1 からブロードキャスト</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="225"/>
+        <source>%1 sends a file...</source>
+        <translation type="unfinished">%1 からファイルの送信...</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="227"/>
+        <source>%1 sends a folder...</source>
+        <translation type="unfinished">%1 からフォルダの送信...</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="658"/>
         <source>You are no longer connected.</source>
-        <translation>Non sei connesso.</translation>
+        <translation>接続がありません。</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="661"/>
         <source>%1 is offline.</source>
-        <translation>%1 è offline.</translation>
+        <translation>%1はオフラインです。</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="665"/>
         <source>%1 is away.</source>
-        <translation>%1 non è al computer.</translation>
+        <translation>%1は離席中です。</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="669"/>
         <source>%1 is busy. You may be interrupting.</source>
-        <translation>%1 è occupato. Potresti disturbare.</translation>
+        <translation type="unfinished">%1 は忙しいようです。負担にならないよう。</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="693"/>
         <source>Conversation</source>
-        <translation>Conversazione</translation>
+        <translation>会話</translation>
     </message>
 </context>
 <context>
     <name>lmcCore</name>
     <message>
-        <location filename="lmc.cpp" line="143"/>
-        <source>Your preferences file is corrupt or invalid.
-
-%1 is unable to recover your settings.</source>
-        <translation>Il file delle preferenze è danneggiato o non valido.
-
-%1 non è in grado di recuperare le impostazioni.</translation>
-    </message>
-    <message>
         <location filename="lmc.cpp" line="149"/>
         <source>Preferences could not be imported from &apos;%1&apos;.
 
 File may not exist, or may not be compatible with this version of %2.</source>
-        <translation>Le impostazioni non possono essere importate in &apos;%1&apos;.
+        <translation>%1 から設定をインポートできませんでした。
 
-File potrebbero non esistere, oppure potrebbe non essere compatibile con questa versione di %2.</translation>
+ファイルが存在しないか、このバージョン %2 と互換性がない可能性があります。</translation>
     </message>
     <message>
         <location filename="lmc.cpp" line="156"/>
@@ -1186,12 +1184,21 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="lmc.cpp" line="969"/>
         <source>A port address conflict has been detected. %1 will close now.</source>
-        <translation>E&apos; stato rilevato un conflitto sulla porta %1 ora verrà chiusa.</translation>
+        <translation>ポートアドレスが競合しています。%1はすぐに終了されます。</translation>
     </message>
     <message>
         <location filename="lmc.cpp" line="971"/>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>
-        <translation>%1 non può essere avviato perchè un&apos;altra applicazione utilizza la porta che è stata configurata con %2.</translation>
+        <translation>%1 は開始できません。別のプログラムが %2 で利用するポートを使っています。</translation>
+    </message>
+    <message>
+        <location filename="lmc.cpp" line="143"/>
+        <source>Your preferences file is corrupt or invalid.
+
+%1 is unable to recover your settings.</source>
+        <translation>設定ファイルが壊れているか正しくありません。
+
+%1 は設定を復元できませんでした。</translation>
     </message>
 </context>
 <context>
@@ -1199,12 +1206,12 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="helpwindow.cpp" line="99"/>
         <source>Help</source>
-        <translation>Aiuto</translation>
+        <translation>ヘルプ</translation>
     </message>
     <message>
         <location filename="helpwindow.cpp" line="105"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Help&lt;/h3&gt;&lt;p&gt;You can find documentation on LAN Messenger&apos;s &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Before asking any question, please refer yourself to the &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You might then get (and give) help on the &lt;a href=&apos;%3&apos;&gt;Support Forums&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Benvenuto nella guida di LAN Messenger&lt;/h2&gt;&lt;h3&gt;Aiuto&lt;/h3&gt;&lt;p&gt;Puoi trovare la documentazione di LAN Messenger &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; website.&lt;/p&gt;&lt;p&gt;Prima di fare una domanda, consultate le  &lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Si può ottenere (e dare) aiuto sul &lt;a href=&apos;%3&apos;&gt;Forum di Supporto&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Contribusci al progetto&lt;/h3&gt;&lt;p&gt;Puoi aiutare il progetto LAN Messenger dedicando un po&apos; del tuo tempo per aiutare la comunità, a tradurre l&apos;applicazione o la documentazione, e a testare il programma. Naturalmente è possibile &lt;b&gt;promuovere&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;LAN Messenger ヘルプです&lt;/h2&gt;&lt;h3&gt;ヘルプ&lt;/h3&gt;&lt;p&gt;ヘルプ用の文書は LAN Messenger の &lt;a href=&apos;%1&apos;&gt;wiki&lt;/a&gt; にあります。&lt;/p&gt;&lt;p&gt;質問の前に&lt;a href=&apos;%2&apos;&gt;FAQ&lt;/a&gt;をお読みください。&lt;/p&gt;&lt;p&gt;それでも解決しなければ、&lt;a href=&apos;%3&apos;&gt;サポートフォーラム&lt;/a&gt;で助けを求めてみてください。.&lt;/p&gt;&lt;h3&gt;プロジェクトに貢献したい場合&lt;/h3&gt;&lt;p&gt;LAN Messenger プロジェクトにお手を貸して頂けるなら、コミュニティを支援したり、ソフトウェアの文書の翻訳やプログラムをテストしてください。そしてぜひ LAN Messenger を&lt;b&gt;宣伝&lt;/b&gt;し広めてください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1212,7 +1219,7 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="historywindow.cpp" line="128"/>
         <source>Message History</source>
-        <translation>Cronologia Messaggi</translation>
+        <translation>メッセージの履歴</translation>
     </message>
 </context>
 <context>
@@ -1220,320 +1227,308 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="mainwindow.cpp" line="211"/>
         <source>%1 is online.</source>
-        <translation>%1 è in linea.</translation>
+        <translation>%1 がオンラインです。</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="246"/>
         <source>%1 is offline.</source>
-        <translation>%1 non è in linea.</translation>
+        <translation>%1 はオンラインです。</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="267"/>
         <source>You are online.</source>
-        <translation>Sei in linea.</translation>
+        <translation>あなたはオンラインです。</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="1074"/>
+        <source>%1 - Not Connected</source>
+        <translation>%1 - 未接続</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="269"/>
         <source>You are no longer connected.</source>
-        <translation>Sei stato a lungo disconnesso.</translation>
+        <translation>接続がありません。</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="443"/>
         <source>Select avatar picture</source>
-        <translation>Seleziona l&apos;immagine per l&apos;avatar</translation>
+        <translation>画像の選択</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="564"/>
         <source>Add New Group</source>
-        <translation>Aggiungi un nuovo gruppo</translation>
+        <translation>新規グループ</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="564"/>
         <source>Enter a name for the group</source>
-        <translation>Inserisci il nome per il gruppo</translation>
+        <translation>グループ名を入力してください</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="570"/>
         <location filename="mainwindow.cpp" line="603"/>
         <source>A group named &apos;%1&apos; already exists. Please enter a different name.</source>
-        <translation>Il gruppo nominato %1 già esiste. Inserire un nome differente.</translation>
+        <translation>グループ名「%1」は既に存在します。違う名前にしてください。</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="596"/>
         <source>Rename Group</source>
-        <translation>Rinomina Gruppo</translation>
+        <translation>グループ名変更</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="597"/>
         <source>Enter a new name for the group</source>
-        <translation>Inserisci un nuovo nome per il gruppo</translation>
+        <translation>新しいグループ名を入力してください</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="841"/>
         <source>&amp;Messenger</source>
-        <translation>&amp;Messanger</translation>
+        <translation>メッセンジャー(&amp;M)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="842"/>
         <location filename="mainwindow.cpp" line="876"/>
         <source>&amp;New Chat Room</source>
-        <translation>&amp;Nuova stanza chat</translation>
+        <translation>グループ会話(&amp;N)</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="844"/>
+        <source>&amp;Refresh Contacts List</source>
+        <translation>コンタクトリストの更新(&amp;R)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="843"/>
         <location filename="mainwindow.cpp" line="877"/>
         <source>&amp;Public Chat</source>
-        <translation>&amp;Chat Publlica</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="844"/>
-        <source>&amp;Refresh Contacts List</source>
-        <translation>&amp;Aggiorna la lista contatti</translation>
+        <translation type="unfinished">公開チャット(&amp;P)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="845"/>
         <location filename="mainwindow.cpp" line="863"/>
         <source>E&amp;xit</source>
-        <translation>E&amp;sci</translation>
+        <translation>終了(&amp;X)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="846"/>
         <source>&amp;Tools</source>
-        <translation>&amp;Strumenti</translation>
+        <translation>ツール(&amp;T)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="847"/>
         <location filename="mainwindow.cpp" line="859"/>
         <source>&amp;History</source>
-        <translation>&amp;Cronologia</translation>
+        <translation>履歴(&amp;H)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="848"/>
         <location filename="mainwindow.cpp" line="860"/>
         <source>File &amp;Transfers</source>
-        <translation>&amp;Trasferimento file</translation>
+        <translation>ファイル転送(&amp;T)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="849"/>
         <location filename="mainwindow.cpp" line="861"/>
         <source>&amp;Preferences</source>
-        <translation>&amp;Preferenze</translation>
+        <translation>設定(&amp;P)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="850"/>
         <location filename="mainwindow.cpp" line="851"/>
         <source>&amp;Help</source>
-        <translation>&amp;Aiuto</translation>
+        <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="852"/>
         <source>%1 &amp;online</source>
-        <translation>%1 è &amp;in linea</translation>
+        <translation>%1 のサイト(&amp;O)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="854"/>
         <source>Check for &amp;Updates...</source>
-        <translation>Verificare gli &amp;aggiornamenti...</translation>
+        <translation>アップデートの確認(&amp;U)...</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="855"/>
         <location filename="mainwindow.cpp" line="862"/>
         <source>&amp;About</source>
-        <translation>&amp;A proposito di</translation>
+        <translation>このソフトについて(&amp;A)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="856"/>
         <source>&amp;Show %1</source>
-        <translation>&amp;Visualizza %1</translation>
+        <translation>%1 を表示(&amp;S)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="858"/>
         <source>&amp;Change Status</source>
-        <translation>&amp;Cambia Stato</translation>
+        <translation>状態の変更(&amp;C)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="864"/>
         <source>Add &amp;New Group</source>
-        <translation>Aggiungi un &amp;Nuovo gruppo</translation>
+        <translation>グループの追加(&amp;N)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="865"/>
         <source>&amp;Rename This Group</source>
-        <translation>&amp;Rinomina Questo Gruppo</translation>
+        <translation>このグループの名前を変更(&amp;R)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="866"/>
         <source>&amp;Delete This Group</source>
-        <translation>&amp;Cancella Questo Gruppo</translation>
+        <translation>このグループを削除(&amp;D)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="867"/>
         <location filename="mainwindow.cpp" line="873"/>
         <source>&amp;Conversation</source>
-        <translation>&amp;Conversazione</translation>
+        <translation>会話(&amp;C)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="868"/>
         <location filename="mainwindow.cpp" line="875"/>
         <source>Send &amp;Broadcast Message</source>
-        <translation>Invia mesaggio di &amp;Rete</translation>
+        <translation type="unfinished">ブロードキャストでメッセージを送信(&amp;B)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="869"/>
         <location filename="mainwindow.cpp" line="874"/>
         <source>Send &amp;File</source>
-        <translation>Invia &amp;File</translation>
+        <translation>ファイルを送る(&amp;F)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="870"/>
         <source>Send Fol&amp;der</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダを送る(&amp;D)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="871"/>
         <source>Get &amp;Information</source>
-        <translation>Ottieni &amp;Informazioni</translation>
+        <translation>情報の表示(&amp;I)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="872"/>
         <source>&amp;Browse for more pictures...</source>
-        <translation>&amp;Sfoglia per più foto...</translation>
+        <translation>用意した画像を参照(&amp;B)...</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="900"/>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
-        <translation>%1 continuerà a funzionare in background. Attivare questa icona per ripristinare la finestra dell&apos;applicazione.</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="1074"/>
-        <source>%1 - Not Connected</source>
-        <translation>%1 - Non Connesso</translation>
+        <translation type="unfinished">%1はバックグラウンドで実行されます。このアイコンからメイン画面を復帰できます。</translation>
     </message>
 </context>
 <context>
     <name>lmcMessageLog</name>
     <message>
+        <location filename="messagelog.cpp" line="472"/>
+        <source>Broadcast message from %1:</source>
+        <translation>%1 からブロードキャストでメッセージ:</translation>
+    </message>
+    <message>
         <location filename="messagelog.cpp" line="155"/>
         <source>This message was not delivered to %1:</source>
-        <translation>Questo messaggio non è stato recapitato a %1:</translation>
+        <translation>このメッセージは %1 に送信されませんでした:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="168"/>
         <source>Your message was not sent.</source>
-        <translation>Il messaggio non è stato inviato.</translation>
-    </message>
-    <message>
-        <location filename="messagelog.cpp" line="472"/>
-        <source>Broadcast message from %1:</source>
-        <translation>Messaggio di rete da %1:</translation>
+        <translation>メッセージは送信されていません。</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="602"/>
         <source>Sending &apos;%1&apos; to %2.</source>
-        <translation>Invia %1 a %2.</translation>
+        <translation>%2へ送信: %1.</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="611"/>
         <source>Cancel</source>
-        <translation>Cancella</translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="630"/>
         <source>%1 is sending you a file:</source>
-        <translation>%1 sta inviando un file:</translation>
+        <translation type="unfinished">%1 がファイルを送信:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="632"/>
         <source>%1 is sending you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 がフォルダを送信:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="639"/>
         <source>%1 sends you a file:</source>
-        <translation>%1 invia file:</translation>
-    </message>
-    <message>
-        <location filename="messagelog.cpp" line="641"/>
-        <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Il file è stato accettato automaticamente.</translation>
+        <translation>%1 からファイルの送信:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="659"/>
         <source>Accept</source>
-        <translation>Accetta</translation>
+        <translation>承認</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="660"/>
         <source>Decline</source>
-        <translation>Rifiuta</translation>
+        <translation>拒否</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="654"/>
         <location filename="messagelog.cpp" line="711"/>
         <source>Accepted</source>
-        <translation>Accettato</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Hai accettato il file.</translation>
+        <translation type="unfinished">承認しました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="714"/>
         <source>Declined</source>
-        <translation>Rifiutato</translation>
+        <translation type="unfinished">拒否しました</translation>
     </message>
     <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Hai rifiutato il file.</translation>
+        <location filename="messagelog.cpp" line="641"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 からフォルダの送信:</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="717"/>
         <source>Canceled</source>
-        <translation>Cancellato</translation>
+        <translation>キャンセルされました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="721"/>
         <source>Interrupted</source>
-        <translation>Interrotto</translation>
+        <translation type="unfinished">中断されました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="724"/>
         <source>Completed</source>
-        <translation>Completato</translation>
+        <translation>完了しました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="738"/>
         <source>%1 is typing...</source>
-        <translation>%1 sta scrivendo ....</translation>
+        <translation>%1 入力中...</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="741"/>
         <source>%1 has entered text</source>
-        <translation>%1 ha digitato un testo</translation>
+        <translation type="unfinished">%1 が入力しました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="755"/>
         <source>%1 has joined this conversation</source>
-        <translation>%1 ha aderito a questa conversazione</translation>
+        <translation>%1が会話に参加しました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="758"/>
         <source>%1 has left this conversation</source>
-        <translation>%1 ha lasciato questa conversazione</translation>
+        <translation>%1は会話から離脱しました</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="877"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Copia</translation>
+        <translation>コピー(&amp;C)</translation>
     </message>
     <message>
         <location filename="messagelog.cpp" line="878"/>
         <source>Select &amp;All</source>
-        <translation>Seleziona &amp;Tutto</translation>
+        <translation>すべて選択(&amp;A)</translation>
     </message>
 </context>
 <context>
@@ -1541,32 +1536,32 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="settingsdialog.cpp" line="195"/>
         <source>Save History</source>
-        <translation>Salva Cronologia</translation>
+        <translation>履歴の保存</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="202"/>
         <source>Select folder</source>
-        <translation>Selezionare la cartella</translation>
+        <translation>フォルダの選択</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="233"/>
         <source>Select Font</source>
-        <translation>Selezionare il carattere</translation>
+        <translation>フォントの選択</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="239"/>
         <source>Select Color</source>
-        <translation>Selezionare il colore</translation>
+        <translation>色の選択</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="245"/>
         <source>Are you sure you want to reset your %1 preferences?</source>
-        <translation>Sei sicuro di voler resettare le impostazioni di %1?</translation>
+        <translation>本当に %1 の設定を初期化しますか？</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="246"/>
         <source>Reset Preferences</source>
-        <translation>Reset Impostazioni</translation>
+        <translation>設定を初期化</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="351"/>
@@ -1576,32 +1571,32 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <location filename="settingsdialog.cpp" line="365"/>
         <source>Select sound</source>
-        <translation>Selezionare il suono</translation>
+        <translation>サウンドの選択</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="393"/>
         <source>Preferences</source>
-        <translation>Preferenze</translation>
+        <translation>設定</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="401"/>
         <source>System Tray (Not Available)</source>
-        <translation>Barra di sistema (Non Disponibile)</translation>
+        <translation>システムトレイ(利用不可)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="405"/>
         <source>Status Alerts (Not Available)</source>
-        <translation>Status Alerts (Non Disponibile)</translation>
+        <translation>状態通知(利用不可)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="409"/>
         <source>Sounds (Not Available)</source>
-        <translation>Suono (Non Disponibile)</translation>
+        <translation>音(利用不可)</translation>
     </message>
     <message>
         <location filename="settingsdialog.cpp" line="423"/>
         <source>Check for updates</source>
-        <translation>Verificare gli aggiornamenti</translation>
+        <translation>アップデートの確認</translation>
     </message>
 </context>
 <context>
@@ -1616,139 +1611,139 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
         <source>LAN Messenger is a free peer-to-peer messaging application for
 intra-network communication and does not require a server.
 LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN Messenger è un software libero peer-to-peer per un&apos;applicazione di messaggistica istantanea.
-Non richiede un server esterno.
-LAN Messenger funziona su ogni piattaforma desktop .</translation>
+        <translation>LAN Messenger は、無料のピアツーピアの連絡用アプリケーションです。
+サーバーがなくても企業内でのネットワーク通信ができます。
+LAN Messenger は原則的にすべての一般的なデスクトップのシステムで動作します。</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="69"/>
         <source>Automatic</source>
-        <translation>Automatico</translation>
+        <translation>自動</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="75"/>
         <source>Small text</source>
-        <translation>Testo piccolo</translation>
+        <translation>小さい文字</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="76"/>
         <source>Medium text</source>
-        <translation>Testo medio</translation>
+        <translation>通常の文字</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="77"/>
         <source>Large text</source>
-        <translation>Testo grande</translation>
+        <translation>大きい文字</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="84"/>
         <source>Available</source>
-        <translation>Disponibile</translation>
+        <translation>対応できます</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="85"/>
         <source>Busy</source>
-        <translation>Occupato</translation>
+        <translation>忙しいです</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="86"/>
         <source>Do Not Disturb</source>
-        <translation>Non disturbare</translation>
+        <translation>集中させてください</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="87"/>
         <source>Be Right Back</source>
-        <translation>Torno Subito</translation>
+        <translation>すぐ戻ります</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="88"/>
         <source>Away</source>
-        <translation>Non al Computer</translation>
+        <translation>離席中</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="89"/>
         <source>Appear Offline</source>
-        <translation>Invisibile</translation>
+        <translation>オフラインで表示</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="96"/>
         <source>Incoming message</source>
-        <translation>Messaggio in arrivo</translation>
+        <translation>メッセージがあります</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="97"/>
         <source>User is online</source>
-        <translation>Utente online</translation>
+        <translation>ユーザーはオンラインです</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="98"/>
         <source>User is offline</source>
-        <translation>Utente offline</translation>
+        <translation>ユーザーはオフラインです</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="99"/>
         <source>Incoming file transfer</source>
-        <translation>Trasferimento file in arrivo</translation>
+        <translation>ファイルが転送されています</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="100"/>
         <source>File transfer completed</source>
-        <translation>Trasferimento file completato</translation>
+        <translation>ファイル転送が完了しました</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="101"/>
         <source>Incoming public message</source>
-        <translation>Messaggio pubblico in arrivo</translation>
+        <translation type="unfinished">公開チャットがあります</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="108"/>
         <source>5 minutes</source>
-        <translation>5 minuti</translation>
+        <translation>5分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="109"/>
         <source>10 minutes</source>
-        <translation>10 minuti</translation>
+        <translation>10分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="110"/>
         <source>15 minutes</source>
-        <translation>15 minuti</translation>
+        <translation>15分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="111"/>
         <source>20 minutes</source>
-        <translation>20 minuti</translation>
+        <translation>20分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="112"/>
         <source>30 minutes</source>
-        <translation>30 minuti</translation>
+        <translation>30分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="113"/>
         <source>45 minutes</source>
-        <translation>45 minuti</translation>
+        <translation>45分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="114"/>
         <source>60 minutes</source>
-        <translation>60 minuti</translation>
+        <translation>60分</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="115"/>
         <source>Never</source>
-        <translation>Mai</translation>
+        <translation>ずっと</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="122"/>
         <source>Detailed</source>
-        <translation>Dettagliato</translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <location filename="strings.cpp" line="123"/>
         <source>Compact</source>
-        <translation>Compatto</translation>
+        <translation>コンパクト</translation>
     </message>
 </context>
 <context>
@@ -1756,48 +1751,48 @@ LAN Messenger funziona su ogni piattaforma desktop .</translation>
     <message>
         <location filename="transferwindow.cpp" line="177"/>
         <source>&apos;%1&apos; has been sent to %2.</source>
-        <translation>%1&apos; e stata trasmessa a %2.</translation>
+        <translation>%2 へ %1 を送信完了しました。</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="179"/>
         <location filename="transferwindow.cpp" line="194"/>
         <source>File Transfer Completed</source>
-        <translation>Trasferimento file completato</translation>
+        <translation>ファイル転送が完了しました</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="192"/>
         <source>&apos;%1&apos; has been received from %2.</source>
-        <translation>%1&apos; ha ricevuto da %2.</translation>
+        <translation>%2 から %1 を受信しました。</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="316"/>
         <source>File Transfers</source>
-        <translation>Trasferimento File</translation>
+        <translation>ファイル転送</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="318"/>
         <source>Cancel</source>
-        <translation>Cancella</translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="319"/>
         <source>Show In Folder</source>
-        <translation>Visualizza nella cartella</translation>
+        <translation>保存フォルダを開く</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="320"/>
         <source>Remove From List</source>
-        <translation>Rimuovi dalla lista</translation>
+        <translation>一覧から除去</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="371"/>
         <source>Calculating time</source>
-        <translation>Calcolo del tempo</translation>
+        <translation>所要時間を計算中</translation>
     </message>
     <message>
         <location filename="transferwindow.cpp" line="410"/>
         <source>/sec</source>
-        <translation></translation>
+        <translation>/秒</translation>
     </message>
 </context>
 <context>
@@ -1805,27 +1800,27 @@ LAN Messenger funziona su ogni piattaforma desktop .</translation>
     <message>
         <location filename="updatewindow.cpp" line="132"/>
         <source>%1 updates</source>
-        <translation>%1 aggiornamenti</translation>
+        <translation>%1 の更新</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="151"/>
         <source>Launching an update request...</source>
-        <translation>Lancia l&apos;aggiornamento richiesto...</translation>
+        <translation>アップデートの確認開始...</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="154"/>
         <source>An error occured while checking for updates.</source>
-        <translation>Si è verificato un errore durante il controllo degli aggiornamenti.</translation>
+        <translation>アップデート確認中にエラーが発生しました。</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="157"/>
         <source>The new version %1 is available on %2 web site.</source>
-        <translation>La nuova versione di %1 è disponibile sul sito %2.</translation>
+        <translation>%1の最新版があります。%2 のサイトをご確認ください。</translation>
     </message>
     <message>
         <location filename="updatewindow.cpp" line="160"/>
         <source>You have the latest version of %1.</source>
-        <translation>Hai l&apos;ultima versione di %1.</translation>
+        <translation>最新版の %1 をお使いです。</translation>
     </message>
 </context>
 <context>
@@ -1833,7 +1828,7 @@ LAN Messenger funziona su ogni piattaforma desktop .</translation>
     <message>
         <location filename="userinfowindow.cpp" line="77"/>
         <source>User Information</source>
-        <translation>Informazioni Utente</translation>
+        <translation>ユーザーの情報</translation>
     </message>
 </context>
 <context>
@@ -1841,7 +1836,7 @@ LAN Messenger funziona su ogni piattaforma desktop .</translation>
     <message>
         <location filename="userselectdialog.cpp" line="132"/>
         <source>Select Contacts</source>
-        <translation>Seleziona Contatti</translation>
+        <translation>参加者の選択</translation>
     </message>
 </context>
 </TS>
