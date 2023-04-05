@@ -1,11 +1,11 @@
 ﻿/****************************************************************************
 **
 ** This file is part of LAN Messenger.
-**
+** 
 ** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
-**
+** 
 ** Contact:  qualiatech@gmail.com
-**
+** 
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
@@ -31,39 +31,6 @@
 
 #ifndef CRYPTO_H
 #define CRYPTO_H
-
-class EVP_CIPHER_CTX_wrapper {
-public :
-
-	#if OPENSSL_VERSION_NUMBER < 0x10100000L
-
-	EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_init(&ctx);
-	}
-	EVP_CIPHER_CTX* ptr() { return &ctx; };
-
-	EVP_CIPHER_CTX ctx;
-
-	#else
-
-	EVP_CIPHER_CTX_wrapper() {
-		ctx = EVP_CIPHER_CTX_new();
-		EVP_CIPHER_CTX_init(ctx);
-	}
-
-	~EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_free(ctx);
-	}
-
-	EVP_CIPHER_CTX* ptr() { return ctx; };
-
-	EVP_CIPHER_CTX* ctx;
-
-	#endif
-
-};
-
-#define EVP_CIPHER_CTX EVP_CIPHER_CTX_wrapper
 
 class lmcCrypto
 {
