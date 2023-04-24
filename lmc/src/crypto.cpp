@@ -1,11 +1,11 @@
 ﻿/****************************************************************************
 **
 ** This file is part of LAN Messenger.
-** 
+**
 ** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
-** 
+**
 ** Contact:  qualiatech@gmail.com
-** 
+**
 ** LAN Messenger is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
@@ -62,7 +62,7 @@ QByteArray lmcCrypto::generateAES(QString* lpszUserId, QByteArray& pubKey) {
 	RSA* rsa = RSA_new();
 	BIO* bio = BIO_new_mem_buf(pemKey, pubKey.length());
 	PEM_read_bio_RSAPublicKey(bio, &rsa, NULL, NULL);
-	
+
 	int keyDataLen = 32;
 	unsigned char* keyData = (unsigned char*)malloc(keyDataLen);
 	RAND_bytes(keyData, keyDataLen);
@@ -74,11 +74,10 @@ QByteArray lmcCrypto::generateAES(QString* lpszUserId, QByteArray& pubKey) {
 	keyLen = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), NULL, keyData, keyDataLen, rounds, keyIv, keyIv + keyLen);
 
 	EVP_CIPHER_CTX ectx, dctx;
-	EVP_CIPHER_CTX_init(&ectx);
-	EVP_EncryptInit_ex(&ectx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	EVP_EncryptInit_ex(ectx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	encryptMap.insert(*lpszUserId, ectx);
-	EVP_CIPHER_CTX_init(&dctx);
-	EVP_DecryptInit_ex(&dctx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	EVP_CIPHER_CTX_init(dctx.ptr());
+	EVP_DecryptInit_ex(dctx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	decryptMap.insert(*lpszUserId, dctx);
 
 	unsigned char* eKeyIv = (unsigned char*)malloc(RSA_size(rsa));
@@ -101,11 +100,9 @@ void lmcCrypto::retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv) {
 
 	int keyLen = 32;
 	EVP_CIPHER_CTX ectx, dctx;
-	EVP_CIPHER_CTX_init(&ectx);
-	EVP_EncryptInit_ex(&ectx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	EVP_EncryptInit_ex(ectx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	encryptMap.insert(*lpszUserId, ectx);
-	EVP_CIPHER_CTX_init(&dctx);
-	EVP_DecryptInit_ex(&dctx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	EVP_DecryptInit_ex(dctx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	decryptMap.insert(*lpszUserId, dctx);
 
 	free(keyIv);
@@ -121,9 +118,9 @@ QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
 	int foutLen = 0;
 
 	EVP_CIPHER_CTX ctx = encryptMap.value(*lpszUserId);
-	if(EVP_EncryptInit_ex(&ctx, NULL, NULL, NULL, NULL)) {
-		if(EVP_EncryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length())) {
-			if(EVP_EncryptFinal_ex(&ctx, outBuffer + outLen, &foutLen)) {
+	if(EVP_EncryptInit_ex(ctx.ptr(), NULL, NULL, NULL, NULL)) {
+		if(EVP_EncryptUpdate(ctx.ptr(), outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length())) {
+			if(EVP_EncryptFinal_ex(ctx.ptr(), outBuffer + outLen, &foutLen)) {
 				outLen += foutLen;
 				QByteArray byteArray((char*)outBuffer, outLen);
 				free(outBuffer);
@@ -145,9 +142,9 @@ QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
 	int foutLen = 0;
 
 	EVP_CIPHER_CTX ctx = decryptMap.value(*lpszUserId);
-	if(EVP_DecryptInit_ex(&ctx, NULL, NULL, NULL, NULL)) {
-		if(EVP_DecryptUpdate(&ctx, outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length())) {
-			if(EVP_DecryptFinal_ex(&ctx, outBuffer + outLen, &foutLen)) {
+	if(EVP_DecryptInit_ex(ctx.ptr(), NULL, NULL, NULL, NULL)) {
+		if(EVP_DecryptUpdate(ctx.ptr(), outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length())) {
+			if(EVP_DecryptFinal_ex(ctx.ptr(), outBuffer + outLen, &foutLen)) {
 				outLen += foutLen;
 				QByteArray byteArray((char*)outBuffer, outLen);
 				free(outBuffer);
