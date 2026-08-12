@@ -41,7 +41,11 @@ lmcCrypto::~lmcCrypto(void) {
 QByteArray lmcCrypto::generateRSA(void) {
 	unsigned char* buf = (unsigned char*)malloc(bits);
 	RAND_seed(buf, bits);
-	pRsa = RSA_generate_key(bits, exponent, NULL, NULL);
+	pRsa = RSA_new();
+	BIGNUM* bn = BN_new();
+	BN_set_word(bn, exponent);
+	RSA_generate_key_ex(pRsa, bits, bn, NULL);
+	BN_free(bn);
 
 	BIO* bio = BIO_new(BIO_s_mem());
 	PEM_write_bio_RSAPublicKey(bio, pRsa);

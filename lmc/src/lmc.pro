@@ -22,7 +22,7 @@ SOURCES += \
     transferwindow.cpp \
     transferlistview.cpp \
     tcpnetwork.cpp \
-    strings.cpp \
+    lmcstrings.cpp \
     soundplayer.cpp \
     shared.cpp \
     settingsdialog.cpp \
@@ -67,7 +67,7 @@ HEADERS  += \
     transferwindow.h \
     transferlistview.h \
     tcpnetwork.h \
-    strings.h \
+    lmcstrings.h \
     soundplayer.h \
     shared.h \
     settingsdialog.h \

@@ -186,7 +186,8 @@ void lmcCore::settingsChanged(void) {
 	messageTop = pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool();
 	pubMessagePop = pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool();
 	refreshTime = pSettings->value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt() * 1000;
-	pTimer->setInterval(refreshTime);
+	if(pTimer)
+		pTimer->setInterval(refreshTime);
 	bool autoStart = pSettings->value(IDS_AUTOSTART, IDS_AUTOSTART_VAL).toBool();
 	lmcSettings::setAutoStart(autoStart);
 	QString appLang = pSettings->value(IDS_LANGUAGE, IDS_LANGUAGE_VAL).toString();

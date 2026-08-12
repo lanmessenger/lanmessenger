@@ -22,8 +22,8 @@
 ****************************************************************************/
 
 
-#ifndef STRINGS_H
-#define STRINGS_H
+#ifndef LMCSTRINGS_H
+#define LMCSTRINGS_H
 
 #include <QStringList>
 #include <QCoreApplication>
@@ -56,4 +56,4 @@ private:
 	static QStringList m_userListView;
 };
 
-#endif // STRINGS_H
+#endif // LMCSTRINGS_H

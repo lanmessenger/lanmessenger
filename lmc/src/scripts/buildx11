@@ -47,8 +47,10 @@ echo "Done."
 
 echo "Copying libraries..."
 cp -v ../../lmcapp/lib/liblmcapp.so.2 $1
-cp -v -f ../../openssl/lib/libcrypto.so.1.0.0 $1
-cp -v -f ../../openssl/lib/libssl.so.1.0.0 $1
+# Legacy Travis builds copied OpenSSL 1.0.x into the release directory.
+# Current builds use the system OpenSSL libraries.
+# cp -v -f ../../openssl/lib/libcrypto.so.1.0.0 $1
+# cp -v -f ../../openssl/lib/libssl.so.1.0.0 $1
 echo "Done."
 
 echo "Copying launch scripts..."
