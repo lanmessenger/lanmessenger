@@ -35,13 +35,22 @@ lmcCrypto::lmcCrypto(void) {
 
 lmcCrypto::~lmcCrypto(void) {
 	RSA_free(pRsa);
+	foreach (EVP_CIPHER_CTX* ctx, encryptMap)
+		EVP_CIPHER_CTX_free(ctx);
+	foreach (EVP_CIPHER_CTX* ctx, decryptMap)
+		EVP_CIPHER_CTX_free(ctx);
 }
 
 //	creates an RSA key pair and returns the string representation of the public key
 QByteArray lmcCrypto::generateRSA(void) {
 	unsigned char* buf = (unsigned char*)malloc(bits);
 	RAND_seed(buf, bits);
-	pRsa = RSA_generate_key(bits, exponent, NULL, NULL);
+
+	pRsa = RSA_new();
+	BIGNUM* bne = BN_new();
+	BN_set_word(bne, exponent);
+	RSA_generate_key_ex(pRsa, bits, bne, NULL);
+	BN_free(bne);
 
 	BIO* bio = BIO_new(BIO_s_mem());
 	PEM_write_bio_RSAPublicKey(bio, pRsa);
@@ -73,11 +82,14 @@ QByteArray lmcCrypto::generateAES(QString* lpszUserId, QByteArray& pubKey) {
 	int rounds = 5;
 	keyLen = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), NULL, keyData, keyDataLen, rounds, keyIv, keyIv + keyLen);
 
-	EVP_CIPHER_CTX ectx, dctx;
-	EVP_EncryptInit_ex(ectx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	if (encryptMap.contains(*lpszUserId)) EVP_CIPHER_CTX_free(encryptMap.value(*lpszUserId));
+	EVP_CIPHER_CTX* ectx = EVP_CIPHER_CTX_new();
+	EVP_EncryptInit_ex(ectx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	encryptMap.insert(*lpszUserId, ectx);
-	EVP_CIPHER_CTX_init(dctx.ptr());
-	EVP_DecryptInit_ex(dctx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+
+	if (decryptMap.contains(*lpszUserId)) EVP_CIPHER_CTX_free(decryptMap.value(*lpszUserId));
+	EVP_CIPHER_CTX* dctx = EVP_CIPHER_CTX_new();
+	EVP_DecryptInit_ex(dctx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	decryptMap.insert(*lpszUserId, dctx);
 
 	unsigned char* eKeyIv = (unsigned char*)malloc(RSA_size(rsa));
@@ -99,10 +111,14 @@ void lmcCrypto::retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv) {
     RSA_private_decrypt(aesKeyIv.length(), (unsigned char*)aesKeyIv.data(), keyIv, pRsa, RSA_PKCS1_OAEP_PADDING);
 
 	int keyLen = 32;
-	EVP_CIPHER_CTX ectx, dctx;
-	EVP_EncryptInit_ex(ectx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+	if (encryptMap.contains(*lpszUserId)) EVP_CIPHER_CTX_free(encryptMap.value(*lpszUserId));
+	EVP_CIPHER_CTX* ectx = EVP_CIPHER_CTX_new();
+	EVP_EncryptInit_ex(ectx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	encryptMap.insert(*lpszUserId, ectx);
-	EVP_DecryptInit_ex(dctx.ptr(), EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
+
+	if (decryptMap.contains(*lpszUserId)) EVP_CIPHER_CTX_free(decryptMap.value(*lpszUserId));
+	EVP_CIPHER_CTX* dctx = EVP_CIPHER_CTX_new();
+	EVP_DecryptInit_ex(dctx, EVP_aes_256_cbc(), NULL, keyIv, keyIv + keyLen);
 	decryptMap.insert(*lpszUserId, dctx);
 
 	free(keyIv);
@@ -117,10 +133,10 @@ QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
 	}
 	int foutLen = 0;
 
-	EVP_CIPHER_CTX ctx = encryptMap.value(*lpszUserId);
-	if(EVP_EncryptInit_ex(ctx.ptr(), NULL, NULL, NULL, NULL)) {
-		if(EVP_EncryptUpdate(ctx.ptr(), outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length())) {
-			if(EVP_EncryptFinal_ex(ctx.ptr(), outBuffer + outLen, &foutLen)) {
+	EVP_CIPHER_CTX* ctx = encryptMap.value(*lpszUserId);
+	if(ctx && EVP_EncryptInit_ex(ctx, NULL, NULL, NULL, NULL)) {
+		if(EVP_EncryptUpdate(ctx, outBuffer, &outLen, (unsigned char*)clearData.data(), clearData.length())) {
+			if(EVP_EncryptFinal_ex(ctx, outBuffer + outLen, &foutLen)) {
 				outLen += foutLen;
 				QByteArray byteArray((char*)outBuffer, outLen);
 				free(outBuffer);
@@ -141,10 +157,10 @@ QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
 	}
 	int foutLen = 0;
 
-	EVP_CIPHER_CTX ctx = decryptMap.value(*lpszUserId);
-	if(EVP_DecryptInit_ex(ctx.ptr(), NULL, NULL, NULL, NULL)) {
-		if(EVP_DecryptUpdate(ctx.ptr(), outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length())) {
-			if(EVP_DecryptFinal_ex(ctx.ptr(), outBuffer + outLen, &foutLen)) {
+	EVP_CIPHER_CTX* ctx = decryptMap.value(*lpszUserId);
+	if(ctx && EVP_DecryptInit_ex(ctx, NULL, NULL, NULL, NULL)) {
+		if(EVP_DecryptUpdate(ctx, outBuffer, &outLen, (unsigned char*)cipherData.data(), cipherData.length())) {
+			if(EVP_DecryptFinal_ex(ctx, outBuffer + outLen, &foutLen)) {
 				outLen += foutLen;
 				QByteArray byteArray((char*)outBuffer, outLen);
 				free(outBuffer);
