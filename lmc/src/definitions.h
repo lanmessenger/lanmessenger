@@ -36,11 +36,11 @@
 #endif
 #define IDA_VERSION		"1.2.39"
 #define IDA_DESCRIPTION	"LAN Messenger is a free peer-to-peer messaging application for intra-network communication "\
-						"and does not require a server.\n"\
-						"LAN Messenger works on essentially every popular desktop platform."
+					"and does not require a server.\n"\
+					"LAN Messenger works on essentially every popular desktop platform."
 #define IDA_COPYRIGHT	"Copyright (C) 2010-2016 Qualia Digital Solutions."
 #define IDA_CONTACT		"lanmsngr@gmail.com"
-#define IDA_DOMAIN		"http://lanmessenger.github.io"
+#define IDA_DOMAIN		"https://github.com/TeamNITE/lanmessenger"
 
 #if defined Q_OS_WIN
 #define IDA_PLATFORM	"Windows"
