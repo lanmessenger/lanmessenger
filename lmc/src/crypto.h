@@ -32,39 +32,6 @@
 #ifndef CRYPTO_H
 #define CRYPTO_H
 
-class EVP_CIPHER_CTX_wrapper {
-public :
-
-	#if OPENSSL_VERSION_NUMBER < 0x10100000L
-
-	EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_init(&ctx);
-	}
-	EVP_CIPHER_CTX* ptr() { return &ctx; };
-
-	EVP_CIPHER_CTX ctx;
-
-	#else
-
-	EVP_CIPHER_CTX_wrapper() {
-		ctx = EVP_CIPHER_CTX_new();
-		EVP_CIPHER_CTX_init(ctx);
-	}
-
-	~EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_free(ctx);
-	}
-
-	EVP_CIPHER_CTX* ptr() { return ctx; };
-
-	EVP_CIPHER_CTX* ctx;
-
-	#endif
-
-};
-
-#define EVP_CIPHER_CTX EVP_CIPHER_CTX_wrapper
-
 class lmcCrypto
 {
 public:
@@ -81,8 +48,8 @@ public:
 
 private:
 	RSA* pRsa;
-	QMap<QString, EVP_CIPHER_CTX> encryptMap;
-	QMap<QString, EVP_CIPHER_CTX> decryptMap;
+	QMap<QString, EVP_CIPHER_CTX*> encryptMap;
+	QMap<QString, EVP_CIPHER_CTX*> decryptMap;
 	int bits;
 	long exponent;
 };

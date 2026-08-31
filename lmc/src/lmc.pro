@@ -22,7 +22,7 @@ SOURCES += \
     transferwindow.cpp \
     transferlistview.cpp \
     tcpnetwork.cpp \
-    strings.cpp \
+    lmcstrings.cpp \
     soundplayer.cpp \
     shared.cpp \
     settingsdialog.cpp \
@@ -67,7 +67,7 @@ HEADERS  += \
     transferwindow.h \
     transferlistview.h \
     tcpnetwork.h \
-    strings.h \
+    lmcstrings.h \
     soundplayer.h \
     shared.h \
     settingsdialog.h \
@@ -169,7 +169,7 @@ DEPENDPATH += $$PWD/../../lmcapp/include
 
 win32-msvc*: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
 win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
-unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
+unix:!symbian: LIBS += -lcrypto
 
-INCLUDEPATH += $$PWD/../../openssl/include
-DEPENDPATH += $$PWD/../../openssl/include
+win32: INCLUDEPATH += $$PWD/../../openssl/include
+win32: DEPENDPATH += $$PWD/../../openssl/include
