@@ -27,7 +27,7 @@
 
 #include <QString>
 #include "definitions.h"
-#include "strings.h"
+#include "lmcstrings.h"
 
 //	Resource name definitions
 #define IDR_APPICON			":/icons/application"
