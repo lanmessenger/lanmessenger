@@ -28,7 +28,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -86,7 +86,7 @@ jobs:
 
       - name: Upload packages
         if: inputs.package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages-linux
           path: |
@@ -97,7 +97,7 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -156,7 +156,7 @@ jobs:
 
       - name: Upload packages
         if: inputs.package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages-windows
           path: lmc/setup/lmc-*-win64.exe
@@ -165,13 +165,12 @@ jobs:
   build-macos:
     runs-on: macos-15-intel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: jurplel/install-qt-action@v4
         with:
           version: '5.15.2'
           arch: clang_64
-          modules: 'qtmultimedia'
           cache: true
 
       - name: Install OpenSSL
@@ -211,7 +210,7 @@ jobs:
 
       - name: Upload packages
         if: inputs.package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages-macos
           path: lmc/setup/lmc_*_intel.dmg

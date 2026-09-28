@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 
+#include <stdexcept>
 #include <QMenu>
 #include <QAction>
 #include <QScrollBar>
