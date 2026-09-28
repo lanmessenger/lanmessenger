@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 1.2.39)'
+        required: true
+      publish:
+        description: 'Publish GitHub Release (only effective on master)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      installer_version: ${{ steps.ver.outputs.installer_version }}
+    steps:
+      - id: ver
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            ver="${GITHUB_REF_NAME#v}"
+          else
+            ver="${{ inputs.version }}"
+          fi
+          if [ -z "$ver" ]; then
+            echo "version is empty" >&2
+            exit 1
+          fi
+          case "$ver" in
+            *.*.*.*) iv="$ver" ;;
+            *)       iv="$ver.0" ;;
+          esac
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "installer_version=$iv" >> "$GITHUB_OUTPUT"
+
+  check-branch:
+    runs-on: ubuntu-24.04
+    outputs:
+      on_master: ${{ steps.check.outputs.on_master }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: check
+        run: |
+          if git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "on_master=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "on_master=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: [version, check-branch]
+    uses: ./.github/workflows/ci.yml
+    with:
+      package: true
+      version: ${{ needs.version.outputs.version }}
+      installer_version: ${{ needs.version.outputs.installer_version }}
+
+  publish:
+    needs: [version, check-branch, build]
+    if: needs.check-branch.outputs.on_master == 'true' && (github.ref_type == 'tag' || inputs.publish == true)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List release files
+        run: ls -la dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          name: v${{ needs.version.outputs.version }}
+          files: dist/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true

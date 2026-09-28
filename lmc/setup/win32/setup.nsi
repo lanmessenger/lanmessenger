@@ -34,8 +34,12 @@ SetCompressor /SOLID lzma
   
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
-  !define ProductVersion "1.2.39"
-  !define InstallerVersion "1.2.3.9"
+  !ifndef ProductVersion
+    !define ProductVersion "1.2.39"
+  !endif
+  !ifndef InstallerVersion
+    !define InstallerVersion "1.2.3.9"
+  !endif
   !define ProductUrl "http://lanmessenger.github.io"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"
   !define AppRegKey "${CompanyRegKey}\${ProductName}"
@@ -54,7 +58,7 @@ SetCompressor /SOLID lzma
   ;Name and file
   Name "${ProductName}"
   BrandingText $BrandText
-  OutFile "lmc-${ProductVersion}-win32.exe"
+  OutFile "lmc-${ProductVersion}-win64.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\${ProductName}"
@@ -147,19 +151,8 @@ Section
   SetOutPath $INSTDIR
   
   ;Copy application files to the installation directory  
-  File "..\..\${ExeFolder}\${AppExec}"
-  File "..\..\${ExeFolder}\libeay32.dll"
-  File "..\..\${ExeFolder}\ssleay32.dll"
+  File /r "..\..\${ExeFolder}\*.*"
   File "..\..\src\resources\text\license.txt"
-  CreateDirectory "$INSTDIR\sounds"
-  SetOutPath "$INSTDIR\sounds"
-  File /r "..\..\${ExeFolder}\sounds\*.*"
-  CreateDirectory "$INSTDIR\lang"
-  SetOutPath "$INSTDIR\lang"
-  File /r "..\..\${ExeFolder}\lang\*.*"
-  ;CreateDirectory "$INSTDIR\themes"
-  ;SetOutPath "$INSTDIR\themes"
-  ;File /r "..\..\release\themes\*.*"
   
   ;Create directories in user's Application Data folder
   CreateDirectory "${AppDataDir}\cache"
@@ -204,8 +197,10 @@ Section
   WriteRegDWORD HKLM "${UninstKey}" "NoRepair" 1  
   
   DetailPrint "Adding Windows Firewall Exception '${ProductName}'"
+  !ifdef USE_NSIS_FIREWALL
   nsisFirewall::AddAuthorizedApplication "$INSTDIR\${AppExec}" "${ProductName}"
   Pop $0
+  !endif
 
   ;Create Start menu shortcuts (for all users)
   DetailPrint "Adding Start menu shortcuts"
@@ -237,8 +232,10 @@ Section "Uninstall"
   SetShellVarContext current
   
   DetailPrint "Removing Windows Firewall Exception '${ProductName}'"
+  !ifdef USE_NSIS_FIREWALL
   nsisFirewall::RemoveAuthorizedApplication "$INSTDIR\${AppExec}"
   Pop $0
+  !endif
   
   ;Remove registry keys
   DetailPrint "Deleting registry entries and keys..."
@@ -262,14 +259,8 @@ Section "Uninstall"
   RMDir "${AppSettingsDir}"
   
   ;Delete application files and folder
-  Delete "$INSTDIR\${AppExec}"
-  Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\license.txt"
-  RMDir /r "$INSTDIR\sounds"
-  RMDir /r "$INSTDIR\lang"
-  ;RMDir /r "$INSTDIR\themes"
   Delete "$INSTDIR\${Uninstaller}"
-  RMDir "$INSTDIR"
+  RMDir /r "$INSTDIR"
   
 SectionEnd
 

@@ -6,17 +6,14 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
-# hide the background image source
-/Developer/Tools/SetFile -a V /Volumes/LAN-Messenger/background.jpg
-
 # eject the mounted volume
-hdiutil detach /Volumes/LAN-Messenger
+hdiutil detach /Volumes/LAN-Messenger || true
 
 # compress the disk image
 hdiutil convert LAN-Messenger.dmg -format UDBZ -o lmc_$1_intel.dmg
 
-# add the license to the disk image
-./licenseDMG.py lmc_$1_intel.dmg ./package/eula/license.txt
+# add the license to the disk image (best-effort)
+python3 ./licenseDMG.py lmc_$1_intel.dmg ./package/eula/license.txt || true
 
 # move the final image to output folder
 mv -f -v lmc_$1_intel.dmg ../

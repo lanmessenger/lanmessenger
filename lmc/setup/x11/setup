@@ -7,17 +7,15 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
-QTDIRLIB=$(dirname $(find / $PWD -type f -name "*libQt5Core.so.5*" 2> /dev/null) | head -1) > /dev/null
-
-sudo echo "COPYING FILES..."
+echo "COPYING FILES..."
+QTDIRLIB=""
 if [ "$PACKAGE_MODE" != "_min" ]; then
+  QTDIRLIB=$(dirname $(find / $PWD -type f -name "*libQt5Core.so.5*" 2> /dev/null) | head -1) > /dev/null
+
   sudo cp -v $QTDIRLIB/libQt5Core.so.5 ./package/usr/lib/lmc/libQt5Core.so.5
   sudo cp -v $QTDIRLIB/libQt5Gui.so.5 ./package/usr/lib/lmc/libQt5Gui.so.5
   sudo cp -v $QTDIRLIB/libQt5Network.so.5 ./package/usr/lib/lmc/libQt5Network.so.5
   sudo cp -v $QTDIRLIB/libQt5Xml.so.5 ./package/usr/lib/lmc/libQt5Xml.so.5
-  sudo cp -v $QTDIRLIB/libQt5WebKit.so.5 ./package/usr/lib/lmc/libQt5WebKit.so.5
-  sudo cp -v ../../release/libssl.so.1.0.0 ./package/usr/lib/lmc
-  sudo cp -v ../../release/libcrypto.so.1.0.0 ./package/usr/lib/lmc
   sudo cp -v -r ../../release/imageformats ./package/usr/lib/lmc
 fi
 sudo cp -v ../../release/liblmcapp.so.2 ./package/usr/lib/lmc/liblmcapp.so.2

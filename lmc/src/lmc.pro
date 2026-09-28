@@ -168,7 +168,7 @@ INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
 win32-msvc*: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
-win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
+win32: LIBS += -L$$PWD/../../openssl/lib/ -llibcrypto
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include

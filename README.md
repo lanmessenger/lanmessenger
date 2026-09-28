@@ -1,13 +1,13 @@
 How to compile LAN Messenger
 ============================
+[![CI](https://github.com/lanmessenger/lanmessenger/actions/workflows/ci.yml/badge.svg)](https://github.com/lanmessenger/lanmessenger/actions/workflows/ci.yml)
 
 You need Qt (https://www.qt.io/) to compile.
 I built LAN Messenger using Qt 5.11, so you probably need that or a 
 later version.
 
 You also need OpenSSL (http://www.openssl.org/)
-I used version 1.0.2q, so you know what to get.
-Please read the OpenSSL section for more information.
+Version 1.1 or later, including 3.x, is supported.
 
 The application consists of two projects - lmc and lmcapp. lmcapp is 
 just an extension of the qtsingleapplication project released by the 
