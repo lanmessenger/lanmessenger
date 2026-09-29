@@ -26,8 +26,14 @@
 #include <Windows.h>
 #include <QLibrary>
 #else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QSoundEffect>
+#include <QMediaDevices>
+#include <QUrl>
+#else
 #include <QSound>
 #include <QAudioDeviceInfo>
+#endif
 #endif
 #include "soundplayer.h"
 
@@ -56,7 +62,11 @@ bool lmcSoundPlayer::isAvailable()
 #ifdef Q_OS_WIN
     return sndPlaySoundFromDll != nullptr;
 #else
-    return QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).isEmpty();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return !QMediaDevices::audioOutputs().isEmpty();
+#else
+    return !QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).isEmpty();
+#endif
 #endif
 }
 
@@ -66,7 +76,13 @@ void lmcSoundPlayer::play(const QString &filename)
     if(sndPlaySoundFromDll)
         sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
 #else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    static QSoundEffect effect;
+    effect.setSource(QUrl::fromLocalFile(filename));
+    effect.play();
+#else
     QSound::play(filename);
+#endif
 #endif
 }
 
