@@ -24,6 +24,7 @@
 
 #include <QDesktopServices>
 #include <QTimer>
+#include <QRandomGenerator>
 #include <QUrl>
 #include "mainwindow.h"
 #include "messagelog.h"
@@ -105,8 +106,7 @@ void lmcMainWindow::init(User* pLocalUser, QList<Group>* pGroupList, bool connec
 void lmcMainWindow::start(void) {
 	//	if no avatar is set, select a random avatar (useful when running for the first time)
 	if(nAvatar > AVT_COUNT) {
-		qsrand((uint)QTime::currentTime().msec());
-		nAvatar = qrand() % AVT_COUNT;
+		nAvatar = QRandomGenerator::global()->bounded(AVT_COUNT);
 	}
 	// This method should only be called from here, otherwise an MT_Notify message is sent
 	// and the program will connect to the network before start() is called.
