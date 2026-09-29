@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 
-#include <QDesktopWidget>
 #include <QFile>
 #include "aboutdialog.h"
 
