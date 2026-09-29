@@ -53,7 +53,7 @@ class lmcChatWindow : public QWidget {
 	Q_OBJECT
 
 public:
-    lmcChatWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcChatWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcChatWindow(void);
 
 	void init(User* pLocalUser, User* pRemoteUser, bool connected);

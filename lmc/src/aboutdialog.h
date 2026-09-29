@@ -35,7 +35,7 @@ class lmcAboutDialog : public QDialog {
 	Q_OBJECT
 
 public:
-    lmcAboutDialog(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcAboutDialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcAboutDialog(void);
 
 	void init(void);

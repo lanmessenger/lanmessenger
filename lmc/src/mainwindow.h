@@ -51,7 +51,7 @@ class lmcMainWindow : public QWidget {
 	Q_OBJECT
 
 public:
-    lmcMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcMainWindow(void);
 
 	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);
