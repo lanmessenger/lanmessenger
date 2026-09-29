@@ -23,6 +23,7 @@
 
 
 #include <QMessageBox>
+#include <QSet>
 #include <QTranslator>
 #include "trace.h"
 #include "lmc.h"
@@ -75,7 +76,7 @@ void lmcCore::init(const QString& szCommandArgs) {
 
 	QStringList arguments = szCommandArgs.split("\n", Qt::SkipEmptyParts);
 	//	remove duplicates
-	arguments = arguments.toSet().toList();
+	arguments = QSet<QString>(arguments.begin(), arguments.end()).values();
 
 	pInitParams = new XmlMessage();
 	if(arguments.contains("/silent", Qt::CaseInsensitive))
@@ -348,7 +349,7 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 
 	QStringList messageList = szMessage.split("\n", Qt::SkipEmptyParts);
 	//	remove duplicates
-	messageList = messageList.toSet().toList();
+	messageList = QSet<QString>(messageList.begin(), messageList.end()).values();
 
 	if(messageList.contains("/new", Qt::CaseInsensitive)) {
 		if(messageList.contains("/loopback", Qt::CaseInsensitive))
