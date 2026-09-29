@@ -23,6 +23,7 @@
 
 
 #include <stdexcept>
+#include <QLocale>
 #include <QMenu>
 #include <QAction>
 #include <QScrollBar>
@@ -262,7 +263,7 @@ QString lmcMessageLog::prepareMessageLogForSave(OutputFormat format) {
 				decodeMessage(&messageText, true);
 				QString htmlMsg =
 					"<p><span class='salutation'>" + msg.userName + ":</span>"\
-					"<span class='time'>" + time.time().toString(Qt::SystemLocaleShortDate) + "</span>"\
+					"<span class='time'>" + QLocale::system().toString(time.time(), QLocale::ShortFormat) + "</span>"\
 					"<span class='message'>" + messageText + "</span></p>";
 				html.append(htmlMsg);
 			}
@@ -277,7 +278,7 @@ QString lmcMessageLog::prepareMessageLogForSave(OutputFormat format) {
 			if(msg.type == MT_Message || msg.type == MT_GroupMessage) {
 				time.setMSecsSinceEpoch(msg.message.header(XN_TIME).toLongLong());
 				QString textMsg =
-					msg.userName + " [" + time.time().toString(Qt::SystemLocaleShortDate) + "]:\n" +
+					msg.userName + " [" + QLocale::system().toString(time.time(), QLocale::ShortFormat) + "]:\n" +
 					msg.message.data(XN_MESSAGE) + "\n\n";
 				text.append(textMsg);
 			}
@@ -910,8 +911,8 @@ QString lmcMessageLog::getTimeString(QDateTime* pTime) {
 	if(messageTime) {
 		szTimeStamp.append("(");
 		if(messageDate)
-			szTimeStamp.append(pTime->date().toString(Qt::SystemLocaleShortDate) + "&nbsp;");
-		szTimeStamp.append(pTime->time().toString(Qt::SystemLocaleShortDate) + ")&nbsp;");
+			szTimeStamp.append(QLocale::system().toString(pTime->date(), QLocale::ShortFormat) + "&nbsp;");
+		szTimeStamp.append(QLocale::system().toString(pTime->time(), QLocale::ShortFormat) + ")&nbsp;");
 	}
 
 	return szTimeStamp;

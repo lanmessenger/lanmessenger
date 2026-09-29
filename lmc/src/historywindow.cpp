@@ -23,6 +23,7 @@
 
 
 #include <QGuiApplication>
+#include <QLocale>
 #include <QScreen>
 #include "historywindow.h"
 
@@ -139,7 +140,7 @@ void lmcHistoryWindow::displayList(void) {
 	for(int index = 0; index < msgList.count(); index++) {
 		lmcHistoryTreeWidgetItem* pItem = new lmcHistoryTreeWidgetItem();
 		pItem->setText(0, msgList[index].name);
-		pItem->setText(1, msgList[index].date.toString(Qt::SystemLocaleDate));
+		pItem->setText(1, QLocale::system().toString(msgList[index].date, QLocale::ShortFormat));
 		pItem->setData(0, DataRole, msgList[index].offset);
 		pItem->setData(1, DataRole, msgList[index].date);
 		pItem->setSizeHint(0, QSize(0, 20));
