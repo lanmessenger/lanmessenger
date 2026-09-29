@@ -15,6 +15,10 @@ on:
         description: Four-part version for the Windows installer
         type: string
         default: ''
+      ref:
+        description: Git ref to build (defaults to the triggering commit)
+        type: string
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,6 +32,8 @@ jobs:
       PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Install dependencies
         run: |
@@ -99,6 +105,8 @@ jobs:
       PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
@@ -169,6 +177,8 @@ jobs:
       PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: jurplel/install-qt-action@v4
         with:

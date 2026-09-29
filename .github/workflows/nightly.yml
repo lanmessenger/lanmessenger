@@ -1,0 +1,152 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if dev has no new commits since the last nightly
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      installer_version: ${{ steps.ver.outputs.installer_version }}
+      sha: ${{ steps.ver.outputs.sha }}
+      date: ${{ steps.ver.outputs.date }}
+      should_build: ${{ steps.ver.outputs.should_build }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - id: ver
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FORCE: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+
+          sha=$(git rev-parse HEAD)
+          date=$(date -u +%F)
+
+          base=$(git tag -l 'v*' --sort=-v:refname | sed -n '1s/^v//p')
+          if [ -z "$base" ]; then
+            echo "no v* tags found" >&2
+            exit 1
+          fi
+          maj=${base%%.*}
+          rest=${base#*.}
+          min=${rest%%.*}
+          pat=${rest#*.}
+          pat=${pat%%.*}
+          if [ -z "$maj" ] || [ -z "$min" ] || [ -z "$pat" ]; then
+            echo "cannot parse version from '$base'" >&2
+            exit 1
+          fi
+          base_next="$maj.$min.$((pat + 1))"
+
+          # Version sorts after the last release (1.2.39 < 1.2.40~nightly.N)
+          # and before the upcoming one (1.2.40~nightly.N < 1.2.40) in both
+          # dpkg and rpm (tilde semantics). No hyphens: alien splits on them.
+          version="${base_next}~nightly.${GITHUB_RUN_NUMBER}"
+          installer_version="${base_next}.${GITHUB_RUN_NUMBER}"
+
+          prev=""
+          body=$(gh release view nightly --json body -q .body 2>/dev/null || true)
+          if [ -n "$body" ]; then
+            prev=$(printf '%s\n' "$body" | sed -n 's/.*<!-- nightly-commit: \([0-9a-fA-F]\{40\}\) -->.*/\1/p')
+          fi
+
+          should_build=true
+          if [ "$FORCE" != "true" ] && [ "$prev" = "$sha" ]; then
+            should_build=false
+          fi
+
+          {
+            echo "version=$version"
+            echo "installer_version=$installer_version"
+            echo "sha=$sha"
+            echo "date=$date"
+            echo "should_build=$should_build"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "base=$base -> $base_next, version=$version, sha=$sha, prev=${prev:-none}, force=$FORCE, should_build=$should_build"
+
+  build:
+    needs: [plan]
+    if: needs.plan.outputs.should_build == 'true'
+    uses: ./.github/workflows/ci.yml
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      installer_version: ${{ needs.plan.outputs.installer_version }}
+      ref: ${{ needs.plan.outputs.sha }}
+
+  publish:
+    needs: [plan, build]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List release files
+        run: ls -la dist
+
+      - name: Normalize asset names
+        run: |
+          set -euo pipefail
+          ver='${{ needs.plan.outputs.version }}'
+          cd dist
+          for f in *; do
+            case "$f" in
+              *"$ver"*) mv -v "$f" "${f//$ver/nightly}" ;;
+            esac
+          done
+          ls -la
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: nightly
+          name: Nightly (${{ needs.plan.outputs.date }})
+          prerelease: true
+          make_latest: false
+          target_commitish: ${{ needs.plan.outputs.sha }}
+          body: |
+            Nightly build of `dev` (${{ needs.plan.outputs.date }}).
+            Version: `${{ needs.plan.outputs.version }}`
+            Commit: ${{ needs.plan.outputs.sha }}
+            <!-- nightly-commit: ${{ needs.plan.outputs.sha }} -->
+          files: dist/*
+          fail_on_unmatched_files: true
+          overwrite_files: true
+
+      - name: Move nightly tag to built commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha='${{ needs.plan.outputs.sha }}'
+          if gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/nightly" -f sha="$sha" -F force=true; then
+            echo "tag nightly moved to $sha"
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/tags/nightly" -f sha="$sha"
+          fi
