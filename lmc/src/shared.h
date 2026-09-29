@@ -29,6 +29,7 @@
 #include <QDateTime>
 #include <QUuid>
 #include <QHostInfo>
+#include <QTextStream>
 #include "definitions.h"
 #ifdef QWIDGET_H
 #include "uidefinitions.h"
@@ -118,6 +119,7 @@ public:
 	static QString boolToString(bool value);
 	static bool stringToBool(const QString& value);
 	static bool copyFile(const QString& source, const QString& destination);
+	static void setUtf8Stream(QTextStream& stream);
 };
 
 #endif // SHARED_H

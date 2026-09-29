@@ -419,7 +419,7 @@ void lmcChatWindow::btnSave_clicked(void) {
 		if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
 			return;
 		QTextStream stream(&file);
-		stream.setCodec("UTF-8");
+		Helper::setUtf8Stream(stream);
 		stream.setGenerateByteOrderMark(true);
 		if(fileName.endsWith(".html", Qt::CaseInsensitive))
 			stream << pMessageLog->prepareMessageLogForSave();

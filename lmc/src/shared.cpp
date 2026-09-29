@@ -31,6 +31,9 @@
 #endif
 #include <QStringList>
 #include <QFile>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QStringConverter>
+#endif
 
 int Helper::indexOf(const QString array[], int size, const QString& value) {
 	for(int index = 0; index < size; index++) {
@@ -206,4 +209,12 @@ bool Helper::copyFile(const QString& source, const QString& destination) {
 	destFile.close();
 
 	return true;
+}
+
+void Helper::setUtf8Stream(QTextStream& stream) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	stream.setEncoding(QStringConverter::Utf8);
+#else
+	stream.setCodec("UTF-8");
+#endif
 }

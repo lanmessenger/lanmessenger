@@ -240,7 +240,7 @@ void lmcSettings::setAutoStart(bool on) {
 	if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
 		return;
 	QTextStream stream(&file);
-	stream.setCodec("UTF-8");
+	Helper::setUtf8Stream(stream);
 	stream.setGenerateByteOrderMark(false);
 	stream << "[Desktop Entry]\n";
 	stream << "Encoding=UTF-8\n";
