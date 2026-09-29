@@ -163,7 +163,7 @@ void lmcMainWindow::stop(void) {
     QString filter = "msg_*.tmp";
     lmcMessageLog* pMessageLog = new lmcMessageLog();
     QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
-    foreach (QString fileName, fileNames) {
+    for (QString fileName : fileNames) {
         QString filePath = cacheDir.absoluteFilePath(fileName);
         pMessageLog->restoreMessageLog(filePath, false);
         QString szMessageLog = pMessageLog->prepareMessageLogForSave();
@@ -175,7 +175,7 @@ void lmcMainWindow::stop(void) {
     //  delete all other temp files
     filter = "*.tmp";
     fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
-    foreach (QString fileName, fileNames) {
+    for (QString fileName : fileNames) {
         QString filePath = cacheDir.absoluteFilePath(fileName);
         QFile::remove(filePath);
     }

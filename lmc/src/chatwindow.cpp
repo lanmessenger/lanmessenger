@@ -358,7 +358,7 @@ void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
 	if(urls.isEmpty())
 		return;
 
-    foreach(QUrl url, urls) {
+    for(QUrl url : urls) {
         QString path = url.toLocalFile();
         if(path.isEmpty())
             continue;

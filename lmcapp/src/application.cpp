@@ -50,7 +50,7 @@ void Application::loadTranslations(const QDir& dir) {
 	QDir::Filters filters = QDir::Files | QDir::Readable;
 	QDir::SortFlags sort = QDir::Name;
 	QFileInfoList entries = dir.entryInfoList(QStringList() << filter, filters, sort);
-	foreach (QFileInfo file, entries) {
+	for (QFileInfo file : entries) {
 		// pick country and language out of the file name
 		QStringList parts = file.baseName().split("_");
 		QString language = parts.at(parts.count() - 2).toLower();
@@ -71,7 +71,7 @@ void Application::loadTranslations(const QDir& dir) {
 		return;
 
 	entries = sysDir.entryInfoList(QStringList() << filter, filters, sort);
-	foreach (QFileInfo file, entries) {
+	for (QFileInfo file : entries) {
 		// pick country and language out of the file name
 		QStringList parts = file.baseName().split("_");
 		QString language = parts.at(parts.count() - 2).toLower();
