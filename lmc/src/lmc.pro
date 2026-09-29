@@ -14,6 +14,8 @@ unix: TARGET = lan-messenger
 macx: TARGET  = "LAN-Messenger"
 TEMPLATE = app
 
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+
 RESOURCES = resource.qrc
 
 SOURCES += \

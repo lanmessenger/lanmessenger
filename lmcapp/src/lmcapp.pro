@@ -11,6 +11,7 @@ TEMPLATE = lib
 VERSION = 2.0.0
 
 DEFINES += LMCAPP_LIBRARY
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
 
 SOURCES += \
     qtsinglecoreapplication.cpp \
