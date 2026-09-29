@@ -1,18 +1,13 @@
 Windows
 -------
-Build directory for both debug and release is lmc\build.
-lmc
- |-build
- |  |-debug
- |  |-release
- |-src
+On Windows the project files do not set DESTDIR, so the binaries are written
+to the build directory. The CI build compiles both projects in-source (in
+lmcapp\src and lmc\src) and copies lmc.exe to the runtime bundle folder
+lmc\release afterwards.
 
-However, the output files are configured to be written to separate debug and 
-release folders at the same level as src.
-lmc
- |-debug
- |-release
- |-src
+Note: the lmc project locates the lmcapp library via
+$$replace(OUT_PWD, lmc, lmcapp), so keep the two build directories as
+siblings with matching names (e.g. lmc and lmcapp) if you use shadow builds.
 
 The custom build step needs the following parameters:
 Command: scripts\buildwin32.bat
@@ -20,12 +15,22 @@ Working directory: %{sourceDir}
 Command arguments: %{buildDir}\..\debug (for debug)
 Command arguments: %{buildDir}\..\release release (for release)
 
+The script copies the lmcapp DLL and the OpenSSL runtime DLLs
+(libcrypto*.dll, libssl*.dll) into the output folder. Run
+"windeployqt --release <output>\lmc.exe" afterwards to gather the Qt
+libraries and plugins, as done in the CI build.
+
 For building the installer, run setup.bat in lmc\setup\win32 folder. NSIS must 
-be installed first. The batch file executes an NSIS script (setup.nsi) to 
-generate the installer. The NSIS script contains two variables called 
-ProductVersion and InstallerVersion that must be set whenever the application 
-version changes. The installer generated will have the name 
-lmc-<version>-win32.exe and it will be saved to lmc\setup folder.
+be installed first. Usage:
+setup.bat <ExeFolder> [ProductVersion] [InstallerVersion]
+Eg: setup.bat release 1.2.39 1.2.3.9
+
+The batch file executes an NSIS script (setup.nsi) which packages the whole
+ExeFolder and generates the installer. ProductVersion and InstallerVersion
+are passed to makensis as command line defines; when omitted, the defaults
+in setup.nsi are used and must be set whenever the application version
+changes. The installer generated will have the name lmc-<version>-win64.exe
+and it will be saved to lmc\setup folder.
 
 
 Linux/X11
@@ -64,19 +69,23 @@ after a log out or restart.
 
 For building the installer, run the bash script "setup" in lmc/setup/x11 folder.
 Make sure the scripts named "postinst", "postrm" and "prerm" in the folder
-package/DEBIAN have executable permission. The file "control" in the same folder 
-should be edited to reflect the proper version and installed size (in KB) of the 
-application. The scripts "lmc" and "whitelist" in package/usr/bin must also have 
-executable permission. All files and folder inside package folder must be owned 
-by root user.
+package/DEBIAN have executable permission. The setup script substitutes the
+version and architecture placeholders (VERSION, ARCH) in the file "control" in
+the same folder from its argument; edit that file to reflect the proper
+installed size (in KB) of the application. The scripts "lmc.sh" and "whitelist"
+in package/usr/lib/lmc must also have executable permission. All files and
+folder inside package folder must be owned by root user.
 
 The setup script generates the deb installation package which will be saved to
-lmc/setup folder. The package will have the name lmc_<version>_i386.deb. For 
-generating rpm package, alien must be installed first. To install alien, run:
+lmc/setup folder. The package will have the name lmc_<version>_<arch>.deb
+(eg: lmc_1.2.39_x86_64.deb). Set the environment variable PACKAGE_MODE=_min
+to build a minimal package that does not bundle the Qt libraries (this is
+what the CI build produces). For generating rpm package, alien must be
+installed first. To install alien, run:
 sudo apt-get install alien 
 Execute "rpm_setup" script in lmc/setup/x11 to generate an rpm package from the 
 deb package (deb package must be created first). This package will have the name 
-lmc-<version>-2.i386.rpm and will be saved to lmc/setup folder.
+lmc-<version>.<arch>.rpm and will be saved to lmc/setup folder.
 
 
 Mac OS X
@@ -97,9 +106,10 @@ Working directory: %{sourceDir}
 Command arguments: %{buildDir}/LAN-Messenger.app/Contents/MacOS
 
 For building the installer, first run the bash script "createdisk" in 
-lmc/setup/mac folder. This will create a disk image and copy all the required 
-files needed for the application to it. Now open up the disk image, set the 
-background image, icon size (96x96), icon position, icon arrangment (Snap to 
-Grid) and window size. Now run the script "addlicense" to add the user license 
+lmc/setup/mac folder. This copies the app bundle, runs macdeployqt on it to
+collect the Qt frameworks and creates a disk image with all the required
+files needed for the application. Now open up the disk image, set the
+background image, icon size (96x96), icon position, icon arrangment (Snap to
+Grid) and window size. Now run the script "addlicense" to add the user license
 and compress the disk image. The dmg file will have the name 
 lmc_<version>_intel.dmg and will be saved to lmc/setup folder.
