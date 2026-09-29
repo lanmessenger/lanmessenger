@@ -138,8 +138,8 @@ void lmcSettingsDialog::init(void) {
 	ui.txtUDPPort->setValidator(pPortValidator);
 	ui.txtTCPPort->setValidator(pPortValidator);
 
-	ipRegExp = QRegExp("\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
-	pIpValidator = new QRegExpValidator(ipRegExp, this);
+	ipRegExp = QRegularExpression(QRegularExpression::anchoredPattern("\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"));
+	pIpValidator = new QRegularExpressionValidator(ipRegExp, this);
 	ui.txtMulticast->setValidator(pIpValidator);
 
     pMessageLog->setAutoScroll(false);
@@ -351,13 +351,13 @@ void lmcSettingsDialog::lvBroadcasts_currentRowChanged(int index) {
 }
 
 void lmcSettingsDialog::txtBroadcast_textEdited(const QString& text) {
-	ui.btnAddBroadcast->setEnabled(ipRegExp.exactMatch(text));
+	ui.btnAddBroadcast->setEnabled(ipRegExp.match(text).hasMatch());
 }
 
 void lmcSettingsDialog::btnAddBroadcast_clicked(void) {
 	QString address = ui.txtBroadcast->text();
 	//	Do not add if not a valid ip address
-	if(!ipRegExp.exactMatch(address))
+	if(!ipRegExp.match(address).hasMatch())
 		return;
 
 	//	Check if the same address is already present in the list

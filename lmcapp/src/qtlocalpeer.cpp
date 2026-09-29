@@ -49,6 +49,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTime>
 #include <QDataStream>
+#include <QRegularExpression>
 
 #if defined(Q_OS_WIN)
 #include <QtCore/QLibrary>
@@ -83,7 +84,7 @@ QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
 #endif
         prefix = id.section(QLatin1Char('/'), -1);
     }
-    prefix.remove(QRegExp("[^a-zA-Z]"));
+    prefix.remove(QRegularExpression("[^a-zA-Z]"));
     prefix.truncate(6);
 
     QByteArray idc = id.toUtf8();

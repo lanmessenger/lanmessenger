@@ -26,6 +26,8 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QListWidget>
 #include <QFileDialog>
 #include <QFontDialog>
@@ -99,8 +101,8 @@ private:
 	QFont font;
 	QColor color;
 	QIntValidator* pPortValidator;
-	QRegExp	ipRegExp;
-	QRegExpValidator* pIpValidator;
+	QRegularExpression	ipRegExp;
+	QRegularExpressionValidator* pIpValidator;
 	lmcMessageLog* pMessageLog;
     int statusTimerId;
     int statusNow;

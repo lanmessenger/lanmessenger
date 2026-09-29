@@ -25,6 +25,7 @@
 #include <stdexcept>
 #include <QLocale>
 #include <QMenu>
+#include <QRegularExpression>
 #include <QAction>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -865,12 +866,12 @@ void lmcMessageLog::decodeMessage(QString* lpszMessage, bool useDefaults) {
 	if(useDefaults || allowLinks) {
 //		lpszMessage->replace(QRegExp("(((https|http|ftp|file|smb):[/][/]|www.)[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"),
 //							 "<a href='\\1'>\\1</a>");
-		lpszMessage->replace(QRegExp("((?:(?:https?|ftp|file)://|www\\.|ftp\\.)[-A-Z0-9+&@#/%=~_|$?!:,.]*[A-Z0-9+&@#/%=~_|$])", Qt::CaseInsensitive),
+		lpszMessage->replace(QRegularExpression("((?:(?:https?|ftp|file)://|www\\.|ftp\\.)[-A-Z0-9+&@#/%=~_|$?!:,.]*[A-Z0-9+&@#/%=~_|$])", QRegularExpression::CaseInsensitiveOption),
 							 "<a data-isLink='true' href='\\1'>\\1</a>");
 		lpszMessage->replace("<a data-isLink='true' href='www", "<a data-isLink='true' href='http://www");
 
 		if(!useDefaults && pathToLink)
-			lpszMessage->replace(QRegExp("((\\\\\\\\[\\w-]+\\\\[^\\\\/:*?<>|""]+)((?:\\\\[^\\\\/:*?<>|""]+)*\\\\?)$)"),
+			lpszMessage->replace(QRegularExpression("((\\\\\\\\[\\w-]+\\\\[^\\\\/:*?<>|""]+)((?:\\\\[^\\\\/:*?<>|""]+)*\\\\?)$)"),
 								 "<a data-isLink='true' href='file:\\1'>\\1</a>");
 	}
 
