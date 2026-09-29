@@ -28,7 +28,7 @@
 lmcUdpNetwork::lmcUdpNetwork(void) {
 	pUdpReceiver = new QUdpSocket(this);
 	pUdpSender = new QUdpSocket(this);
-	localId = QString::null;
+	localId = QString();
 	canReceive = false;
 	isRunning = false;
 	pCrypto = NULL;

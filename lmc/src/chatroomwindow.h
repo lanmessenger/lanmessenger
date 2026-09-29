@@ -57,7 +57,7 @@ public:
 	explicit lmcChatRoomWindow(QWidget *parent = 0);
 	~lmcChatRoomWindow();
 
-	void init(User* pLocalUser, bool connected, QString thread = QString::null);
+	void init(User* pLocalUser, bool connected, QString thread = QString());
 	void show(void);
 	void stop(void);
 	void addUser(User* pUser);

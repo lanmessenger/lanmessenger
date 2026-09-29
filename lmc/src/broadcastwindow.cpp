@@ -362,7 +362,7 @@ void lmcBroadcastWindow::showStatus(int flag, bool add) {
 			tr("You are no longer connected. Broadcast message cannot be sent.") + "</span>");
 		ui.lblInfo->setVisible(true);
 	} else {
-		ui.lblInfo->setText(QString::null);
+		ui.lblInfo->setText(QString());
 		ui.lblInfo->setVisible(false);
 	}
 }

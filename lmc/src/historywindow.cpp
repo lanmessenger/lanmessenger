@@ -22,7 +22,9 @@
 ****************************************************************************/
 
 
-#include <QDesktopWidget>
+#include <QGuiApplication>
+#include <QLocale>
+#include <QScreen>
 #include "historywindow.h"
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WindowFlags flags) : QWidget(parent, flags) {
@@ -39,7 +41,7 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget *parent, Qt::WindowFlags flags) : QWi
 	sizes.append(width() * 0.35);
 	sizes.append(width() - width() * 0.35 - ui.splitter->handleWidth());
 	ui.splitter->setSizes(sizes);
-	QRect scr = QApplication::desktop()->screenGeometry();
+	QRect scr = QGuiApplication::primaryScreen()->geometry();
 	move(scr.center() - rect().center());
 
 	connect(ui.tvMsgList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
@@ -138,7 +140,7 @@ void lmcHistoryWindow::displayList(void) {
 	for(int index = 0; index < msgList.count(); index++) {
 		lmcHistoryTreeWidgetItem* pItem = new lmcHistoryTreeWidgetItem();
 		pItem->setText(0, msgList[index].name);
-		pItem->setText(1, msgList[index].date.toString(Qt::SystemLocaleDate));
+		pItem->setText(1, QLocale::system().toString(msgList[index].date, QLocale::ShortFormat));
 		pItem->setData(0, DataRole, msgList[index].offset);
 		pItem->setData(1, DataRole, msgList[index].date);
 		pItem->setSizeHint(0, QSize(0, 20));

@@ -51,7 +51,7 @@ class lmcMainWindow : public QWidget {
 	Q_OBJECT
 
 public:
-    lmcMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcMainWindow(void);
 
 	void init(User* pLocalUser, QList<Group>* pGroupList, bool connected);
@@ -66,7 +66,7 @@ public:
 	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 	void connectionStateChanged(bool connected);
 	void settingsChanged(bool init = false);
-	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
+	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString(), TrayMessageIcon icon = TMI_Info);
 	QList<QTreeWidgetItem*> getContactsList(void);
 
 signals:

@@ -46,19 +46,19 @@ const Themes lmcTheme::availableThemes(void) {
 
 	QDir dir(StdLocation::resThemeDir());
 	QStringList entries = dir.entryList(QStringList(), filters, sort);
-	foreach(QString dirName, entries) {
+	for(QString dirName : entries) {
 		themes.append(Theme(dirName, dir.absoluteFilePath(dirName)));
 	}
 
 	dir.setPath(StdLocation::sysThemeDir());
 	entries = dir.entryList(QStringList(), filters, sort);
-	foreach(QString dirName, entries) {
+	for(QString dirName : entries) {
 		themes.append(Theme(dirName, dir.absoluteFilePath(dirName)));
 	}
 
 	dir.setPath(StdLocation::userThemeDir());
 	entries = dir.entryList(QStringList(), filters, sort);
-	foreach(QString dirName, entries) {
+	for(QString dirName : entries) {
 		themes.append(Theme(dirName, dir.absoluteFilePath(dirName)));
 	}
 

@@ -26,6 +26,8 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QListWidget>
 #include <QFileDialog>
 #include <QFontDialog>
@@ -45,7 +47,7 @@ class lmcSettingsDialog : public QDialog {
 	Q_OBJECT
 
 public:
-    lmcSettingsDialog(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcSettingsDialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcSettingsDialog(void);
 
 	void init(void);
@@ -99,8 +101,8 @@ private:
 	QFont font;
 	QColor color;
 	QIntValidator* pPortValidator;
-	QRegExp	ipRegExp;
-	QRegExpValidator* pIpValidator;
+	QRegularExpression	ipRegExp;
+	QRegularExpressionValidator* pIpValidator;
 	lmcMessageLog* pMessageLog;
     int statusTimerId;
     int statusNow;

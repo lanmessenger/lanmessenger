@@ -56,13 +56,13 @@ lmcChatWindow::lmcChatWindow(QWidget *parent, Qt::WindowFlags flags) : QWidget(p
 	ui.txtMessage->installEventFilter(this);
 	infoFlag = IT_Ok;
 
-	localId = QString::null;
-	localName = QString::null;
+	localId = QString();
+	localName = QString();
 	peerIds.clear();
 	peerNames.clear();
 	peerStatuses.clear();
     peerCaps.clear();
-	threadId = QString::null;
+	threadId = QString();
 	groupMode = false;
 	dataSaved = false;
 
@@ -358,7 +358,7 @@ void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
 	if(urls.isEmpty())
 		return;
 
-    foreach(QUrl url, urls) {
+    for(QUrl url : urls) {
         QString path = url.toLocalFile();
         if(path.isEmpty())
             continue;
@@ -419,7 +419,7 @@ void lmcChatWindow::btnSave_clicked(void) {
 		if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
 			return;
 		QTextStream stream(&file);
-		stream.setCodec("UTF-8");
+		Helper::setUtf8Stream(stream);
 		stream.setGenerateByteOrderMark(true);
 		if(fileName.endsWith(".html", Qt::CaseInsensitive))
 			stream << pMessageLog->prepareMessageLogForSave();
@@ -672,7 +672,7 @@ void lmcChatWindow::showStatus(int flag, bool add) {
 		ui.lblInfo->setText("<span style='color:rgb(192,0,0);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
 		ui.lblInfo->setVisible(true);
 	} else {
-		ui.lblInfo->setText(QString::null);
+		ui.lblInfo->setText(QString());
 		ui.lblInfo->setVisible(false);
 	}
 
@@ -682,7 +682,7 @@ void lmcChatWindow::showStatus(int flag, bool add) {
 }
 
 QString lmcChatWindow::getWindowTitle(void) {
-	QString title = QString::null;
+	QString title = QString();
 
 	QHash<QString, QString>::const_iterator index = peerNames.constBegin();
 	while (index != peerNames.constEnd()) {

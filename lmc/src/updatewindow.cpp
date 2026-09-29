@@ -22,7 +22,8 @@
 ****************************************************************************/
 
 
-#include <QDesktopWidget>
+#include <QGuiApplication>
+#include <QScreen>
 #include "updatewindow.h"
 #include "ui_updatewindow.h"
 #include "shared.h"
@@ -33,7 +34,7 @@ lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget *parent) : QWidget(parent
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
 	move(pRect->center() - rect().center());
-	QRect screenRect = QApplication::desktop()->screenGeometry();
+	QRect screenRect = QGuiApplication::primaryScreen()->geometry();
 	if(!screenRect.contains(geometry(), true)) {
 		QRect windowRect = geometry();
 		if(windowRect.right() > screenRect.right())
@@ -52,7 +53,7 @@ lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget *parent) : QWidget(parent
     ui->btnClose->installEventFilter(this);
     ui->btnRecheck->installEventFilter(this);
 
-	webVersion = QString::null;
+	webVersion = QString();
 }
 
 lmcUpdateWindow::~lmcUpdateWindow() {

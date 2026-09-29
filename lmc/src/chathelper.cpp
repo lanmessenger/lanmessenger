@@ -58,7 +58,7 @@ QString ChatHelper::replaceSmiley(QString* lpszHtml) {
 		}
 	}
 
-	return QString::null;
+	return QString();
 }
 
 void ChatHelper::encodeSmileys(QString* lpszMessage) {

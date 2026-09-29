@@ -1,18 +1,28 @@
 ﻿#
-# Script.ps1
+# Zip the Windows build output.
+# Usage: zip.ps1 [-ExeFolder <dir relative to lmc>] [-Version <ver>]
 #
 
-$exePath = '..\..\build-lmc-Desktop_Qt_5_11_2_MSVC2017_32bit_Static_3-Release'
+param(
+	[string]$ExeFolder = "release",
+	[string]$Version = "1.2.39"
+)
+
+$src = Join-Path "..\.." $ExeFolder
+
+$items = @(
+	(Join-Path $src "lmc.exe"),
+	(Join-Path $src "sounds"),
+	(Join-Path $src "lang"),
+	"..\..\src\resources\text\license.txt",
+	"..\..\src\resources\text\readme.txt"
+)
+$items += @(Get-ChildItem -Path $src -Filter "libcrypto*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
+$items += @(Get-ChildItem -Path $src -Filter "libssl*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
+$items += @(Get-ChildItem -Path $src -Filter "lmcapp*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
 
 Compress-Archive `
-	-LiteralPath $exePath\lmc.exe, `
-				$exePath\libeay32.dll, `
-				$exePath\ssleay32.dll, `
-				$exePath\sounds, `
-				$exePath\lang, `
-				..\..\src\resources\text\license.txt, `
-				..\..\src\resources\text\readme.txt `
+	-LiteralPath $items `
 	-CompressionLevel Optimal `
 	-Force `
-	-DestinationPath ..\lmc-1.2.39-win32.zip
-
+	-DestinationPath ..\lmc-$Version-win64.zip

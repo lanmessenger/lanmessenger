@@ -27,9 +27,9 @@ cp -R -v LAN-Messenger.app /Volumes/LAN-Messenger
 
 # add a link to the Applications dir
 echo "Add link to /Applications"
-pushd /Volumes/LAN-Messenger
+cd /Volumes/LAN-Messenger
 ln -s /Applications
-popd
+cd -
  
 # add a background image
 echo "Copy background image"
@@ -59,13 +59,13 @@ echo '
            set background picture of viewOptions to file ".background:background.jpg"
            set position of item "LAN-Messenger.app" of container window to {160, 205}
            set position of item "Applications" of container window to {360, 205}
-           close
-           open
-           update without registering applications
-           delay 2
+   close
+   open
+   update without registering applications
+   delay 2
      end tell
    end tell
-' | osascript
+' | osascript || echo "WARNING: Finder layout step failed (non-fatal)"
  
 sync
 

@@ -66,7 +66,7 @@ void FileView::paint(QPainter* painter, const QRect& rect, const QPalette& palet
 	if(displayMode == DM_Selected)
 		painter->setBrush(palette.highlightedText());
 	else
-		painter->setBrush(palette.foreground());
+		painter->setBrush(palette.windowText());
 
 	painter->setPen(QPen(painter->brush(), 1));
 	
@@ -218,7 +218,7 @@ QVariant FileModel::data(const QModelIndex& index, int role) const {
 		return QVariant();
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole)
-		return qVariantFromValue(transferList.at(index.row()));
+		return QVariant::fromValue(transferList.at(index.row()));
 	else
 		return QVariant();
 }
@@ -271,7 +271,7 @@ void FileModel::insertItem(int position, FileView* fileView) {
 
 	QModelIndex index = this->index(position);
 	FileView view = *fileView;
-	this->setData(index, qVariantFromValue(view), Qt::UserRole);
+	this->setData(index, QVariant::fromValue(view), Qt::UserRole);
 }
 
 void FileModel::removeItem(int position) {

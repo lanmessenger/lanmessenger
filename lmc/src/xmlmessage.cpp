@@ -111,16 +111,16 @@ bool XmlMessage::addXmlNode(const QString& parentNode, const QString& nodeName, 
 QString XmlMessage::getXmlNode(const QString& parentNode, const QString& nodeName) {
 	QDomElement root = documentElement();
 	if(root.isNull())
-		return QString::null;
+		return QString();
 
 	QDomNodeList nodes = root.elementsByTagName(parentNode);
 	if(nodes.isEmpty())
-		return QString::null;
+		return QString();
 
 	QDomElement parent = nodes.at(0).toElement();
 	nodes = parent.elementsByTagName(nodeName);
 	if(nodes.isEmpty())
-		return QString::null;
+		return QString();
 
 	QDomElement element = nodes.at(0).toElement();
 	return element.text();

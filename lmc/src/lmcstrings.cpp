@@ -22,7 +22,7 @@
 ****************************************************************************/
 
 
-#include "strings.h"
+#include "lmcstrings.h"
 
 QString lmcStrings::m_appName;
 QString lmcStrings::m_appDesc;

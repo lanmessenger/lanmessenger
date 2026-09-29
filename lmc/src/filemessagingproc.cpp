@@ -227,7 +227,7 @@ bool lmcMessaging::addFileTransfer(FileMode fileMode, QString* lpszUserId, XmlMe
     case FM_Send:
         fileId = Helper::getUuid();
         fileInfo.setFile(pMessage->data(XN_FILEPATH));
-        fileList.append(TransFile(fileId, QString::null, *lpszUserId, fileInfo.filePath(),
+        fileList.append(TransFile(fileId, QString(), *lpszUserId, fileInfo.filePath(),
             fileInfo.fileName(), fileInfo.size(), fileMode, FO_Request, (FileType)fileType));
         pMessage->addData(XN_FILEID, fileId);
         pMessage->addData(XN_MODE, FileModeNames[fileMode]);
@@ -250,7 +250,7 @@ bool lmcMessaging::addFileTransfer(FileMode fileMode, QString* lpszUserId, XmlMe
         }
         break;
     case FM_Receive:
-        fileList.append(TransFile(pMessage->data(XN_FILEID), QString::null, *lpszUserId, QString::null,
+        fileList.append(TransFile(pMessage->data(XN_FILEID), QString(), *lpszUserId, QString(),
             pMessage->data(XN_FILENAME), pMessage->data(XN_FILESIZE).toLongLong(),
             fileMode, FO_Request, (FileType)fileType));
         switch(fileType) {
@@ -512,7 +512,7 @@ bool lmcMessaging::addFolderTransfer(FileMode folderMode, QString* lpszUserId, X
         emit messageReceived(MT_Folder, lpszUserId, &xmlMessage);
         break;
     case FM_Receive:
-        folderList.append(TransFolder(pMessage->data(XN_FOLDERID), *lpszUserId, QString::null,
+        folderList.append(TransFolder(pMessage->data(XN_FOLDERID), *lpszUserId, QString(),
             pMessage->data(XN_FILENAME), pMessage->data(XN_FILESIZE).toLongLong(),
             folderMode, FO_Request, (FileType)folderType, pMessage->data(XN_FILECOUNT).toInt()));
         break;
@@ -671,5 +671,5 @@ QString lmcMessaging::getFolderPath(QString folderId, QString userId, FileMode m
             return folderList[index].path;
     }
 
-    return QString::null;
+    return QString();
 }

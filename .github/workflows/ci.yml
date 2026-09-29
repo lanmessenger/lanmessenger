@@ -1,0 +1,229 @@
+name: CI
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Version string used in package names
+        type: string
+        default: ''
+      installer_version:
+        description: Four-part version for the Windows installer
+        type: string
+        default: ''
+      ref:
+        description: Git ref to build (defaults to the triggering commit)
+        type: string
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            qtbase5-dev qtbase5-dev-tools qttools5-dev-tools \
+            qtmultimedia5-dev \
+            libssl-dev libgl1-mesa-dev \
+            xvfb xauth
+
+      - name: Prepare OpenSSL paths
+        run: |
+          mkdir -p openssl
+          ln -sfn /usr/include openssl/include
+          ln -sfn /usr/lib/x86_64-linux-gnu openssl/lib
+
+      - name: Build lmcapp
+        run: |
+          cd lmcapp/src
+          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
+          make -j"$(nproc)"
+
+      - name: Build lmc
+        run: |
+          cd lmc/src
+          qmake lmc.pro CONFIG+=release CONFIG-=debug
+          make -j"$(nproc)"
+
+      - name: Build runtime bundle
+        env:
+          QTDIR: /usr/lib/x86_64-linux-gnu/qt5
+        run: |
+          cd lmc/src
+          chmod +x scripts/buildx11
+          sh ./scripts/buildx11 ../release
+
+      - name: Smoke test
+        run: |
+          export USER=ci
+          cd lmc/release
+          export LD_LIBRARY_PATH="$PWD"
+          timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
+
+      - name: Build packages
+        env:
+          PACKAGE_MODE: _min
+        run: |
+          sudo apt-get install -y alien rpm
+          cd lmc/setup/x11
+          chmod +x setup rpm_setup
+          sh ./setup "$PKG_VERSION"
+          sh ./rpm_setup "$PKG_VERSION"
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages-linux
+          path: |
+            lmc/setup/lmc_*_min.deb
+            lmc/setup/lmc-*_min.rpm
+          if-no-files-found: error
+          retention-days: 3
+
+  build-windows:
+    runs-on: windows-2022
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          arch: win64_msvc2019_64
+          cache: true
+
+      - name: Install OpenSSL
+        run: vcpkg install openssl:x64-windows
+
+      - name: Prepare OpenSSL paths
+        shell: pwsh
+        run: |
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
+          Copy-Item -Recurse $root/installed/x64-windows/include/openssl openssl/include/
+          Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
+          Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
+          Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+
+      - name: Build lmcapp
+        shell: cmd
+        run: |
+          cd lmcapp\src
+          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
+          nmake
+          if exist lmcapp2.lib move /Y lmcapp2.lib lmcapp.lib
+
+      - name: Build lmc
+        shell: cmd
+        run: |
+          cd lmc\src
+          qmake lmc.pro CONFIG+=release CONFIG-=debug
+          nmake
+
+      - name: Build runtime bundle
+        shell: cmd
+        run: |
+          set QTDIR=%QT_ROOT_DIR%
+          cd lmc\src
+          call scripts\buildwin32.bat ..\release release
+          copy /Y lmc.exe ..\release\
+          windeployqt --release ..\release\lmc.exe
+
+      - name: Build installer
+        shell: cmd
+        run: |
+          choco install nsis -y --no-progress
+          cd lmc\setup\win32
+          call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages-windows
+          path: lmc/setup/lmc-*-win64.exe
+          if-no-files-found: error
+          retention-days: 3
+
+  build-macos:
+    runs-on: macos-15-intel
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          arch: clang_64
+          cache: true
+
+      - name: Install OpenSSL
+        run: |
+          brew install openssl@3
+          mkdir -p openssl
+          ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
+          ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
+
+      - name: Build lmcapp
+        run: |
+          cd lmcapp/src
+          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
+          make -j"$(sysctl -n hw.ncpu)"
+
+      - name: Build lmc
+        run: |
+          cd lmc/src
+          qmake lmc.pro CONFIG+=release CONFIG-=debug
+          make -j"$(sysctl -n hw.ncpu)"
+
+      - name: Build runtime bundle
+        run: |
+          export QTDIR="$QT_ROOT_DIR"
+          cd lmc/src
+          chmod +x scripts/buildmacos
+          sh ./scripts/buildmacos ../release/LAN-Messenger.app/Contents/MacOS
+
+      - name: Build disk image
+        run: |
+          export QTDIR="$QT_ROOT_DIR"
+          cd lmc/setup/mac
+          chmod +x createdisk addlicense
+          sh ./createdisk
+          sh ./addlicense "$PKG_VERSION"
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages-macos
+          path: lmc/setup/lmc_*_intel.dmg
+          if-no-files-found: error
+          retention-days: 3

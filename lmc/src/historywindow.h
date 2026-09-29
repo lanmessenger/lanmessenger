@@ -40,7 +40,7 @@ class lmcHistoryWindow : public QWidget
 	Q_OBJECT
 
 public:
-    lmcHistoryWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    lmcHistoryWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 	~lmcHistoryWindow();
 
 	void init(void);

@@ -14,6 +14,8 @@ unix: TARGET = lan-messenger
 macx: TARGET  = "LAN-Messenger"
 TEMPLATE = app
 
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+
 RESOURCES = resource.qrc
 
 SOURCES += \
@@ -22,7 +24,7 @@ SOURCES += \
     transferwindow.cpp \
     transferlistview.cpp \
     tcpnetwork.cpp \
-    strings.cpp \
+    lmcstrings.cpp \
     soundplayer.cpp \
     shared.cpp \
     settingsdialog.cpp \
@@ -67,7 +69,7 @@ HEADERS  += \
     transferwindow.h \
     transferlistview.h \
     tcpnetwork.h \
-    strings.h \
+    lmcstrings.h \
     soundplayer.h \
     shared.h \
     settingsdialog.h \
@@ -168,7 +170,7 @@ INCLUDEPATH += $$PWD/../../lmcapp/include
 DEPENDPATH += $$PWD/../../lmcapp/include
 
 win32-msvc*: LIBS += advapi32.lib # for GetUserNameW(...) in Helper::getLogonName(..)
-win32: LIBS += -L$$PWD/../../openssl/lib/ -llibeay32
+win32: LIBS += -L$$PWD/../../openssl/lib/ -llibcrypto
 unix:!symbian: LIBS += -L$$PWD/../../openssl/lib/ -lcrypto
 
 INCLUDEPATH += $$PWD/../../openssl/include

@@ -43,10 +43,10 @@ lmcNetwork::lmcNetwork(void) {
 		this, SLOT(web_receiveMessage(QString*)));
 	pTimer = NULL;
 	pCrypto = new lmcCrypto();
-	ipAddress = QString::null;
-	subnetMask = QString::null;
+	ipAddress = QString();
+	subnetMask = QString();
 	networkInterface = QNetworkInterface();
-    interfaceName = QString::null;
+    interfaceName = QString();
 	isConnected = false;
 	canReceive = false;
 }
@@ -103,7 +103,7 @@ QString lmcNetwork::physicalAddress(void) {
     if(networkInterface.isValid())
         return networkInterface.hardwareAddress();
 
-    return QString::null;
+    return QString();
 
 //	//	get the first active network interface
 //	QNetworkInterface networkInterface;
@@ -111,7 +111,7 @@ QString lmcNetwork::physicalAddress(void) {
 //	if(getNetworkInterface(&networkInterface))
 //		return networkInterface.hardwareAddress();
 
-//	return QString::null;
+//	return QString();
 }
 
 void lmcNetwork::setLocalId(QString* lpszLocalId) {
@@ -212,8 +212,8 @@ bool lmcNetwork::getIPAddress(bool verbose) {
 			subnetMask = addressEntry.netmask().toString();
 			return true;
 		}
-		ipAddress = QString::null;
-		subnetMask = QString::null;
+		ipAddress = QString();
+		subnetMask = QString();
 		return false;
 	}
 
@@ -257,8 +257,8 @@ bool lmcNetwork::getIPAddress(bool verbose) {
 
     lmcTrace::write(QString("Warning: ") + (activeFound ? "No IP address found" : "No active network interface found"),
         verbose);
-	ipAddress = QString::null;
-	subnetMask = QString::null;
+	ipAddress = QString();
+	subnetMask = QString();
 	return false;
 }
 
