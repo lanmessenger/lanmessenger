@@ -214,7 +214,7 @@ void lmcSettings::setAutoStart(bool on) {
     Q_UNUSED(on);
 #endif
 
-#ifdef Q_OS_X11
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 	//  get the path of .desktop file
 	QString autoStartDir;
 	char* buffer = getenv("XDG_CONFIG_HOME");

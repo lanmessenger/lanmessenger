@@ -65,11 +65,6 @@ int main(int argc, char *argv[]) {
     dir.cdUp();
     dir.cd("Plugins");
     QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
-#else
-// no local copy Qt libs fo X11
-//#ifndef Q_OS_X11
-//	QApplication::setLibraryPaths(QStringList(QApplication::applicationDirPath()));
-//#endif
 #endif
 	QResource::registerResource(StdLocation::resourceFile());
 
@@ -98,7 +93,7 @@ int main(int argc, char *argv[]) {
 	application.loadTranslations(StdLocation::userLangDir());
 
 	//	Enable tracing for Windows and Mac
-#ifndef Q_OS_X11
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
 	messageList += "/trace\n";
 #endif
 

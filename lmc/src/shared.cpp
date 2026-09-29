@@ -149,7 +149,7 @@ QString Helper::getOSName(void) {
         osName = "Mac OS X";
         break;
     }
-#elif defined Q_OS_X11
+#elif defined Q_OS_LINUX
 	osName = "Linux/X11";
 #endif
 
