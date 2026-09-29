@@ -636,7 +636,7 @@ void lmcCore::routeMessage(MessageType type, QString* lpszUserId, XmlMessage* pM
 			chatWindows[index]->receiveMessage(type, lpszUserId, pMessage);
 		}
 	} else {
-        QString threadId = pMessage ? pMessage->data(XN_THREAD) : QString::null;
+        QString threadId = pMessage ? pMessage->data(XN_THREAD) : QString();
 		
 		switch(type) {
         case MT_Avatar:

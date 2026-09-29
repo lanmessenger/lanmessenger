@@ -38,7 +38,7 @@ void lmcToolButton::paintEvent(QPaintEvent*) {
 }
 
 lmcLabel::lmcLabel(QWidget* parent) : QLabel(parent) {
-	actualText = elidedText = QString::null;
+	actualText = elidedText = QString();
 }
 
 QString lmcLabel::text(void) const {

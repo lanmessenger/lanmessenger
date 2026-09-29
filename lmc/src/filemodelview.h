@@ -47,7 +47,7 @@ public:
 	enum TransferMode { TM_Send, TM_Receive, TM_Max };
 	enum TransferState { TS_Wait, TS_Confirm, TS_Send, TS_Receive, TS_Complete, TS_Decline, TS_Cancel, TS_Abort, TS_Max };
 	
-	FileView(QString id = QString::null);
+	FileView(QString id = QString());
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, DisplayMode mode) const;
 	QSize sizeHint() const;

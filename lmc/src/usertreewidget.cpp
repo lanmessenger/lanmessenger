@@ -242,7 +242,7 @@ void lmcUserTreeWidget::mousePressEvent(QMouseEvent* event) {
 		dragGroup = false;
 		dragUser = false;
 		dragItem = NULL;
-		parentId = QString::null;
+		parentId = QString();
 		expanded = false;
 
 		if(item) {

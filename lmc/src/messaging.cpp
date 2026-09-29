@@ -78,7 +78,7 @@ void lmcMessaging::init(XmlMessage *pInitParams) {
 	QString userNote = pSettings->value(IDS_NOTE, IDS_NOTE_VAL).toString();
     uint userCaps = UC_File | UC_GroupMessage | UC_Folder;
     localUser = new User(userId, IDA_VERSION, pNetwork->ipAddress, userName, userStatus,
-                         QString::null, nAvatar, userNote, StdLocation::avatarFile(),
+                         QString(), nAvatar, userNote, StdLocation::avatarFile(),
                          QString::number(userCaps));
 
 	loadGroups();
@@ -336,7 +336,7 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
 	int nAvatar = szAvatar.isNull() ? -1 : szAvatar.toInt();
 
     userList.append(User(szUserId, szVersion, szAddress, szName, szStatus, userGroupMap[szUserId],
-                         nAvatar, szNote, QString::null, szCaps));
+                         nAvatar, szNote, QString(), szCaps));
 	if(!szStatus.isNull()) {
 		XmlMessage xmlMessage;
 		xmlMessage.addHeader(XN_FROM, szUserId);

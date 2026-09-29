@@ -53,7 +53,7 @@ lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget *parent) : QWidget(parent
     ui->btnClose->installEventFilter(this);
     ui->btnRecheck->installEventFilter(this);
 
-	webVersion = QString::null;
+	webVersion = QString();
 }
 
 lmcUpdateWindow::~lmcUpdateWindow() {

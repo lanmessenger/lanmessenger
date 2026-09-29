@@ -82,7 +82,7 @@ QString Helper::getLogonName(void) {
         return QString::fromLatin1(szUserName);
 #endif
 
-	return QString::null;
+	return QString();
 }
 
 QString Helper::getHostName(void) {

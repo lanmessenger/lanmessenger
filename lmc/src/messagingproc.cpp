@@ -32,7 +32,7 @@ void lmcMessaging::sendBroadcast(MessageType type, XmlMessage* pMessage) {
 
 //	A message is to be sent
 void lmcMessaging::sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
-	QString data = QString::null;
+	QString data = QString();
 	XmlMessage message;
 
 	switch(type) {
@@ -281,7 +281,7 @@ void lmcMessaging::processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage
 
 void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) {
 	QString msgId;
-	QString data = QString::null;
+	QString data = QString();
 	XmlMessage reply;
 
 	lmcTrace::write("Processing message type " + QString::number(pHeader->type) + " from user " +
@@ -293,7 +293,7 @@ void lmcMessaging::processMessage(MessageHeader* pHeader, XmlMessage* pMessage) 
 			sendUserData(pHeader->type, QO_Result, &pHeader->userId, &pHeader->address);
 		//	add the user only after sending back user data, this way both parties will have added each other
 		addUser(pMessage->data(XN_USERID), pMessage->data(XN_VERSION), pMessage->data(XN_ADDRESS),
-            pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString::null, pMessage->data(XN_NOTE),
+            pMessage->data(XN_NAME), pMessage->data(XN_STATUS), QString(), pMessage->data(XN_NOTE),
             pMessage->data(XN_USERCAPS));
 		break;
 	case MT_Broadcast:

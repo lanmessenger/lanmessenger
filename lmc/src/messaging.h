@@ -97,7 +97,7 @@ struct TransFile : public Transfer {
         this->mode = mode;
         this->op = op;
         this->type = type;
-        this->relPath = QString::null;
+        this->relPath = QString();
     }
 };
 
@@ -122,7 +122,7 @@ struct TransFolder : public Transfer {
         this->op = op;
         this->type = type;
         this->fileList.clear();
-        this->currentFile = QString::null;
+        this->currentFile = QString();
         this->fileIndex = 0;
         this->fileCount = nFileCount;
         this->filePos = 0;

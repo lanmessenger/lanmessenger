@@ -64,8 +64,8 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget *parent) : QWidget(parent) {
 	dataSaved = false;
 	windowLoaded = false;
 
-	localId = QString::null;
-	localName = QString::null;
+	localId = QString();
+	localName = QString();
 }
 
 lmcChatRoomWindow::~lmcChatRoomWindow() {
@@ -705,7 +705,7 @@ void lmcChatRoomWindow::showStatus(int flag, bool add) {
 		ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + tr("You are no longer connected.") + "</span>");
 		ui.lblInfo->setVisible(true);
 	} else {
-		ui.lblInfo->setText(QString::null);
+		ui.lblInfo->setText(QString());
 		ui.lblInfo->setVisible(false);
 	}
 

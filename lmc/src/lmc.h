@@ -78,7 +78,7 @@ private slots:
 	void showPublicChat();
 	void historyCleared(void);
 	void fileHistoryCleared(void);
-	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString::null, TrayMessageIcon icon = TMI_Info);
+	void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle = QString(), TrayMessageIcon icon = TMI_Info);
 	void updateGroup(GroupOp op, QVariant value1, QVariant value2);
     void addContacts(QStringList *pExcludList);
 	void chatWindow_closed(QString* lpszUserId);

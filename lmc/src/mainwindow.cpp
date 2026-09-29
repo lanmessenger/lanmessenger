@@ -297,7 +297,7 @@ void lmcMainWindow::settingsChanged(bool init) {
 //			QSize itemSize = ui.tvUserList->view() == ULV_Detailed ? QSize(0, 36) : QSize(0, 20);
 //			childItem->setSizeHint(0, itemSize);
 
-			QString toolTip = statusToolTip ? lmcStrings::statusDesc()[childItem->data(0, StatusRole).toInt()] : QString::null;
+			QString toolTip = statusToolTip ? lmcStrings::statusDesc()[childItem->data(0, StatusRole).toInt()] : QString();
 			childItem->setToolTip(0, toolTip);
 		}
 	}
