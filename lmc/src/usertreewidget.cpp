@@ -120,7 +120,7 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
 		int leftPad = checkBoxRect.width() > 0 ? checkBoxRect.right() + 16 : 16;
 		QRect textRect = itemRect.adjusted(leftPad, padding, -5, -padding);
 		painter->setPen(QPen(palette.color(QPalette::HighlightedText)));
-		QString text = elidedText(painter->fontMetrics(), textRect.width(), Qt::ElideRight, name);
+		QString text = painter->fontMetrics().elidedText(name, Qt::ElideRight, textRect.width());
 		painter->drawText(textRect, textFlags, text);
 	} else if(type == "User") {
 		QColor fillColor, borderColor;
@@ -168,7 +168,7 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
 		textFlags |= (pTreeWidget->view() == ULV_Detailed ? Qt::AlignTop : Qt::AlignVCenter);
 		//	Leave a padding of 5px on left and right
 		QRect textRect = itemRect.adjusted(statusRect.right() + 5, padding, -(5 + avatarRect.width() + padding), -padding);
-		QString text = elidedText(painter->fontMetrics(), textRect.width(), Qt::ElideRight, name);
+		QString text = painter->fontMetrics().elidedText(name, Qt::ElideRight, textRect.width());
 		painter->drawText(textRect, textFlags, text);
 
 		//	Draw sub text
@@ -178,7 +178,7 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
 				QString userNote = note.toString();
                 painter->setPen(QPen(GRAY_TEXT_COLOR));
 				textFlags = Qt::AlignLeft | Qt::AlignBottom;
-				text = elidedText(painter->fontMetrics(), textRect.width(), Qt::ElideRight, userNote);
+				text = painter->fontMetrics().elidedText(userNote, Qt::ElideRight, textRect.width());
 				painter->drawText(textRect, textFlags, text);
 			}
 		}
