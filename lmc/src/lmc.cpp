@@ -73,7 +73,7 @@ void lmcCore::init(const QString& szCommandArgs) {
 	//	prevent auto app exit when last visible window is closed
 	qApp->setQuitOnLastWindowClosed(false);
 
-	QStringList arguments = szCommandArgs.split("\n", QString::SkipEmptyParts);
+	QStringList arguments = szCommandArgs.split("\n", Qt::SkipEmptyParts);
 	//	remove duplicates
 	arguments = arguments.toSet().toList();
 
@@ -346,7 +346,7 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
 		return doNotExit;
 	}
 
-	QStringList messageList = szMessage.split("\n", QString::SkipEmptyParts);
+	QStringList messageList = szMessage.split("\n", Qt::SkipEmptyParts);
 	//	remove duplicates
 	messageList = messageList.toSet().toList();
 

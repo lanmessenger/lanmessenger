@@ -393,7 +393,7 @@ void lmcMessageLog::onAnchorClicked(const QUrl &url)
         return;
     }
 
-    QStringList linkData = linkPath.split("/", QString::SkipEmptyParts);
+    QStringList linkData = linkPath.split("/", Qt::SkipEmptyParts);
     FileMode mode;
     FileOp op;
 
