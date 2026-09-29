@@ -66,7 +66,7 @@ void FileView::paint(QPainter* painter, const QRect& rect, const QPalette& palet
 	if(displayMode == DM_Selected)
 		painter->setBrush(palette.highlightedText());
 	else
-		painter->setBrush(palette.foreground());
+		painter->setBrush(palette.windowText());
 
 	painter->setPen(QPen(painter->brush(), 1));
 	
