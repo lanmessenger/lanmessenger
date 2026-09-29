@@ -35,7 +35,7 @@ sudo chmod 755 ./package/DEBIAN/postrm
 sudo chmod 755 ./package/DEBIAN/prerm
 sudo chmod 755 ./package/usr/lib/lmc/lmc.sh
 sudo chmod 755 ./package/usr/lib/lmc/whitelist
-sudo dpkg-deb -z9 -Zlzma -b package ../lmc_$1_$(arch)$PACKAGE_MODE.deb
+sudo dpkg-deb -z9 -Zxz -b package ../lmc_$1_$(arch)$PACKAGE_MODE.deb
 
 echo "DONE."
 exit 0

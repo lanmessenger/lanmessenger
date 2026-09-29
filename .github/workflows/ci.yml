@@ -7,10 +7,6 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
-      package:
-        description: Build release packages
-        type: boolean
-        default: false
       version:
         description: Version string used in package names
         type: string
@@ -27,6 +23,9 @@ concurrency:
 jobs:
   build-linux:
     runs-on: ubuntu-24.04
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -74,18 +73,16 @@ jobs:
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
 
       - name: Build packages
-        if: inputs.package
         env:
           PACKAGE_MODE: _min
         run: |
           sudo apt-get install -y alien rpm
           cd lmc/setup/x11
           chmod +x setup rpm_setup
-          sh ./setup "${{ inputs.version }}"
-          sh ./rpm_setup "${{ inputs.version }}"
+          sh ./setup "$PKG_VERSION"
+          sh ./rpm_setup "$PKG_VERSION"
 
       - name: Upload packages
-        if: inputs.package
         uses: actions/upload-artifact@v7
         with:
           name: packages-linux
@@ -93,9 +90,13 @@ jobs:
             lmc/setup/lmc_*_min.deb
             lmc/setup/lmc-*_min.rpm
           if-no-files-found: error
+          retention-days: 3
 
   build-windows:
     runs-on: windows-2022
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -147,23 +148,25 @@ jobs:
           windeployqt --release ..\release\lmc.exe
 
       - name: Build installer
-        if: inputs.package
         shell: cmd
         run: |
           choco install nsis -y --no-progress
           cd lmc\setup\win32
-          call setup.bat release ${{ inputs.version }} ${{ inputs.installer_version }}
+          call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
 
       - name: Upload packages
-        if: inputs.package
         uses: actions/upload-artifact@v7
         with:
           name: packages-windows
           path: lmc/setup/lmc-*-win64.exe
           if-no-files-found: error
+          retention-days: 3
 
   build-macos:
     runs-on: macos-15-intel
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -200,18 +203,17 @@ jobs:
           sh ./scripts/buildmacos ../release/LAN-Messenger.app/Contents/MacOS
 
       - name: Build disk image
-        if: inputs.package
         run: |
           export QTDIR="$QT_ROOT_DIR"
           cd lmc/setup/mac
           chmod +x createdisk addlicense
           sh ./createdisk
-          sh ./addlicense "${{ inputs.version }}"
+          sh ./addlicense "$PKG_VERSION"
 
       - name: Upload packages
-        if: inputs.package
         uses: actions/upload-artifact@v7
         with:
           name: packages-macos
           path: lmc/setup/lmc_*_intel.dmg
           if-no-files-found: error
+          retention-days: 3

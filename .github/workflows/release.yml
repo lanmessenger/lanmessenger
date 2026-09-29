@@ -61,7 +61,6 @@ jobs:
     needs: [version, check-branch]
     uses: ./.github/workflows/ci.yml
     with:
-      package: true
       version: ${{ needs.version.outputs.version }}
       installer_version: ${{ needs.version.outputs.installer_version }}
 
