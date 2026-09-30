@@ -12,10 +12,6 @@
 
 # Qt-es
 
-.qmake.cache
-.qmake.stash
-*.pro.user
-*.pro.user.*
 *.qbs.user
 *.qbs.user.*
 *.moc
@@ -24,6 +20,7 @@ qrc_*.cpp
 ui_*.h
 Makefile*
 *build-*
+build/
 moc_predefs.h
 
 # QtCreator

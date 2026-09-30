@@ -1,8 +1,8 @@
 find_package(Qt5 5.15 REQUIRED COMPONENTS Core Network Widgets)
 
-# qtlockedfile*.cpp are not compiled standalone: qmake drops them from SOURCES
-# as well, they are textually included into qtlocalpeer.cpp inside the
-# QtLP_Private namespace (see qtlocalpeer.cpp:65-71).
+# qtlockedfile*.cpp are not compiled standalone: they are textually included
+# into qtlocalpeer.cpp inside the QtLP_Private namespace
+# (see qtlocalpeer.cpp:65-71).
 add_library(lmcapp SHARED
     src/application.cpp
     src/application.h
@@ -39,19 +39,18 @@ target_link_libraries(lmcapp
 
 if(WIN32)
     target_sources(lmcapp PRIVATE src/lmcappwin32.rc)
-    # qmake: skip_target_version_ext — no version suffix (lmcapp.dll/lmcapp.lib),
-    # the CI hack "lmcapp2.lib -> lmcapp.lib" is no longer needed.
+    # No version suffix in the DLL/import-lib names (lmcapp.dll/lmcapp.lib).
     set_target_properties(lmcapp PROPERTIES PREFIX "" OUTPUT_NAME lmcapp)
 else()
-    # liblmcapp.so.2.0.0 with SONAME liblmcapp.so.2 (buildx11 copies .so.2),
-    # on macOS: liblmcapp.2.0.0.dylib.
+    # liblmcapp.so.2.0.0 with SONAME liblmcapp.so.2, on macOS:
+    # liblmcapp.2.0.0.dylib.
     set_target_properties(lmcapp PROPERTIES VERSION 2.0.0 SOVERSION 2)
 endif()
 
 if(APPLE)
-    # buildmacos ships liblmcapp.2.dylib next to the app binary and rewrites the
-    # load path to @executable_path with install_name_tool; bake that install
-    # name in at link time instead.
+    # The layout ships liblmcapp.2.dylib next to the app binary with load path
+    # @executable_path; bake that install name in at link time (no
+    # install_name_tool post-processing).
     set_target_properties(lmcapp PROPERTIES
         MACOSX_RPATH OFF
         INSTALL_NAME_DIR "@executable_path"
@@ -64,6 +63,6 @@ set_target_properties(lmcapp PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 )
 
-# Runtime install is part of the release layout rules in lmc/CMakeLists.txt
-# (qmake's INSTALLS += target -> /usr/local/lib is unused; packages are built
-# by lmc/setup/** from the release layout).
+# Runtime install is part of the release layout rules in lmc/CMakeLists.txt;
+# there is no system-wide install (packages are built by lmc/setup/** from
+# the release layout).

@@ -5,7 +5,7 @@ endif()
 find_package(OpenSSL REQUIRED)
 
 # Generated runtime files (lmc.rcc, *.qm) land here; the flat release layout
-# itself is staged from the install() rules at the bottom (step 1.3).
+# itself is staged from the install() rules at the bottom.
 set(LMC_RUNTIME_DIR ${CMAKE_CURRENT_BINARY_DIR}/runtime)
 set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/resources)
 
@@ -218,17 +218,17 @@ add_custom_target(lmc_runtime_files ALL
 add_dependencies(lmc lmc_runtime_files)
 
 # ---------------------------------------------------------------------------
-# Release layout (step 1.3): the install() rules below reproduce the flat
-# runtime tree the qmake scripts (lmc/src/scripts/build*) stage into lmc/release.
+# Release layout (step 1.3): the install() rules below stage the flat runtime
+# tree that lmc/setup/** packages (from lmc/release in CI via LMC_RELEASE_DIR).
 # Local staging: cmake --build <build-dir> --target package-local
 # ---------------------------------------------------------------------------
 if(APPLE)
-    # buildmacos stages everything into LAN-Messenger.app/Contents/MacOS and Qt
+    # macOS: everything goes into LAN-Messenger.app/Contents/MacOS and Qt
     # imageformat plugins into Contents/Plugins (see main.cpp setLibraryPaths).
     set(LMC_LAYOUT_BIN_DIR LAN-Messenger.app/Contents/MacOS)
     set(LMC_LAYOUT_LICENSE COPYING)
 elseif(WIN32)
-    # buildwin32.bat writes the license as COPYING.txt.
+    # Windows: the license file is named COPYING.txt.
     set(LMC_LAYOUT_BIN_DIR .)
     set(LMC_LAYOUT_LICENSE COPYING.txt)
 else()
@@ -242,8 +242,8 @@ else()
     install(TARGETS lmc RUNTIME DESTINATION .)
 endif()
 
-# lmcapp runtime library next to the binary: build* copy the versioned SONAME
-# file (cp of the liblmcapp.so.2 / liblmcapp.2.dylib symlink).
+# lmcapp runtime library next to the binary: ship the versioned SONAME file
+# (the liblmcapp.so.2 / liblmcapp.2.dylib symlink name).
 if(WIN32)
     install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR})
 elseif(APPLE)
@@ -257,7 +257,7 @@ endif()
 install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
         FILES_MATCHING PATTERN "*.qm")
-# Qt's own translations shipped in the sources (build*: cp -r resources/lang/system).
+# Qt's own translations shipped in the sources (resources/lang/system).
 install(DIRECTORY ${LMC_RES_DIR}/lang/system DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang)
 # Themes without Classic (bundled into resource.qrc) and notification sounds.
 install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
@@ -266,18 +266,34 @@ install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})
 
-# Qt imageformat plugins: build* copy them from $QTDIR/plugins — ask qmake for
-# the plugin directory instead of hardcoding it. Windows ships none here
-# (windeployqt covers them in CI).
-get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
-execute_process(
-    COMMAND ${_qmake_executable} -query QT_INSTALL_PLUGINS
-    OUTPUT_VARIABLE QT_PLUGINS_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE _qmake_query_result
-)
-if(NOT _qmake_query_result EQUAL 0)
-    message(FATAL_ERROR "qmake -query QT_INSTALL_PLUGINS failed")
+# Qt imageformat plugins live in the Qt installation's plugins/ directory:
+# locate it relative to the Qt5Core CMake package (covers both the standard
+# <prefix>/plugins layout and Debian's multiarch qt5/plugins layout). Override
+# with -DQT_PLUGINS_DIR=<path> for other installations. Windows ships none
+# here (windeployqt covers them in CI).
+if(NOT WIN32)
+    set(QT_PLUGINS_DIR "" CACHE PATH
+        "Qt plugin directory (autodetected from the Qt5Core package when empty)")
+    if(NOT QT_PLUGINS_DIR)
+        foreach(_plugins_cand
+                ../../../plugins
+                ../../plugins
+                ../../../qt5/plugins
+                ../../qt5/plugins
+                ../../../qt/plugins
+                ../../qt/plugins)
+            get_filename_component(_plugins_abs
+                "${Qt5Core_DIR}/${_plugins_cand}" ABSOLUTE)
+            if(EXISTS "${_plugins_abs}/imageformats")
+                set(QT_PLUGINS_DIR "${_plugins_abs}")
+                break()
+            endif()
+        endforeach()
+    endif()
+    if(NOT QT_PLUGINS_DIR)
+        message(FATAL_ERROR
+            "Could not locate the Qt plugin directory; pass -DQT_PLUGINS_DIR=<path>")
+    endif()
 endif()
 if(APPLE)
     foreach(_plugin libqgif.dylib libqico.dylib libqjpeg.dylib libqtiff.dylib)
@@ -292,7 +308,7 @@ elseif(UNIX)
 endif()
 
 if(WIN32)
-    # buildwin32.bat: OpenSSL DLLs from the openssl/bin redistributable.
+    # OpenSSL DLLs from the openssl/bin redistributable.
     file(GLOB _openssl_dlls
         ${CMAKE_SOURCE_DIR}/openssl/bin/libcrypto*.dll
         ${CMAKE_SOURCE_DIR}/openssl/bin/libssl*.dll)
@@ -302,7 +318,7 @@ if(WIN32)
 endif()
 
 if(UNIX AND NOT APPLE)
-    # buildx11: launcher (sets LD_LIBRARY_PATH) and the Unity tray whitelist helper.
+    # Launcher script (sets LD_LIBRARY_PATH) and the Unity tray whitelist helper.
     install(PROGRAMS
         src/scripts/lan-messenger.sh
         src/scripts/whitelist
@@ -310,10 +326,9 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
-# package-local: stage the complete layout in one command (qmake equivalent:
-# scripts/buildx11, buildwin32.bat or buildmacos). LMC_RELEASE_DIR defaults to
-# <build>/release; CI points it at lmc/release where lmc/setup/** expects the
-# layout.
+# package-local: stage the complete layout in one command. LMC_RELEASE_DIR
+# defaults to <build>/release; CI points it at lmc/release where lmc/setup/**
+# expects the layout.
 set(LMC_RELEASE_DIR "${CMAKE_BINARY_DIR}/release" CACHE PATH
     "Release layout staging directory for the package-local target")
 add_custom_target(package-local
