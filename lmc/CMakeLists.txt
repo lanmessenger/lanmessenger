@@ -4,9 +4,10 @@ if(UNIX)
 endif()
 find_package(OpenSSL REQUIRED)
 
-# Release layout: binary and runtime files end up here (like qmake
-# DESTDIR = ../release); step 1.3 completes the layout (themes/sounds/plugins).
-set(LMC_RELEASE_DIR ${CMAKE_BINARY_DIR}/release)
+# Generated runtime files (lmc.rcc, *.qm) land here; the flat release layout
+# itself is staged from the install() rules at the bottom (step 1.3).
+set(LMC_RUNTIME_DIR ${CMAKE_CURRENT_BINARY_DIR}/runtime)
+set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/resources)
 
 add_executable(lmc
     src/aboutdialog.cpp
@@ -155,33 +156,22 @@ else()
     set_target_properties(lmc PROPERTIES OUTPUT_NAME lan-messenger)
 endif()
 
-# All configurations write into a single release dir: the custom commands
-# below know nothing about multi-config <CONFIG> subdirectories.
-set_target_properties(lmc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${LMC_RELEASE_DIR}
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${LMC_RELEASE_DIR}
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${LMC_RELEASE_DIR}
-    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${LMC_RELEASE_DIR}
-    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${LMC_RELEASE_DIR}
-)
-
 # External resource bundle (2nd role of resource.qrc): looked up at runtime as
-# <cwd>/lmc.rcc (StdLocation::resourceFile(), stdlocation.h) and registered via
-# QResource::registerResource (main.cpp). The 1st role — embedding into the
-# binary — is done by AUTORCC (src/resource.qrc in the target sources).
+# <appdir>/lmc.rcc (main sets cwd to applicationDirPath; StdLocation::resourceFile())
+# and registered via QResource::registerResource (main.cpp). The 1st role —
+# embedding into the binary — is done by AUTORCC (src/resource.qrc in the sources).
 add_custom_command(
-    OUTPUT ${LMC_RELEASE_DIR}/lmc.rcc
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RELEASE_DIR}
+    OUTPUT ${LMC_RUNTIME_DIR}/lmc.rcc
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}
     COMMAND Qt5::rcc -binary ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.qrc
-            -o ${LMC_RELEASE_DIR}/lmc.rcc
+            -o ${LMC_RUNTIME_DIR}/lmc.rcc
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.qrc
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
     COMMENT "Building external resource bundle lmc.rcc"
     VERBATIM
 )
 
-# Translations: lang/*.qm (sysLangDir = <cwd>/lang, stdlocation.h) plus
-# lang/system — a copy of resources/lang/system (Qt's own translations).
+# Translations: lang/*.qm (sysLangDir = <appdir>/lang, stdlocation.h).
 set(LMC_TS_FILES
     src/ar_SA.ts
     src/bg_BG.ts
@@ -208,10 +198,10 @@ set(LMC_TS_FILES
 set(LMC_QM_OUTPUTS "")
 foreach(ts IN LISTS LMC_TS_FILES)
     get_filename_component(qm_name ${ts} NAME_WE)
-    set(qm_out ${LMC_RELEASE_DIR}/lang/${qm_name}.qm)
+    set(qm_out ${LMC_RUNTIME_DIR}/lang/${qm_name}.qm)
     add_custom_command(
         OUTPUT ${qm_out}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RELEASE_DIR}/lang
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}/lang
         COMMAND Qt5::lrelease ${CMAKE_CURRENT_SOURCE_DIR}/${ts} -qm ${qm_out}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${ts}
         COMMENT "lrelease ${qm_name}.ts"
@@ -220,23 +210,113 @@ foreach(ts IN LISTS LMC_TS_FILES)
     list(APPEND LMC_QM_OUTPUTS ${qm_out})
 endforeach()
 
-file(GLOB LMC_SYSTEM_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/resources/lang/system/*.qm)
-add_custom_command(
-    OUTPUT ${LMC_RELEASE_DIR}/lang/system.stamp
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RELEASE_DIR}/lang
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/resources/lang/system
-            ${LMC_RELEASE_DIR}/lang/system
-    COMMAND ${CMAKE_COMMAND} -E touch ${LMC_RELEASE_DIR}/lang/system.stamp
-    DEPENDS ${LMC_SYSTEM_QM_FILES}
-    COMMENT "Copying system Qt translations to lang/system"
-    VERBATIM
-)
-
 add_custom_target(lmc_runtime_files ALL
     DEPENDS
-        ${LMC_RELEASE_DIR}/lmc.rcc
-        ${LMC_RELEASE_DIR}/lang/system.stamp
+        ${LMC_RUNTIME_DIR}/lmc.rcc
         ${LMC_QM_OUTPUTS}
 )
 add_dependencies(lmc lmc_runtime_files)
+
+# ---------------------------------------------------------------------------
+# Release layout (step 1.3): the install() rules below reproduce the flat
+# runtime tree the qmake scripts (lmc/src/scripts/build*) stage into lmc/release.
+# Local staging: cmake --build <build-dir> --target package-local
+# ---------------------------------------------------------------------------
+if(APPLE)
+    # buildmacos stages everything into LAN-Messenger.app/Contents/MacOS and Qt
+    # imageformat plugins into Contents/Plugins (see main.cpp setLibraryPaths).
+    set(LMC_LAYOUT_BIN_DIR LAN-Messenger.app/Contents/MacOS)
+    set(LMC_LAYOUT_LICENSE COPYING)
+elseif(WIN32)
+    # buildwin32.bat writes the license as COPYING.txt.
+    set(LMC_LAYOUT_BIN_DIR .)
+    set(LMC_LAYOUT_LICENSE COPYING.txt)
+else()
+    set(LMC_LAYOUT_BIN_DIR .)
+    set(LMC_LAYOUT_LICENSE COPYING)
+endif()
+
+if(APPLE)
+    install(TARGETS lmc BUNDLE DESTINATION .)
+else()
+    install(TARGETS lmc RUNTIME DESTINATION .)
+endif()
+
+# lmcapp runtime library next to the binary: build* copy the versioned SONAME
+# file (cp of the liblmcapp.so.2 / liblmcapp.2.dylib symlink).
+if(WIN32)
+    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR})
+elseif(APPLE)
+    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR}
+            RENAME liblmcapp.2.dylib)
+else()
+    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR}
+            RENAME liblmcapp.so.2)
+endif()
+
+install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
+install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
+        FILES_MATCHING PATTERN "*.qm")
+# Qt's own translations shipped in the sources (build*: cp -r resources/lang/system).
+install(DIRECTORY ${LMC_RES_DIR}/lang/system DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang)
+# Themes without Classic (bundled into resource.qrc) and notification sounds.
+install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
+        PATTERN "Classic" EXCLUDE)
+install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
+install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
+        RENAME ${LMC_LAYOUT_LICENSE})
+
+# Qt imageformat plugins: build* copy them from $QTDIR/plugins — ask qmake for
+# the plugin directory instead of hardcoding it. Windows ships none here
+# (windeployqt covers them in CI).
+get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
+execute_process(
+    COMMAND ${_qmake_executable} -query QT_INSTALL_PLUGINS
+    OUTPUT_VARIABLE QT_PLUGINS_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE _qmake_query_result
+)
+if(NOT _qmake_query_result EQUAL 0)
+    message(FATAL_ERROR "qmake -query QT_INSTALL_PLUGINS failed")
+endif()
+if(APPLE)
+    foreach(_plugin libqgif.dylib libqico.dylib libqjpeg.dylib libqtiff.dylib)
+        install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
+                DESTINATION LAN-Messenger.app/Contents/Plugins/imageformats)
+    endforeach()
+elseif(UNIX)
+    foreach(_plugin libqgif.so libqico.so libqjpeg.so)
+        install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
+                DESTINATION imageformats)
+    endforeach()
+endif()
+
+if(WIN32)
+    # buildwin32.bat: OpenSSL DLLs from the openssl/bin redistributable.
+    file(GLOB _openssl_dlls
+        ${CMAKE_SOURCE_DIR}/openssl/bin/libcrypto*.dll
+        ${CMAKE_SOURCE_DIR}/openssl/bin/libssl*.dll)
+    if(_openssl_dlls)
+        install(FILES ${_openssl_dlls} DESTINATION .)
+    endif()
+endif()
+
+if(UNIX AND NOT APPLE)
+    # buildx11: launcher (sets LD_LIBRARY_PATH) and the Unity tray whitelist helper.
+    install(PROGRAMS
+        src/scripts/lan-messenger.sh
+        src/scripts/whitelist
+        DESTINATION .
+    )
+endif()
+
+# package-local: stage the complete layout into <build>/release in one command
+# (qmake equivalent: scripts/buildx11, buildwin32.bat or buildmacos).
+set(LMC_PACKAGE_LOCAL_DIR ${CMAKE_BINARY_DIR}/release)
+add_custom_target(package-local
+    COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR}
+            --config $<CONFIG> --prefix ${LMC_PACKAGE_LOCAL_DIR}
+    COMMENT "Staging release layout into ${LMC_PACKAGE_LOCAL_DIR}"
+    VERBATIM
+)
+add_dependencies(package-local lmc lmcapp lmc_runtime_files)

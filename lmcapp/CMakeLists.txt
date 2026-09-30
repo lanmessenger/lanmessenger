@@ -48,15 +48,22 @@ else()
     set_target_properties(lmcapp PROPERTIES VERSION 2.0.0 SOVERSION 2)
 endif()
 
+if(APPLE)
+    # buildmacos ships liblmcapp.2.dylib next to the app binary and rewrites the
+    # load path to @executable_path with install_name_tool; bake that install
+    # name in at link time instead.
+    set_target_properties(lmcapp PROPERTIES
+        MACOSX_RPATH OFF
+        INSTALL_NAME_DIR "@executable_path"
+    )
+endif()
+
 set_target_properties(lmcapp PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 )
 
-# qmake: unix: target.path = /usr/local/lib (INSTALLS += target)
-install(TARGETS lmcapp
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
+# Runtime install is part of the release layout rules in lmc/CMakeLists.txt
+# (qmake's INSTALLS += target -> /usr/local/lib is unused; packages are built
+# by lmc/setup/** from the release layout).
