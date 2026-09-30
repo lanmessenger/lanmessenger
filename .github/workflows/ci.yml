@@ -227,3 +227,87 @@ jobs:
           path: lmc/setup/lmc_*_intel.dmg
           if-no-files-found: error
           retention-days: 3
+
+  build-cmake:
+    name: cmake (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake \
+            qtbase5-dev qtbase5-dev-tools qttools5-dev qttools5-dev-tools \
+            qtmultimedia5-dev \
+            libssl-dev libgl1-mesa-dev \
+            xvfb xauth
+
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+
+      - uses: jurplel/install-qt-action@v4
+        if: runner.os == 'Windows'
+        with:
+          version: '5.15.2'
+          arch: win64_msvc2019_64
+          cache: true
+
+      - uses: jurplel/install-qt-action@v4
+        if: runner.os == 'macOS'
+        with:
+          version: '5.15.2'
+          arch: clang_64
+          cache: true
+
+      - name: Install OpenSSL (Windows)
+        if: runner.os == 'Windows'
+        run: vcpkg install openssl:x64-windows
+
+      - name: Prepare OpenSSL paths (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
+          Copy-Item -Recurse $root/installed/x64-windows/include/openssl openssl/include/
+          Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
+          Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
+          Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+
+      - name: Install OpenSSL (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install openssl@3
+          mkdir -p openssl
+          ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
+          ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
+
+      - name: Configure
+        shell: bash
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
+
+      - name: Smoke test (Linux)
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        run: |
+          cd lmc/release
+          USER=ci timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit

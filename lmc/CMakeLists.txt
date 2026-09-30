@@ -310,13 +310,16 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
-# package-local: stage the complete layout into <build>/release in one command
-# (qmake equivalent: scripts/buildx11, buildwin32.bat or buildmacos).
-set(LMC_PACKAGE_LOCAL_DIR ${CMAKE_BINARY_DIR}/release)
+# package-local: stage the complete layout in one command (qmake equivalent:
+# scripts/buildx11, buildwin32.bat or buildmacos). LMC_RELEASE_DIR defaults to
+# <build>/release; CI points it at lmc/release where lmc/setup/** expects the
+# layout.
+set(LMC_RELEASE_DIR "${CMAKE_BINARY_DIR}/release" CACHE PATH
+    "Release layout staging directory for the package-local target")
 add_custom_target(package-local
     COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR}
-            --config $<CONFIG> --prefix ${LMC_PACKAGE_LOCAL_DIR}
-    COMMENT "Staging release layout into ${LMC_PACKAGE_LOCAL_DIR}"
+            --config $<CONFIG> --prefix ${LMC_RELEASE_DIR}
+    COMMENT "Staging release layout into ${LMC_RELEASE_DIR}"
     VERBATIM
 )
 add_dependencies(package-local lmc lmcapp lmc_runtime_files)
