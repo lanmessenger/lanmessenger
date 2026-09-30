@@ -18,4 +18,4 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 add_subdirectory(lmcapp)
-# add_subdirectory(lmc) # step 1.2
+add_subdirectory(lmc)
