@@ -75,6 +75,7 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+          pattern: 'packages-*'
 
       - name: List release files
         run: ls -la dist

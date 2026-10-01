@@ -25,11 +25,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Linux, Qt 6.8 from aqt: compile/smoke check against the primary target.
+  # No packages here; the runnable layout is uploaded for manual testing.
   build-linux:
     runs-on: ubuntu-24.04
-    env:
-      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,8 +39,62 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential cmake \
-            qtbase5-dev qtbase5-dev-tools qttools5-dev qttools5-dev-tools \
-            qtmultimedia5-dev \
+            libssl-dev libgl1-mesa-dev \
+            xvfb xauth
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          modules: 'qtmultimedia qtshadertools'
+          cache: true
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
+
+      # Run the binary directly: lan-messenger.sh overwrites LD_LIBRARY_PATH
+      # with its own directory only, which would hide the aqt Qt libraries.
+      - name: Smoke test
+        run: |
+          export USER=ci
+          cd lmc/release
+          export LD_LIBRARY_PATH="$PWD:$QT_ROOT_DIR/lib"
+          timeout 60 xvfb-run -a ./lan-messenger /loopback /noconfig /quit
+
+      - name: Upload release layout
+        uses: actions/upload-artifact@v7
+        with:
+          name: manual-test-linux-qt68
+          path: lmc/release
+          if-no-files-found: error
+          retention-days: 3
+
+  # Linux, system Qt 6.4 (Ubuntu 24.04): the minimum supported Qt. Builds the
+  # deb/rpm packages against it and smoke-tests the same layout they ship.
+  build-linux-deb:
+    runs-on: ubuntu-24.04
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
+      QTDIR: /usr/lib/x86_64-linux-gnu/qt6
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake \
+            qt6-base-dev qt6-base-dev-tools \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+            qt6-multimedia-dev \
             libssl-dev libgl1-mesa-dev \
             xvfb xauth
 
@@ -94,8 +147,8 @@ jobs:
 
       - uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
-          arch: win64_msvc2019_64
+          version: '6.8.3'
+          arch: win64_msvc2022_64
           cache: true
 
       - name: Install OpenSSL
@@ -129,6 +182,16 @@ jobs:
           set QTDIR=%QT_ROOT_DIR%
           windeployqt --release lmc\release\lmc.exe
 
+      # QSslSocket needs the Qt 6 TLS backend plugins; deploy them explicitly
+      # in case windeployqt skipped them.
+      - name: Ensure TLS plugins
+        shell: pwsh
+        run: |
+          $dst = "lmc/release/tls"
+          if (-not (Test-Path $dst)) {
+            Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
+          }
+
       - name: Build installer
         shell: cmd
         run: |
@@ -156,8 +219,9 @@ jobs:
 
       - uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
+          version: '6.8.3'
           arch: clang_64
+          modules: 'qtmultimedia qtshadertools'
           cache: true
 
       - name: Install OpenSSL

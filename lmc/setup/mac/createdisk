@@ -12,9 +12,15 @@ echo "Done."
 # Copy all the required dependencies into the app bundle, and set correct lookup paths
 $QTDIR/bin/macdeployqt LAN-Messenger.app -verbose=2
 
-install_name_tool -change $QTDIR/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
-install_name_tool -change $QTDIR/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
-install_name_tool -change $QTDIR/lib/QtNetwork.framework/Versions/5/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+# Rewrite the helper dylib's Qt framework references to the bundled copies.
+# Handles any framework version directory and both absolute and @rpath names.
+for dep in $(otool -L LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib | awk '/Qt[A-Za-z0-9]*\.framework\// {print $1}'); do
+  case "$dep" in
+    @executable_path/*) continue ;;
+  esac
+  rel=$(echo "$dep" | sed 's|.*\(Qt[A-Za-z0-9]*\.framework/\)|\1|')
+  install_name_tool -change "$dep" "@executable_path/../Frameworks/$rel" LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+done
 
 # create a blank disk with sufficient space
 hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+ -volname LAN-Messenger
