@@ -34,15 +34,15 @@
 
 class lmcTrace {
 public:
-	lmcTrace(void);
-	~lmcTrace(void);
+  lmcTrace(void);
+  ~lmcTrace(void);
 
-	static void init(XmlMessage* pInitParams);
-    static void write(const QString& string, bool verbose = true);
+  static void init(XmlMessage* pInitParams);
+  static void write(const QString& string, bool verbose = true);
 
 private:
-	static bool traceMode;
-	static QString fileName;
+  static bool traceMode;
+  static QString fileName;
 };
 
 #endif // TRACE_H

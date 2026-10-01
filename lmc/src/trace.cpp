@@ -34,31 +34,31 @@ lmcTrace::~lmcTrace(void) {
 }
 
 void lmcTrace::init(XmlMessage* pInitParams) {
-	traceMode = Helper::stringToBool(pInitParams->data(XN_TRACEMODE));
-	fileName = pInitParams->data(XN_LOGFILE);
+  traceMode = Helper::stringToBool(pInitParams->data(XN_TRACEMODE));
+  fileName = pInitParams->data(XN_LOGFILE);
 
-	write("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"\
-          "         " IDA_TITLE " " IDA_VERSION " application log\n"\
-		  "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+  write("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
+        "         " IDA_TITLE " " IDA_VERSION " application log\n"
+        "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 }
 
 void lmcTrace::write(const QString& string, bool verbose) {
-    if(!traceMode || !verbose)
-		return;
+  if(!traceMode || !verbose)
+    return;
 
-	QDir logDir(StdLocation::logDir());
-	if(!logDir.exists())
-		logDir.mkdir(logDir.absolutePath());
-	QFile file(fileName);
-	if(!file.open(QIODevice::Text | QIODevice::Append))
-		return;
+  QDir logDir(StdLocation::logDir());
+  if(!logDir.exists())
+    logDir.mkdir(logDir.absolutePath());
+  QFile file(fileName);
+  if(!file.open(QIODevice::Text | QIODevice::Append))
+    return;
 
-	QTextStream stream(&file);
+  QTextStream stream(&file);
 
-	QString timeStamp = "[" + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss") + "] ";
-	QStringList stringList = string.split("\n", Qt::SkipEmptyParts);
-	for(int index = 0; index < stringList.count(); index++)
-		stream << timeStamp << stringList[index] << "\n";
+  QString timeStamp = "[" + QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss") + "] ";
+  QStringList stringList = string.split("\n", Qt::SkipEmptyParts);
+  for(int index = 0; index < stringList.count(); index++)
+    stream << timeStamp << stringList[index] << "\n";
 
-	file.close();
+  file.close();
 }

@@ -28,24 +28,24 @@
 #include <QTableWidget>
 
 class lmcImagePicker : public QTableWidget {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcImagePicker(QWidget *parent, QList<QString>* source, int picSize, int columns, int* selected, int actionIndex);
-	~lmcImagePicker();
+  lmcImagePicker(QWidget* parent, QList<QString>* source, int picSize, int columns, int* selected, int actionIndex);
+  ~lmcImagePicker();
 
 protected:
-	void currentChanged(const QModelIndex& current, const QModelIndex& preious);
-	void mouseMoveEvent(QMouseEvent* e);
-	void paintEvent(QPaintEvent* e);
-	void leaveEvent(QEvent* e);
-	
-private:
-	int* selected;
-	int actionIndex;
-	int max_col;
+  void currentChanged(const QModelIndex& current, const QModelIndex& preious);
+  void mouseMoveEvent(QMouseEvent* e);
+  void paintEvent(QPaintEvent* e);
+  void leaveEvent(QEvent* e);
 
-	QTableWidgetItem* hoverItem;
+private:
+  int* selected;
+  int actionIndex;
+  int max_col;
+
+  QTableWidgetItem* hoverItem;
 };
 
 #endif // IMAGEPICKER_H

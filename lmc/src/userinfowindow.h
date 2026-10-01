@@ -32,28 +32,27 @@
 #include "stdlocation.h"
 #include "xmlmessage.h"
 
-class lmcUserInfoWindow : public QDialog
-{
-	Q_OBJECT
+class lmcUserInfoWindow : public QDialog {
+  Q_OBJECT
 
 public:
-	lmcUserInfoWindow(QWidget *parent = 0);
-	~lmcUserInfoWindow();
+  lmcUserInfoWindow(QWidget* parent = 0);
+  ~lmcUserInfoWindow();
 
-	void init(void);
-	void setInfo(XmlMessage* pMessage);
-	void settingsChanged(void);
+  void init(void);
+  void setInfo(XmlMessage* pMessage);
+  void settingsChanged(void);
 
 protected:
-	void changeEvent(QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
 
 private:
-	void setUIText(void);
-	void fillFields(void);
+  void setUIText(void);
+  void fillFields(void);
 
-    Ui::UserInfoWindow ui;
-	lmcSettings* pSettings;
-	XmlMessage userInfo;
+  Ui::UserInfoWindow ui;
+  lmcSettings* pSettings;
+  XmlMessage userInfo;
 };
 
 #endif // USERINFOWINDOW_H

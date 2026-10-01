@@ -31,17 +31,17 @@
 
 class lmcImagePickerAction : public QWidgetAction {
 public:
-	lmcImagePickerAction(QObject* parent, const QString source[], int sourceCount, int picSize, int columns, int* selected);
-	~lmcImagePickerAction(void);
+  lmcImagePickerAction(QObject* parent, const QString source[], int sourceCount, int picSize, int columns, int* selected);
+  ~lmcImagePickerAction(void);
 
-	void releaseWidget(QWidget* widget);
-	QWidget* createWidget(QWidget* parent);
+  void releaseWidget(QWidget* widget);
+  QWidget* createWidget(QWidget* parent);
 
 private:
-	QList<QString>* source;
-	int picSize;
-	int columns;
-	int* selected;
+  QList<QString>* source;
+  int picSize;
+  int columns;
+  int* selected;
 };
 
 #endif // IMAGEPICKERACTION_H

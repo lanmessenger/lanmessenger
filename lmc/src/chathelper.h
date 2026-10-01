@@ -30,41 +30,40 @@
 #include "chatdefinitions.h"
 #include "xmlmessage.h"
 
-class QTextBlockData : public QTextBlockUserData
-{
+class QTextBlockData : public QTextBlockUserData {
 public:
-    QTextBlockData(QString id);
-    virtual ~QTextBlockData();
+  QTextBlockData(QString id);
+  virtual ~QTextBlockData();
 
-    QString id;
+  QString id;
 };
 
 struct SingleMessage {
-	MessageType type;
-	QString userId;
-	QString userName;
-	XmlMessage message;
-	QString id;	// secondary id for more efficient traversal
+  MessageType type;
+  QString userId;
+  QString userName;
+  XmlMessage message;
+  QString id; // secondary id for more efficient traversal
 
-	SingleMessage() {}
-	SingleMessage(MessageType mType, QString szUserId, QString szUserName, XmlMessage xmlMessage, QString szId = QString()) {
-		type = mType;
-		userId = szUserId;
-		userName = szUserName;
-		message = xmlMessage;
-		id = szId;
-	}
+  SingleMessage() {}
+  SingleMessage(MessageType mType, QString szUserId, QString szUserName, XmlMessage xmlMessage, QString szId = QString()) {
+    type = mType;
+    userId = szUserId;
+    userName = szUserName;
+    message = xmlMessage;
+    id = szId;
+  }
 };
 
-QDataStream &operator << (QDataStream &out, const SingleMessage &message);
-QDataStream &operator >> (QDataStream &in, SingleMessage &message);
+QDataStream& operator<<(QDataStream& out, const SingleMessage& message);
+QDataStream& operator>>(QDataStream& in, SingleMessage& message);
 
 class ChatHelper {
 public:
-	static void makeHtmlSafe(QString* lpszMessage);
-	static QString replaceSmiley(QString* lpszHtml);
-	static void encodeSmileys(QString* lpszMessage);
-	static void decodeSmileys(QString* lpszMessage);
+  static void makeHtmlSafe(QString* lpszMessage);
+  static QString replaceSmiley(QString* lpszHtml);
+  static void encodeSmileys(QString* lpszMessage);
+  static void decodeSmileys(QString* lpszMessage);
 };
 
 #endif // CHATHELPER_H

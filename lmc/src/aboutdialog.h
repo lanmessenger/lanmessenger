@@ -32,23 +32,23 @@
 #include "settings.h"
 
 class lmcAboutDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-    lmcAboutDialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
-	~lmcAboutDialog(void);
+  lmcAboutDialog(QWidget* parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
+  ~lmcAboutDialog(void);
 
-	void init(void);
-	void settingsChanged(void);
+  void init(void);
+  void settingsChanged(void);
 
 protected:
-	void changeEvent(QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
 
 private:
-	void setUIText(void);
+  void setUIText(void);
 
-	Ui::AboutDialog ui;
-	lmcSettings* pSettings;
+  Ui::AboutDialog ui;
+  lmcSettings* pSettings;
 };
 
 #endif // ABOUTDIALOG_H

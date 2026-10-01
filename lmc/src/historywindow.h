@@ -35,35 +35,34 @@
 #include "historytreewidget.h"
 #include "messagelog.h"
 
-class lmcHistoryWindow : public QWidget
-{
-	Q_OBJECT
+class lmcHistoryWindow : public QWidget {
+  Q_OBJECT
 
 public:
-    lmcHistoryWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
-	~lmcHistoryWindow();
+  lmcHistoryWindow(QWidget* parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
+  ~lmcHistoryWindow();
 
-	void init(void);
-	void updateList(void);
-	void stop(void);
-	void settingsChanged(void);
+  void init(void);
+  void updateList(void);
+  void stop(void);
+  void settingsChanged(void);
 
 protected:
-    bool eventFilter(QObject* pObject, QEvent* pEvent);
-	void changeEvent(QEvent* pEvent);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
 
 private slots:
-	void tvMsgList_currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
-	void btnClearHistory_clicked(void);
+  void tvMsgList_currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
+  void btnClearHistory_clicked(void);
 
 private:
-	void setUIText(void);
-	void displayList(void);
+  void setUIText(void);
+  void displayList(void);
 
-	Ui::HistoryWindow ui;
-	lmcSettings* pSettings;
-	lmcMessageLog* pMessageLog;
-	QList<MsgInfo> msgList;
+  Ui::HistoryWindow ui;
+  lmcSettings* pSettings;
+  lmcMessageLog* pMessageLog;
+  QList<MsgInfo> msgList;
 };
 
 #endif // HISTORYWINDOW_H

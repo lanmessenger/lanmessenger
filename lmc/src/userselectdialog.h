@@ -30,33 +30,32 @@
 #include "shared.h"
 #include "settings.h"
 
-class lmcUserSelectDialog : public QDialog
-{
-    Q_OBJECT
+class lmcUserSelectDialog : public QDialog {
+  Q_OBJECT
 
 public:
-	lmcUserSelectDialog(QWidget *parent = 0);
-	~lmcUserSelectDialog();
+  lmcUserSelectDialog(QWidget* parent = 0);
+  ~lmcUserSelectDialog();
 
-	void init(QList<QTreeWidgetItem*>* pContactsList);
+  void init(QList<QTreeWidgetItem*>* pContactsList);
 
-	QStringList selectedContacts;
+  QStringList selectedContacts;
 
 protected:
-	void changeEvent(QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
 
 private slots:
-	void btnOK_clicked(void);
-	void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
+  void btnOK_clicked(void);
+  void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
 
 private:
-	void setUIText(void);
+  void setUIText(void);
 
-	Ui::UserSelectDialog ui;
-	lmcSettings* pSettings;
-	bool parentToggling;
-	bool childToggling;
-	int selectedCount;
+  Ui::UserSelectDialog ui;
+  lmcSettings* pSettings;
+  bool parentToggling;
+  bool childToggling;
+  int selectedCount;
 };
 
 #endif // USERSELECTDIALOG_H

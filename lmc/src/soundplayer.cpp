@@ -34,73 +34,71 @@
 #include "soundplayer.h"
 
 #ifdef Q_OS_WIN
-typedef BOOL (WINAPI *sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
+typedef BOOL(WINAPI* sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
 static sndPlaySoundFunc sndPlaySoundFromDll = nullptr;
 #endif
 
 lmcSoundPlayer::lmcSoundPlayer(void) {
-	pSettings = new lmcSettings();
-	for(int index = 0; index < SE_Max; index++) {
-		eventState[index] = Qt::Checked;
-		sounds[index] = soundFile[index];
-	}
-    settingsChanged();
+  pSettings = new lmcSettings();
+  for(int index = 0; index < SE_Max; index++) {
+    eventState[index] = Qt::Checked;
+    sounds[index] = soundFile[index];
+  }
+  settingsChanged();
 #ifdef Q_OS_WIN
-    if(sndPlaySoundFromDll == nullptr) {
-        QLibrary winmmDll("winmm");
-        sndPlaySoundFromDll = (sndPlaySoundFunc) winmmDll.resolve("sndPlaySoundA");
-    }
+  if(sndPlaySoundFromDll == nullptr) {
+    QLibrary winmmDll("winmm");
+    sndPlaySoundFromDll = (sndPlaySoundFunc)winmmDll.resolve("sndPlaySoundA");
+  }
 #endif
 }
 
-bool lmcSoundPlayer::isAvailable()
-{
+bool lmcSoundPlayer::isAvailable() {
 #ifdef Q_OS_WIN
-    return sndPlaySoundFromDll != nullptr;
+  return sndPlaySoundFromDll != nullptr;
 #else
-    return !QMediaDevices::audioOutputs().isEmpty();
+  return !QMediaDevices::audioOutputs().isEmpty();
 #endif
 }
 
-void lmcSoundPlayer::play(const QString &filename)
-{
+void lmcSoundPlayer::play(const QString& filename) {
 #ifdef Q_OS_WIN
-    if(sndPlaySoundFromDll)
-        sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
+  if(sndPlaySoundFromDll)
+    sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
 #else
-    static QSoundEffect effect;
-    effect.setSource(QUrl::fromLocalFile(filename));
-    effect.play();
+  static QSoundEffect effect;
+  effect.setSource(QUrl::fromLocalFile(filename));
+  effect.play();
 #endif
 }
 
 void lmcSoundPlayer::play(SoundEvent event) {
-	QString localStatus = pSettings->value(IDS_STATUS, IDS_STATUS_VAL).toString();
-	if(!playSound || (localStatus == "Busy" && noBusySound) || (localStatus == "NoDisturb" && noDNDSound))
-		return;
+  QString localStatus = pSettings->value(IDS_STATUS, IDS_STATUS_VAL).toString();
+  if(!playSound || (localStatus == "Busy" && noBusySound) || (localStatus == "NoDisturb" && noDNDSound))
+    return;
 
-	if(!eventState[event])
-		return;
+  if(!eventState[event])
+    return;
 
-    play(sounds[event]);
+  play(sounds[event]);
 }
 
 void lmcSoundPlayer::settingsChanged(void) {
-	int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), (int)SE_Max);
-	for(int index = 0; index < size; index++) {
-		pSettings->setArrayIndex(index);
-		eventState[index] = pSettings->value(IDS_SOUNDEVENT, IDS_SOUNDEVENT_VAL).toInt();
-	}
-	pSettings->endArray();
+  int size = qMin(pSettings->beginReadArray(IDS_SOUNDEVENTHDR), (int)SE_Max);
+  for(int index = 0; index < size; index++) {
+    pSettings->setArrayIndex(index);
+    eventState[index] = pSettings->value(IDS_SOUNDEVENT, IDS_SOUNDEVENT_VAL).toInt();
+  }
+  pSettings->endArray();
 
-	size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), (int)SE_Max);
-	for(int index = 0; index < size; index++) {
-		pSettings->setArrayIndex(index);
-		sounds[index] = pSettings->value(IDS_SOUNDFILE, soundFile[index]).toString();
-	}
-	pSettings->endArray();
+  size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), (int)SE_Max);
+  for(int index = 0; index < size; index++) {
+    pSettings->setArrayIndex(index);
+    sounds[index] = pSettings->value(IDS_SOUNDFILE, soundFile[index]).toString();
+  }
+  pSettings->endArray();
 
-	playSound = pSettings->value(IDS_SOUND, IDS_SOUND_VAL).toBool();
-	noBusySound = pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool();
-	noDNDSound = pSettings->value(IDS_NODNDSOUND, IDS_NODNDSOUND_VAL).toBool();
+  playSound = pSettings->value(IDS_SOUND, IDS_SOUND_VAL).toBool();
+  noBusySound = pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool();
+  noDNDSound = pSettings->value(IDS_NODNDSOUND, IDS_NODNDSOUND_VAL).toBool();
 }

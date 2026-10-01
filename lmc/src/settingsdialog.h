@@ -44,68 +44,68 @@
 #include "soundplayer.h"
 
 class lmcSettingsDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-    lmcSettingsDialog(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
-	~lmcSettingsDialog(void);
+  lmcSettingsDialog(QWidget* parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
+  ~lmcSettingsDialog(void);
 
-	void init(void);
-	void settingsChanged(void);
+  void init(void);
+  void settingsChanged(void);
 
 signals:
-	void historyCleared(void);
-	void fileHistoryCleared(void);
+  void historyCleared(void);
+  void fileHistoryCleared(void);
 
 protected:
-	void changeEvent(QEvent* pEvent);
-    void timerEvent(QTimerEvent *event);
+  void changeEvent(QEvent* pEvent);
+  void timerEvent(QTimerEvent* event);
 
 private slots:
-	void lvCategories_currentRowChanged(int currentRow);
-	void btnOk_clicked(void);
-	void chkMessageTime_toggled(bool checked);
-	void chkAllowLinks_toggled(bool checked);
-	void rdbSysHistoryPath_toggled(bool checked);
-	void btnHistoryPath_clicked(void);
-	void btnFilePath_clicked(void);
-	void btnClearHistory_clicked(void);
-	void btnClearFileHistory_clicked(void);
-	void chkSound_toggled(bool checked);
-	void chkAutoShowFile_toggled(bool checked);
-	void btnViewFiles_clicked(void);
-	void btnFont_clicked(void);
-	void btnColor_clicked(void);
-	void btnReset_clicked(void);
-	void cboTheme_currentIndexChanged(int index);
-	void lvBroadcasts_currentRowChanged(int index);
-	void txtBroadcast_textEdited(const QString& text);
-	void btnAddBroadcast_clicked(void);
-	void btnDeleteBroadcast_clicked(void);
-	void lvSounds_currentRowChanged(int index);
-	void btnPlaySound_clicked(void);
-	void btnSoundPath_clicked(void);
-	void btnResetSounds_clicked(void);
-    void btnRefreshTheme_clicked(void);
+  void lvCategories_currentRowChanged(int currentRow);
+  void btnOk_clicked(void);
+  void chkMessageTime_toggled(bool checked);
+  void chkAllowLinks_toggled(bool checked);
+  void rdbSysHistoryPath_toggled(bool checked);
+  void btnHistoryPath_clicked(void);
+  void btnFilePath_clicked(void);
+  void btnClearHistory_clicked(void);
+  void btnClearFileHistory_clicked(void);
+  void chkSound_toggled(bool checked);
+  void chkAutoShowFile_toggled(bool checked);
+  void btnViewFiles_clicked(void);
+  void btnFont_clicked(void);
+  void btnColor_clicked(void);
+  void btnReset_clicked(void);
+  void cboTheme_currentIndexChanged(int index);
+  void lvBroadcasts_currentRowChanged(int index);
+  void txtBroadcast_textEdited(const QString& text);
+  void btnAddBroadcast_clicked(void);
+  void btnDeleteBroadcast_clicked(void);
+  void lvSounds_currentRowChanged(int index);
+  void btnPlaySound_clicked(void);
+  void btnSoundPath_clicked(void);
+  void btnResetSounds_clicked(void);
+  void btnRefreshTheme_clicked(void);
 
 private:
-    void setPageHeaderStyle(QLabel* pLabel);
-	void setUIText(void);
-	void loadSettings(void);
-	void saveSettings(void);
-    void insertStatusMessageinLog();
+  void setPageHeaderStyle(QLabel* pLabel);
+  void setUIText(void);
+  void loadSettings(void);
+  void saveSettings(void);
+  void insertStatusMessageinLog();
 
-	Ui::SettingsDialog ui;
-	lmcSettings* pSettings;
-	int fontSize;
-	QFont font;
-	QColor color;
-	QIntValidator* pPortValidator;
-	QRegularExpression	ipRegExp;
-	QRegularExpressionValidator* pIpValidator;
-	lmcMessageLog* pMessageLog;
-    int statusTimerId;
-    int statusNow;
+  Ui::SettingsDialog ui;
+  lmcSettings* pSettings;
+  int fontSize;
+  QFont font;
+  QColor color;
+  QIntValidator* pPortValidator;
+  QRegularExpression ipRegExp;
+  QRegularExpressionValidator* pIpValidator;
+  lmcMessageLog* pMessageLog;
+  int statusTimerId;
+  int statusNow;
 };
 
 #endif // SETTINGSDIALOG_H

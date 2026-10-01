@@ -39,58 +39,57 @@
 #include "chathelper.h"
 #include "xmlmessage.h"
 
-class lmcBroadcastWindow : public QWidget
-{
-	Q_OBJECT
+class lmcBroadcastWindow : public QWidget {
+  Q_OBJECT
 
 public:
-	lmcBroadcastWindow(QWidget *parent = 0);
-	~lmcBroadcastWindow();
+  lmcBroadcastWindow(QWidget* parent = 0);
+  ~lmcBroadcastWindow();
 
-	void init(bool connected);
-	void stop(void);
-	void show(QList<QTreeWidgetItem*>* pGroupList = 0);
-	void connectionStateChanged(bool connected);
-	void settingsChanged(void);
+  void init(bool connected);
+  void stop(void);
+  void show(QList<QTreeWidgetItem*>* pGroupList = 0);
+  void connectionStateChanged(bool connected);
+  void settingsChanged(void);
 
 signals:
-	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
 
 protected:
-	bool eventFilter(QObject* pObject, QEvent* pEvent);
-	void changeEvent(QEvent* pEvent);
-	void closeEvent(QCloseEvent* pEvent);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
+  void closeEvent(QCloseEvent* pEvent);
 
 private slots:
-	void btnFontSize_clicked(void);
-	void fontAction_triggered(QAction* action);
-	void smileyAction_triggered(void);
-	void btnSelectAll_clicked(void);
-	void btnSelectNone_clicked(void);
-	void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
-	void btnSend_clicked(void);
+  void btnFontSize_clicked(void);
+  void fontAction_triggered(QAction* action);
+  void smileyAction_triggered(void);
+  void btnSelectAll_clicked(void);
+  void btnSelectNone_clicked(void);
+  void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
+  void btnSend_clicked(void);
 
 private:
-	void createToolBar(void);
-	void setUIText(void);
-	void sendMessage(void);
-	void encodeMessage(QString* lpszMessage);
-	void showStatus(int flag, bool add);
+  void createToolBar(void);
+  void setUIText(void);
+  void sendMessage(void);
+  void encodeMessage(QString* lpszMessage);
+  void showStatus(int flag, bool add);
 
-	Ui::BroadcastWindow ui;
-	lmcSettings* pSettings;
-	QToolBar* pToolBar;
-	QToolButton* pbtnFontSize;
-	lmcToolButton* pbtnSmiley;
-	int fontSizeVal;
-	int nSmiley;
-	bool bConnected;
-	int infoFlag;
-	bool showSmiley;
-	bool sendKeyMod;
-	bool parentToggling;
-	bool childToggling;
-	QActionGroup* pFontGroup;
+  Ui::BroadcastWindow ui;
+  lmcSettings* pSettings;
+  QToolBar* pToolBar;
+  QToolButton* pbtnFontSize;
+  lmcToolButton* pbtnSmiley;
+  int fontSizeVal;
+  int nSmiley;
+  bool bConnected;
+  int infoFlag;
+  bool showSmiley;
+  bool sendKeyMod;
+  bool parentToggling;
+  bool childToggling;
+  QActionGroup* pFontGroup;
 };
 
 #endif // BROADCASTWINDOW_H

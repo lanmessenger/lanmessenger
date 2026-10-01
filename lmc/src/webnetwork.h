@@ -33,33 +33,36 @@
 #include "xmlmessage.h"
 
 class lmcWebNetwork : public QObject {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcWebNetwork(void);
-	~lmcWebNetwork(void);
+  lmcWebNetwork(void);
+  ~lmcWebNetwork(void);
 
-	void init(void);
-	void start(void);
-	void stop(void);
-	void sendMessage(QString* lpszUrl, QString* lpszData);
-	void settingsChanged(void);
+  void init(void);
+  void start(void);
+  void stop(void);
+  void sendMessage(QString* lpszUrl, QString* lpszData);
+  void settingsChanged(void);
 
 signals:
-	void messageReceived(QString* lpszData);
+  void messageReceived(QString* lpszData);
 
 private slots:
-	void slotError(QNetworkReply::NetworkError code);
-	void replyFinished(QNetworkReply* reply);
+  void slotError(QNetworkReply::NetworkError code);
+  void replyFinished(QNetworkReply* reply);
 
 private:
-	enum ErrorType{ET_Busy, ET_Error};
+  enum ErrorType {
+    ET_Busy,
+    ET_Error
+  };
 
-	void sendMessage(const QUrl& url);
-	void raiseError(ErrorType type);
+  void sendMessage(const QUrl& url);
+  void raiseError(ErrorType type);
 
-	QNetworkAccessManager* manager;
-	bool active;
+  QNetworkAccessManager* manager;
+  bool active;
 };
 
 #endif // WEBNETWORK_H

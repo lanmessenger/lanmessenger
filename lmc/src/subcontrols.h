@@ -36,42 +36,42 @@
 
 class lmcToolButton : public QToolButton {
 public:
-	lmcToolButton(QWidget* parent = 0);
+  lmcToolButton(QWidget* parent = 0);
 
 protected:
-	void paintEvent(QPaintEvent*);
+  void paintEvent(QPaintEvent*);
 };
 
 class lmcLabel : public QLabel {
 public:
-	lmcLabel(QWidget* parent = 0);
+  lmcLabel(QWidget* parent = 0);
 
-	QString text(void) const;
-	void setText(const QString& text);
+  QString text(void) const;
+  void setText(const QString& text);
 
 protected:
-	void resizeEvent(QResizeEvent*);
-	void paintEvent(QPaintEvent*);
+  void resizeEvent(QResizeEvent*);
+  void paintEvent(QPaintEvent*);
 
 private:
-	void setElidedText(void);
+  void setElidedText(void);
 
-	QString actualText;
-	QString elidedText;
+  QString actualText;
+  QString elidedText;
 };
 
 class lmcLineEdit : public QLineEdit {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcLineEdit(QWidget* parent = 0);
+  lmcLineEdit(QWidget* parent = 0);
 
 signals:
-	void lostFocus(void);
+  void lostFocus(void);
 
 protected:
-	void focusInEvent(QFocusEvent* event);
-	void focusOutEvent(QFocusEvent* event);
+  void focusInEvent(QFocusEvent* event);
+  void focusOutEvent(QFocusEvent* event);
 };
 
 #endif //SUBCONTROLS_H

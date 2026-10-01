@@ -49,98 +49,97 @@
 #include "xmlmessage.h"
 #include "theme.h"
 
-class lmcChatRoomWindow : public QWidget
-{
-    Q_OBJECT
+class lmcChatRoomWindow : public QWidget {
+  Q_OBJECT
 
 public:
-	explicit lmcChatRoomWindow(QWidget *parent = 0);
-	~lmcChatRoomWindow();
+  explicit lmcChatRoomWindow(QWidget* parent = 0);
+  ~lmcChatRoomWindow();
 
-	void init(User* pLocalUser, bool connected, QString thread = QString());
-	void show(void);
-	void stop(void);
-	void addUser(User* pUser);
-	void updateUser(User* pUser);
-	void removeUser(QString* lpszUserId);
-	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void connectionStateChanged(bool connected);
-	void settingsChanged(void);
-	void selectContacts(QStringList* selectedContacts);
+  void init(User* pLocalUser, bool connected, QString thread = QString());
+  void show(void);
+  void stop(void);
+  void addUser(User* pUser);
+  void updateUser(User* pUser);
+  void removeUser(QString* lpszUserId);
+  void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void connectionStateChanged(bool connected);
+  void settingsChanged(void);
+  void selectContacts(QStringList* selectedContacts);
 
-	QString threadId;
-	QHash<QString, QString> peerIds;
+  QString threadId;
+  QHash<QString, QString> peerIds;
 
 signals:
-	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void chatStarting(QString* lpszUserId);
-    void contactsAdding(QStringList* excludeList);
-	void closed(QString* lpszThreadId);
+  void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void chatStarting(QString* lpszUserId);
+  void contactsAdding(QStringList* excludeList);
+  void closed(QString* lpszThreadId);
 
 protected:
-	bool eventFilter(QObject* pObject, QEvent* pEvent);
-	void changeEvent(QEvent* pEvent);
-	void closeEvent(QCloseEvent* pEvent);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
+  void closeEvent(QCloseEvent* pEvent);
 
 private slots:
-	void userConversationAction_triggered(void);
-	void userFileAction_triggered(void);
-	void userInfoAction_triggered(void);
-	void btnFont_clicked(void);
-	void btnFontColor_clicked(void);
-	void btnSave_clicked(void);
-	void smileyAction_triggered(void);
-	void addContactAction_triggered(void);
-	void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void tvUserList_itemActivated(QTreeWidgetItem* pItem, int column);
-	void tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoint& pos);
+  void userConversationAction_triggered(void);
+  void userFileAction_triggered(void);
+  void userInfoAction_triggered(void);
+  void btnFont_clicked(void);
+  void btnFontColor_clicked(void);
+  void btnSave_clicked(void);
+  void smileyAction_triggered(void);
+  void addContactAction_triggered(void);
+  void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void tvUserList_itemActivated(QTreeWidgetItem* pItem, int column);
+  void tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoint& pos);
 
 private:
-	void createUserMenu(void);
-	void createSmileyMenu(void);
-	void createToolBar(void);
-	void setUIText(void);
-	void sendMessage(void);
-	void encodeMessage(QString* lpszMessage);
-	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
-	void showStatus(int flag, bool add);
-	QString getWindowTitle(void);
-	void setMessageFont(QFont& font);
-	void updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus);
-	QTreeWidgetItem* getUserItem(QString* lpszUserId);
-	QTreeWidgetItem* getGroupItem(QString* lpszGroupId);
-	void setUserAvatar(QString* lpszUserId, QString* lpszFilePath = 0);
+  void createUserMenu(void);
+  void createSmileyMenu(void);
+  void createToolBar(void);
+  void setUIText(void);
+  void sendMessage(void);
+  void encodeMessage(QString* lpszMessage);
+  void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
+  void showStatus(int flag, bool add);
+  QString getWindowTitle(void);
+  void setMessageFont(QFont& font);
+  void updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus);
+  QTreeWidgetItem* getUserItem(QString* lpszUserId);
+  QTreeWidgetItem* getGroupItem(QString* lpszGroupId);
+  void setUserAvatar(QString* lpszUserId, QString* lpszFilePath = 0);
 
-	QString localId;
-	QString localName;
-	QHash<QString, QString> peerNames;
-	User* pLocalUser;
-	QString lastUserId;
-	bool groupMode;
+  QString localId;
+  QString localName;
+  QHash<QString, QString> peerNames;
+  User* pLocalUser;
+  QString lastUserId;
+  bool groupMode;
 
-	Ui::ChatRoomWindow ui;
-	lmcSettings* pSettings;
-	lmcMessageLog* pMessageLog;
-	QMenu* pUserMenu;
-	QAction* userChatAction;
-	QAction* userFileAction;
-	QAction* userInfoAction;
-	QAction* pFontAction;
-	QAction* pFontColorAction;
-	lmcToolButton* pbtnSmiley;
-	QAction* pSaveAction;
-	QMenu* pSmileyMenu;
-	lmcImagePickerAction* pSmileyAction;
-	QAction* addContactAction;
-	int nSmiley;
-	bool bConnected;
-	int infoFlag;
-	bool showSmiley;
-	bool sendKeyMod;
-	lmcSoundPlayer* pSoundPlayer;
-	QColor messageColor;
-	bool dataSaved;
-	bool windowLoaded;
+  Ui::ChatRoomWindow ui;
+  lmcSettings* pSettings;
+  lmcMessageLog* pMessageLog;
+  QMenu* pUserMenu;
+  QAction* userChatAction;
+  QAction* userFileAction;
+  QAction* userInfoAction;
+  QAction* pFontAction;
+  QAction* pFontColorAction;
+  lmcToolButton* pbtnSmiley;
+  QAction* pSaveAction;
+  QMenu* pSmileyMenu;
+  lmcImagePickerAction* pSmileyAction;
+  QAction* addContactAction;
+  int nSmiley;
+  bool bConnected;
+  int infoFlag;
+  bool showSmiley;
+  bool sendKeyMod;
+  lmcSoundPlayer* pSoundPlayer;
+  QColor messageColor;
+  bool dataSaved;
+  bool windowLoaded;
 };
 
 #endif // CHATROOMWINDOW_H
