@@ -344,6 +344,7 @@ void MsgStream::sendMessage(QByteArray& data) {
 	outData.resize(dataLen);
 
 	QDataStream stream(&outData, QIODevice::WriteOnly);
+	stream.setVersion(QDataStream::Qt_5_15);
 	stream << (quint32)data.length();
 	stream.writeRawData(data.data(), data.length());
 
@@ -375,6 +376,7 @@ void MsgStream::readyRead(void) {
 			reading = true;
 			QByteArray len = socket->read(4);
 			QDataStream stream(len);
+			stream.setVersion(QDataStream::Qt_5_15);
 			stream >> inDataLen;
 			inData.clear();
 			QByteArray data = socket->read(inDataLen);

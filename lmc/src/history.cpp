@@ -43,6 +43,7 @@ void History::create(QString path) {
 		return;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 
 	DBHeader header(HC_DBMARKER, HC_HDRSIZE, HC_VERSION, 0, 0, 0);
 	writeHeader(&stream, &header);
@@ -89,6 +90,7 @@ int History::save(QString user, QDateTime date, QString* lpszData) {
 		return -1;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 
 	DBHeader header = readHeader(&stream);
 	if(header.marker.compare(HC_DBMARKER) != 0) {
@@ -159,6 +161,7 @@ QList<MsgInfo> History::getList(void) {
 		return list;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 
 	DBHeader header = readHeader(&stream);
 	qint64 next = header.first;
@@ -196,6 +199,7 @@ QString History::getMessage(qint64 offset) {
 		return data;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 
 	QString marker;
 	int length;

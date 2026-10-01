@@ -328,6 +328,7 @@ void FileModel::loadData(QString filePath) {
 		return;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 	stream >> transferList;
 
 	file.close();
@@ -346,6 +347,7 @@ void FileModel::saveData(QString filePath) {
 		return;
 
 	QDataStream stream(&file);
+	stream.setVersion(QDataStream::Qt_5_15);
 	stream << transferList;
 
 	file.close();

@@ -331,6 +331,7 @@ void lmcMessageLog::saveMessageLog(QString filePath) {
         return;
 
     QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_15);
     stream << peerId << peerName << messageLog;
 
     file.close();
@@ -344,6 +345,7 @@ void lmcMessageLog::restoreMessageLog(QString filePath, bool reload) {
         return;
 
     QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_15);
     stream >> peerId >> peerName >> messageLog;
 
     file.close();
