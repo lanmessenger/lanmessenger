@@ -27,7 +27,7 @@ target_include_directories(lmcapp
 
 target_compile_definitions(lmcapp PRIVATE
     LMCAPP_LIBRARY
-    QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+    QT_DISABLE_DEPRECATED_BEFORE=0x060000
 )
 
 target_link_libraries(lmcapp

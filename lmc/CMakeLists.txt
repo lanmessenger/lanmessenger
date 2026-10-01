@@ -113,7 +113,7 @@ add_executable(lmc
 )
 
 target_compile_definitions(lmc PRIVATE
-    QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+    QT_DISABLE_DEPRECATED_BEFORE=0x060000
 )
 
 target_include_directories(lmc PRIVATE
