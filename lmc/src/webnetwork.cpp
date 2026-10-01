@@ -30,7 +30,7 @@ const QString ErrorTypeNames[] = {"busy", "error"};
 lmcWebNetwork::lmcWebNetwork(void) {
 	active = false;
 	manager = new QNetworkAccessManager(this);
-	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+	connect(manager, &QNetworkAccessManager::finished, this, &lmcWebNetwork::replyFinished);
 }
 
 lmcWebNetwork::~lmcWebNetwork(void) {}
@@ -60,8 +60,11 @@ void lmcWebNetwork::slotError(QNetworkReply::NetworkError code) {
 }
 
 void lmcWebNetwork::replyFinished(QNetworkReply *reply) {
-    if(reply->error() != QNetworkReply::NoError)
+  if(reply->error() != QNetworkReply::NoError) {
+		reply->deleteLater();
+		active = false;
 		return;
+	}
 
 	// check if there was an HTTP redirection
 	QVariant redirect = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
@@ -88,9 +91,8 @@ void lmcWebNetwork::sendMessage(const QUrl &url) {
 
 	active = true;
 
-    QNetworkReply* reply = manager->get(QNetworkRequest(url));
-	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-			this, SLOT(slotError(QNetworkReply::NetworkError)));
+  QNetworkReply* reply = manager->get(QNetworkRequest(url));
+	connect(reply, &QNetworkReply::errorOccurred, this, &lmcWebNetwork::slotError);
 }
 
 void lmcWebNetwork::raiseError(ErrorType type) {
