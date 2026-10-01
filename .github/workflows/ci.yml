@@ -221,7 +221,7 @@ jobs:
         with:
           version: '6.8.3'
           arch: clang_64
-          modules: 'qtmultimedia qtshadertools'
+          modules: 'qtmultimedia qtshadertools qtimageformats'
           cache: true
 
       - name: Install OpenSSL

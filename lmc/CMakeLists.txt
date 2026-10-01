@@ -298,10 +298,15 @@ if(NOT WIN32)
     endif()
 endif()
 if(APPLE)
-    foreach(_plugin libqgif.dylib libqico.dylib libqjpeg.dylib libqtiff.dylib)
+    foreach(_plugin libqgif.dylib libqico.dylib libqjpeg.dylib)
         install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
                 DESTINATION LAN-Messenger.app/Contents/Plugins/imageformats)
     endforeach()
+    # TIFF moved out of qtbase in Qt 6 (qtimageformats module); macOS shipped
+    # it historically, so take it when present and skip silently otherwise.
+    install(FILES ${QT_PLUGINS_DIR}/imageformats/libqtiff.dylib
+            DESTINATION LAN-Messenger.app/Contents/Plugins/imageformats
+            OPTIONAL)
 elseif(UNIX)
     foreach(_plugin libqgif.so libqico.so libqjpeg.so)
         install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
