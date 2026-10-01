@@ -312,6 +312,14 @@ elseif(UNIX)
         install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
                 DESTINATION imageformats)
     endforeach()
+    # Platform plugin and Qt 6 TLS backends for standalone bundles (QSslSocket
+    # needs a TLS plugin). QCoreApplication::libraryPaths() includes the
+    # application directory, so plugins next to the binary are found.
+    install(FILES ${QT_PLUGINS_DIR}/platforms/libqxcb.so DESTINATION platforms)
+    file(GLOB _tls_plugins "${QT_PLUGINS_DIR}/tls/*")
+    if(_tls_plugins)
+        install(FILES ${_tls_plugins} DESTINATION tls)
+    endif()
 endif()
 
 if(WIN32)

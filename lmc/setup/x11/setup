@@ -10,13 +10,21 @@ fi
 echo "COPYING FILES..."
 QTDIRLIB=""
 if [ "$PACKAGE_MODE" != "_min" ]; then
-  QTDIRLIB=$(dirname $(find / $PWD -type f -name "*libQt5Core.so.5*" 2> /dev/null) | head -1) > /dev/null
+  # Bundle the Qt 6 libraries the app links plus the plugin sets it needs.
+  QTDIRLIB=$(dirname $(find / $PWD -type f -name "*libQt6Core.so.6*" 2> /dev/null) | head -1) > /dev/null
 
-  sudo cp -v $QTDIRLIB/libQt5Core.so.5 ./package/usr/lib/lmc/libQt5Core.so.5
-  sudo cp -v $QTDIRLIB/libQt5Gui.so.5 ./package/usr/lib/lmc/libQt5Gui.so.5
-  sudo cp -v $QTDIRLIB/libQt5Network.so.5 ./package/usr/lib/lmc/libQt5Network.so.5
-  sudo cp -v $QTDIRLIB/libQt5Xml.so.5 ./package/usr/lib/lmc/libQt5Xml.so.5
+  sudo cp -v $QTDIRLIB/libQt6Core.so.6 ./package/usr/lib/lmc/libQt6Core.so.6
+  sudo cp -v $QTDIRLIB/libQt6Gui.so.6 ./package/usr/lib/lmc/libQt6Gui.so.6
+  sudo cp -v $QTDIRLIB/libQt6Widgets.so.6 ./package/usr/lib/lmc/libQt6Widgets.so.6
+  sudo cp -v $QTDIRLIB/libQt6Network.so.6 ./package/usr/lib/lmc/libQt6Network.so.6
+  sudo cp -v $QTDIRLIB/libQt6Xml.so.6 ./package/usr/lib/lmc/libQt6Xml.so.6
+  sudo cp -v $QTDIRLIB/libQt6Multimedia.so.6 ./package/usr/lib/lmc/libQt6Multimedia.so.6
   sudo cp -v -r ../../release/imageformats ./package/usr/lib/lmc
+  sudo cp -v -r ../../release/platforms ./package/usr/lib/lmc
+  # Qt 6 TLS backends may be absent in Qt builds without SSL.
+  if [ -d ../../release/tls ]; then
+    sudo cp -v -r ../../release/tls ./package/usr/lib/lmc
+  fi
 fi
 sudo cp -v ../../release/liblmcapp.so.2 ./package/usr/lib/lmc/liblmcapp.so.2
 sudo cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc
