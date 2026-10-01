@@ -25,6 +25,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Style gate for lmc/src. Version pinned to match tools/format.sh and .clang-format.
+  format-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format-18
+
+      - name: Check formatting
+        run: |
+          find lmc/src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
+            | xargs -0 clang-format-18 --dry-run -Werror
+
   # Linux, Qt 6.8 from aqt: compile/smoke check against the primary target.
   # No packages here; the runnable layout is uploaded for manual testing.
   build-linux:
