@@ -1,6 +1,6 @@
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Network Xml LinguistTools)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Network Xml LinguistTools)
 if(UNIX)
-    find_package(Qt5 5.15 REQUIRED COMPONENTS Multimedia)
+    find_package(Qt6 6.4 REQUIRED COMPONENTS Multimedia)
 endif()
 find_package(OpenSSL REQUIRED)
 
@@ -120,20 +120,20 @@ target_include_directories(lmc PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Qt5::Sql is not linked (unused; see qt6-migration-plan.md).
+# Qt6::Sql is not linked (unused; see qt6-migration-plan.md).
 target_link_libraries(lmc
     PRIVATE
         lmcapp
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::Network
-        Qt5::Xml
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::Network
+        Qt6::Xml
         OpenSSL::Crypto
 )
 
 if(UNIX)
-    target_link_libraries(lmc PRIVATE Qt5::Multimedia)
+    target_link_libraries(lmc PRIVATE Qt6::Multimedia)
 endif()
 
 if(WIN32)
@@ -163,7 +163,7 @@ endif()
 add_custom_command(
     OUTPUT ${LMC_RUNTIME_DIR}/lmc.rcc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}
-    COMMAND Qt5::rcc -binary ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.qrc
+    COMMAND Qt6::rcc -binary ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.qrc
             -o ${LMC_RUNTIME_DIR}/lmc.rcc
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.qrc
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -202,7 +202,7 @@ foreach(ts IN LISTS LMC_TS_FILES)
     add_custom_command(
         OUTPUT ${qm_out}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}/lang
-        COMMAND Qt5::lrelease ${CMAKE_CURRENT_SOURCE_DIR}/${ts} -qm ${qm_out}
+        COMMAND Qt6::lrelease ${CMAKE_CURRENT_SOURCE_DIR}/${ts} -qm ${qm_out}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${ts}
         COMMENT "lrelease ${qm_name}.ts"
         VERBATIM
@@ -267,23 +267,25 @@ install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})
 
 # Qt imageformat plugins live in the Qt installation's plugins/ directory:
-# locate it relative to the Qt5Core CMake package (covers both the standard
-# <prefix>/plugins layout and Debian's multiarch qt5/plugins layout). Override
+# locate it relative to the Qt6Core CMake package (covers both the standard
+# <prefix>/plugins layout and Debian's multiarch qt6/plugins layout). Override
 # with -DQT_PLUGINS_DIR=<path> for other installations. Windows ships none
 # here (windeployqt covers them in CI).
 if(NOT WIN32)
     set(QT_PLUGINS_DIR "" CACHE PATH
-        "Qt plugin directory (autodetected from the Qt5Core package when empty)")
+        "Qt plugin directory (autodetected from the Qt6Core package when empty)")
     if(NOT QT_PLUGINS_DIR)
         foreach(_plugins_cand
                 ../../../plugins
                 ../../plugins
+                ../../../qt6/plugins
+                ../../qt6/plugins
                 ../../../qt5/plugins
                 ../../qt5/plugins
                 ../../../qt/plugins
                 ../../qt/plugins)
             get_filename_component(_plugins_abs
-                "${Qt5Core_DIR}/${_plugins_cand}" ABSOLUTE)
+                "${Qt6Core_DIR}/${_plugins_cand}" ABSOLUTE)
             if(EXISTS "${_plugins_abs}/imageformats")
                 set(QT_PLUGINS_DIR "${_plugins_abs}")
                 break()

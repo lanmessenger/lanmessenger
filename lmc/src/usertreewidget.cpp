@@ -237,7 +237,7 @@ void lmcUserTreeWidget::setView(UserListView view) {
 
 void lmcUserTreeWidget::mousePressEvent(QMouseEvent* event) {
 	if(event->button() == Qt::LeftButton) {
-		QTreeWidgetItem* item = itemAt(event->pos());
+		QTreeWidgetItem* item = itemAt(event->position().toPoint());
 
 		dragGroup = false;
 		dragUser = false;
@@ -264,15 +264,15 @@ void lmcUserTreeWidget::mousePressEvent(QMouseEvent* event) {
 void lmcUserTreeWidget::dragMoveEvent(QDragMoveEvent* event) {
 	QTreeWidget::dragMoveEvent(event);
 
-	QTreeWidgetItem* item = itemAt(event->pos());
+	QTreeWidgetItem* item = itemAt(event->position().toPoint());
 	bool accept = false;
 
 	if(dragUser) {
-		if(item && dynamic_cast<lmcUserTreeWidgetGroupItem*>(item) && visualItemRect(item).contains(event->pos(), true))
+		if(item && dynamic_cast<lmcUserTreeWidgetGroupItem*>(item) && visualItemRect(item).contains(event->position().toPoint(), true))
 			accept = true;
 	}
 	else if(dragGroup) {
-		if(!item || (dynamic_cast<lmcUserTreeWidgetGroupItem*>(item) && !visualItemRect(item).contains(event->pos(), true)))
+		if(!item || (dynamic_cast<lmcUserTreeWidgetGroupItem*>(item) && !visualItemRect(item).contains(event->position().toPoint(), true)))
 			accept = true;
 	}
 
@@ -321,7 +321,7 @@ void lmcUserTreeWidget::contextMenuEvent(QContextMenuEvent* event) {
 void lmcUserTreeWidget::mouseReleaseEvent(QMouseEvent* event) {
 	QTreeWidget::mouseReleaseEvent(event);
 
-	QPoint pos = event->pos();
+	QPoint pos = event->position().toPoint();
     lmcUserTreeWidgetItem* item = static_cast<lmcUserTreeWidgetItem*>(itemAt(pos));
 	if(item && checkable() && item->checkBoxRect(visualItemRect(item)).contains(pos)) {
 		// toggle checkstate

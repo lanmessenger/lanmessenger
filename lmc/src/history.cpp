@@ -25,13 +25,14 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDesktopServices>
+#include <QStandardPaths>
 #include "history.h"
 
 QString History::historyFile(void) {
 	lmcSettings settings;
 	bool sysPath = settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool();
     QString path = QDir::toNativeSeparators(QStandardPaths::writableLocation(
-        QStandardPaths::DataLocation) + "/" HC_FILENAME);
+        QStandardPaths::AppLocalDataLocation) + "/" HC_FILENAME);
 	if(!sysPath)
 		path = settings.value(IDS_HISTORYPATH, path).toString();
 	return path;

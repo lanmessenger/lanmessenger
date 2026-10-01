@@ -28,6 +28,7 @@
 #include <QWidget>
 #include <QToolBar>
 #include <QMenu>
+#include <QActionGroup>
 #include <qevent.h>
 #include "ui_broadcastwindow.h"
 #include "shared.h"

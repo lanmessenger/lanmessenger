@@ -257,7 +257,7 @@ void lmcMessaging::timer_timeout(void) {
 QString lmcMessaging::createUserId(QString* lpszAddress, QString* lpszUserName) {
 	QString userId = *lpszAddress;
     if(!userId.isNull()) {
-        userId.append(lpszUserName);
+        userId.append(*lpszUserName);
         userId.remove(":");
     }
 	return userId;

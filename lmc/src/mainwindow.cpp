@@ -692,9 +692,9 @@ void lmcMainWindow::createMainMenu(void) {
 		this, SLOT(trayExitAction_triggered()));
 	pToolsMenu = pMainMenu->addMenu("&Tools");
 	historyAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", 
-		this, SLOT(trayHistoryAction_triggered()), QKeySequence(Qt::CTRL + Qt::Key_H));
+		this, SLOT(trayHistoryAction_triggered()), QKeySequence(Qt::CTRL | Qt::Key_H));
 	transferAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", 
-		this, SLOT(trayFileAction_triggered()), QKeySequence(Qt::CTRL + Qt::Key_J));
+		this, SLOT(trayFileAction_triggered()), QKeySequence(Qt::CTRL | Qt::Key_J));
 	pToolsMenu->addSeparator();
 	settingsAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TOOLS, "PNG")), "&Preferences", 
 		this, SLOT(traySettingsAction_triggered()), QKeySequence::Preferences);

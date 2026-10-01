@@ -1,4 +1,4 @@
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Network Widgets)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Network Widgets)
 
 # qtlockedfile*.cpp are not compiled standalone: they are textually included
 # into qtlocalpeer.cpp inside the QtLP_Private namespace
@@ -32,9 +32,9 @@ target_compile_definitions(lmcapp PRIVATE
 
 target_link_libraries(lmcapp
     PUBLIC
-        Qt5::Core
-        Qt5::Network
-        Qt5::Widgets
+        Qt6::Core
+        Qt6::Network
+        Qt6::Widgets
 )
 
 if(WIN32)

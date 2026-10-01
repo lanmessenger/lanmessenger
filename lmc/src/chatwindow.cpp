@@ -512,9 +512,9 @@ void lmcChatWindow::createToolBar(void) {
 	ui.toolBarLayout->addWidget(pRightBar);
 
 	pHistoryAction = pRightBar->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", this, SLOT(btnHistory_clicked()));
-	pHistoryAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+	pHistoryAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
 	pTransferAction = pRightBar->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", this, SLOT(btnTransfers_clicked()));
-	pTransferAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+	pTransferAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
 
 	ui.lblDividerTop->setBackgroundRole(QPalette::Light);
 	ui.lblDividerTop->setAutoFillBackground(true);

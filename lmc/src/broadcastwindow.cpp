@@ -23,6 +23,7 @@
 
 
 #include <QMessageBox>
+#include <QActionGroup>
 #include "broadcastwindow.h"
 
 //	constructor

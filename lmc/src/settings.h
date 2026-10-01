@@ -28,6 +28,7 @@
 #include <QSettings>
 #include <QtWidgets/QApplication>
 #include <QDir>
+#include <QStandardPaths>
 #include "shared.h"
 
 //	Application settings definitions and default values

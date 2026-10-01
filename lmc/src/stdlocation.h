@@ -29,6 +29,7 @@
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDateTime>
+#include <QStandardPaths>
 #include "settings.h"
 
 #define SL_TRANSFERHISTORY		"transfers.lst"
@@ -46,7 +47,7 @@ class StdLocation {
 public:
 	static QString transferHistory(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_TRANSFERHISTORY);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_TRANSFERHISTORY);
 	}
 
 	static QString fileStorageDir(void) {
@@ -60,7 +61,7 @@ public:
 
 	static QString cacheDir(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_CACHEDIR);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_CACHEDIR);
 	}
 
 	static QString libDir(void) {
@@ -81,7 +82,7 @@ public:
 
 	static QString userLangDir(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_LANGDIR);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_LANGDIR);
 	}
 
 	static QString resThemeDir(void) {
@@ -94,22 +95,22 @@ public:
 
 	static QString userThemeDir(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_THEMEDIR);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_THEMEDIR);
 	}
 
 	static QString groupFile(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_GROUPFILE);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_GROUPFILE);
 	}
 
 	static QString avatarFile(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_AVATARFILE);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_AVATARFILE);
 	}
 
 	static QString logDir(void) {
         return QDir::toNativeSeparators(QStandardPaths::writableLocation(
-            QStandardPaths::DataLocation) + "/" SL_LOGDIR);
+            QStandardPaths::AppLocalDataLocation) + "/" SL_LOGDIR);
 	}
 
 	static QString freeLogFile(void) {
