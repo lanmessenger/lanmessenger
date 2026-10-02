@@ -22,3 +22,6 @@ endif()
 
 add_subdirectory(lmcapp)
 add_subdirectory(lmc)
+
+enable_testing()
+add_subdirectory(tests)

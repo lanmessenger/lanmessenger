@@ -34,6 +34,8 @@ moc_predefs.h
 # QtCtreator CMake
 CMakeLists.txt.user*
 
+e2e-artifacts/
+
 /openssl
 /lmc/debug
 /lmc/release*

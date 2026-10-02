@@ -9,7 +9,7 @@ find_package(OpenSSL REQUIRED)
 set(LMC_RUNTIME_DIR ${CMAKE_CURRENT_BINARY_DIR}/runtime)
 set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/resources)
 
-add_executable(lmc
+add_library(lmc_core STATIC
     src/aboutdialog.cpp
     src/broadcastwindow.cpp
     src/chathelper.cpp
@@ -26,7 +26,6 @@ add_executable(lmc
     src/imagepickeraction.cpp
     src/lmc.cpp
     src/lmcstrings.cpp
-    src/main.cpp
     src/mainwindow.cpp
     src/message.cpp
     src/messagelog.cpp
@@ -109,20 +108,20 @@ add_executable(lmc
     src/updatewindow.ui
     src/userinfowindow.ui
     src/userselectdialog.ui
-    src/resource.qrc
 )
 
-target_compile_definitions(lmc PRIVATE
+target_compile_definitions(lmc_core PUBLIC
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
 )
 
-target_include_directories(lmc PRIVATE
+target_include_directories(lmc_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}/lmc_core_autogen/include
 )
 
 # Qt6::Sql is not linked (unused; see qt6-migration-plan.md).
-target_link_libraries(lmc
-    PRIVATE
+target_link_libraries(lmc_core
+    PUBLIC
         lmcapp
         Qt6::Core
         Qt6::Gui
@@ -133,12 +132,25 @@ target_link_libraries(lmc
 )
 
 if(UNIX)
-    target_link_libraries(lmc PRIVATE Qt6::Multimedia)
+    target_link_libraries(lmc_core PUBLIC Qt6::Multimedia)
 endif()
 
 if(WIN32)
     # GetUserNameW(...) in Helper::getLogonName (shared.cpp)
-    target_link_libraries(lmc PRIVATE advapi32)
+    target_link_libraries(lmc_core PUBLIC advapi32)
+endif()
+
+# The executable contributes the entry point and the embedded resource bundle
+# (AUTORCC over src/resource.qrc); test binaries link lmc_core and repeat the
+# same .qrc so the Qt resource initializers live in an object that is always
+# linked (a static lib would drop an unreferenced qrc object).
+add_executable(lmc
+    src/main.cpp
+    src/resource.qrc
+)
+target_link_libraries(lmc PRIVATE lmc_core)
+
+if(WIN32)
     target_sources(lmc PRIVATE src/lmcwin32.rc)
     set_target_properties(lmc PROPERTIES OUTPUT_NAME lmc)
 elseif(APPLE)
