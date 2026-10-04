@@ -26,6 +26,11 @@ ${AGENT_SO}       ${CURDIR}/../../build/qtexpert-agent/libqt_test_agent.so
 # deletes the settings file. Mirrors tests/e2e/tst_lmc_gui.cpp.
 ${APP_ARGS}       /silent /loopback
 ${AGENT_PORT}     9988
+# Showcase pause: how long an opened window stays on screen before the
+# test closes it, so the CI video (x11grab of the Xvfb display) shows
+# each dialog instead of a millisecond flash. Overridable from the
+# command line, e.g. `-v HOLD_OPEN:5s`; CI passes its own value.
+${HOLD_OPEN}      3s
 
 
 *** Keywords ***
@@ -101,6 +106,13 @@ Dismiss Dialog
     ${win}=       Evaluate    """${res.stdout}""".split()[0]
     ${esc}=       Run Process    xdotool    windowfocus    --sync    ${win}    key    Escape
     Should Be Equal As Integers    ${esc.rc}    0
+
+Hold For Video
+    [Documentation]    Showcase pause for the CI video: sleep ${HOLD_OPEN}
+    ...    while the window under test is open, so the recording shows it
+    ...    instead of a millisecond flash. Call after the asserts, right
+    ...    before closing the window. Length is controlled by ${HOLD_OPEN}.
+    Sleep             ${HOLD_OPEN}
 
 Window Should Be Hidden
     [Documentation]    Assert a reused modeless window (Transfers, Chat Room)

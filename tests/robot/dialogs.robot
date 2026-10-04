@@ -23,8 +23,10 @@ History Opens And Closes
     Object Should Exist    name=tvMsgList
     Object Should Exist    name=btnClearHistory
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-history.json
+    Hold For Video
     Dismiss Dialog    Message History
     Wait For Object To Disappear    name=HistoryWindow    timeout=10
+    Sleep             1s
 
 File Transfers Opens And Closes
     [Documentation]    Tools > File Transfers (Ctrl+J): modeless window,
@@ -37,8 +39,10 @@ File Transfers Opens And Closes
     Object Should Exist    name=lvTransferList
     Object Should Exist    name=btnClear
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-transfers.json
+    Hold For Video
     Dismiss Dialog    File Transfers
     Window Should Be Hidden    TransferWindow
+    Sleep             1s
 
 Help Opens And Closes
     [Documentation]    Help > Help (F1): modeless window with bundled text.
@@ -51,8 +55,10 @@ Help Opens And Closes
     ${length}=        Evaluate    len("""${text}""")
     Should Be True    ${length} > 0    Help text is empty
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-help.json
+    Hold For Video
     Dismiss Dialog    ^Help$
     Wait For Object To Disappear    name=HelpWindow    timeout=10
+    Sleep             1s
 
 New Chat Room Asks For Contacts
     [Documentation]    Messenger > New Chat Room (Ctrl+N) opens the room plus
@@ -65,10 +71,12 @@ New Chat Room Asks For Contacts
     Object Should Exist    name=tvUserList
     Object Should Exist    name=btnOK
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-select-contacts.json
+    Hold For Video
     Click Object      name=btnCancel
     Wait For Object To Disappear    name=UserSelectDialog    timeout=10
     Window Should Be Hidden    ChatRoomWindow
     Object Should Exist    name=MainWindow
+    Sleep             1s
 
 Preferences Navigates And Cancels
     [Documentation]    Tools > Preferences via mnemonics (Alt+T, P): modal
@@ -87,7 +95,9 @@ Preferences Navigates And Cancels
     ${idx}=           Get Object Property    name=stackedWidget    currentIndex
     Should Be Equal As Integers    ${idx}    8
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-preferences.json
+    Hold For Video
     Close Dialog      SettingsDialog    btnCancel
+    Sleep             1s
 
 About Opens And Closes
     [Documentation]    Help > About via mnemonics (Alt+H, A): modal dialog
@@ -100,5 +110,7 @@ About Opens And Closes
     Object Should Exist    name=lblTitle
     Object Should Exist    name=tabWidget
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-about.json
+    Hold For Video
     Dismiss Dialog    About LAN Messenger
     Wait For Object To Disappear    name=AboutDialog    timeout=10
+    Sleep             1s

@@ -82,10 +82,15 @@ jobs:
           xdpyinfo -display :99 >/dev/null
 
       - name: Start video recording
+        # Capture and encode at the same 30 fps so the video plays back in
+        # real time. (Recording at 15 fps without `-r` used to produce a
+        # 25 fps mp4, i.e. a ~1.7x fast-forward.) `+faststart` moves the moov
+        # atom first so the GitHub artifact preview streams progressively.
         run: |
           ffmpeg -y -nostdin \
-            -f x11grab -video_size 1280x1024 -framerate 15 -i :99 \
+            -f x11grab -video_size 1280x1024 -framerate 30 -i :99 \
             -c:v libx264 -preset veryfast -pix_fmt yuv420p \
+            -r 30 -movflags +faststart \
             robot-video.mp4 &
           echo $! > /tmp/ffmpeg.pid
 
@@ -113,6 +118,8 @@ jobs:
       # The whole tests/robot/ directory runs (smoke + dialogs suites).
       # Dialog shortcuts and menu mnemonics are sent as real X keys via
       # xdotool (see tests/robot/common.resource for why not QTest keys).
+      # HOLD_OPEN keeps each dialog on screen for the video (see
+      # tests/robot/common.resource); the suite stays under a minute.
       - name: Run Robot tests
         env:
           DISPLAY: :99
@@ -124,6 +131,7 @@ jobs:
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
             -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            -v HOLD_OPEN:3s \
             tests/robot/
 
       - name: Stop video recording
