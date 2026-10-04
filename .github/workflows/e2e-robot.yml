@@ -53,9 +53,13 @@ jobs:
 
       # The PyPI release of robotframework-qtexpert has no preload mode;
       # build the LD_PRELOAD agent (Qt6) from git main instead.
+      # Upstream cpp_agent still targets Qt5, but the agent sources are
+      # Qt6-clean: switch the find_package/link targets to Qt6 (same patch
+      # as proven by the local run on this dev-VM).
       - name: Build qtexpert agent
         run: |
           git clone --depth 1 https://github.com/tulasirm6/robotframework-qtexpert.git /tmp/qtexpert
+          sed -i 's/Qt5/Qt6/g' /tmp/qtexpert/cpp_agent/CMakeLists.txt
           cmake -S /tmp/qtexpert/cpp_agent -B build/qtexpert-agent \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
