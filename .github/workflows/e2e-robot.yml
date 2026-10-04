@@ -89,6 +89,25 @@ jobs:
             robot-video.mp4 &
           echo $! > /tmp/ffmpeg.pid
 
+      # The main window is shown at startup only with AutoShow=true
+      # (lmcMainWindow::start, default false). Same recipe as the QTest
+      # tests/e2e/tst_lmc_gui.cpp. QSettings IniFormat/UserScope on Linux
+      # reads $HOME/.config/lmc/lmc.ini; /noconfig would delete this file,
+      # so the test must not pass it.
+      - name: Seed lmc settings
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          cat > "$HOME/.config/lmc/lmc.ini" <<'EOF'
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=1.2.39
+
+          [User]
+          Name=E2E Tester
+          EOF
+
       # Same runtime env as the CI smoke test: lan-messenger.sh would hide
       # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
       - name: Run Robot smoke test
