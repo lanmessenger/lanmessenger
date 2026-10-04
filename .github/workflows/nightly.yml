@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: Build even if dev has no new commits since the last nightly
+        description: Build even if master has no new commits since the last nightly
         type: boolean
         default: false
 
@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: dev
+          ref: master
           fetch-depth: 0
 
       - id: ver
@@ -131,7 +131,7 @@ jobs:
           make_latest: false
           target_commitish: ${{ needs.plan.outputs.sha }}
           body: |
-            Nightly build of `dev` (${{ needs.plan.outputs.date }}).
+            Nightly build of `master` (${{ needs.plan.outputs.date }}).
             Version: `${{ needs.plan.outputs.version }}`
             Commit: ${{ needs.plan.outputs.sha }}
             <!-- nightly-commit: ${{ needs.plan.outputs.sha }} -->
