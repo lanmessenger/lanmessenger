@@ -1,0 +1,89 @@
+# Experimental Robot Framework E2E (Linux only, no video yet).
+#
+# Direction check for todo/e2e.md: real compiled binary driven by the
+# robotframework-qtexpert C++ agent injected via LD_PRELOAD (mode=preload).
+# Runs on every push to the robotframework branch; scheduling, PR triggers
+# and Windows/macOS coverage are out of scope until the approach is validated.
+name: E2E Robot (experimental)
+
+on:
+  push:
+    branches: [robotframework]
+  pull_request:
+    branches: [robotframework]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-robot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-robot-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake git \
+            libssl-dev libgl1-mesa-dev \
+            xvfb xauth \
+            python3-pip python3-venv
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          modules: 'qtmultimedia qtshadertools'
+          cache: true
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
+
+      # The PyPI release of robotframework-qtexpert has no preload mode;
+      # build the LD_PRELOAD agent (Qt6) from git main instead.
+      - name: Build qtexpert agent
+        run: |
+          git clone --depth 1 https://github.com/tulasirm6/robotframework-qtexpert.git /tmp/qtexpert
+          cmake -S /tmp/qtexpert/cpp_agent -B build/qtexpert-agent \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          cmake --build build/qtexpert-agent --config Release
+
+      - name: Set up Python and Robot Framework
+        run: |
+          python3 -m venv .venv-robot-ci
+          .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
+
+      # Same runtime env as the CI smoke test: lan-messenger.sh would hide
+      # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
+      - name: Run Robot smoke test
+        run: |
+          export USER=ci
+          export QT_QPA_PLATFORM=xcb
+          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          xvfb-run -a .venv-robot-ci/bin/robot \
+            --outputdir robot-results \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
+            -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            tests/robot/smoke.robot
+
+      - name: Upload robot results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: robot-results-linux
+          path: robot-results
+          if-no-files-found: warn
+          retention-days: 3

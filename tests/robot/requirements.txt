@@ -1,0 +1,7 @@
+# Robot Framework E2E experiment (branch robotframework, Linux only).
+#
+# NOTE: robotframework-qtexpert on PyPI (0.1.2) has no preload mode, which is
+# what a compiled C++ Qt6 binary needs. Install from git main instead, where
+# the LD_PRELOAD agent (cpp_agent, Qt6) and the `preload` mode live.
+robotframework
+git+https://github.com/tulasirm6/robotframework-qtexpert.git
