@@ -25,11 +25,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Style gate for lmc/src. Version pinned to match tools/format.sh and .clang-format.
+  format-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format-18
+
+      - name: Check formatting
+        run: |
+          find lmc/src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
+            | xargs -0 clang-format-18 --dry-run -Werror
+
+  # Linux, Qt 6.8 from aqt: compile/smoke check against the primary target.
+  # No packages here; the runnable layout is uploaded for manual testing.
   build-linux:
     runs-on: ubuntu-24.04
-    env:
-      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -39,37 +54,93 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential \
-            qtbase5-dev qtbase5-dev-tools qttools5-dev-tools \
-            qtmultimedia5-dev \
+            build-essential cmake \
             libssl-dev libgl1-mesa-dev \
             xvfb xauth
 
-      - name: Prepare OpenSSL paths
-        run: |
-          mkdir -p openssl
-          ln -sfn /usr/include openssl/include
-          ln -sfn /usr/lib/x86_64-linux-gnu openssl/lib
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          modules: 'qtmultimedia qtshadertools'
+          cache: true
 
-      - name: Build lmcapp
-        run: |
-          cd lmcapp/src
-          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
-          make -j"$(nproc)"
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
 
-      - name: Build lmc
-        run: |
-          cd lmc/src
-          qmake lmc.pro CONFIG+=release CONFIG-=debug
-          make -j"$(nproc)"
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
 
-      - name: Build runtime bundle
-        env:
-          QTDIR: /usr/lib/x86_64-linux-gnu/qt5
+      # Run the binary directly: lan-messenger.sh overwrites LD_LIBRARY_PATH
+      # with its own directory only, which would hide the aqt Qt libraries.
+      - name: Smoke test
         run: |
-          cd lmc/src
-          chmod +x scripts/buildx11
-          sh ./scripts/buildx11 ../release
+          export USER=ci
+          cd lmc/release
+          export LD_LIBRARY_PATH="$PWD:$QT_ROOT_DIR/lib"
+          timeout 60 xvfb-run -a ./lan-messenger /loopback /noconfig /quit
+
+      - name: Build e2e test
+        run: cmake --build build --config Release --target tst_lmc_gui --parallel
+
+      - name: E2E GUI test
+        timeout-minutes: 5
+        run: |
+          export USER=ci
+          cp build/tests/tst_lmc_gui lmc/release/
+          cd lmc/release
+          export LD_LIBRARY_PATH="$PWD:$QT_ROOT_DIR/lib"
+          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
+          xvfb-run -a ./tst_lmc_gui
+
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-linux
+          path: e2e-artifacts
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Upload release layout
+        uses: actions/upload-artifact@v7
+        with:
+          name: manual-test-linux-qt68
+          path: lmc/release
+          if-no-files-found: error
+          retention-days: 3
+
+  # Linux, system Qt 6.4 (Ubuntu 24.04): the minimum supported Qt. Builds the
+  # deb/rpm packages against it and smoke-tests the same layout they ship.
+  build-linux-deb:
+    runs-on: ubuntu-24.04
+    env:
+      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
+      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
+      QTDIR: /usr/lib/x86_64-linux-gnu/qt6
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake \
+            qt6-base-dev qt6-base-dev-tools \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+            qt6-multimedia-dev \
+            libssl-dev libgl1-mesa-dev \
+            xvfb xauth
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
 
       - name: Smoke test
         run: |
@@ -114,8 +185,8 @@ jobs:
 
       - uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
-          arch: win64_msvc2019_64
+          version: '6.8.3'
+          arch: win64_msvc2022_64
           cache: true
 
       - name: Install OpenSSL
@@ -131,29 +202,54 @@ jobs:
           Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
           Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
 
-      - name: Build lmcapp
-        shell: cmd
+      - name: Configure
+        shell: bash
         run: |
-          cd lmcapp\src
-          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
-          nmake
-          if exist lmcapp2.lib move /Y lmcapp2.lib lmcapp.lib
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
 
-      - name: Build lmc
-        shell: cmd
-        run: |
-          cd lmc\src
-          qmake lmc.pro CONFIG+=release CONFIG-=debug
-          nmake
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
 
-      - name: Build runtime bundle
+      - name: Deploy Qt runtime
         shell: cmd
         run: |
           set QTDIR=%QT_ROOT_DIR%
-          cd lmc\src
-          call scripts\buildwin32.bat ..\release release
-          copy /Y lmc.exe ..\release\
-          windeployqt --release ..\release\lmc.exe
+          windeployqt --release lmc\release\lmc.exe
+
+      # QSslSocket needs the Qt 6 TLS backend plugins; deploy them explicitly
+      # in case windeployqt skipped them.
+      - name: Ensure TLS plugins
+        shell: pwsh
+        run: |
+          $dst = "lmc/release/tls"
+          if (-not (Test-Path $dst)) {
+            Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
+          }
+
+      - name: Build e2e test
+        run: cmake --build build --config Release --target tst_lmc_gui --parallel
+
+      - name: E2E GUI test
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          Copy-Item build/tests/tst_lmc_gui.exe lmc/release/
+          Set-Location lmc/release
+          $env:LMC_E2E_ARTIFACTS_DIR = "$env:GITHUB_WORKSPACE/e2e-artifacts"
+          .\tst_lmc_gui.exe
+
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-windows
+          path: e2e-artifacts
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Build installer
         shell: cmd
@@ -182,8 +278,9 @@ jobs:
 
       - uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
+          version: '6.8.3'
           arch: clang_64
+          modules: 'qtmultimedia qtshadertools qtimageformats'
           cache: true
 
       - name: Install OpenSSL
@@ -193,24 +290,17 @@ jobs:
           ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
           ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
 
-      - name: Build lmcapp
+      - name: Configure
+        shell: bash
         run: |
-          cd lmcapp/src
-          qmake lmcapp.pro CONFIG+=release CONFIG-=debug
-          make -j"$(sysctl -n hw.ncpu)"
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
 
-      - name: Build lmc
-        run: |
-          cd lmc/src
-          qmake lmc.pro CONFIG+=release CONFIG-=debug
-          make -j"$(sysctl -n hw.ncpu)"
-
-      - name: Build runtime bundle
-        run: |
-          export QTDIR="$QT_ROOT_DIR"
-          cd lmc/src
-          chmod +x scripts/buildmacos
-          sh ./scripts/buildmacos ../release/LAN-Messenger.app/Contents/MacOS
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
 
       - name: Build disk image
         run: |
@@ -219,6 +309,32 @@ jobs:
           chmod +x createdisk addlicense
           sh ./createdisk
           sh ./addlicense "$PKG_VERSION"
+
+      # After createdisk: it copies lmc/release/LAN-Messenger.app into
+      # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
+      # It goes next to liblmcapp.2.dylib (@executable_path install name) and
+      # lmc.rcc (LMC_APP_DIR defaults to applicationDirPath).
+      - name: Build e2e test
+        run: cmake --build build --config Release --target tst_lmc_gui --parallel
+
+      - name: E2E GUI test
+        timeout-minutes: 5
+        run: |
+          cp build/tests/tst_lmc_gui lmc/release/LAN-Messenger.app/Contents/MacOS/
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
+          ./LAN-Messenger.app/Contents/MacOS/tst_lmc_gui
+
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-macos
+          path: e2e-artifacts
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Upload packages
         uses: actions/upload-artifact@v7

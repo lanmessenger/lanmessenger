@@ -36,70 +36,72 @@
 
 class lmcUserTreeWidgetItem : public QTreeWidgetItem {
 public:
-	lmcUserTreeWidgetItem();
-	~lmcUserTreeWidgetItem() {}
+  lmcUserTreeWidgetItem();
+  ~lmcUserTreeWidgetItem() {}
 
-	QRect checkBoxRect(const QRect& itemRect);
+  QRect checkBoxRect(const QRect& itemRect);
 };
 
 class lmcUserTreeWidgetGroupItem : public lmcUserTreeWidgetItem {
 public:
-	lmcUserTreeWidgetGroupItem() : lmcUserTreeWidgetItem() {}
-	~lmcUserTreeWidgetGroupItem() {}
+  lmcUserTreeWidgetGroupItem()
+      : lmcUserTreeWidgetItem() {}
+  ~lmcUserTreeWidgetGroupItem() {}
 
-	void addChild(QTreeWidgetItem* child);
+  void addChild(QTreeWidgetItem* child);
 };
 
 class lmcUserTreeWidgetUserItem : public lmcUserTreeWidgetItem {
 public:
-	lmcUserTreeWidgetUserItem() : lmcUserTreeWidgetItem() {}
-	~lmcUserTreeWidgetUserItem() {}
+  lmcUserTreeWidgetUserItem()
+      : lmcUserTreeWidgetItem() {}
+  ~lmcUserTreeWidgetUserItem() {}
 
 private:
-	bool operator < (const QTreeWidgetItem& other) const;
+  bool operator<(const QTreeWidgetItem& other) const;
 };
 
 class lmcUserTreeWidgetDelegate : public QStyledItemDelegate {
 public:
-	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+  void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
 private:
-	void drawCheckBox(QPainter* painter, const QPalette& palette, const QRect& checkBoxRect, Qt::CheckState checkState) const;
+  void drawCheckBox(QPainter* painter, const QPalette& palette, const QRect& checkBoxRect, Qt::CheckState checkState) const;
 };
 
 class lmcUserTreeWidget : public QTreeWidget {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcUserTreeWidget(QWidget* parent);
-	~lmcUserTreeWidget() {}
+  lmcUserTreeWidget(QWidget* parent);
+  ~lmcUserTreeWidget() {}
 
-	bool checkable(void);
-	void setCheckable(bool enable);
-	UserListView view(void);
-	void setView(UserListView view);
+  bool checkable(void);
+  void setCheckable(bool enable);
+  UserListView view(void);
+  void setView(UserListView view);
 
 signals:
-	void itemDragDropped(QTreeWidgetItem* item);
-    void itemContextMenu(QTreeWidgetItem* item, QPoint& pos);
+  void itemDragDropped(QTreeWidgetItem* item);
+  void itemContextMenu(QTreeWidgetItem* item, QPoint& pos);
 
 protected:
-	void mousePressEvent(QMouseEvent* event);
-	void dragMoveEvent(QDragMoveEvent* event);
-	void dropEvent(QDropEvent* event);
-    void contextMenuEvent(QContextMenuEvent *event);
-	void mouseReleaseEvent(QMouseEvent* event);
-	void keyPressEvent(QKeyEvent* event);
+  void mousePressEvent(QMouseEvent* event);
+  void dragMoveEvent(QDragMoveEvent* event);
+  void dropEvent(QDropEvent* event);
+  void contextMenuEvent(QContextMenuEvent* event);
+  void mouseReleaseEvent(QMouseEvent* event);
+  void keyPressEvent(QKeyEvent* event);
 
 private:
-	lmcUserTreeWidgetDelegate* itemDelegate;
-	bool dragGroup;
-	bool dragUser;
-	QString parentId;
-	QTreeWidgetItem* dragItem;
-	bool expanded;
-	bool isCheckable;
-	UserListView viewType;
+  lmcUserTreeWidgetDelegate* itemDelegate;
+  bool dragGroup;
+  bool dragUser;
+  QString parentId;
+  QTreeWidgetItem* dragItem;
+  bool expanded;
+  bool isCheckable;
+  UserListView viewType;
 };
 
 #endif // USERTREEWIDGET_H

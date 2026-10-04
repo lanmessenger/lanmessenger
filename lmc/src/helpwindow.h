@@ -31,27 +31,26 @@
 #include "shared.h"
 #include "settings.h"
 
-class lmcHelpWindow : public QWidget
-{
-	Q_OBJECT
+class lmcHelpWindow : public QWidget {
+  Q_OBJECT
 
 public:
-	lmcHelpWindow(QRect* pRect, QWidget *parent = 0);
-	~lmcHelpWindow();
+  lmcHelpWindow(QRect* pRect, QWidget* parent = 0);
+  ~lmcHelpWindow();
 
-	void init(void);
-	void stop(void);
-	void settingsChanged(void);
+  void init(void);
+  void stop(void);
+  void settingsChanged(void);
 
 protected:
-    bool eventFilter(QObject* pObject, QEvent* pEvent);
-	void changeEvent(QEvent* pEvent);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
 
 private:
-	void setUIText(void);
+  void setUIText(void);
 
-	Ui::HelpWindow ui;
-	lmcSettings* pSettings;
+  Ui::HelpWindow ui;
+  lmcSettings* pSettings;
 };
 
 #endif // HELPWINDOW_H

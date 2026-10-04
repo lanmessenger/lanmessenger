@@ -50,99 +50,99 @@
 #include "theme.h"
 
 class lmcChatWindow : public QWidget {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-    lmcChatWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
-	~lmcChatWindow(void);
+  lmcChatWindow(QWidget* parent = 0, Qt::WindowFlags flags = Qt::WindowFlags());
+  ~lmcChatWindow(void);
 
-	void init(User* pLocalUser, User* pRemoteUser, bool connected);
-    void stop(void);
-	void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void connectionStateChanged(bool connected);
-	void settingsChanged(void);
+  void init(User* pLocalUser, User* pRemoteUser, bool connected);
+  void stop(void);
+  void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void connectionStateChanged(bool connected);
+  void settingsChanged(void);
 
-	QString localId;
-	QHash<QString, QString> peerIds;
-	QString threadId;
-	bool groupMode;
+  QString localId;
+  QHash<QString, QString> peerIds;
+  QString threadId;
+  bool groupMode;
 
 signals:
-	void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void showHistory(void);
-	void showTransfers(void);
-	void closed(QString* lpszUserId);
+  void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void showHistory(void);
+  void showTransfers(void);
+  void closed(QString* lpszUserId);
 
 protected:
-	bool eventFilter(QObject* pObject, QEvent* pEvent);
-	void changeEvent(QEvent* pEvent);
-	void closeEvent(QCloseEvent* pEvent);
-	void dragEnterEvent(QDragEnterEvent* pEvent);
-	void dropEvent(QDropEvent* pEvent);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
+  void changeEvent(QEvent* pEvent);
+  void closeEvent(QCloseEvent* pEvent);
+  void dragEnterEvent(QDragEnterEvent* pEvent);
+  void dropEvent(QDropEvent* pEvent);
 
 private slots:
-	void btnFont_clicked(void);
-	void btnFontColor_clicked(void);
-	void btnFile_clicked(void);
-    void btnFolder_clicked(void);
-	void btnSave_clicked(void);
-	void btnHistory_clicked(void);
-	void btnTransfers_clicked(void);
-	void smileyAction_triggered(void);
-	void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
-	void checkChatState(void);
+  void btnFont_clicked(void);
+  void btnFontColor_clicked(void);
+  void btnFile_clicked(void);
+  void btnFolder_clicked(void);
+  void btnSave_clicked(void);
+  void btnHistory_clicked(void);
+  void btnTransfers_clicked(void);
+  void smileyAction_triggered(void);
+  void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
+  void checkChatState(void);
 
 private:
-	void createSmileyMenu(void);
-	void createToolBar(void);
-	void setUIText(void);
-	void sendMessage(void);
-    void sendFile(QString* lpszFilePath);
-    void sendFolder(QString* lpszFolderPath);
-    void sendObject(MessageType type, QString* lpszPath);
-	void encodeMessage(QString* lpszMessage);
-    void processFileOp(XmlMessage* pMessage);
-	void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
-	void updateFileMessage(FileMode mode, FileOp op, QString fileId);
-	void showStatus(int flag, bool add);
-	QString getWindowTitle(void);
-	void setMessageFont(QFont& font);
-	void setChatState(ChatState newChatState);
+  void createSmileyMenu(void);
+  void createToolBar(void);
+  void setUIText(void);
+  void sendMessage(void);
+  void sendFile(QString* lpszFilePath);
+  void sendFolder(QString* lpszFolderPath);
+  void sendObject(MessageType type, QString* lpszPath);
+  void encodeMessage(QString* lpszMessage);
+  void processFileOp(XmlMessage* pMessage);
+  void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
+  void updateFileMessage(FileMode mode, FileOp op, QString fileId);
+  void showStatus(int flag, bool add);
+  QString getWindowTitle(void);
+  void setMessageFont(QFont& font);
+  void setChatState(ChatState newChatState);
 
-	QString peerId;
-	QString localName;
-	QHash<QString, QString> peerNames;
-	QHash<QString, QString> peerStatuses;
-    QHash<QString, uint> peerCaps;
-	User* pLocalUser;
-	QString lastUserId;
+  QString peerId;
+  QString localName;
+  QHash<QString, QString> peerNames;
+  QHash<QString, QString> peerStatuses;
+  QHash<QString, uint> peerCaps;
+  User* pLocalUser;
+  QString lastUserId;
 
-	Ui::ChatWindow ui;
-	lmcSettings* pSettings;
-	lmcMessageLog* pMessageLog;
-	QAction* pFontAction;
-	QAction* pFontColorAction;
-	lmcToolButton* pbtnSmiley;
-	QAction* pFileAction;
-    QAction* pFolderAction;
-	QAction* pSaveAction;
-	QToolBar* pRightBar;
-	QAction* pHistoryAction;
-	QAction* pTransferAction;
-	QMenu* pSmileyMenu;
-	lmcImagePickerAction* pSmileyAction;
-	int nSmiley;
-	bool bConnected;
-	int infoFlag;
-	bool showSmiley;
-	bool sendKeyMod;
-    bool clearOnClose;
-	lmcSoundPlayer* pSoundPlayer;
-	QColor messageColor;
-	ChatState chatState;
-	qint64 keyStroke;
-	qint64 snapKeyStroke;
-	bool dataSaved;
+  Ui::ChatWindow ui;
+  lmcSettings* pSettings;
+  lmcMessageLog* pMessageLog;
+  QAction* pFontAction;
+  QAction* pFontColorAction;
+  lmcToolButton* pbtnSmiley;
+  QAction* pFileAction;
+  QAction* pFolderAction;
+  QAction* pSaveAction;
+  QToolBar* pRightBar;
+  QAction* pHistoryAction;
+  QAction* pTransferAction;
+  QMenu* pSmileyMenu;
+  lmcImagePickerAction* pSmileyAction;
+  int nSmiley;
+  bool bConnected;
+  int infoFlag;
+  bool showSmiley;
+  bool sendKeyMod;
+  bool clearOnClose;
+  lmcSoundPlayer* pSoundPlayer;
+  QColor messageColor;
+  ChatState chatState;
+  qint64 keyStroke;
+  qint64 snapKeyStroke;
+  bool dataSaved;
 };
 
 #endif // CHATWINDOW_H

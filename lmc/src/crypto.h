@@ -33,69 +33,70 @@
 #define CRYPTO_H
 
 class EVP_CIPHER_CTX_wrapper {
-public :
+public:
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
-	#if OPENSSL_VERSION_NUMBER < 0x10100000L
+  EVP_CIPHER_CTX_wrapper() {
+    EVP_CIPHER_CTX_init(&ctx);
+  }
+  EVP_CIPHER_CTX* ptr() {
+    return &ctx;
+  };
 
-	EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_init(&ctx);
-	}
-	EVP_CIPHER_CTX* ptr() { return &ctx; };
+  EVP_CIPHER_CTX ctx;
 
-	EVP_CIPHER_CTX ctx;
+#else
 
-	#else
+  EVP_CIPHER_CTX_wrapper() {
+    ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX_init(ctx);
+  }
 
-	EVP_CIPHER_CTX_wrapper() {
-		ctx = EVP_CIPHER_CTX_new();
-		EVP_CIPHER_CTX_init(ctx);
-	}
+  EVP_CIPHER_CTX_wrapper(const EVP_CIPHER_CTX_wrapper& other) {
+    ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX_copy(ctx, other.ctx);
+  }
 
-	EVP_CIPHER_CTX_wrapper(const EVP_CIPHER_CTX_wrapper& other) {
-		ctx = EVP_CIPHER_CTX_new();
-		EVP_CIPHER_CTX_copy(ctx, other.ctx);
-	}
+  EVP_CIPHER_CTX_wrapper& operator=(const EVP_CIPHER_CTX_wrapper& other) {
+    if(this != &other)
+      EVP_CIPHER_CTX_copy(ctx, other.ctx);
+    return *this;
+  }
 
-	EVP_CIPHER_CTX_wrapper& operator=(const EVP_CIPHER_CTX_wrapper& other) {
-		if(this != &other)
-			EVP_CIPHER_CTX_copy(ctx, other.ctx);
-		return *this;
-	}
+  ~EVP_CIPHER_CTX_wrapper() {
+    EVP_CIPHER_CTX_free(ctx);
+  }
 
-	~EVP_CIPHER_CTX_wrapper() {
-		EVP_CIPHER_CTX_free(ctx);
-	}
+  EVP_CIPHER_CTX* ptr() {
+    return ctx;
+  };
 
-	EVP_CIPHER_CTX* ptr() { return ctx; };
+  EVP_CIPHER_CTX* ctx;
 
-	EVP_CIPHER_CTX* ctx;
-
-	#endif
-
+#endif
 };
 
 #define EVP_CIPHER_CTX EVP_CIPHER_CTX_wrapper
 
-class lmcCrypto
-{
+class lmcCrypto {
 public:
-	lmcCrypto(void);
-	~lmcCrypto(void);
+  lmcCrypto(void);
+  ~lmcCrypto(void);
 
-	QByteArray generateRSA(void);
-	QByteArray generateAES(QString* lpszUserId, QByteArray& pubKey);
-	void retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv);
-	QByteArray encrypt(QString* lpszUserId, QByteArray& clearData);
-	QByteArray decrypt(QString* lpszUserId, QByteArray& cipherData);
+  QByteArray generateRSA(void);
+  QByteArray generateAES(QString* lpszUserId, QByteArray& pubKey);
+  void retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv);
+  QByteArray encrypt(QString* lpszUserId, QByteArray& clearData);
+  QByteArray decrypt(QString* lpszUserId, QByteArray& cipherData);
 
-	QByteArray publicKey;
+  QByteArray publicKey;
 
 private:
-	RSA* pRsa;
-	QMap<QString, EVP_CIPHER_CTX> encryptMap;
-	QMap<QString, EVP_CIPHER_CTX> decryptMap;
-	int bits;
-	long exponent;
+  RSA* pRsa;
+  QMap<QString, EVP_CIPHER_CTX> encryptMap;
+  QMap<QString, EVP_CIPHER_CTX> decryptMap;
+  int bits;
+  long exponent;
 };
 
 #endif // CRYPTO_H

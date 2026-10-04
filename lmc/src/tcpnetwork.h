@@ -35,59 +35,59 @@
 #include "crypto.h"
 
 class lmcTcpNetwork : public QObject {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcTcpNetwork(void);
-	~lmcTcpNetwork(void) {}
+  lmcTcpNetwork(void);
+  ~lmcTcpNetwork(void) {}
 
-	void init(int nPort = 0);
-	void start(void);
-	void stop(void);
-	void setLocalId(QString* lpszLocalId);
-	void setCrypto(lmcCrypto* pCrypto);
-	void addConnection(QString* lpszUserId, QString* lpszAddress);
-	void sendMessage(QString* lpszReceiverId, QString* lpszData);
-	void initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
-	void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
-	void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);
-	void settingsChanged(void);
-	void setIPAddress(const QString& szAddress);
+  void init(int nPort = 0);
+  void start(void);
+  void stop(void);
+  void setLocalId(QString* lpszLocalId);
+  void setCrypto(lmcCrypto* pCrypto);
+  void addConnection(QString* lpszUserId, QString* lpszAddress);
+  void sendMessage(QString* lpszReceiverId, QString* lpszData);
+  void initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
+  void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
+  void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);
+  void settingsChanged(void);
+  void setIPAddress(const QString& szAddress);
 
 signals:
-	void newConnection(QString* lpszUserId, QString* lpszAddress);
-	void connectionLost(QString* lpszUserId);
-	void messageReceived(DatagramHeader* pHeader, QString* lpszData);
-	void progressReceived(QString* lpszUserId, QString* lpszData);
+  void newConnection(QString* lpszUserId, QString* lpszAddress);
+  void connectionLost(QString* lpszUserId);
+  void messageReceived(DatagramHeader* pHeader, QString* lpszData);
+  void progressReceived(QString* lpszUserId, QString* lpszData);
 
 private slots:
-	void server_newConnection(void);
-	void socket_readyRead(void);
-	void msgStream_connectionLost(QString* lpszUserId);
-	void update(FileMode mode, FileOp op, FileType type, QString* lpszId, QString* lpszUserId, QString* lpszData);
-	void receiveMessage(QString* lpszUserId, QString* lpszAddress, QByteArray& data);
+  void server_newConnection(void);
+  void socket_readyRead(void);
+  void msgStream_connectionLost(QString* lpszUserId);
+  void update(FileMode mode, FileOp op, FileType type, QString* lpszId, QString* lpszUserId, QString* lpszData);
+  void receiveMessage(QString* lpszUserId, QString* lpszAddress, QByteArray& data);
 
 private:
-    void addFileSocket(QString* lpszId, QString *lpszUserId, QTcpSocket *pSocket);
-	void addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket);
-	void sendPublicKey(QString* lpszUserId);
-	void sendSessionKey(QString* lpszUserId, QByteArray& publicKey);
-    FileSender* getSender(QString id, QString userId);
-    FileReceiver* getReceiver(QString id, QString userId);
-    void removeSender(FileSender* pSender);
-    void removeReceiver(FileReceiver* pReceiver);
+  void addFileSocket(QString* lpszId, QString* lpszUserId, QTcpSocket* pSocket);
+  void addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket);
+  void sendPublicKey(QString* lpszUserId);
+  void sendSessionKey(QString* lpszUserId, QByteArray& publicKey);
+  FileSender* getSender(QString id, QString userId);
+  FileReceiver* getReceiver(QString id, QString userId);
+  void removeSender(FileSender* pSender);
+  void removeReceiver(FileReceiver* pReceiver);
 
-	QTcpServer*				  server;
-	QList<FileSender*>		  sendList;
-	QList<FileReceiver*>	  receiveList;
-	QMap<QString, MsgStream*> messageMap;
-	MsgStream*				  locMsgStream;
-	lmcSettings*			  pSettings;
-	bool					  isRunning;
-	int						  tcpPort;
-	QString					  localId;
-	lmcCrypto*				  crypto;
-	QHostAddress			  ipAddress;
+  QTcpServer* server;
+  QList<FileSender*> sendList;
+  QList<FileReceiver*> receiveList;
+  QMap<QString, MsgStream*> messageMap;
+  MsgStream* locMsgStream;
+  lmcSettings* pSettings;
+  bool isRunning;
+  int tcpPort;
+  QString localId;
+  lmcCrypto* crypto;
+  QHostAddress ipAddress;
 };
 
 #endif // TCPNETWORK_H

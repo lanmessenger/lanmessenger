@@ -40,40 +40,58 @@
 **	Description: Takes care of rendering the item
 ****************************************************************************/
 class FileView {
-	Q_DECLARE_TR_FUNCTIONS(FileView)
+  Q_DECLARE_TR_FUNCTIONS(FileView)
 
 public:
-	enum DisplayMode { DM_Normal, DM_Selected, DM_Max };
-	enum TransferMode { TM_Send, TM_Receive, TM_Max };
-	enum TransferState { TS_Wait, TS_Confirm, TS_Send, TS_Receive, TS_Complete, TS_Decline, TS_Cancel, TS_Abort, TS_Max };
-	
-	FileView(QString id = QString());
+  enum DisplayMode {
+    DM_Normal,
+    DM_Selected,
+    DM_Max
+  };
+  enum TransferMode {
+    TM_Send,
+    TM_Receive,
+    TM_Max
+  };
+  enum TransferState {
+    TS_Wait,
+    TS_Confirm,
+    TS_Send,
+    TS_Receive,
+    TS_Complete,
+    TS_Decline,
+    TS_Cancel,
+    TS_Abort,
+    TS_Max
+  };
 
-	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, DisplayMode mode) const;
-	QSize sizeHint() const;
+  FileView(QString id = QString());
 
-	QString	id;
-    int type;
-	QString	filePath;
-	QString	fileName;
-	qint64	fileSize;
-	QString userId;
-	QString userName;
-	qint64	position;
-	qint64	speed;
-	QString	fileDisplay;
-	QString sizeDisplay;
-	QString posDisplay;
-	QString speedDisplay;
-	QString timeDisplay;
-	TransferMode mode;
-	TransferState state;
-	QPixmap icon;
-    QDateTime startTime;
+  void paint(QPainter* painter, const QRect& rect, const QPalette& palette, DisplayMode mode) const;
+  QSize sizeHint() const;
+
+  QString id;
+  int type;
+  QString filePath;
+  QString fileName;
+  qint64 fileSize;
+  QString userId;
+  QString userName;
+  qint64 position;
+  qint64 speed;
+  QString fileDisplay;
+  QString sizeDisplay;
+  QString posDisplay;
+  QString speedDisplay;
+  QString timeDisplay;
+  TransferMode mode;
+  TransferState state;
+  QPixmap icon;
+  QDateTime startTime;
 };
 
-QDataStream &operator << (QDataStream &out, const FileView &view);
-QDataStream &operator >> (QDataStream &in, FileView &view);
+QDataStream& operator<<(QDataStream& out, const FileView& view);
+QDataStream& operator>>(QDataStream& in, FileView& view);
 
 Q_DECLARE_METATYPE(FileView)
 
@@ -83,13 +101,14 @@ Q_DECLARE_METATYPE(FileView)
 **	Description: Delegates rendering and user input
 ****************************************************************************/
 class FileDelegate : public QStyledItemDelegate {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	FileDelegate(QWidget* parent = 0) : QStyledItemDelegate(parent) {}
+  FileDelegate(QWidget* parent = 0)
+      : QStyledItemDelegate(parent) {}
 
-	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+  void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+  QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 };
 
 
@@ -98,29 +117,30 @@ public:
 **	Description: Handles the underlying data
 ****************************************************************************/
 class FileModel : public QAbstractListModel {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	FileModel(QObject* parent = 0) : QAbstractListModel(parent) {}
+  FileModel(QObject* parent = 0)
+      : QAbstractListModel(parent) {}
 
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	bool insertRows(int position, int rows, const QModelIndex& index = QModelIndex());
-	bool removeRows(int position, int rows, const QModelIndex& index = QModelIndex());
-	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::UserRole);
-	void insertItem(int position, FileView* fileTransfer);
-	void removeItem(int position);
-	FileView* item(int position);
-	FileView* item(QString id);
-	FileView* item(QString id, FileView::TransferMode mode);
-	int itemIndex(QString id, FileView::TransferMode mode);
-	void itemChanged(int position);
-	void loadData(QString filePath);
-	void saveData(QString filePath);
+  int rowCount(const QModelIndex& parent = QModelIndex()) const;
+  QVariant data(const QModelIndex& index, int role) const;
+  Qt::ItemFlags flags(const QModelIndex& index) const;
+  bool insertRows(int position, int rows, const QModelIndex& index = QModelIndex());
+  bool removeRows(int position, int rows, const QModelIndex& index = QModelIndex());
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::UserRole);
+  void insertItem(int position, FileView* fileTransfer);
+  void removeItem(int position);
+  FileView* item(int position);
+  FileView* item(QString id);
+  FileView* item(QString id, FileView::TransferMode mode);
+  int itemIndex(QString id, FileView::TransferMode mode);
+  void itemChanged(int position);
+  void loadData(QString filePath);
+  void saveData(QString filePath);
 
 private:
-	QList<FileView> transferList;
+  QList<FileView> transferList;
 };
 
 #endif // FILEMODELVIEW_H

@@ -26,36 +26,36 @@
 #include "message.h"
 
 QString Message::addHeader(MessageType type, qint64 id, QString* lpszLocalId, QString* lpszPeerId, XmlMessage* pMessage) {
-	if(!pMessage)
-		pMessage = new XmlMessage();
+  if(!pMessage)
+    pMessage = new XmlMessage();
 
-	// remove time stamp from message
-	pMessage->removeHeader(XN_TIME);
+  // remove time stamp from message
+  pMessage->removeHeader(XN_TIME);
 
-	pMessage->addHeader(XN_FROM, *lpszLocalId);
-	if(lpszPeerId)
-		pMessage->addHeader(XN_TO, *lpszPeerId);
-	pMessage->addHeader(XN_MESSAGEID, QString::number(id));
-	pMessage->addHeader(XN_TYPE, MessageTypeNames[type]);
+  pMessage->addHeader(XN_FROM, *lpszLocalId);
+  if(lpszPeerId)
+    pMessage->addHeader(XN_TO, *lpszPeerId);
+  pMessage->addHeader(XN_MESSAGEID, QString::number(id));
+  pMessage->addHeader(XN_TYPE, MessageTypeNames[type]);
 
-	return pMessage->toString();
+  return pMessage->toString();
 }
 
 bool Message::getHeader(QString* lpszMessage, MessageHeader** ppHeader, XmlMessage** ppMessage) {
-	*ppMessage = new XmlMessage(*lpszMessage);
-	if(!((*ppMessage)->isValid()))
-		return false;
+  *ppMessage = new XmlMessage(*lpszMessage);
+  if(!((*ppMessage)->isValid()))
+    return false;
 
-	// add time stamp to message
-	(*ppMessage)->addHeader(XN_TIME, QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()));
+  // add time stamp to message
+  (*ppMessage)->addHeader(XN_TIME, QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()));
 
-	int type = Helper::indexOf(MessageTypeNames, MT_Max, (*ppMessage)->header(XN_TYPE));
-	if(type < 0)
-		return false;
+  int type = Helper::indexOf(MessageTypeNames, MT_Max, (*ppMessage)->header(XN_TYPE));
+  if(type < 0)
+    return false;
 
-	*ppHeader = new MessageHeader(
-					(MessageType)type,
-					(*ppMessage)->header(XN_MESSAGEID).toLongLong(),
-					(*ppMessage)->header(XN_FROM));
-	return true;
+  *ppHeader = new MessageHeader(
+    (MessageType)type,
+    (*ppMessage)->header(XN_MESSAGEID).toLongLong(),
+    (*ppMessage)->header(XN_FROM));
+  return true;
 }

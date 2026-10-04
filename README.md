@@ -2,11 +2,12 @@ How to compile LAN Messenger
 ============================
 [![CI](https://github.com/lanmessenger/lanmessenger/actions/workflows/ci.yml/badge.svg)](https://github.com/lanmessenger/lanmessenger/actions/workflows/ci.yml)
 
-You need Qt (https://www.qt.io/) to compile.
-LAN Messenger is built against Qt 5.15 and enforces the Qt 5.15 API
-baseline (QT_DISABLE_DEPRECATED_BEFORE=0x050F00), so you need Qt 5.15
-or later. The reference builds use Qt 5.15.2 on Windows and macOS and
-the distribution Qt 5.15 packages on Linux.
+You need Qt (https://www.qt.io/) and CMake (https://cmake.org/) to compile.
+LAN Messenger is built against Qt 6 and enforces the Qt 6 API baseline
+(QT_DISABLE_DEPRECATED_BEFORE=0x060000), so you need Qt 6.4 or later.
+The reference builds use Qt 6.8.3 on Windows and macOS and the
+distribution Qt 6.4 packages on Linux. CMake 3.16 or later and a C++17
+compiler are required.
 
 You also need OpenSSL (http://www.openssl.org/)
 Version 1.1 or later, including 3.x, is supported. Only libcrypto is
@@ -17,13 +18,9 @@ The application consists of two projects - lmc and lmcapp. lmcapp is
 just an extension of the qtsingleapplication project released by the 
 Qt people. I have added a few functions to support multilanguage UI.
 
-The main project is lmc which contains the entire application. I have
-included the project files for both projects.
-
-Extract both folders. Make sure the directory hierarchy is maintained.
-"lmc" and "lmcapp" should be folders at same level. Make sure the 
-dependency paths of lmc are set to the correct locations. It depends 
-on lmcapp and openssl, in addition to the standard Qt libraries.
+The main project is lmc which contains the entire application. Both
+projects are built together by the top-level CMake project
+(CMakeLists.txt in the repository root).
 
 The code is identical for all platforms, but there are a few differences
 in the way application is built and run on each platform. Please read
@@ -110,12 +107,22 @@ ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
 
 Compiling LAN Messenger
 ======================
-Some custom scripts are used for automating part of the compilation and setup
-of LAN Messenger. These scripts rely on an environment variable called
-QTDIR that should contain the path where Qt libraries are installed. More
-specifically, it should point to the parent folder of the bin and lib folders
-where Qt binaries reside. Eg: C:\Qt\5.15.2\msvc2019_64 on Windows,
-/usr/lib/x86_64-linux-gnu/qt5 on Linux.
+Configure and build from the repository root:
+
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --target package-local --parallel
+
+The "package-local" target stages the complete runtime bundle (the
+application binary, the lmcapp library, translations, the resource
+bundle, themes, sounds and the Qt image/platform/TLS plugins) into the
+LMC_RELEASE_DIR directory, which defaults to <build-dir>/release. The
+packaging scripts under lmc/setup expect the layout in lmc/release, so
+pass -DLMC_RELEASE_DIR="$PWD/lmc/release" when you plan to build the
+install packages (this is what the CI build does).
+
+If OpenSSL is laid out in the "openssl" folder described above, pass
+-DOPENSSL_ROOT_DIR=$PWD/openssl to the configure command. Otherwise the
+system OpenSSL found by CMake is used.
 
 Refer PLATFORM_SPECIFIC.md for additional details about setting up the build
 environment on respective platforms.
@@ -124,98 +131,88 @@ environment on respective platforms.
 Compiling LAN Messenger on Windows
 ==================================
 Its possible to compile using other build chains/IDEs, but the CI build
-uses qmake with the MSVC tool chain.
+uses CMake with the MSVC tool chain.
 
 OpenSSL should be built/installed first. I recommend using a folder at 
 the same level as "lmc" folder as the OpenSSL folder.
 
-Next build "lmcapp" project. All the files needed are present inside
-lmcapp\src folder. This project should be built as a shared library.
-The library version is 2.0.0, so the import library is produced as
-lmcapp2.lib. Rename it to lmcapp.lib so that the lmc project can link
-against -llmcapp (the CI build does exactly this). The build scripts
-look for the runtime DLL both in lmcapp\src and lmcapp\bin.
-
-Finally build "lmc" project. This project references both OpenSSL and
-lmcapp, so the correct paths to headers and libraries should be set
-first.
-The headers of lmcapp should be in lmcapp\include
-The libraries of lmcapp should be in lmcapp\lib
-The headers of OpenSSL should be in openssl\include
-The libraries of OpenSSL should be in openssl\lib
-Note: OpenSSL paths may be different depending on how it was built/installed
-in your system.
-
-Once you have built lmc, run the "buildwin32.bat" batch file found in
-the src\scripts folder. This script compiles the translation files, builds 
-the resources into a separate binary file and copies the application 
-dependencies (lmcapp and the libcrypto/libssl OpenSSL DLLs) to the output 
-folder. The path of output directory should be passed as a parameter for 
-this script. The script depends on the QTDIR environment variable, so make 
-sure it is set correctly. You can probably add the execution of this script 
-as a custom build step in your IDE. That way it will be automatically called 
-every time you build the project.
+Build as described in the previous section. The application binary is
+lmc.exe and lmcapp is built as lmcapp.dll with the import library
+lmcapp.lib (no renaming needed). The package-local target copies the
+OpenSSL runtime DLLs from openssl\bin to the output folder.
 
 To gather the Qt libraries and plugins into the output folder, run
 "windeployqt --release <output>\lmc.exe" afterwards, as done in the CI 
-build.
+build. The Qt 6 TLS backend plugins (the "tls" folder) are needed for
+SSL support; copy them from your Qt installation's plugins\tls folder
+into the output "tls" folder if windeployqt skipped them.
+
+To build the installer, run "setup.bat" in lmc\setup\win32 folder. NSIS must 
+be installed first. Usage:
+setup.bat <ExeFolder> [ProductVersion] [InstallerVersion]
+Eg: setup.bat release 1.2.39 1.2.3.9
+
+The batch file executes an NSIS script (setup.nsi) which packages the whole
+ExeFolder and generates the installer. ProductVersion and InstallerVersion
+are passed to makensis as command line defines; when omitted, the defaults
+in setup.nsi are used and must be set whenever the application version
+changes. The installer generated will have the name lmc-<version>-win64.exe
+and it will be saved to lmc\setup folder.
 
 
 Compiling LAN Messenger on X11/Linux
 ===================================
 OpenSSL should be built first. I recommend using a folder at the same
-level as "lmc" folder as the OpenSSL folder.
+level as "lmc" folder as the OpenSSL folder. Distribution packages work
+too (see the OpenSSL section above).
 
-Next build "lmcapp" project. All the files needed are present inside
-lmcapp/src folder. This project should be built as a shared library.
-The output of this project is liblmcapp.so.2.0.0 (with the
-liblmcapp.so.2 soname symlink), which will be created in lmcapp/lib 
-folder.
+Build as described earlier and launch the application through the
+"lan-messenger.sh" script in the release layout. It sets the load paths
+for the bundled libraries and calls the "whitelist" helper internally
+(needed for the system tray icon on Ubuntu). Both scripts are staged
+with executable permission by the package-local target.
 
-Finally build "lmc" project. This project references both OpenSSL and
-lmcapp, so the correct paths to headers and libraries should be set
-first.
-The headers of lmcapp should be in lmcapp/include
-The libraries of lmcapp should be in lmcapp/lib
-The headers of OpenSSL should be in openssl/include
-The libraries of OpenSSL should be in openssl/lib
-Note: OpenSSL paths may be different depending on how it was built/installed
-in your system.
+For building the installer, run the bash script "setup" in lmc/setup/x11 folder.
+Make sure the scripts named "postinst", "postrm" and "prerm" in the folder
+package/DEBIAN have executable permission. The setup script substitutes the
+version and architecture placeholders (VERSION, ARCH) in the file "control" in
+the same folder from its argument; edit that file to reflect the proper
+installed size (in KB) of the application. The scripts "lmc.sh" and "whitelist"
+in package/usr/lib/lmc must also have executable permission. All files and
+folder inside package folder must be owned by root user.
 
-Once you have built lmc, run the "buildx11" shell script found in the
-src/scripts folder. This script performs the same actions as its Windows 
-counterpart. The QTDIR variable defined in the script should contain the 
-correct path to Qt libraries. You can add the execution of this script as 
-a custom build step to automate the whole process. If you get an error 
-while executing the script, edit the script to make sure that the Qt 
-plugins path in the script is correct.
+The setup script generates the deb installation package which will be saved to
+lmc/setup folder. The package will have the name lmc_<version>_<arch>.deb
+(eg: lmc_1.2.39_x86_64.deb). Set the environment variable PACKAGE_MODE=_min
+to build a minimal package that does not bundle the Qt libraries (this is
+what the CI build produces); without it the package also bundles the Qt 6
+libraries the application links and the plugins they need. For generating
+rpm package, alien must be installed first. To install alien, run:
+sudo apt-get install alien 
+Execute "rpm_setup" script in lmc/setup/x11 to generate an rpm package from the 
+deb package (deb package must be created first). This package will have the name 
+lmc-<version>.<arch>.rpm and will be saved to lmc/setup folder.
 
 
 Compiling LAN Messenger on Mac OS X
 ==================================
-Build "lmcapp" project. All the files needed are present inside
-lmcapp/src folder. This project should be built as a shared library.
-The output of this project is liblmcapp.2.dylib, which will be created
-in lmcapp/lib folder.
-
-Finally build "lmc" project. This project references both lmcapp and
-OpenSSL, so the correct paths to headers and libraries should be set 
-first.
-The headers of lmcapp should be in lmcapp/include
-The libraries of lmcapp should be in lmcapp/lib
-The headers of OpenSSL should be in openssl/include
-The libraries of OpenSSL should be in openssl/lib
+Build as described earlier; the result is LAN-Messenger.app in the release
+layout. The lmcapp helper (liblmcapp.2.dylib) is placed inside the bundle
+with load path @executable_path.
 
 Note: Mac OS X does not ship a linkable OpenSSL. Install it as described
-in the OpenSSL section above.
+in the OpenSSL section above and pass -DOPENSSL_ROOT_DIR when configuring.
 
-Once you have built lmc, run the "buildmacos" shell script found in the
-src/scripts folder. This script performs the same actions as its Windows 
-counterpart. The script depends on the QTDIR environment variable, so make 
-sure it is set correctly. You can add the execution of this script as a 
-custom build step to automate the whole process. If you get an error while 
-executing the script, edit  the script to make sure that the Qt plugins 
-path in the script is correct.
+For building the installer, first run the bash script "createdisk" in 
+lmc/setup/mac folder. This copies the app bundle, runs macdeployqt on it to
+collect the Qt frameworks and creates a disk image with all the required
+files needed for the application. The script finds macdeployqt through the
+QTDIR environment variable, so make sure it points at your Qt installation
+(the parent folder of the bin and lib folders). Now open up the disk image, set the
+background image, icon size (96x96), icon position, icon arrangment (Snap to
+Grid) and window size. Now run the script "addlicense" to add the user license
+and compress the disk image. The dmg file will have the name 
+lmc_<version>_intel.dmg and will be saved to lmc/setup folder.
 
 Note: On Mac OS X, option to start LAN Messenger on startup will not work.
 This is a platform dependent function and I have not implemented it.
@@ -227,7 +224,7 @@ LAN Messenger can play sounds to accompany certain events. This behaviour
 is customizable in the Preferences dialog. Sounds are played through the
 Qt Multimedia module (QSoundEffect), so that module must be available at
 build and run time. On Linux install the Qt Multimedia development and
-runtime packages (qtmultimedia5-dev, libqt5multimedia5). If no audio
+runtime packages (qt6-multimedia-dev, libqt6multimedia6). If no audio
 output device is available, the sound options will be grayed out in the
 Preferences dialog.
 

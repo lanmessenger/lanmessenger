@@ -1,0 +1,5 @@
+# Commits to ignore in git blame (whitespace-only reformatting).
+# Enable locally with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: apply clang-format to lmc/src
+8141276c1ee7dd52886182e7e6c666c6866d2cab

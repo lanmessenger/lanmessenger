@@ -47,7 +47,6 @@
 
 #include "qtlocalpeer.h"
 #include <QtCore/QCoreApplication>
-#include <QtCore/QTime>
 #include <QDataStream>
 #include <QRegularExpression>
 
@@ -88,7 +87,7 @@ QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
     prefix.truncate(6);
 
     QByteArray idc = id.toUtf8();
-    quint16 idNum = qChecksum(idc.constData(), idc.size());
+    quint16 idNum = qChecksum(QByteArrayView(idc));
     socketName = QLatin1String("qtsingleapp-") + prefix
                  + QLatin1Char('-') + QString::number(idNum, 16);
 
@@ -125,7 +124,7 @@ bool QtLocalPeer::isClient()
         return true;
 
     bool res = server->listen(socketName);
-#if defined(Q_OS_UNIX) && (QT_VERSION >= QT_VERSION_CHECK(4,5,0))
+#if defined(Q_OS_UNIX)
     // ### Workaround
     if (!res && server->serverError() == QAbstractSocket::AddressInUseError) {
         QFile::remove(QDir::cleanPath(QDir::tempPath())+QLatin1Char('/')+socketName);

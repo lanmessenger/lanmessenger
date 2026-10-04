@@ -1,24 +1,24 @@
 Windows
 -------
-On Windows the project files do not set DESTDIR, so the binaries are written
-to the build directory. The CI build compiles both projects in-source (in
-lmcapp\src and lmc\src) and copies lmc.exe to the runtime bundle folder
-lmc\release afterwards.
+The build is driven by CMake; the binaries are written to the build
+directory. The "package-local" target stages the complete runtime bundle
+into the LMC_RELEASE_DIR directory (defaults to <build-dir>/release).
+The CI build stages it into lmc\release where the packaging scripts
+expect it:
 
-Note: the lmc project locates the lmcapp library via
-$$replace(OUT_PWD, lmc, lmcapp), so keep the two build directories as
-siblings with matching names (e.g. lmc and lmcapp) if you use shadow builds.
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake --build build --config Release --target package-local --parallel
 
-The custom build step needs the following parameters:
-Command: scripts\buildwin32.bat
-Working directory: %{sourceDir}
-Command arguments: %{buildDir}\..\debug (for debug)
-Command arguments: %{buildDir}\..\release release (for release)
+lmcapp is built as lmcapp.dll with the import library lmcapp.lib, so no
+renaming step is needed. The package-local target copies the OpenSSL
+runtime DLLs (libcrypto*.dll, libssl*.dll) from openssl\bin into the
+output folder.
 
-The script copies the lmcapp DLL and the OpenSSL runtime DLLs
-(libcrypto*.dll, libssl*.dll) into the output folder. Run
-"windeployqt --release <output>\lmc.exe" afterwards to gather the Qt
-libraries and plugins, as done in the CI build.
+Run "windeployqt --release <output>\lmc.exe" afterwards to gather the Qt
+libraries and plugins, as done in the CI build. The Qt 6 TLS backend
+plugins (the "tls" folder) are needed for SSL support; copy them from
+your Qt installation's plugins\tls folder into the output "tls" folder
+if windeployqt skipped them (the CI build does this as a separate step).
 
 For building the installer, run setup.bat in lmc\setup\win32 folder. NSIS must 
 be installed first. Usage:
@@ -35,31 +35,24 @@ and it will be saved to lmc\setup folder.
 
 Linux/X11
 ---------
-Build directory for debug is lmc/debug.
-Build directory for release is lmc/release.
-lmc
- |-debug
- |-release
- |-src
+The build is driven by CMake. The "package-local" target stages the
+runtime layout (binary, liblmcapp.so.2, lmc.rcc, lang, themes, sounds
+and the Qt imageformats/platforms/tls plugins) into the LMC_RELEASE_DIR
+directory (defaults to <build-dir>/release):
 
-The custom build script needs executable permission. Run the following command:
-chmod 755 ./scripts/buildx11
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake --build build --config Release --target package-local --parallel
 
-The custom build step needs the following parameters:
-Command: ./scripts/buildx11
-Working directory: %{sourceDir}
-Command arguments: %{buildDir}
+The packaging scripts read the layout from lmc/release, so pass that
+value for LMC_RELEASE_DIR when building packages (this is what the CI
+build does).
 
 The two script files named lan-messenger.sh and whitelist are needed to launch 
 the application. The first one sets the load paths for all libraries needed by 
 the application. The second is needed for adding the application to Ubuntu's 
 whitelist so that the system tray icon can be shown. The second script will be 
-called internally by the first script. Make sure both scripts have permission 
-to run as executables.
-chmod 755 ./lan-messenger.sh
-chmod 755 ./whitelist
-
-Note: The custom build script will take care of this automatically.
+called internally by the first script. Both are staged with executable
+permission by the package-local target.
 
 To debug a running application, run this command before attaching to the process:
 echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
@@ -80,8 +73,9 @@ The setup script generates the deb installation package which will be saved to
 lmc/setup folder. The package will have the name lmc_<version>_<arch>.deb
 (eg: lmc_1.2.39_x86_64.deb). Set the environment variable PACKAGE_MODE=_min
 to build a minimal package that does not bundle the Qt libraries (this is
-what the CI build produces). For generating rpm package, alien must be
-installed first. To install alien, run:
+what the CI build produces); without it the package also bundles the Qt 6
+libraries the application links and the plugins they need. For generating
+rpm package, alien must be installed first. To install alien, run:
 sudo apt-get install alien 
 Execute "rpm_setup" script in lmc/setup/x11 to generate an rpm package from the 
 deb package (deb package must be created first). This package will have the name 
@@ -90,25 +84,25 @@ lmc-<version>.<arch>.rpm and will be saved to lmc/setup folder.
 
 Mac OS X
 --------
-Build directory for debug is lmc/debug.
-Build directory for release is lmc/release.
-lmc
- |-debug
- |-release
- |-src
+The build is driven by CMake. The "package-local" target stages
+LAN-Messenger.app into the LMC_RELEASE_DIR directory (defaults to
+<build-dir>/release; use lmc/release for the packaging scripts):
 
-The custom build script needs executable permission. Run the following command:
-chmod 755 ./scripts/buildmacos
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake --build build --config Release --target package-local --parallel
 
-The custom build step needs the following parameters:
-Command: ./scripts/buildmacos
-Working directory: %{sourceDir}
-Command arguments: %{buildDir}/LAN-Messenger.app/Contents/MacOS
+The lmcapp helper (liblmcapp.2.dylib) is placed inside
+LAN-Messenger.app/Contents/MacOS with load path @executable_path, so no
+install_name_tool post-processing is needed. The Qt image format plugins
+go to Contents/Plugins (see setLibraryPaths in main.cpp).
 
 For building the installer, first run the bash script "createdisk" in 
 lmc/setup/mac folder. This copies the app bundle, runs macdeployqt on it to
 collect the Qt frameworks and creates a disk image with all the required
-files needed for the application. Now open up the disk image, set the
+files needed for the application. The script locates macdeployqt through
+the QTDIR environment variable, so make sure it points at your Qt
+installation (the parent folder of the bin and lib folders). Now open up
+the disk image, set the
 background image, icon size (96x96), icon position, icon arrangment (Snap to
 Grid) and window size. Now run the script "addlicense" to add the user license
 and compress the disk image. The dmg file will have the name 

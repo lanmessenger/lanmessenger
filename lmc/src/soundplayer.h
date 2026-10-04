@@ -30,20 +30,20 @@
 
 class lmcSoundPlayer {
 public:
-	lmcSoundPlayer(void);
+  lmcSoundPlayer(void);
 
-    static bool isAvailable();
-    static void play(const QString &filename);
-    void play(SoundEvent event);
-	void settingsChanged(void);
+  static bool isAvailable();
+  static void play(const QString& filename);
+  void play(SoundEvent event);
+  void settingsChanged(void);
 
 private:
-	lmcSettings* pSettings;
-	int eventState[SE_Max];
-	QString sounds[SE_Max];
-	bool playSound;
-	bool noBusySound;
-	bool noDNDSound;
+  lmcSettings* pSettings;
+  int eventState[SE_Max];
+  QString sounds[SE_Max];
+  bool playSound;
+  bool noBusySound;
+  bool noDNDSound;
 };
 
 #endif // SOUNDPLAYER_H

@@ -30,34 +30,34 @@
 #include "filemodelview.h"
 
 class lmcTransferListView : public QListView {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	lmcTransferListView(QWidget* parent = 0);
-	~lmcTransferListView(void) {}
+  lmcTransferListView(QWidget* parent = 0);
+  ~lmcTransferListView(void) {}
 
-	void insertItem(int row, FileView* fileTransfer);
-	void removeItem(int row);
-	FileView* item(int row);
-	FileView* item(QString id);
-	FileView* item(QString id, FileView::TransferMode mode);
-	int itemIndex(QString id, FileView::TransferMode mode);
-	FileView* currentItem(void);
-	int currentRow(void);
-	int count(void);
-	void setCurrentRow(int row);
-	void itemChanged(int row);
-	void loadData(QString filePath);
-	void saveData(QString filePath);
+  void insertItem(int row, FileView* fileTransfer);
+  void removeItem(int row);
+  FileView* item(int row);
+  FileView* item(QString id);
+  FileView* item(QString id, FileView::TransferMode mode);
+  int itemIndex(QString id, FileView::TransferMode mode);
+  FileView* currentItem(void);
+  int currentRow(void);
+  int count(void);
+  void setCurrentRow(int row);
+  void itemChanged(int row);
+  void loadData(QString filePath);
+  void saveData(QString filePath);
 
 signals:
-	void currentRowChanged(int currentRow);
+  void currentRowChanged(int currentRow);
 
 protected:
-	void currentChanged(const QModelIndex& current, const QModelIndex& previous);
+  void currentChanged(const QModelIndex& current, const QModelIndex& previous);
 
 private:
-	FileModel* pModel;
+  FileModel* pModel;
 };
 
 #endif // TRANSFERLISTVIEW_H
