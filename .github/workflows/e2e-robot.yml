@@ -33,7 +33,7 @@ jobs:
           sudo apt-get install -y \
             build-essential cmake git \
             libssl-dev libgl1-mesa-dev \
-            xvfb xauth ffmpeg x11-utils \
+            xvfb xauth ffmpeg x11-utils xdotool \
             python3-pip python3-venv
 
       - uses: jurplel/install-qt-action@v4
@@ -110,7 +110,10 @@ jobs:
 
       # Same runtime env as the CI smoke test: lan-messenger.sh would hide
       # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
-      - name: Run Robot smoke test
+      # The whole tests/robot/ directory runs (smoke + dialogs suites).
+      # Dialog shortcuts and menu mnemonics are sent as real X keys via
+      # xdotool (see tests/robot/common.resource for why not QTest keys).
+      - name: Run Robot tests
         env:
           DISPLAY: :99
         run: |
@@ -121,7 +124,7 @@ jobs:
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
             -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
-            tests/robot/smoke.robot
+            tests/robot/
 
       - name: Stop video recording
         if: always()
