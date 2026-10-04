@@ -1,4 +1,4 @@
-# Experimental Robot Framework E2E (Linux only, no video yet).
+# Experimental Robot Framework E2E (Linux only, with video of the run).
 #
 # Direction check for todo/e2e.md: real compiled binary driven by the
 # robotframework-qtexpert C++ agent injected via LD_PRELOAD (mode=preload).
@@ -33,7 +33,7 @@ jobs:
           sudo apt-get install -y \
             build-essential cmake git \
             libssl-dev libgl1-mesa-dev \
-            xvfb xauth \
+            xvfb xauth ffmpeg x11-utils \
             python3-pip python3-venv
 
       - uses: jurplel/install-qt-action@v4
@@ -70,24 +70,54 @@ jobs:
           python3 -m venv .venv-robot-ci
           .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
 
+      # ffmpeg records the Xvfb display, so Xvfb runs with a fixed number
+      # instead of xvfb-run. Recording always runs and is uploaded, even
+      # when the test fails (stop step uses `if: always()`).
+      - name: Start virtual display
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 &
+          for i in $(seq 1 30); do
+            xdpyinfo -display :99 >/dev/null 2>&1 || sleep 1
+          done
+          xdpyinfo -display :99 >/dev/null
+
+      - name: Start video recording
+        run: |
+          ffmpeg -y -nostdin \
+            -f x11grab -video_size 1280x1024 -framerate 15 -i :99 \
+            -c:v libx264 -preset veryfast -pix_fmt yuv420p \
+            robot-video.mp4 &
+          echo $! > /tmp/ffmpeg.pid
+
       # Same runtime env as the CI smoke test: lan-messenger.sh would hide
       # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
       - name: Run Robot smoke test
+        env:
+          DISPLAY: :99
         run: |
           export USER=ci
           export QT_QPA_PLATFORM=xcb
           export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
-          xvfb-run -a .venv-robot-ci/bin/robot \
+          .venv-robot-ci/bin/robot \
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
             -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
             tests/robot/smoke.robot
+
+      - name: Stop video recording
+        if: always()
+        run: |
+          kill -INT "$(cat /tmp/ffmpeg.pid)"
+          wait "$(cat /tmp/ffmpeg.pid)" || true
+          ls -la robot-video.mp4
 
       - name: Upload robot results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: robot-results-linux
-          path: robot-results
+          path: |
+            robot-results
+            robot-video.mp4
           if-no-files-found: warn
           retention-days: 3
