@@ -127,3 +127,99 @@ Window Should Be Hidden
     Sleep             ${HIDE_SETTLE}
     ${visible}=       Get Object Property    name=${window}    visible
     Should Not Be True    ${visible}    ${window} should be hidden after close
+
+Open Self Chat
+    [Documentation]    Open a conversation with the loopback self-peer, retrying
+    ...    until it sticks. The seeded user lists itself under General only
+    ...    after its own announce round-trips (/loopback, UDP+TCP to self),
+    ...    and the fresh self-connection can flap once before settling (P0:
+    ...    the chat sometimes opens and auto-closes within seconds). So a
+    ...    single attempt is racy: retry the whole open until ChatWindow is
+    ...    really there. Each attempt starts from a clean slate (no leftover
+    ...    chats), so retries never pile up duplicate conversations.
+    Wait Until Keyword Succeeds    45s    3s    Open Self Chat Once
+
+Open Self Chat Once
+    [Documentation]    One open attempt: close leftovers, keyboard-navigate
+    ...    the user tree, Return on the self row. The agent click on
+    ...    tvUserList is safe (opens no modal); arrows normalize any tree
+    ...    state (Home/Left/Left collapse onto the group header, Right
+    ...    expands, Down lands on the first row). Fails (for the retry loop)
+    ...    when the peer is not actionable yet.
+    Close All Chats
+    Focus Main Window
+    Click Object      name=tvUserList
+    Send Key          Home
+    Send Key          Left
+    Send Key          Left
+    Send Key          Right
+    Send Key          Down
+    Send Key          Return
+    Window Should Be Visible    ChatWindow
+    ${res}=    Run Process    xdotool    search    --onlyvisible    --name    Conversation
+    Should Be Equal As Integers    ${res.rc}    0
+    ${win}=    Evaluate    """${res.stdout}""".split()[0]
+    Set Suite Variable    ${CHAT_WIN}    ${win}
+
+Send Chat Text
+    [Documentation]    Type text into the chat input and send with Return
+    ...    (txtMessage sends on Enter via its event filter, chatwindow.cpp).
+    ...    xdotool, not agent key_clicks: QTest key simulation asserts under
+    ...    Xvfb (proven). Targets ${CHAT_WIN} directly without stealing
+    ...    focus, so the keyword stays correct with two chat windows.
+    [Arguments]    ${text}
+    ${res}=    Run Process    xdotool    type    --window    ${CHAT_WIN}    ${text}
+    Should Be Equal As Integers    ${res.rc}    0
+    ${ret}=    Run Process    xdotool    key    --window    ${CHAT_WIN}    Return
+    Should Be Equal As Integers    ${ret.rc}    0
+
+Chat Log Should Contain
+    [Documentation]    Assert the conversation log holds the text. The log
+    ...    view is lmcMessageLog (QMessageBrowser, anonymous child of
+    ...    wgtLog): matched by class, read via plainText (the agent
+    ...    special-cases QTextEdit, proven by probe). visible=true scopes
+    ...    the match to the open chat: the reused hidden ChatRoomWindow owns
+    ...    a second, always-empty lmcMessageLog that would shadow the live
+    ...    one (P1). times counts occurrences: a sent message appears twice
+    ...    (sent line plus the loopback echo), which is the receipt proof.
+    [Arguments]    ${text}    ${times}=1
+    ${log}=    Get Object Property    type=lmcMessageLog visible=true    plainText
+    ${n}=      Evaluate    $log.count($text)
+    Should Be True    $n >= int($times)    '${text}' found ${n} time(s), expected at least ${times}
+
+Read Visible Chat Log
+    [Documentation]    Return the live conversation log text (same scoping
+    ...    as Chat Log Should Contain).
+    ${log}=    Get Object Property    type=lmcMessageLog visible=true    plainText
+    RETURN     ${log}
+
+Send Chat Message And Expect Echo
+    [Documentation]    Send one marker and require its echo. The first send
+    ...    on a fresh self-connection can land before the TCP handshake
+    ...    completes and vanish silently (P1); wrapping send+assert lets the
+    ...    caller retry the pair with Wait Until Keyword Succeeds. Resends
+    ...    are harmless: asserts only count occurrences.
+    [Arguments]    ${text}
+    Send Chat Text    ${text}
+    Sleep             2s
+    Chat Log Should Contain    ${text}    times=2
+
+Close Chat
+    [Documentation]    Close every conversation window with Escape (history is
+    ...    saved on stop, chatwindow.cpp). Chat windows are deleted on
+    ...    close, so disappearance can be awaited, unlike reused modeless
+    ...    windows. Closes all, not just ${CHAT_WIN}: open retries can leave
+    ...    more than one behind.
+    Close All Chats
+
+Close All Chats
+    [Documentation]    Escape all mapped Conversation windows, if any, then
+    ...    require ChatWindow gone from the agent tree.
+    ${res}=    Run Process    xdotool    search    --onlyvisible    --name    Conversation
+    IF    ${res.rc} == 0
+        @{wins}=    Evaluate    """${res.stdout}""".split()
+        FOR    ${win}    IN    @{wins}
+            Run Process    xdotool    windowfocus    --sync    ${win}    key    Escape
+        END
+    END
+    Wait For Object To Disappear    name=ChatWindow    timeout=10
