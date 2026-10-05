@@ -1,0 +1,104 @@
+# Watchable recording of the Robot E2E suite (manual runs only).
+#
+# Same tests as the E2E Robot gate, but each dialog is held open
+# (${HOLD_OPEN}, input `hold_open`) while ffmpeg records the Xvfb display
+# in real time (30 fps capture and encode, +faststart for progressive
+# preview). Trigger from the Actions tab when a demo video is needed.
+name: E2E Robot demo video
+
+on:
+  workflow_dispatch:
+    inputs:
+      hold_open:
+        description: How long each dialog stays open for the camera (e.g. 3s)
+        default: 3s
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-robot-demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-robot-demo-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-e2e
+
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
+
+      # ffmpeg records the Xvfb display, so Xvfb runs with a fixed number
+      # instead of xvfb-run. Recording always runs and is uploaded, even
+      # when the test fails (stop step uses `if: always()`).
+      - name: Start virtual display
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 &
+          for i in $(seq 1 30); do
+            xdpyinfo -display :99 >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :99 >/dev/null
+
+      - name: Start video recording
+        # Capture and encode at the same 30 fps so the video plays back in
+        # real time. `+faststart` moves the moov atom first so the artifact
+        # preview streams progressively.
+        run: |
+          ffmpeg -y -nostdin \
+            -f x11grab -video_size 1280x1024 -framerate 30 -i :99 \
+            -c:v libx264 -preset veryfast -pix_fmt yuv420p \
+            -r 30 -movflags +faststart \
+            robot-video.mp4 &
+          echo $! > /tmp/ffmpeg.pid
+
+      # Same seed recipe as the gate (see e2e-robot.yml for why).
+      - name: Seed lmc settings
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          cat > "$HOME/.config/lmc/lmc.ini" <<'EOF'
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=1.2.39
+
+          [User]
+          Name=E2E Tester
+          EOF
+
+      - name: Run Robot tests
+        env:
+          DISPLAY: :99
+        run: |
+          export USER=ci
+          export QT_QPA_PLATFORM=xcb
+          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          .venv-robot-ci/bin/robot \
+            --outputdir robot-results \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
+            -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            -v HOLD_OPEN:"${{ inputs.hold_open }}" \
+            tests/robot/
+
+      - name: Stop video recording
+        if: always()
+        run: |
+          kill -INT "$(cat /tmp/ffmpeg.pid)"
+          wait "$(cat /tmp/ffmpeg.pid)" || true
+          ls -la robot-video.mp4
+
+      - name: Upload demo video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: robot-demo-video-linux
+          path: |
+            robot-results
+            robot-video.mp4
+          if-no-files-found: warn
+          retention-days: 3

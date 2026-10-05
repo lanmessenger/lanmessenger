@@ -1,23 +1,23 @@
-# Experimental Robot Framework E2E (Linux only, with video of the run).
+# Fast regression gate: Robot Framework E2E on Linux, no video.
 #
-# Direction check for todo/e2e.md: real compiled binary driven by the
-# robotframework-qtexpert C++ agent injected via LD_PRELOAD (mode=preload).
-# Runs on every push to the robotframework branch; scheduling, PR triggers
-# and Windows/macOS coverage are out of scope until the approach is validated.
-name: E2E Robot (experimental)
+# Runs the real compiled binary driven by the robotframework-qtexpert C++
+# agent injected via LD_PRELOAD (mode=preload). See tests/robot/ for the
+# suites and the documented driver split (agent + xdotool).
+# For a watchable recording of the same suite see e2e-robot-demo.yml.
+name: E2E Robot gate
 
 on:
   push:
-    branches: [robotframework]
+    branches: [master]
   pull_request:
-    branches: [robotframework]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: e2e-robot-${{ github.ref }}
+  group: e2e-robot-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,72 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential cmake git \
-            libssl-dev libgl1-mesa-dev \
-            xvfb xauth ffmpeg x11-utils xdotool \
-            python3-pip python3-venv
-
-      - uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
-          host: linux
-          target: desktop
-          arch: linux_gcc_64
-          modules: 'qtmultimedia qtshadertools'
-          cache: true
-
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
-
-      - name: Build release layout
-        run: cmake --build build --config Release --target package-local --parallel
-
-      # The PyPI release of robotframework-qtexpert has no preload mode;
-      # build the LD_PRELOAD agent (Qt6) from git main instead.
-      # Upstream cpp_agent still targets Qt5, but the agent sources are
-      # Qt6-clean: switch the find_package/link targets to Qt6 (same patch
-      # as proven by the local run on this dev-VM).
-      - name: Build qtexpert agent
-        run: |
-          git clone --depth 1 https://github.com/tulasirm6/robotframework-qtexpert.git /tmp/qtexpert
-          sed -i 's/Qt5/Qt6/g' /tmp/qtexpert/cpp_agent/CMakeLists.txt
-          cmake -S /tmp/qtexpert/cpp_agent -B build/qtexpert-agent \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
-          cmake --build build/qtexpert-agent --config Release
-
-      - name: Set up Python and Robot Framework
-        run: |
-          python3 -m venv .venv-robot-ci
-          .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
-
-      # ffmpeg records the Xvfb display, so Xvfb runs with a fixed number
-      # instead of xvfb-run. Recording always runs and is uploaded, even
-      # when the test fails (stop step uses `if: always()`).
-      - name: Start virtual display
-        run: |
-          Xvfb :99 -screen 0 1280x1024x24 &
-          for i in $(seq 1 30); do
-            xdpyinfo -display :99 >/dev/null 2>&1 || sleep 1
-          done
-          xdpyinfo -display :99 >/dev/null
-
-      - name: Start video recording
-        # Capture and encode at the same 30 fps so the video plays back in
-        # real time. (Recording at 15 fps without `-r` used to produce a
-        # 25 fps mp4, i.e. a ~1.7x fast-forward.) `+faststart` moves the moov
-        # atom first so the GitHub artifact preview streams progressively.
-        run: |
-          ffmpeg -y -nostdin \
-            -f x11grab -video_size 1280x1024 -framerate 30 -i :99 \
-            -c:v libx264 -preset veryfast -pix_fmt yuv420p \
-            -r 30 -movflags +faststart \
-            robot-video.mp4 &
-          echo $! > /tmp/ffmpeg.pid
+      - uses: ./.github/actions/setup-e2e
 
       # The main window is shown at startup only with AutoShow=true
       # (lmcMainWindow::start, default false). Same recipe as the QTest
@@ -118,8 +53,16 @@ jobs:
       # The whole tests/robot/ directory runs (smoke + dialogs suites).
       # Dialog shortcuts and menu mnemonics are sent as real X keys via
       # xdotool (see tests/robot/common.resource for why not QTest keys).
-      # HOLD_OPEN keeps each dialog on screen for the video (see
-      # tests/robot/common.resource); the suite stays under a minute.
+      # HOLD_OPEN:0s keeps the gate fast: Hold For Video is a no-op, only
+      # stability waits remain.
+      - name: Start virtual display
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 &
+          for i in $(seq 1 30); do
+            xdpyinfo -display :99 >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :99 >/dev/null
+
       - name: Run Robot tests
         env:
           DISPLAY: :99
@@ -131,23 +74,14 @@ jobs:
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
             -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
-            -v HOLD_OPEN:3s \
+            -v HOLD_OPEN:0s \
             tests/robot/
-
-      - name: Stop video recording
-        if: always()
-        run: |
-          kill -INT "$(cat /tmp/ffmpeg.pid)"
-          wait "$(cat /tmp/ffmpeg.pid)" || true
-          ls -la robot-video.mp4
 
       - name: Upload robot results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: robot-results-linux
-          path: |
-            robot-results
-            robot-video.mp4
+          path: robot-results
           if-no-files-found: warn
           retention-days: 3

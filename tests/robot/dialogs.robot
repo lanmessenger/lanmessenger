@@ -26,7 +26,6 @@ History Opens And Closes
     Hold For Video
     Dismiss Dialog    Message History
     Wait For Object To Disappear    name=HistoryWindow    timeout=10
-    Sleep             1s
 
 File Transfers Opens And Closes
     [Documentation]    Tools > File Transfers (Ctrl+J): modeless window,
@@ -42,7 +41,6 @@ File Transfers Opens And Closes
     Hold For Video
     Dismiss Dialog    File Transfers
     Window Should Be Hidden    TransferWindow
-    Sleep             1s
 
 Help Opens And Closes
     [Documentation]    Help > Help (F1): modeless window with bundled text.
@@ -58,7 +56,6 @@ Help Opens And Closes
     Hold For Video
     Dismiss Dialog    ^Help$
     Wait For Object To Disappear    name=HelpWindow    timeout=10
-    Sleep             1s
 
 New Chat Room Asks For Contacts
     [Documentation]    Messenger > New Chat Room (Ctrl+N) opens the room plus
@@ -76,7 +73,6 @@ New Chat Room Asks For Contacts
     Wait For Object To Disappear    name=UserSelectDialog    timeout=10
     Window Should Be Hidden    ChatRoomWindow
     Object Should Exist    name=MainWindow
-    Sleep             1s
 
 Preferences Navigates And Cancels
     [Documentation]    Tools > Preferences via mnemonics (Alt+T, P): modal
@@ -97,7 +93,6 @@ Preferences Navigates And Cancels
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-preferences.json
     Hold For Video
     Close Dialog      SettingsDialog    btnCancel
-    Sleep             1s
 
 About Opens And Closes
     [Documentation]    Help > About via mnemonics (Alt+H, A): modal dialog
@@ -113,4 +108,3 @@ About Opens And Closes
     Hold For Video
     Dismiss Dialog    About LAN Messenger
     Wait For Object To Disappear    name=AboutDialog    timeout=10
-    Sleep             1s

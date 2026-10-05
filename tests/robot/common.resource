@@ -27,10 +27,15 @@ ${AGENT_SO}       ${CURDIR}/../../build/qtexpert-agent/libqt_test_agent.so
 ${APP_ARGS}       /silent /loopback
 ${AGENT_PORT}     9988
 # Showcase pause: how long an opened window stays on screen before the
-# test closes it, so the CI video (x11grab of the Xvfb display) shows
-# each dialog instead of a millisecond flash. Overridable from the
-# command line, e.g. `-v HOLD_OPEN:5s`; CI passes its own value.
-${HOLD_OPEN}      3s
+# test closes it, so a demo video (x11grab of the Xvfb display) shows
+# each dialog instead of a millisecond flash. Default is 0s: the gate
+# runs with no showcase tax, `Hold For Video` is a no-op. The demo
+# workflow overrides from the command line, e.g. `-v HOLD_OPEN:3s`.
+${HOLD_OPEN}      0s
+# Settle delay (NOT showcase): the agent has no wait-for-hidden keyword,
+# and Escape-to-hide is async, so closing a reused modeless window needs
+# a moment before the hidden assert. Stability, keep in gate mode.
+${HIDE_SETTLE}    2s
 
 
 *** Keywords ***
@@ -119,6 +124,6 @@ Window Should Be Hidden
     ...    was closed: these are kept alive hidden for reuse (no
     ...    WA_DeleteOnClose), so disappearance cannot be awaited.
     [Arguments]    ${window}
-    Sleep             2s
+    Sleep             ${HIDE_SETTLE}
     ${visible}=       Get Object Property    name=${window}    visible
     Should Not Be True    ${visible}    ${window} should be hidden after close
