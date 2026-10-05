@@ -41,9 +41,10 @@ runs:
     # build the LD_PRELOAD agent (Qt6) from a pinned git ref instead.
     # The ref is derived from tests/robot/requirements.txt (single source
     # of truth): bump the pin there and both pip and this build follow.
-    # Upstream is Qt6-clean at the pinned ref, so no source patch is
-    # applied; the grep guards below fail loudly if Qt5 refs ever come
-    # back (e.g. after a pin bump), instead of silently building Qt5.
+    # Upstream cpp_agent still targets Qt5, so convert it with our patch
+    # (tests/robot/qtexpert-qt6.patch). The patch is applied only when the
+    # pinned checkout still references Qt5; the guards below fail loudly
+    # instead of silently building the wrong Qt version.
     - name: Build qtexpert agent
       shell: bash
       run: |
@@ -54,8 +55,17 @@ runs:
         git -C /tmp/qtexpert remote add origin https://github.com/tulasirm6/robotframework-qtexpert.git
         git -C /tmp/qtexpert fetch --depth 1 origin "$QTEXPERT_REF"
         git -C /tmp/qtexpert checkout FETCH_HEAD
-        if grep -v '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
-          echo "::error::qtexpert cpp_agent references Qt5; Qt6 conversion needed before bumping the pin"
+        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
+          echo "Upstream still on Qt5, applying qtexpert-qt6.patch"
+          patch -p1 --directory=/tmp/qtexpert < "$GITHUB_WORKSPACE/tests/robot/qtexpert-qt6.patch" || {
+            echo "::error::qtexpert-qt6.patch did not apply; regenerate it against the new pin"
+            exit 1
+          }
+        else
+          echo "Upstream already Qt6, patch skipped"
+        fi
+        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
+          echo "::error::qtexpert cpp_agent still references Qt5 after patch; check the pin"
           exit 1
         fi
         grep -q 'find_package(Qt6' /tmp/qtexpert/cpp_agent/CMakeLists.txt || {
