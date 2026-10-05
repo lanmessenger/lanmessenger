@@ -31,6 +31,7 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
   messageMap.clear();
   locMsgStream = NULL;
   crypto = NULL;
+  isRunning = false;
   ipAddress = QHostAddress::Null;
   server = new QTcpServer(this);
   connect(server, SIGNAL(newConnection()), this, SLOT(server_newConnection()));
@@ -70,15 +71,16 @@ void lmcTcpNetwork::setCrypto(lmcCrypto* pCrypto) {
   crypto = pCrypto;
 }
 
-void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress) {
+void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int nPort) {
   if(!isRunning) {
     lmcTrace::write("Warning: TCP server not running. Unable to connect");
     return;
   }
 
-  lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress);
+  int peerPort = nPort > 0 ? nPort : tcpPort;
+  lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress + ":" + QString::number(peerPort));
 
-  MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, tcpPort);
+  MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, peerPort);
   connect(msgStream, SIGNAL(connectionLost(QString*)),
           this, SLOT(msgStream_connectionLost(QString*)));
   connect(msgStream, SIGNAL(messageReceived(QString*, QString*, QByteArray&)),
@@ -185,6 +187,10 @@ void lmcTcpNetwork::settingsChanged(void) {
 
 void lmcTcpNetwork::setIPAddress(const QString& szAddress) {
   ipAddress = QHostAddress(szAddress);
+}
+
+int lmcTcpNetwork::serverPort(void) const {
+  return isRunning ? tcpPort : 0;
 }
 
 void lmcTcpNetwork::server_newConnection(void) {

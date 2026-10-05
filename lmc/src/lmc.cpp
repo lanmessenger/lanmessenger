@@ -88,7 +88,7 @@ void lmcCore::init(const QString& szCommandArgs) {
   for(int index = 0; index < arguments.count(); index++) {
     if(arguments.at(index).startsWith("/port=", Qt::CaseInsensitive)) {
       QString port = arguments.at(index).mid(QString("/port=").length());
-      pInitParams->addData(XN_PORT, port);
+      pInitParams->addData(XN_ARGPORT, port);
       continue;
     }
     if(arguments.at(index).startsWith("/config=", Qt::CaseInsensitive)) {

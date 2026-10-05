@@ -65,7 +65,7 @@ void lmcNetwork::init(XmlMessage* pInitParams) {
                   "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
                   "\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
-  int port = pInitParams->data(XN_PORT).toInt();
+  int port = pInitParams->data(XN_ARGPORT).toInt();
   pUdpNetwork->init(port);
   pTcpNetwork->init(port);
 }
@@ -123,8 +123,12 @@ void lmcNetwork::sendBroadcast(QString* lpszData) {
   pUdpNetwork->sendBroadcast(lpszData);
 }
 
-void lmcNetwork::addConnection(QString* lpszUserId, QString* lpszAddress) {
-  pTcpNetwork->addConnection(lpszUserId, lpszAddress);
+void lmcNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int nPort) {
+  pTcpNetwork->addConnection(lpszUserId, lpszAddress, nPort);
+}
+
+int lmcNetwork::tcpServerPort(void) const {
+  return pTcpNetwork->serverPort();
 }
 
 void lmcNetwork::sendMessage(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData) {

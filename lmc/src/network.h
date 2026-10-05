@@ -49,7 +49,8 @@ public:
   QString physicalAddress(void);
   void setLocalId(QString* lpszLocalId);
   void sendBroadcast(QString* lpszData);
-  void addConnection(QString* lpszUserId, QString* lpszAddress);
+  void addConnection(QString* lpszUserId, QString* lpszAddress, int nPort = 0);
+  int tcpServerPort(void) const;
   void sendMessage(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
   void initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
   void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);

@@ -46,13 +46,14 @@ public:
   void stop(void);
   void setLocalId(QString* lpszLocalId);
   void setCrypto(lmcCrypto* pCrypto);
-  void addConnection(QString* lpszUserId, QString* lpszAddress);
+  void addConnection(QString* lpszUserId, QString* lpszAddress, int nPort = 0);
   void sendMessage(QString* lpszReceiverId, QString* lpszData);
   void initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
   void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
   void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);
   void settingsChanged(void);
   void setIPAddress(const QString& szAddress);
+  int serverPort(void) const;
 
 signals:
   void newConnection(QString* lpszUserId, QString* lpszAddress);

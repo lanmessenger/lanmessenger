@@ -171,7 +171,15 @@ void lmcMessaging::prepareBroadcast(MessageType type, XmlMessage* pMessage) {
   }
 
   lmcTrace::write("Sending broadcast type " + QString::number(type));
-  QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, pMessage);
+  XmlMessage message;
+  if(pMessage)
+    message = pMessage->clone();
+  if(type == MT_Announce) {
+    int tcpPort = pNetwork->tcpServerPort();
+    if(tcpPort > 0)
+      message.addData(XN_TCPPORT, QString::number(tcpPort));
+  }
+  QString szMessage = Message::addHeader(type, msgId, &localUser->id, NULL, &message);
   pNetwork->sendBroadcast(&szMessage);
   lmcTrace::write("Broadcast sending done");
 }
@@ -254,8 +262,6 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
 
 //	This method converts a Datagram from network layer to a Message that can be passed to ui layer
 void lmcMessaging::processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage) {
-  Q_UNUSED(pMessage);
-
   //	do not process broadcasts from local user unless loopback is specified in command line
   if(!loopback && pHeader->userId.compare(localUser->id) == 0)
     return;
@@ -265,8 +271,12 @@ void lmcMessaging::processBroadcast(MessageHeader* pHeader, XmlMessage* pMessage
 
   switch(pHeader->type) {
   case MT_Announce:
-    if(!getUser(&pHeader->userId))
-      pNetwork->addConnection(&pHeader->userId, &pHeader->address);
+    if(!getUser(&pHeader->userId)) {
+      //	Old peers send no port (data() is null -> toInt() == 0) and we
+      //	fall back to the local port, i.e. the previous behavior.
+      int tcpPort = pMessage ? pMessage->data(XN_TCPPORT).toInt() : 0;
+      pNetwork->addConnection(&pHeader->userId, &pHeader->address, tcpPort);
+    }
     break;
   case MT_Depart:
     removeUser(pHeader->userId);
