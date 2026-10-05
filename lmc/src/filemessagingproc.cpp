@@ -87,13 +87,17 @@ void lmcMessaging::prepareFile(MessageType type, qint64 msgId, bool retry, QStri
     //  New file transfer request, add to file transfer list.
     addFileTransfer(FM_Send, lpszUserId, pMessage);
     break;
-  case FO_Accept:
+  case FO_Accept: {
     updateFileTransfer(FM_Receive, (FileOp)fileOp, lpszUserId, pMessage);
+    int tcpPort = pNetwork->tcpServerPort();
+    if(tcpPort > 0)
+      pMessage->addData(XN_TCPPORT, QString::number(tcpPort));
     // pMessage now contains the generated id, file mode and other details.
     // Convert this to string now.
     szMessage = pMessage->toString();
     pNetwork->initReceiveFile(&user->id, &user->address, &szMessage);
     break;
+  }
   case FO_Decline:
     updateFileTransfer(FM_Receive, (FileOp)fileOp, lpszUserId, pMessage);
     break;
@@ -159,7 +163,10 @@ void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
     if(updateFileTransfer(FM_Send, (FileOp)fileOp, &pHeader->userId, pMessage))
       emit messageReceived(pHeader->type, &pHeader->userId, pMessage);
     szMessage = pMessage->toString();
-    pNetwork->initSendFile(&pHeader->userId, &pHeader->address, &szMessage);
+    //  Dial the receiver's advertised port. Old peers send none
+    //  (data() is null -> toInt() == 0) and we fall back to the local
+    //  port, i.e. the previous behavior.
+    pNetwork->initSendFile(&pHeader->userId, &pHeader->address, &szMessage, pMessage->data(XN_TCPPORT).toInt());
     break;
   case FO_Decline:
     if(updateFileTransfer(FM_Send, (FileOp)fileOp, &pHeader->userId, pMessage))

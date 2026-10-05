@@ -124,12 +124,16 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
   lmcTrace::write("Warning: Socket not found. Message sending failed");
 }
 
-void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData) {
+void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData, int nPort) {
   XmlMessage xmlMessage(*lpszData);
   int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
+  int peerPort = nPort > 0 ? nPort : tcpPort;
+  lmcTrace::write("Sending file " + xmlMessage.data(XN_FILEID) + " to user " + *lpszReceiverId + " at " +
+                  *lpszAddress + ":" + QString::number(peerPort));
+
   FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), localId, *lpszReceiverId, xmlMessage.data(XN_FILEPATH),
-                                      xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, tcpPort, (FileType)type);
+                                      xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, peerPort, (FileType)type);
   connect(sender, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
           this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
   sendList.prepend(sender);
