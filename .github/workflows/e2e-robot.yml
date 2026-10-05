@@ -1,0 +1,87 @@
+# Fast regression gate: Robot Framework E2E on Linux, no video.
+#
+# Runs the real compiled binary driven by the robotframework-qtexpert C++
+# agent injected via LD_PRELOAD (mode=preload). See tests/robot/ for the
+# suites and the documented driver split (agent + xdotool).
+# For a watchable recording of the same suite see e2e-robot-demo.yml.
+name: E2E Robot gate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-robot-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-robot-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-e2e
+
+      # The main window is shown at startup only with AutoShow=true
+      # (lmcMainWindow::start, default false). Same recipe as the QTest
+      # tests/e2e/tst_lmc_gui.cpp. QSettings IniFormat/UserScope on Linux
+      # reads $HOME/.config/lmc/lmc.ini; /noconfig would delete this file,
+      # so the test must not pass it.
+      - name: Seed lmc settings
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          cat > "$HOME/.config/lmc/lmc.ini" <<'EOF'
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=1.2.39
+
+          [User]
+          Name=E2E Tester
+          EOF
+
+      # Same runtime env as the CI smoke test: lan-messenger.sh would hide
+      # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
+      # The whole tests/robot/ directory runs (smoke + dialogs suites).
+      # Dialog shortcuts and menu mnemonics are sent as real X keys via
+      # xdotool (see tests/robot/common.resource for why not QTest keys).
+      # HOLD_OPEN:0s keeps the gate fast: Hold For Video is a no-op, only
+      # stability waits remain.
+      - name: Start virtual display
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 &
+          for i in $(seq 1 30); do
+            xdpyinfo -display :99 >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :99 >/dev/null
+
+      - name: Run Robot tests
+        env:
+          DISPLAY: :99
+        run: |
+          export USER=ci
+          export QT_QPA_PLATFORM=xcb
+          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          .venv-robot-ci/bin/robot \
+            --outputdir robot-results \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
+            -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            -v HOLD_OPEN:0s \
+            tests/robot/
+
+      - name: Upload robot results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: robot-results-linux
+          path: robot-results
+          if-no-files-found: warn
+          retention-days: 3

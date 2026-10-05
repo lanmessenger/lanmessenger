@@ -1,0 +1,39 @@
+# Qt6 conversion for the robotframework-qtexpert C++ agent.
+#
+# Upstream cpp_agent still targets Qt5 (find_package + Qt5:: link targets).
+# Our CI builds it against Qt 6.8.3, so convert the two hunks below.
+# Applied by .github/actions/setup-e2e only when the pinned checkout still
+# references Qt5; if upstream ever moves to Qt6, the step skips the patch
+# (and fails loudly if Qt5 refs remain afterwards).
+# Regenerate against a new pin with:
+#   git -C <qtexpert-checkout> diff -- cpp_agent/CMakeLists.txt
+diff --git a/cpp_agent/CMakeLists.txt b/cpp_agent/CMakeLists.txt
+index 554e7ed..da2a88b 100644
+--- a/cpp_agent/CMakeLists.txt
++++ b/cpp_agent/CMakeLists.txt
+@@ -7,7 +7,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+ set(CMAKE_AUTOMOC ON)
+ 
+ # Find Qt5 modules
+-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Network Test)
++find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Test)
+ 
+ # Source files
+ set(AGENT_SOURCES
+@@ -23,11 +23,11 @@ target_include_directories(qt_test_agent PRIVATE
+ )
+ 
+ target_link_libraries(qt_test_agent PRIVATE
+-    Qt5::Core
+-    Qt5::Gui
+-    Qt5::Widgets
+-    Qt5::Network
+-    Qt5::Test
++    Qt6::Core
++    Qt6::Gui
++    Qt6::Widgets
++    Qt6::Network
++    Qt6::Test
+ )
+ 
+ # Set library output properties

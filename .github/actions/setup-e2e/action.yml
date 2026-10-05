@@ -1,0 +1,84 @@
+# Shared setup for the E2E Robot workflows (gate and demo video).
+#
+# Installs system deps, Qt, builds the lmc release layout and the qtexpert
+# LD_PRELOAD agent, and creates the Robot venv. Used via
+# `uses: ./.github/actions/setup-e2e`. Keeps e2e-robot.yml and
+# e2e-robot-demo.yml from drifting apart.
+name: Set up E2E Robot dependencies
+description: Qt + lmc release build + pinned qtexpert agent + Robot venv
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential cmake git \
+          libssl-dev libgl1-mesa-dev \
+          xvfb xauth x11-utils xdotool \
+          python3-pip python3-venv
+
+    - uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.3'
+        host: linux
+        target: desktop
+        arch: linux_gcc_64
+        modules: 'qtmultimedia qtshadertools'
+        cache: true
+
+    - name: Configure
+      shell: bash
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+
+    - name: Build release layout
+      shell: bash
+      run: cmake --build build --config Release --target package-local --parallel
+
+    # The PyPI release of robotframework-qtexpert has no preload mode;
+    # build the LD_PRELOAD agent (Qt6) from a pinned git ref instead.
+    # The ref is derived from tests/robot/requirements.txt (single source
+    # of truth): bump the pin there and both pip and this build follow.
+    # Upstream cpp_agent still targets Qt5, so convert it with our patch
+    # (tests/robot/qtexpert-qt6.patch). The patch is applied only when the
+    # pinned checkout still references Qt5; the guards below fail loudly
+    # instead of silently building the wrong Qt version.
+    - name: Build qtexpert agent
+      shell: bash
+      run: |
+        QTEXPERT_REF="$(grep -oE 'robotframework-qtexpert\.git@[0-9a-f]+' tests/robot/requirements.txt | cut -d@ -f2)"
+        test -n "$QTEXPERT_REF" || { echo "::error::qtexpert pin not found in tests/robot/requirements.txt"; exit 1; }
+        echo "qtexpert ref: $QTEXPERT_REF"
+        git init /tmp/qtexpert
+        git -C /tmp/qtexpert remote add origin https://github.com/tulasirm6/robotframework-qtexpert.git
+        git -C /tmp/qtexpert fetch --depth 1 origin "$QTEXPERT_REF"
+        git -C /tmp/qtexpert checkout FETCH_HEAD
+        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
+          echo "Upstream still on Qt5, applying qtexpert-qt6.patch"
+          patch -p1 --directory=/tmp/qtexpert < "$GITHUB_WORKSPACE/tests/robot/qtexpert-qt6.patch" || {
+            echo "::error::qtexpert-qt6.patch did not apply; regenerate it against the new pin"
+            exit 1
+          }
+        else
+          echo "Upstream already Qt6, patch skipped"
+        fi
+        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
+          echo "::error::qtexpert cpp_agent still references Qt5 after patch; check the pin"
+          exit 1
+        fi
+        grep -q 'find_package(Qt6' /tmp/qtexpert/cpp_agent/CMakeLists.txt || {
+          echo "::error::qtexpert cpp_agent has no find_package(Qt6); check the pin"
+          exit 1
+        }
+        cmake -S /tmp/qtexpert/cpp_agent -B build/qtexpert-agent \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+        cmake --build build/qtexpert-agent --config Release
+
+    - name: Set up Python and Robot Framework
+      shell: bash
+      run: |
+        python3 -m venv .venv-robot-ci
+        .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
