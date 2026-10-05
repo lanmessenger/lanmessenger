@@ -80,10 +80,10 @@ void lmcCore::init(const QString& szCommandArgs) {
 
   pInitParams = new XmlMessage();
   if(arguments.contains("/silent", Qt::CaseInsensitive))
-    pInitParams->addData(XN_SILENTMODE, LMC_TRUE);
+    pInitParams->addData(XN_ARGSILENTMODE, LMC_TRUE);
   if(arguments.contains("/trace", Qt::CaseInsensitive)) {
-    pInitParams->addData(XN_TRACEMODE, LMC_TRUE);
-    pInitParams->addData(XN_LOGFILE, StdLocation::freeLogFile());
+    pInitParams->addData(XN_ARGTRACEMODE, LMC_TRUE);
+    pInitParams->addData(XN_ARGLOGFILE, StdLocation::freeLogFile());
   }
   for(int index = 0; index < arguments.count(); index++) {
     if(arguments.at(index).startsWith("/port=", Qt::CaseInsensitive)) {
@@ -93,7 +93,7 @@ void lmcCore::init(const QString& szCommandArgs) {
     }
     if(arguments.at(index).startsWith("/config=", Qt::CaseInsensitive)) {
       QString configFile = arguments.at(index).mid(QString("/config=").length());
-      pInitParams->addData(XN_CONFIG, configFile);
+      pInitParams->addData(XN_ARGCONFIG, configFile);
       continue;
     }
   }
@@ -138,14 +138,14 @@ bool lmcCore::start(void) {
 //	This is the initial point where settings are used in the application
 void lmcCore::loadSettings(void) {
   pSettings = new lmcSettings();
-  bool silent = Helper::stringToBool(pInitParams->data(XN_SILENTMODE));
+  bool silent = Helper::stringToBool(pInitParams->data(XN_ARGSILENTMODE));
   if(!pSettings->migrateSettings() && !silent) {
     // settings were reset. Show an alert if not in silent mode
     QString message = tr("Your preferences file is corrupt or invalid.\n\n%1 is unable to recover your settings.");
     QMessageBox::warning(NULL, lmcStrings::appName(), message.arg(lmcStrings::appName()));
   }
-  if(pInitParams->dataExists(XN_CONFIG)) {
-    QString configFile = pInitParams->data(XN_CONFIG);
+  if(pInitParams->dataExists(XN_ARGCONFIG)) {
+    QString configFile = pInitParams->data(XN_ARGCONFIG);
     if(!pSettings->loadFromConfig(configFile) && !silent) {
       QString message = tr("Preferences could not be imported from '%1'.\n\n"
                            "File may not exist, or may not be compatible with this version of %2.");
