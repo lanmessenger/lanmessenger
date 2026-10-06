@@ -21,6 +21,14 @@ Documentation     File send/receive over the loopback self-peer, single
 ...               rect). Return activates the focused anchor. If the app
 ...               ever reorders the log layout, recalibrate by screenshot.
 ...
+...               All keystrokes go through xdotool: QTest key simulation
+...               aborts on ASSERT qasciikey.cpp:470 under Xvfb. Map window
+...               IDs to processes with xprop _NET_WM_PID. The agent sees
+...               the toolbar action as text="Send A File" (quoted), but
+...               clicking it hangs 10s in the modal exec() — so keyboard
+...               only. The dialog is QFileDialog::getOpenFileName
+...               (chatwindow.cpp:397).
+...
 ...               Requires the usual AutoShow seed (see common.resource)
 ...               plus FileTransfer/StoragePath, which the Suite Setup seeds
 ...               itself into ~/.config/lmc/lmc.ini (default
