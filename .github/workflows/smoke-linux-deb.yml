@@ -1,0 +1,69 @@
+# Smoke test for the Linux .deb package: installs the exact
+# packages-linux artifact built by ci.yml on a fresh runner and starts
+# the installed app. Shared by release.yml and nightly.yml so the two
+# publish gates cannot drift apart.
+#
+# No inputs needed: the artifact name (packages-linux) is fixed, and the
+# install goes to the real system paths (/usr/...) — the runner is
+# ephemeral. No rebuild here by design. The .rpm is not installed: an
+# ubuntu runner cannot meaningfully test it; it is converted from the
+# same .deb by alien and shares its payload.
+name: Smoke Linux deb
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-linux
+          path: dist
+          merge-multiple: true
+
+      - name: List package artifact
+        run: ls -la dist
+
+      # apt resolves the system Qt 6.4 + libssl deps declared in
+      # DEBIAN/control; xvfb is for the headless smoke start below.
+      - name: Install package
+        run: |
+          set -euo pipefail
+          deb=(dist/lmc_*_min.deb)
+          if [ ! -f "${deb[0]}" ]; then echo 'deb not found in dist/' >&2; exit 1; fi
+          sudo apt-get update
+          sudo apt-get install -y "./${deb[0]}" xvfb
+          dpkg -L lmc
+
+      - name: Verify installed layout
+        run: |
+          set -euo pipefail
+          command -v lmc
+          test -L /usr/bin/lmc
+          for f in /usr/lib/lmc/lan-messenger /usr/lib/lmc/lmc.sh /usr/lib/lmc/lmc.rcc \
+                   /usr/share/applications/lmc.desktop; do
+            test -e "$f" || { echo "missing $f" >&2; exit 1; }
+          done
+
+      # Same flags as the Linux smoke in ci.yml: /quit exits after core
+      # init without entering the event loop. Runs through the real user
+      # entry point: lmc -> /usr/bin/lmc symlink -> lmc.sh, which also
+      # covers the LD_LIBRARY_PATH launcher.
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          export USER=ci
+          timeout 60 xvfb-run -a lmc /loopback /noconfig /quit
+          lmc /inst
+
+      - name: Dump package state on failure
+        if: failure()
+        run: |
+          dpkg -l | grep -i lmc || true
+          dpkg -L lmc || true

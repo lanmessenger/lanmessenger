@@ -68,8 +68,16 @@ jobs:
     needs: [version, check-branch, build]
     uses: ./.github/workflows/smoke-windows-installer.yml
 
+  smoke-linux-deb:
+    needs: [version, check-branch, build]
+    uses: ./.github/workflows/smoke-linux-deb.yml
+
+  smoke-macos-dmg:
+    needs: [version, check-branch, build]
+    uses: ./.github/workflows/smoke-macos-dmg.yml
+
   publish:
-    needs: [version, check-branch, build, smoke-windows-installer]
+    needs: [version, check-branch, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-dmg]
     if: needs.check-branch.outputs.on_master == 'true' && (github.ref_type == 'tag' || inputs.publish == true)
     runs-on: ubuntu-24.04
     permissions:

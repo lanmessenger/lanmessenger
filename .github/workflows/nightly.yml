@@ -100,9 +100,19 @@ jobs:
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
     uses: ./.github/workflows/smoke-windows-installer.yml
 
+  smoke-linux-deb:
+    needs: [plan, build]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    uses: ./.github/workflows/smoke-linux-deb.yml
+
+  smoke-macos-dmg:
+    needs: [plan, build]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    uses: ./.github/workflows/smoke-macos-dmg.yml
+
   publish:
-    needs: [plan, build, smoke-windows-installer]
-    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success'
+    needs: [plan, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-dmg]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-macos-dmg.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

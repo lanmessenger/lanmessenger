@@ -1,0 +1,86 @@
+# Smoke test for the macOS .dmg: mounts the exact packages-macos
+# artifact built by ci.yml on a fresh runner, drag-installs the bundle
+# to /Applications like a user would, and starts the installed app.
+# Shared by release.yml and nightly.yml so the two publish gates cannot
+# drift apart.
+#
+# No inputs needed: the artifact name (packages-macos) is fixed.
+# No rebuild here by design.
+name: Smoke macOS dmg
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: macos-15-intel
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-macos
+          path: dist
+          merge-multiple: true
+
+      - name: List package artifact
+        run: ls -la dist
+
+      # Drag-install like a user: mount, check the volume carries the
+      # Applications symlink for Finder installs, copy the bundle.
+      # The quarantine clear is belt-and-braces: CI artifacts carry no
+      # quarantine xattr, but a future signed build might.
+      - name: Install app bundle
+        run: |
+          set -euo pipefail
+          dmg=(dist/lmc_*_intel.dmg)
+          if [ ! -f "${dmg[0]}" ]; then echo 'dmg not found in dist/' >&2; exit 1; fi
+          hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
+          ls -la /Volumes/lmc-smoke
+          test -L /Volumes/lmc-smoke/Applications
+          rm -rf /Applications/LAN-Messenger-smoke.app
+          cp -R /Volumes/lmc-smoke/LAN-Messenger.app /Applications/LAN-Messenger-smoke.app
+          xattr -dr com.apple.quarantine /Applications/LAN-Messenger-smoke.app || true
+
+      - name: Verify bundle layout
+        run: |
+          set -euo pipefail
+          app=/Applications/LAN-Messenger-smoke.app
+          test -x "$app/Contents/MacOS/LAN-Messenger"
+          test -d "$app/Contents/Frameworks"
+          for f in "$app/Contents/MacOS/lmc.rcc" "$app/Contents/Info.plist"; do
+            test -e "$f" || { echo "missing $f" >&2; exit 1; }
+          done
+
+      # /quit exits after lmcCore::init without entering the event loop —
+      # same coverage as the Linux smoke. macOS ships no timeout(1), so
+      # python3 (preinstalled on the runner) caps a hang on a blocking
+      # dialog. /inst must return 0 when no instance is running
+      # (main.cpp: application.isRunning() ? 1 : 0).
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          export USER=ci
+          bin=/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger
+          python3 - "$bin" <<'EOF'
+          import subprocess, sys
+          try:
+            p = subprocess.run(
+              [sys.argv[1], '/silent', '/loopback', '/noconfig', '/quit'],
+              timeout=60)
+          except subprocess.TimeoutExpired:
+            print('smoke timed out after 60s', file=sys.stderr)
+            sys.exit(1)
+          if p.returncode != 0:
+            print(f'smoke failed: {p.returncode}', file=sys.stderr)
+            sys.exit(1)
+          EOF
+          "$bin" /inst
+
+      - name: Uninstall test app
+        if: always()
+        run: |
+          rm -rf /Applications/LAN-Messenger-smoke.app
+          hdiutil detach /Volumes/lmc-smoke -force || true
