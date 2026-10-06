@@ -62,8 +62,16 @@ jobs:
           timeout 60 xvfb-run -a lmc /loopback /noconfig /quit
           lmc /inst
 
+      # Diagnostics for xcb/display failures: the display string xcb
+      # attempted is the decisive line (wrong DISPLAY vs dead server).
+      # The QT_DEBUG_PLUGINS re-run is capped and never fails the job.
       - name: Dump package state on failure
         if: failure()
         run: |
+          echo "DISPLAY=${DISPLAY:-<unset>}"
+          ls -la /tmp/.X11-unix/ || true
+          command -v xvfb-run Xvfb
           dpkg -l | grep -i lmc || true
           dpkg -L lmc || true
+          export USER=ci
+          QT_DEBUG_PLUGINS=1 timeout 20 xvfb-run -a lmc /loopback /noconfig /quit || true

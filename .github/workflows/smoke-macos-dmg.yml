@@ -79,6 +79,18 @@ jobs:
           EOF
           "$bin" /inst
 
+      # Diagnostics for dyld failures: shows whether the bundle carries
+      # its Frameworks and whether the main binary has an LC_RPATH
+      # pointing at them. Must run before the uninstall below.
+      - name: Dump bundle linkage on failure
+        if: failure()
+        run: |
+          app=/Applications/LAN-Messenger-smoke.app
+          ls "$app/Contents/Frameworks" || true
+          ls "$app/Contents/PlugIns" || true
+          otool -L "$app/Contents/MacOS/LAN-Messenger" || true
+          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -A2 LC_RPATH || echo 'no LC_RPATH found'
+
       - name: Uninstall test app
         if: always()
         run: |
