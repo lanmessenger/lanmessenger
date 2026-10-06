@@ -22,6 +22,13 @@ for dep in $(otool -L LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib | awk '
   install_name_tool -change "$dep" "@executable_path/../Frameworks/$rel" LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
 done
 
+# macdeployqt stages the frameworks but leaves the main binary's @rpath
+# refs without an LC_RPATH, so the shipped app aborts at launch with
+# "Library not loaded ... no LC_RPATH's found". Add the frameworks dir
+# explicitly (libcrypto above already points there via @executable_path).
+install_name_tool -add_rpath @executable_path/../Frameworks \
+  LAN-Messenger.app/Contents/MacOS/LAN-Messenger
+
 # create a blank disk with sufficient space
 hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+ -volname LAN-Messenger
 

@@ -55,23 +55,35 @@ jobs:
       # init without entering the event loop. Runs through the real user
       # entry point: lmc -> /usr/bin/lmc symlink -> lmc.sh, which also
       # covers the LD_LIBRARY_PATH launcher.
+      #
+      # Explicit Xvfb with a socket wait instead of xvfb-run -a: xvfb-run
+      # does not wait for the X server to be ready, so Qt occasionally
+      # connects too early ("could not connect to display" flake).
       - name: Smoke start installed app
         run: |
           set -euo pipefail
-          export USER=ci
-          timeout 60 xvfb-run -a lmc /loopback /noconfig /quit
+          disp=""
+          for n in 99 100 101 102; do
+            if [ ! -e /tmp/.X$n-lock ] && [ ! -S /tmp/.X11-unix/X$n ]; then disp=$n; break; fi
+          done
+          if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
+          Xvfb :$disp -screen 0 1280x1024x24 &
+          xvfb_pid=$!
+          trap 'kill $xvfb_pid' EXIT
+          for _ in $(seq 1 50); do
+            if [ -S /tmp/.X11-unix/X$disp ]; then break; fi
+            sleep 0.2
+          done
+          if [ ! -S /tmp/.X11-unix/X$disp ]; then echo 'Xvfb did not start' >&2; exit 1; fi
+          sleep 1
+          export DISPLAY=:$disp USER=ci
+          timeout 60 lmc /loopback /noconfig /quit
           lmc /inst
 
-      # Diagnostics for xcb/display failures: the display string xcb
-      # attempted is the decisive line (wrong DISPLAY vs dead server).
-      # The QT_DEBUG_PLUGINS re-run is capped and never fails the job.
       - name: Dump package state on failure
         if: failure()
         run: |
           echo "DISPLAY=${DISPLAY:-<unset>}"
           ls -la /tmp/.X11-unix/ || true
-          command -v xvfb-run Xvfb
           dpkg -l | grep -i lmc || true
           dpkg -L lmc || true
-          export USER=ci
-          QT_DEBUG_PLUGINS=1 timeout 20 xvfb-run -a lmc /loopback /noconfig /quit || true

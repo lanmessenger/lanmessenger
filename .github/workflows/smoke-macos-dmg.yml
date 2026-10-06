@@ -53,6 +53,11 @@ jobs:
           for f in "$app/Contents/MacOS/lmc.rcc" "$app/Contents/Info.plist"; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
+          # Regression gate for the missing-LC_RPATH packaging bug: the
+          # main binary links Qt via @rpath, so it must carry an RPATH
+          # into the bundled Frameworks or dyld aborts at launch.
+          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -q '@executable_path/../Frameworks' \
+            || { echo 'missing Frameworks LC_RPATH in main binary' >&2; exit 1; }
 
       # /quit exits after lmcCore::init without entering the event loop —
       # same coverage as the Linux smoke. macOS ships no timeout(1), so
