@@ -31,13 +31,25 @@ jobs:
       # NSIS silent flags; /D= isolates the test from $PROGRAMFILES and
       # from registry state of any previous install. No rebuild here:
       # we test the exact .exe that will be published.
+      # Start-Process (not & + $LASTEXITCODE): .ExitCode is reliable even
+      # when the child dies at startup without reporting a code, and
+      # -Wait blocks until a UAC-detached or self-relauching stub exits.
       - name: Silent install
         shell: pwsh
         run: |
           $exe = Get-ChildItem dist/lmc-*-win64.exe | Select-Object -First 1
           if (-not $exe) { throw 'installer not found in dist/' }
-          & $exe.FullName /S /D=C:\lmc-smoke
-          if ($LASTEXITCODE -ne 0) { throw "silent install failed: $LASTEXITCODE" }
+          $p = Start-Process $exe.FullName -ArgumentList '/S', '/D=C:\lmc-smoke' `
+            -Wait -PassThru -NoNewWindow
+          Write-Host "installer exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) {
+            Write-Host '--- install dir ---'
+            if (Test-Path 'C:\lmc-smoke') { Get-ChildItem 'C:\lmc-smoke' | Out-Host }
+            else { Write-Host 'C:\lmc-smoke does not exist' }
+            Write-Host '--- registry ---'
+            Get-Item 'HKLM:\SOFTWARE\LAN Messenger' -ErrorAction SilentlyContinue | Out-Host
+            throw "silent install failed with exit code $($p.ExitCode)"
+          }
 
       - name: Verify installed layout
         shell: pwsh
@@ -64,5 +76,7 @@ jobs:
             throw 'smoke timed out after 60s (possible blocking dialog, e.g. missing SSL)'
           }
           if ($p.ExitCode -ne 0) { throw "smoke failed: $($p.ExitCode)" }
-          & 'C:\lmc-smoke\lmc.exe' /inst
-          if ($LASTEXITCODE -ne 0) { throw '/inst should return 0 when no instance is running' }
+          $inst = Start-Process 'C:\lmc-smoke\lmc.exe' -ArgumentList '/inst' `
+            -Wait -PassThru -NoNewWindow
+          Write-Host "lmc /inst exit code: $($inst.ExitCode)"
+          if ($inst.ExitCode -ne 0) { throw '/inst should return 0 when no instance is running' }
