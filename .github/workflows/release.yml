@@ -72,12 +72,22 @@ jobs:
     needs: [version, check-branch, build]
     uses: ./.github/workflows/smoke-linux-deb.yml
 
-  smoke-macos-dmg:
+  smoke-macos-intel-dmg:
     needs: [version, check-branch, build]
     uses: ./.github/workflows/smoke-macos-dmg.yml
+    with:
+      arch-suffix: intel
+      runs-on: macos-15-intel
+
+  smoke-macos-arm64-dmg:
+    needs: [version, check-branch, build]
+    uses: ./.github/workflows/smoke-macos-dmg.yml
+    with:
+      arch-suffix: arm64
+      runs-on: macos-14
 
   publish:
-    needs: [version, check-branch, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-dmg]
+    needs: [version, check-branch, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-intel-dmg, smoke-macos-arm64-dmg]
     if: needs.check-branch.outputs.on_master == 'true' && (github.ref_type == 'tag' || inputs.publish == true)
     runs-on: ubuntu-24.04
     permissions:

@@ -1,27 +1,38 @@
-# Smoke test for the macOS .dmg: mounts the exact packages-macos
-# artifact built by ci.yml on a fresh runner, drag-installs the bundle
-# to /Applications like a user would, and starts the installed app.
-# Shared by release.yml and nightly.yml so the two publish gates cannot
-# drift apart.
+# Smoke test for a macOS .dmg: mounts the exact packages-macos-<suffix>
+# artifact built by ci.yml (build-macos-<suffix>) on a fresh runner,
+# drag-installs the bundle to /Applications like a user would, and starts
+# the installed app. Shared by release.yml and nightly.yml so the publish
+# gates cannot drift apart.
 #
-# No inputs needed: the artifact name (packages-macos) is fixed.
-# No rebuild here by design.
+# Inputs pin the architecture: arch-suffix selects the artifact
+# (packages-macos-<suffix>) and the dmg inside it (lmc_*_<suffix>.dmg),
+# runs-on selects the matching runner (intel vs arm64). No rebuild here
+# by design.
 name: Smoke macOS dmg
 
 on:
   workflow_call:
+    inputs:
+      arch-suffix:
+        description: 'Architecture suffix (intel or arm64)'
+        required: true
+        type: string
+      runs-on:
+        description: 'Runner matching the architecture'
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   smoke:
-    runs-on: macos-15-intel
+    runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 20
     steps:
       - uses: actions/download-artifact@v8
         with:
-          pattern: packages-macos
+          pattern: packages-macos-${{ inputs.arch-suffix }}
           path: dist
           merge-multiple: true
 
@@ -35,7 +46,7 @@ jobs:
       - name: Install app bundle
         run: |
           set -euo pipefail
-          dmg=(dist/lmc_*_intel.dmg)
+          dmg=(dist/lmc_*_${{ inputs.arch-suffix }}.dmg)
           if [ ! -f "${dmg[0]}" ]; then echo 'dmg not found in dist/' >&2; exit 1; fi
           hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
           ls -la /Volumes/lmc-smoke

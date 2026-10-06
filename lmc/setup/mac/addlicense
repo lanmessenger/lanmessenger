@@ -1,22 +1,25 @@
 #!/bin/sh
 
 if [ "$1" = "" ]; then
-  echo "Usage: addlicense <Version>"
-  echo "Eg: addlicense 1.0.0"
+  echo "Usage: addlicense <Version> [arch-suffix]"
+  echo "Eg: addlicense 1.0.0 intel"
+  echo "Eg: addlicense 1.0.0 arm64"
   exit 1
 fi
+
+ARCH_SUFFIX="${2:-intel}"
 
 # eject the mounted volume
 hdiutil detach /Volumes/LAN-Messenger || true
 
 # compress the disk image
-hdiutil convert LAN-Messenger.dmg -format UDBZ -o lmc_$1_intel.dmg
+hdiutil convert LAN-Messenger.dmg -format UDBZ -o lmc_$1_$ARCH_SUFFIX.dmg
 
 # add the license to the disk image (best-effort)
-python3 ./licenseDMG.py lmc_$1_intel.dmg ./package/eula/license.txt || true
+python3 ./licenseDMG.py lmc_$1_$ARCH_SUFFIX.dmg ./package/eula/license.txt || true
 
 # move the final image to output folder
-mv -f -v lmc_$1_intel.dmg ../
+mv -f -v lmc_$1_$ARCH_SUFFIX.dmg ../
 
 # delete the intermediate files
 rm -r -v LAN-Messenger.app

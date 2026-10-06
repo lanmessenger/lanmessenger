@@ -211,8 +211,11 @@ QTDIR environment variable, so make sure it points at your Qt installation
 (the parent folder of the bin and lib folders). Now open up the disk image, set the
 background image, icon size (96x96), icon position, icon arrangment (Snap to
 Grid) and window size. Now run the script "addlicense" to add the user license
-and compress the disk image. The dmg file will have the name 
-lmc_<version>_intel.dmg and will be saved to lmc/setup folder.
+and compress the disk image ("addlicense <version> [intel|arm64]", default
+intel). The dmg file will have the name
+lmc_<version>_intel.dmg (Intel, CI job build-macos-intel) or
+lmc_<version>_arm64.dmg (Apple Silicon, CI job build-macos-arm64)
+and will be saved to lmc/setup folder.
 
 Note: On Mac OS X, option to start LAN Messenger on startup will not work.
 This is a platform dependent function and I have not implemented it.
