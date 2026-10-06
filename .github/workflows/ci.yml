@@ -44,6 +44,7 @@ jobs:
   # Linux, Qt 6.8 from aqt: compile/smoke check against the primary target.
   # No packages here; the runnable layout is uploaded for manual testing.
   build-linux:
+    needs: [format-check]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -115,6 +116,7 @@ jobs:
   # Linux, system Qt 6.4 (Ubuntu 24.04): the minimum supported Qt. Builds the
   # deb/rpm packages against it and smoke-tests the same layout they ship.
   build-linux-deb:
+    needs: [format-check]
     runs-on: ubuntu-24.04
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
@@ -170,6 +172,7 @@ jobs:
           retention-days: 3
 
   build-windows:
+    needs: [format-check]
     runs-on: windows-2022
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
@@ -267,6 +270,7 @@ jobs:
           retention-days: 3
 
   build-macos:
+    needs: [format-check]
     runs-on: macos-15-intel
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
