@@ -95,9 +95,14 @@ jobs:
       installer_version: ${{ needs.plan.outputs.installer_version }}
       ref: ${{ needs.plan.outputs.sha }}
 
-  publish:
+  smoke-windows-installer:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    uses: ./.github/workflows/smoke-windows-installer.yml
+
+  publish:
+    needs: [plan, build, smoke-windows-installer]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write

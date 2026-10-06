@@ -64,8 +64,12 @@ jobs:
       version: ${{ needs.version.outputs.version }}
       installer_version: ${{ needs.version.outputs.installer_version }}
 
-  publish:
+  smoke-windows-installer:
     needs: [version, check-branch, build]
+    uses: ./.github/workflows/smoke-windows-installer.yml
+
+  publish:
+    needs: [version, check-branch, build, smoke-windows-installer]
     if: needs.check-branch.outputs.on_master == 'true' && (github.ref_type == 'tag' || inputs.publish == true)
     runs-on: ubuntu-24.04
     permissions:

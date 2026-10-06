@@ -1,0 +1,68 @@
+# Smoke test for the Windows NSIS installer: silent-installs the exact
+# packages-windows artifact built by ci.yml on a fresh runner and starts
+# the installed app. Shared by release.yml and nightly.yml so the two
+# publish gates cannot drift apart.
+#
+# No inputs needed: the artifact name (packages-windows) and the isolated
+# install dir (C:\lmc-smoke) are fixed. No rebuild here by design.
+name: Smoke Windows installer
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-windows
+          path: dist
+          merge-multiple: true
+
+      - name: List installer artifact
+        shell: pwsh
+        run: Get-ChildItem dist
+
+      # NSIS silent flags; /D= isolates the test from $PROGRAMFILES and
+      # from registry state of any previous install. No rebuild here:
+      # we test the exact .exe that will be published.
+      - name: Silent install
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist/lmc-*-win64.exe | Select-Object -First 1
+          if (-not $exe) { throw 'installer not found in dist/' }
+          & $exe.FullName /S /D=C:\lmc-smoke
+          if ($LASTEXITCODE -ne 0) { throw "silent install failed: $LASTEXITCODE" }
+
+      - name: Verify installed layout
+        shell: pwsh
+        run: |
+          @('C:\lmc-smoke\lmc.exe', 'C:\lmc-smoke\lmc.rcc', 'C:\lmc-smoke\uninst.exe',
+            'C:\lmc-smoke\Qt6Core.dll', 'C:\lmc-smoke\Qt6Widgets.dll') | ForEach-Object {
+            if (-not (Test-Path $_)) { throw "missing $_" } }
+          if (-not (Test-Path 'C:\lmc-smoke\tls')) { throw 'missing tls plugins' }
+          if (-not (Get-ChildItem C:\lmc-smoke\libcrypto-*.dll -ErrorAction SilentlyContinue)) {
+            throw 'missing openssl dlls' }
+
+      # /quit exits after lmcCore::init (windows, resources, messaging init)
+      # without entering the event loop — same coverage as the Linux smoke.
+      # Start-Process + WaitForExit caps a hang on a blocking QMessageBox
+      # (e.g. the missing-SSL dialog in main.cpp ignores /silent).
+      - name: Smoke start installed app
+        shell: pwsh
+        run: |
+          $p = Start-Process 'C:\lmc-smoke\lmc.exe' `
+            -ArgumentList '/silent', '/loopback', '/noconfig', '/quit' `
+            -PassThru -NoNewWindow
+          if (-not $p.WaitForExit(60000)) {
+            $p | Stop-Process -Force
+            throw 'smoke timed out after 60s (possible blocking dialog, e.g. missing SSL)'
+          }
+          if ($p.ExitCode -ne 0) { throw "smoke failed: $($p.ExitCode)" }
+          & 'C:\lmc-smoke\lmc.exe' /inst
+          if ($LASTEXITCODE -ne 0) { throw '/inst should return 0 when no instance is running' }
