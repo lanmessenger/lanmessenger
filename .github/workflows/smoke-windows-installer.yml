@@ -61,6 +61,42 @@ jobs:
           if (-not (Get-ChildItem C:\lmc-smoke\libcrypto-*.dll -ErrorAction SilentlyContinue)) {
             throw 'missing openssl dlls' }
 
+      # No console window allowed: the lmc target is built as a WIN32 GUI app,
+      # so it must never spawn a conhost child. A console subsystem regression
+      # (e.g. a lost WIN32 flag in CMake) shows up here as conhost.exe with
+      # lmc.exe as its parent. This is a strict publish gate, not eyeballing.
+      # No /quit here: we need a living process with an event loop. Main window
+      # handle is NOT polled: with a fresh profile AutoShow defaults to off,
+      # so the app may sit in the tray with no visible window — conhost state
+      # is independent of that (attached at process creation for console apps,
+      # never for GUI apps).
+      - name: Assert no console window (conhost gate)
+        shell: pwsh
+        run: |
+          $p = Start-Process 'C:\lmc-smoke\lmc.exe' `
+            -ArgumentList '/silent', '/loopback', '/noconfig' `
+            -PassThru -NoNewWindow
+          try {
+            $deadline = (Get-Date).AddSeconds(20)
+            while ((Get-Date) -lt $deadline) {
+              $p.Refresh()
+              if ($p.HasExited) { throw "lmc.exe exited prematurely (code $($p.ExitCode))" }
+              $conhost = Get-CimInstance Win32_Process `
+                -Filter "ParentProcessId=$($p.Id) AND Name='conhost.exe'" `
+                -ErrorAction SilentlyContinue
+              if ($conhost) { throw 'console window detected: conhost.exe is a child of lmc.exe' }
+              Start-Sleep -Seconds 1
+            }
+            $p.Refresh()
+            if ($p.HasExited) { throw "lmc.exe exited prematurely (code $($p.ExitCode))" }
+            Write-Host 'no console window: lmc.exe runs without a conhost child'
+          } finally {
+            if (-not $p.HasExited) {
+              $p | Stop-Process -Force
+              $p.WaitForExit(10000) | Out-Null
+            }
+          }
+
       # /quit exits after lmcCore::init (windows, resources, messaging init)
       # without entering the event loop — same coverage as the Linux smoke.
       # Start-Process + WaitForExit caps a hang on a blocking QMessageBox
@@ -68,6 +104,7 @@ jobs:
       - name: Smoke start installed app
         shell: pwsh
         run: |
+          $sw = [System.Diagnostics.Stopwatch]::StartNew()
           $p = Start-Process 'C:\lmc-smoke\lmc.exe' `
             -ArgumentList '/silent', '/loopback', '/noconfig', '/quit' `
             -PassThru -NoNewWindow
@@ -76,6 +113,8 @@ jobs:
             throw 'smoke timed out after 60s (possible blocking dialog, e.g. missing SSL)'
           }
           if ($p.ExitCode -ne 0) { throw "smoke failed: $($p.ExitCode)" }
+          $sw.Stop()
+          Write-Host "init time: $($sw.Elapsed.TotalSeconds.ToString('0.0'))s"
           $inst = Start-Process 'C:\lmc-smoke\lmc.exe' -ArgumentList '/inst' `
             -Wait -PassThru -NoNewWindow
           Write-Host "lmc /inst exit code: $($inst.ExitCode)"
