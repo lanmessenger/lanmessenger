@@ -11,17 +11,24 @@ fi
 ARCH_SUFFIX="${2:-x86_64}"
 OUT="lmc_$1_$ARCH_SUFFIX.dmg"
 
-# Eject the mounted volume. Finder/Spotlight may hold it busy right after
-# createdisk (open Finder window), so retry before falling back to -force.
-# Without this, hdiutil convert below fails intermittently while this
-# script still exits 0 (see Upload packages "no files found" flake).
+# Eject the volume createdisk left mounted. Retry while it is still
+# mounted: Finder/Spotlight may hold it busy right after createdisk.
+# A missing volume is success, not failure (it can vanish on its own
+# between attempts); fail only if it is still mounted after retries.
 n=0
-until hdiutil detach /Volumes/LAN-Messenger; do
+while hdiutil info | grep -q '/Volumes/LAN-Messenger'; do
+  if hdiutil detach /Volumes/LAN-Messenger; then
+    break
+  fi
   n=$((n + 1))
   if [ "$n" -ge 5 ]; then
     echo "detach failed 5 times, trying -force..." >&2
-    hdiutil detach /Volumes/LAN-Messenger -force
-    break
+    if hdiutil detach /Volumes/LAN-Messenger -force; then
+      break
+    fi
+    hdiutil info | grep -q '/Volumes/LAN-Messenger' || break
+    echo "detach failed: volume still mounted" >&2
+    exit 1
   fi
   echo "detach attempt $n failed (busy?), retrying in 5s..." >&2
   sleep 5

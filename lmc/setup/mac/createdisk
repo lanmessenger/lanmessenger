@@ -39,6 +39,9 @@ hdiutil create LAN-Messenger.dmg -verbose -megabytes 120 -ov -type UDIF -fs HFS+
 
 # mount and copy files onto volume
 hdid LAN-Messenger.dmg
+# Keep Spotlight from indexing the fresh volume: mds holds the mount
+# and races the detach in addlicense. Non-fatal if it fails.
+mdutil -i off /Volumes/LAN-Messenger || echo "WARNING: mdutil failed (non-fatal)"
 cp -R -v LAN-Messenger.app /Volumes/LAN-Messenger
 #cp -R -v ./package/Applications /Volumes/LAN-Messenger/Applications
 #cp -R -v ./package/images/background.jpg /Volumes/LAN-Messenger/background.jpg
@@ -77,12 +80,15 @@ echo '
            set background picture of viewOptions to file ".background:background.jpg"
            set position of item "LAN-Messenger.app" of container window to {160, 205}
            set position of item "Applications" of container window to {360, 205}
-   close
-   open
-   update without registering applications
-   delay 2
-     end tell
-   end tell
+    close
+    open
+    update without registering applications
+    delay 2
+    -- Close the window: an open Finder window pins the mount and makes
+    -- the detach in addlicense fail with "Resource busy".
+    close
+      end tell
+    end tell
 ' | osascript || echo "WARNING: Finder layout step failed (non-fatal)"
 
 sync
