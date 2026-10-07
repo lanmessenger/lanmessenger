@@ -96,17 +96,18 @@ LAN-Messenger.app/Contents/MacOS with load path @executable_path, so no
 install_name_tool post-processing is needed. The Qt image format plugins
 go to Contents/Plugins (see setLibraryPaths in main.cpp).
 
-For building the installer, first run the bash script "createdisk" in 
-lmc/setup/mac folder. This copies the app bundle, runs macdeployqt on it to
-collect the Qt frameworks and creates a disk image with all the required
-files needed for the application. The script locates macdeployqt through
+For building the installer, first run the bash script "stage-mac-app" in
+lmc/setup/mac folder. This copies the app bundle and runs macdeployqt on it
+to collect the Qt frameworks. The script locates macdeployqt through
 the QTDIR environment variable, so make sure it points at your Qt
-installation (the parent folder of the bin and lib folders). Now open up
-the disk image, set the
-background image, icon size (96x96), icon position, icon arrangment (Snap to
-Grid) and window size. Now run the script "addlicense" to add the user license
-and compress the disk image ("addlicense <version> [x86_64|arm64]", default
-x86_64). The dmg file will have the name
+installation (the parent folder of the bin and lib folders). Then build the
+disk image with dmgbuild (pip install dmgbuild), which packs the bundle, the
+Applications symlink, the Finder window layout (icon positions, background
+picture, icon size 72) and the user license agreement, as declared in
+dmg-settings.py:
+dmgbuild -s dmg-settings.py "LAN-Messenger" "../lmc_<version>_<arch>.dmg"
+(<arch> is x86_64 or arm64; remove a previous image first with
+rm -f "../lmc_<version>_<arch>.dmg" if you rebuild). The dmg file will have the name
 lmc_<version>_x86_64.dmg (Intel Macs, CI job build-macos) or
 lmc_<version>_arm64.dmg (Apple Silicon, CI job build-macos)
 and will be saved to lmc/setup folder.

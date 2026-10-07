@@ -35,6 +35,7 @@ moc_predefs.h
 CMakeLists.txt.user*
 
 e2e-artifacts/
+__pycache__/
 
 /openssl
 /lmc/debug

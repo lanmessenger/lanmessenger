@@ -1,0 +1,43 @@
+#!/bin/sh
+# Prepare LAN-Messenger.app for DMG packaging: copy the release bundle,
+# deploy the Qt frameworks and fix library lookup paths.
+# No mounting, no Finder scripting; the image itself is built by dmgbuild
+# (see dmg-settings.py).
+set -e
+
+: "${QTDIR:?QTDIR must point at the Qt installation}"
+
+# Drop leftovers from a previous run so reruns are idempotent.
+rm -rf LAN-Messenger.app
+
+# Copy the app bundle to the setup folder
+cp -r ../../release/LAN-Messenger.app LAN-Messenger.app
+
+# Remove plugins that were copied into the app bundle while building
+echo "Deleting old plugins..."
+rm -rf LAN-Messenger.app/Contents/Plugins
+echo "Done."
+
+# Copy all the required dependencies into the app bundle, and set correct lookup paths
+"$QTDIR/bin/macdeployqt" LAN-Messenger.app -verbose=2
+
+# Rewrite the helper dylib's Qt framework references to the bundled copies.
+# Handles any framework version directory and both absolute and @rpath names.
+for dep in $(otool -L LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib | awk '/Qt[A-Za-z0-9]*\.framework\// {print $1}'); do
+  case "$dep" in
+    @executable_path/*) continue ;;
+  esac
+  rel=$(echo "$dep" | sed 's|.*\(Qt[A-Za-z0-9]*\.framework/\)|\1|')
+  install_name_tool -change "$dep" "@executable_path/../Frameworks/$rel" LAN-Messenger.app/Contents/MacOS/liblmcapp.2.dylib
+done
+
+# macdeployqt stages the frameworks but leaves the main binary's @rpath
+# refs without an LC_RPATH, so the shipped app aborts at launch with
+# "Library not loaded ... no LC_RPATH's found". Add the frameworks dir
+# explicitly (libcrypto above already points there via @executable_path).
+install_name_tool -add_rpath @executable_path/../Frameworks \
+  LAN-Messenger.app/Contents/MacOS/LAN-Messenger
+
+test -d LAN-Messenger.app || { echo "staging failed: LAN-Messenger.app missing" >&2; exit 1; }
+
+exit 0

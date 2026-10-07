@@ -328,17 +328,25 @@ jobs:
           set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
           cd lmc/setup/mac
-          chmod +x createdisk addlicense
-          sh ./createdisk
-          sh ./addlicense "$PKG_VERSION" ${{ matrix.arch }}
+          chmod +x stage-mac-app
+          sh ./stage-mac-app
+          # Hermetic venv: works with any python3 (system/Homebrew/toolcache),
+          # immune to PEP 668, no --break-system-packages, no new actions.
+          python3 -m venv "$RUNNER_TEMP/dmgbuild-venv"
+          "$RUNNER_TEMP/dmgbuild-venv/bin/pip" install "dmgbuild==1.6.7"
+          rm -f "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
+          "$RUNNER_TEMP/dmgbuild-venv/bin/dmgbuild" -s dmg-settings.py \
+            "LAN-Messenger" "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
+          test -f "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
+          ls -lh "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
+          rm -rf LAN-Messenger.app
 
       - name: List disk image artifacts
         if: always()
         run: |
           ls -lh lmc/setup/*.dmg || true
-          ls -lh lmc/setup/mac/*.dmg || true
 
-      # After createdisk: it copies lmc/release/LAN-Messenger.app into
+      # After stage-mac-app: it copies lmc/release/LAN-Messenger.app into
       # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
       # It goes next to liblmcapp.2.dylib (@executable_path install name) and
       # lmc.rcc (LMC_APP_DIR defaults to applicationDirPath).
