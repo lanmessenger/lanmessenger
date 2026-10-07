@@ -48,7 +48,11 @@ jobs:
           set -euo pipefail
           dmg=(dist/lmc_*_${{ inputs.arch-suffix }}.dmg)
           if [ ! -f "${dmg[0]}" ]; then echo 'dmg not found in dist/' >&2; exit 1; fi
-          hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
+          # The dmg carries an SLA license (dmgbuild `license` setting,
+          # like the old Rez-embedded one): agree non-interactively, as a
+          # user clicking "Agree". `echo` (not `yes`) keeps `pipefail`
+          # green — no SIGPIPE when hdiutil closes stdin.
+          echo Y | hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
           ls -la /Volumes/lmc-smoke
           test -L /Volumes/lmc-smoke/Applications
           rm -rf /Applications/LAN-Messenger-smoke.app
