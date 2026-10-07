@@ -66,9 +66,12 @@ void lmcSoundPlayer::play(const QString& filename) {
   if(sndPlaySoundFromDll)
     sndPlaySoundFromDll(filename.toStdString().c_str(), SND_ASYNC);
 #else
-  static QSoundEffect effect;
-  effect.setSource(QUrl::fromLocalFile(filename));
-  effect.play();
+  // Leaked on purpose: a static QSoundEffect would be destroyed after
+  // QApplication teardown, and its destructor posts events with no event
+  // loop left, aborting the process on Qt 6.8.
+  static QSoundEffect* effect = new QSoundEffect();
+  effect->setSource(QUrl::fromLocalFile(filename));
+  effect->play();
 #endif
 }
 
