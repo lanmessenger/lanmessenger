@@ -1,12 +1,12 @@
 # Smoke test for a macOS .dmg: mounts the exact packages-macos-<suffix>
-# artifact built by ci.yml (build-macos-<suffix>) on a fresh runner,
+# artifact built by ci.yml (build-macos matrix leg) on a fresh runner,
 # drag-installs the bundle to /Applications like a user would, and starts
 # the installed app. Shared by release.yml and nightly.yml so the publish
 # gates cannot drift apart.
 #
 # Inputs pin the architecture: arch-suffix selects the artifact
 # (packages-macos-<suffix>) and the dmg inside it (lmc_*_<suffix>.dmg),
-# runs-on selects the matching runner (intel vs arm64). No rebuild here
+# runs-on selects the matching runner (x86_64 vs arm64). No rebuild here
 # by design.
 name: Smoke macOS dmg
 
@@ -14,7 +14,7 @@ on:
   workflow_call:
     inputs:
       arch-suffix:
-        description: 'Architecture suffix (intel or arm64)'
+        description: 'Architecture suffix (x86_64 or arm64)'
         required: true
         type: string
       runs-on:

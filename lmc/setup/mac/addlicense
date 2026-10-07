@@ -3,12 +3,12 @@ set -eu
 
 if [ "${1:-}" = "" ]; then
   echo "Usage: addlicense <Version> [arch-suffix]"
-  echo "Eg: addlicense 1.0.0 intel"
+  echo "Eg: addlicense 1.0.0 x86_64"
   echo "Eg: addlicense 1.0.0 arm64"
   exit 1
 fi
 
-ARCH_SUFFIX="${2:-intel}"
+ARCH_SUFFIX="${2:-x86_64}"
 OUT="lmc_$1_$ARCH_SUFFIX.dmg"
 
 # Eject the mounted volume. Finder/Spotlight may hold it busy right after

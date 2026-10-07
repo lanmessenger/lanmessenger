@@ -105,8 +105,8 @@ installation (the parent folder of the bin and lib folders). Now open up
 the disk image, set the
 background image, icon size (96x96), icon position, icon arrangment (Snap to
 Grid) and window size. Now run the script "addlicense" to add the user license
-and compress the disk image ("addlicense <version> [intel|arm64]", default
-intel). The dmg file will have the name
-lmc_<version>_intel.dmg (Intel, CI job build-macos-intel) or
-lmc_<version>_arm64.dmg (Apple Silicon, CI job build-macos-arm64)
+and compress the disk image ("addlicense <version> [x86_64|arm64]", default
+x86_64). The dmg file will have the name
+lmc_<version>_x86_64.dmg (Intel Macs, CI job build-macos) or
+lmc_<version>_arm64.dmg (Apple Silicon, CI job build-macos)
 and will be saved to lmc/setup folder.

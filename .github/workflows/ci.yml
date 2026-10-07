@@ -269,9 +269,17 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  build-macos-intel:
+  build-macos:
     needs: [format-check]
-    runs-on: macos-15-intel
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runs-on: macos-15-intel
+          - arch: arm64
+            runs-on: macos-14
+    runs-on: ${{ matrix.runs-on }}
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
       PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
@@ -306,6 +314,10 @@ jobs:
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
 
+      - name: Verify native binary arch
+        run: |
+          lipo -archs lmc/release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
+
       - name: Build disk image
         run: |
           set -euo pipefail
@@ -313,7 +325,7 @@ jobs:
           cd lmc/setup/mac
           chmod +x createdisk addlicense
           sh ./createdisk
-          sh ./addlicense "$PKG_VERSION" intel
+          sh ./addlicense "$PKG_VERSION" ${{ matrix.arch }}
 
       - name: List disk image artifacts
         if: always()
@@ -342,7 +354,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: e2e-screenshots-macos-intel
+          name: e2e-screenshots-macos-${{ matrix.arch }}
           path: e2e-artifacts
           if-no-files-found: warn
           retention-days: 3
@@ -350,97 +362,7 @@ jobs:
       - name: Upload packages
         uses: actions/upload-artifact@v7
         with:
-          name: packages-macos-intel
-          path: lmc/setup/lmc_*_intel.dmg
-          if-no-files-found: error
-          retention-days: 3
-
-  build-macos-arm64:
-    needs: [format-check]
-    runs-on: macos-14
-    env:
-      PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.ref }}
-
-      - uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
-          arch: clang_64
-          modules: 'qtmultimedia qtshadertools qtimageformats'
-          cache: true
-
-      - name: Install OpenSSL
-        run: |
-          brew install openssl@3
-          mkdir -p openssl
-          ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
-          ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
-
-      - name: Configure
-        shell: bash
-        run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
-          if [ -d openssl ]; then
-            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
-          fi
-          cmake "${args[@]}"
-
-      - name: Build release layout
-        run: cmake --build build --config Release --target package-local --parallel
-
-      - name: Verify native arm64 binary
-        run: |
-          lipo -archs lmc/release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q arm64
-
-      - name: Build disk image
-        run: |
-          set -euo pipefail
-          export QTDIR="$QT_ROOT_DIR"
-          cd lmc/setup/mac
-          chmod +x createdisk addlicense
-          sh ./createdisk
-          sh ./addlicense "$PKG_VERSION" arm64
-
-      - name: List disk image artifacts
-        if: always()
-        run: |
-          ls -lh lmc/setup/*.dmg || true
-          ls -lh lmc/setup/mac/*.dmg || true
-
-      # After createdisk: it copies lmc/release/LAN-Messenger.app into
-      # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
-      # It goes next to liblmcapp.2.dylib (@executable_path install name) and
-      # lmc.rcc (LMC_APP_DIR defaults to applicationDirPath).
-      - name: Build e2e test
-        run: cmake --build build --config Release --target tst_lmc_gui --parallel
-
-      - name: E2E GUI test
-        timeout-minutes: 5
-        run: |
-          cp build/tests/tst_lmc_gui lmc/release/LAN-Messenger.app/Contents/MacOS/
-          cd lmc/release
-          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
-          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
-          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
-          ./LAN-Messenger.app/Contents/MacOS/tst_lmc_gui
-
-      - name: Upload e2e screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-screenshots-macos-arm64
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 3
-
-      - name: Upload packages
-        uses: actions/upload-artifact@v7
-        with:
-          name: packages-macos-arm64
-          path: lmc/setup/lmc_*_arm64.dmg
+          name: packages-macos-${{ matrix.arch }}
+          path: lmc/setup/lmc_*_${{ matrix.arch }}.dmg
           if-no-files-found: error
           retention-days: 3

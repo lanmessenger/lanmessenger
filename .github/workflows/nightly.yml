@@ -105,12 +105,12 @@ jobs:
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
     uses: ./.github/workflows/smoke-linux-deb.yml
 
-  smoke-macos-intel-dmg:
+  smoke-macos-x86_64-dmg:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
     uses: ./.github/workflows/smoke-macos-dmg.yml
     with:
-      arch-suffix: intel
+      arch-suffix: x86_64
       runs-on: macos-15-intel
 
   smoke-macos-arm64-dmg:
@@ -122,8 +122,8 @@ jobs:
       runs-on: macos-14
 
   publish:
-    needs: [plan, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-intel-dmg, smoke-macos-arm64-dmg]
-    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-macos-intel-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
+    needs: [plan, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
