@@ -1,6 +1,7 @@
 #!/bin/sh
+set -eu
 
-if [ "$1" = "" ]; then
+if [ "${1:-}" = "" ]; then
   echo "Usage: addlicense <Version> [arch-suffix]"
   echo "Eg: addlicense 1.0.0 intel"
   echo "Eg: addlicense 1.0.0 arm64"
@@ -8,20 +9,43 @@ if [ "$1" = "" ]; then
 fi
 
 ARCH_SUFFIX="${2:-intel}"
+OUT="lmc_$1_$ARCH_SUFFIX.dmg"
 
-# eject the mounted volume
-hdiutil detach /Volumes/LAN-Messenger || true
+# Eject the mounted volume. Finder/Spotlight may hold it busy right after
+# createdisk (open Finder window), so retry before falling back to -force.
+# Without this, hdiutil convert below fails intermittently while this
+# script still exits 0 (see Upload packages "no files found" flake).
+n=0
+until hdiutil detach /Volumes/LAN-Messenger; do
+  n=$((n + 1))
+  if [ "$n" -ge 5 ]; then
+    echo "detach failed 5 times, trying -force..." >&2
+    hdiutil detach /Volumes/LAN-Messenger -force
+    break
+  fi
+  echo "detach attempt $n failed (busy?), retrying in 5s..." >&2
+  sleep 5
+done
 
-# compress the disk image
-hdiutil convert LAN-Messenger.dmg -format UDBZ -o lmc_$1_$ARCH_SUFFIX.dmg
+sync
 
-# add the license to the disk image (best-effort)
-python3 ./licenseDMG.py lmc_$1_$ARCH_SUFFIX.dmg ./package/eula/license.txt || true
+# Compress the disk image. -ov keeps reruns idempotent; without set -e
+# a failure here used to be masked and surfaced only as a missing
+# artifact in the Upload packages step.
+hdiutil convert LAN-Messenger.dmg -format UDBZ -ov -o "$OUT"
+test -f "$OUT" || { echo "convert produced no $OUT" >&2; exit 1; }
+ls -lh "$OUT"
 
-# move the final image to output folder
-mv -f -v lmc_$1_$ARCH_SUFFIX.dmg ../
+# Add the license to the disk image (best-effort)
+python3 ./licenseDMG.py "$OUT" ./package/eula/license.txt || echo "WARNING: license embedding failed (non-fatal)" >&2
+test -f "$OUT" || { echo "dmg missing after license step: $OUT" >&2; exit 1; }
 
-# delete the intermediate files
+# Move the final image to output folder
+mv -f -v "$OUT" ../
+test -f "../$OUT" || { echo "move produced no ../$OUT" >&2; exit 1; }
+ls -lh "../$OUT"
+
+# Delete the intermediate files
 rm -r -v LAN-Messenger.app
 rm -f -v LAN-Messenger.dmg
 

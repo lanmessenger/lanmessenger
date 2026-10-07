@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# Drop leftovers from a previous run so reruns are idempotent and a stale
+# LAN-Messenger.dmg cannot mask a failed hdiutil create below.
+hdiutil detach /Volumes/LAN-Messenger || true
+rm -rf LAN-Messenger.app LAN-Messenger.dmg
+
 # Copy the app bundle to the setup folder
 cp -v -r ../../release/LAN-Messenger.app LAN-Messenger.app
 
@@ -79,7 +84,14 @@ echo '
      end tell
    end tell
 ' | osascript || echo "WARNING: Finder layout step failed (non-fatal)"
- 
+
 sync
+sleep 2
+
+# Fail fast here so a missing/empty dmg does not surface later as
+# "No files were found" in the Upload packages step.
+test -f LAN-Messenger.dmg || { echo "LAN-Messenger.dmg missing after create" >&2; exit 1; }
+ls -lh LAN-Messenger.dmg
+hdiutil info || true
 
 exit 0

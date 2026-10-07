@@ -308,11 +308,18 @@ jobs:
 
       - name: Build disk image
         run: |
+          set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
           cd lmc/setup/mac
           chmod +x createdisk addlicense
           sh ./createdisk
           sh ./addlicense "$PKG_VERSION" intel
+
+      - name: List disk image artifacts
+        if: always()
+        run: |
+          ls -lh lmc/setup/*.dmg || true
+          ls -lh lmc/setup/mac/*.dmg || true
 
       # After createdisk: it copies lmc/release/LAN-Messenger.app into
       # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
@@ -391,11 +398,18 @@ jobs:
 
       - name: Build disk image
         run: |
+          set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
           cd lmc/setup/mac
           chmod +x createdisk addlicense
           sh ./createdisk
           sh ./addlicense "$PKG_VERSION" arm64
+
+      - name: List disk image artifacts
+        if: always()
+        run: |
+          ls -lh lmc/setup/*.dmg || true
+          ls -lh lmc/setup/mac/*.dmg || true
 
       # After createdisk: it copies lmc/release/LAN-Messenger.app into
       # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
