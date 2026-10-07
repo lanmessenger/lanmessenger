@@ -69,7 +69,12 @@ jobs:
           cache: true
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          if [ -n "${{ inputs.version }}" ]; then
+            args+=("-DLMC_VERSION=${{ inputs.version }}")
+          fi
+          cmake "${args[@]}"
 
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
@@ -139,7 +144,7 @@ jobs:
             xvfb xauth
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release" -DLMC_VERSION="$PKG_VERSION"
 
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
@@ -208,7 +213,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi
@@ -305,7 +310,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi

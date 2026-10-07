@@ -112,6 +112,7 @@ add_library(lmc_core STATIC
 
 target_compile_definitions(lmc_core PUBLIC
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
+    "IDA_VERSION=\"${LMC_VERSION}\""
 )
 
 # AUTOUIC puts ui_*.h in <AUTOGEN_BUILD_DIR>/include with single-config

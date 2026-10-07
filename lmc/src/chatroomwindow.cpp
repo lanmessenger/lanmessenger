@@ -178,11 +178,6 @@ void lmcChatRoomWindow::addUser(User* pUser) {
   if(!pUser)
     return;
 
-  // Do not add user if user's version is 1.2.10 or less. These versions do not
-  // support Public Chat feature.
-  if(Helper::compareVersions(pUser->version, "1.2.10") <= 0)
-    return;
-
   //	Do not add user if user is already in the list of participants
   if(peerIds.contains(pUser->id))
     return;
