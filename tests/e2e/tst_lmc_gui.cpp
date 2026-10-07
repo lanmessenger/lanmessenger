@@ -3,11 +3,13 @@
 #include <QPixmap>
 #include <QRandomGenerator>
 #include <QResource>
+#include <QTimer>
 #include <QTcpServer>
 #include <QTemporaryDir>
 #include <QUdpSocket>
 #include <QtTest>
 
+#include "aboutdialog.h"
 #include "application.h"
 #include "historywindow.h"
 #include "lmc.h"
@@ -73,10 +75,13 @@ private slots:
   void mainWindowAppears(void);
   void openFileTransfers(void);
   void openHistory(void);
+  void openAboutDialog(void);
   void cleanupTestCase(void);
 
 private:
   lmcCore* pCore = nullptr;
+  bool aboutShotDone = false;
+  bool aboutShotOk = false;
 };
 
 void TstLmcGui::initTestCase(void) {
@@ -136,6 +141,31 @@ void TstLmcGui::openHistory(void) {
   QVERIFY(QTest::qWaitForWindowExposed(history));
   QCOMPARE(history->windowTitle(), QStringLiteral("Message History"));
   QVERIFY2(saveShot(history, QStringLiteral("03-message-history.png")), "history screenshot failed");
+}
+
+void TstLmcGui::openAboutDialog(void) {
+  lmcMainWindow* window = findWindow<lmcMainWindow>();
+  QVERIFY(window);
+  window->activateWindow();
+  QVERIFY(QTest::qWaitForWindowActive(window));
+
+  // showAbout() runs the dialog modally, so arm the capture first: it fires
+  // inside the nested event loop, saves the shot and closes the dialog.
+  aboutShotDone = false;
+  aboutShotOk = false;
+  QTimer::singleShot(2000, this, [this]() {
+    lmcAboutDialog* about = findWindow<lmcAboutDialog>();
+    if(about && QTest::qWaitForWindowExposed(about))
+      aboutShotOk = saveShot(about, QStringLiteral("04-about-dialog.png"));
+    aboutShotDone = true;
+    if(about)
+      about->close();
+  });
+  QMetaObject::invokeMethod(window, "trayAboutAction_triggered", Qt::DirectConnection);
+
+  QTRY_VERIFY_WITH_TIMEOUT(aboutShotDone, 10000);
+  QVERIFY2(aboutShotOk, "about dialog screenshot failed");
+  QTRY_VERIFY_WITH_TIMEOUT(findWindow<lmcAboutDialog>() == nullptr, 5000);
 }
 
 void TstLmcGui::cleanupTestCase(void) {
