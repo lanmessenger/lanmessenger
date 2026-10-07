@@ -14,7 +14,10 @@ Usage (from lmc/setup/mac, after stage-mac-app prepared the bundle):
 """
 import os
 
-MACDIR = os.path.dirname(os.path.abspath(__file__))
+# dmgbuild exec()s this file without providing __file__
+# (core.py load_settings), so resolve everything from the cwd.
+# Must be run from lmc/setup/mac, as documented above and in CI.
+MACDIR = os.getcwd()
 
 volume_name = 'LAN-Messenger'
 format = 'UDBZ'
