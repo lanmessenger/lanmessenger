@@ -3,7 +3,7 @@ set -e
 
 # Drop leftovers from a previous run so reruns are idempotent and a stale
 # LAN-Messenger.dmg cannot mask a failed hdiutil create below.
-hdiutil detach /Volumes/LAN-Messenger || true
+hdiutil detach /Volumes/LAN-Messenger 2>/dev/null || true
 rm -rf LAN-Messenger.app LAN-Messenger.dmg
 
 # Copy the app bundle to the setup folder

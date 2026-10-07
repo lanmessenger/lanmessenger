@@ -31,6 +31,24 @@ while hdiutil info | grep -q '/Volumes/LAN-Messenger'; do
     exit 1
   fi
   echo "detach attempt $n failed (busy?), retrying in 5s..." >&2
+  if [ "$n" -eq 1 ]; then
+    # Best-effort: name the holder so the next flake log shows
+    # the culprit instead of just "Resource busy".
+    lsof +D /Volumes/LAN-Messenger 2>/dev/null || true
+  fi
+  sleep 5
+done
+
+# The mountpoint can vanish from hdiutil info while the device is still
+# busy (lazy eject); converting immediately then fails with
+# "Resource temporarily unavailable". Wait until the image is gone too.
+n=0
+while hdiutil info 2>/dev/null | grep -q 'LAN-Messenger'; do
+  n=$((n + 1))
+  if [ "$n" -ge 6 ]; then
+    echo "image still attached after 30s, continuing anyway..." >&2
+    break
+  fi
   sleep 5
 done
 
@@ -38,8 +56,18 @@ sync
 
 # Compress the disk image. -ov keeps reruns idempotent; without set -e
 # a failure here used to be masked and surfaced only as a missing
-# artifact in the Upload packages step.
-hdiutil convert LAN-Messenger.dmg -format UDBZ -ov -o "$OUT"
+# artifact in the Upload packages step. Convert itself is retried: the
+# device can still be busy right after the volume is gone (lazy eject).
+n=0
+until hdiutil convert LAN-Messenger.dmg -format UDBZ -ov -o "$OUT"; do
+  n=$((n + 1))
+  if [ "$n" -ge 3 ]; then
+    echo "convert failed 3 times, giving up" >&2
+    exit 1
+  fi
+  echo "convert attempt $n failed, retrying in 10s..." >&2
+  sleep 10
+done
 test -f "$OUT" || { echo "convert produced no $OUT" >&2; exit 1; }
 ls -lh "$OUT"
 
