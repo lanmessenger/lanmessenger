@@ -64,8 +64,9 @@ jobs:
           [General]
           AutoShow=true
 
+          # Same seed recipe as the gate (see e2e-robot.yml for why 0.0.0).
           [Application]
-          Version=1.2.39
+          Version=0.0.0
 
           [User]
           Name=E2E Tester

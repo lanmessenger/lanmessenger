@@ -41,8 +41,10 @@ jobs:
           [General]
           AutoShow=true
 
+          # Must match the tested binary (setup-e2e builds with 0.0.0):
+          # a newer Version resets the config and blocks startup with a modal warning.
           [Application]
-          Version=1.2.39
+          Version=0.0.0
 
           [User]
           Name=E2E Tester
