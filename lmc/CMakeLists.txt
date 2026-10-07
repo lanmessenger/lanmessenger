@@ -149,7 +149,7 @@ endif()
 # (AUTORCC over src/resource.qrc); test binaries link lmc_core and repeat the
 # same .qrc so the Qt resource initializers live in an object that is always
 # linked (a static lib would drop an unreferenced qrc object).
-add_executable(lmc
+add_executable(lmc WIN32
     src/main.cpp
     src/resource.qrc
 )
