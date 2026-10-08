@@ -3,42 +3,42 @@ font-family: Arial, Helvetica, Tahoma, Verdana, Sans-serif;
 font-size: 9pt;
 }
 /* Ensure that our assumptions about the default browser colors are correct. */
-BODY { color: #000000; background-color: #FFFFFF; }
-BODY a:link { color: #0000FF; }
-BODY a:hover { color: #0000FF; }
-BODY a:active { color: #0000FF; }
-BODY a:visited { color: #800080; }
+body { color: #000000; background-color: #FFFFFF; }
+body a:link { color: #0000FF; }
+body a:hover { color: #0000FF; }
+body a:active { color: #0000FF; }
+body a:visited { color: #800080; }
 
-BODY {
+body {
   margin: 4px;
 }
-DIV#content {
+div#content {
   font: 12px Arial;
 }
-DIV#insert {
+div#insert {
   display: none;
 }
 
 /* System messages */
-DIV.system {
+div.system {
   padding: 2px 5px;
   background: #EAEAFF;
 }
-DIV.system DIV.msg {
+div.system div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.system DIV.1st {
+div.system div.1st {
   margin: 4px 0px 4px 0px;
 }
-DIV.system DIV.Nth {
+div.system div.Nth {
   margin: 4px 0px 4px 0px;
 }
-DIV.system SPAN.salutation {
+div.system span.salutation {
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.system .icon {
+div.system .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
@@ -49,26 +49,26 @@ DIV.system .icon {
 */
 
 /* Borders */
-DIV.t-o {
+div.t-o {
   background-color: #FFFEEB;
 }
-DIV.b-o {
+div.b-o {
   background-color: #F1F3CB;
 }
-DIV.t-br {
+div.t-br {
   background-color: #edffea;
 }
-DIV.b-br {
+div.b-br {
   background-color: #d3f4cc;
 }
-DIV.b1 {
+div.b1 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
   margin: 0px 5px;
   background-color: #938F5A;
 }
-DIV.b2 {
+div.b2 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -76,7 +76,7 @@ DIV.b2 {
   border-left: 2px solid #938F5A;
   border-right: 2px solid #938F5A;
 }
-DIV.b3 {
+div.b3 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -84,7 +84,7 @@ DIV.b3 {
   border-left: 1px solid #938F5A;
   border-right: 1px solid #938F5A;
 }
-DIV.b4 {
+div.b4 {
   height: 2px;
   font-size: 1px;
   overflow: hidden;
@@ -94,29 +94,29 @@ DIV.b4 {
 }
 
 /* Chat messages */
-DIV.chat {
+div.chat {
   border-left: 1px solid #938F5A;
   border-right: 1px solid #938F5A;
   padding: 0px 5px;
 }
-DIV.chat .icon {
+div.chat .icon {
 /*background-color: white;
   border: 1px solid white;*/
 }
-DIV.chat DIV.msg {
+div.chat div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.chat DIV.Nth {
+div.chat div.Nth {
   margin: 5px 0px 0px 0px;
 }
-DIV.chat SPAN.salutation {
+div.chat span.salutation {
   font-weight: bold;
   display: block;
   border-bottom: 1px solid #CDCDCD;
   margin: 0px 0px 1px 40px;
 }
 
-DIV.out {
+div.out {
   text-align: left;
   background: #F2F4CC;
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#FFFEEA',endColorStr='#F2F4CC');
@@ -125,17 +125,17 @@ DIV.out {
   background: -webkit-gradient(linear, left top, left bottom, from(#FFFEEA), to(#F2F4CC));
 }
 
-DIV.out .icon {
+div.out .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
   height:32px;
 }
 
-DIV.in {
+div.in {
   text-align: left;
 }
-DIV.in .icon {
+div.in .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
@@ -143,7 +143,7 @@ DIV.in .icon {
 }
 
 /* Broadcast messages */
-DIV.public {
+div.public {
   border-left: 1px solid #938F5A;
   border-right: 1px solid #938F5A;
   padding: 0px 5px;
@@ -153,60 +153,60 @@ DIV.public {
   background: -moz-linear-gradient(top,  #edffea,  #d3f4cc);
   background: -webkit-gradient(linear, left top, left bottom, from(#edffea), to(#d3f4cc));
 }
-DIV.public DIV.msg {
+div.public div.msg {
   margin: 0px 0px 0px 0px;
   font-size: 9pt;
 }
-DIV.public SPAN.salutation {
+div.public span.salutation {
   font-weight: normal;
   display: block;
   border-bottom: 1px solid #CDCDCD;
   margin: 0px 0px 4px 24px;
 }
-DIV.public .icon {
+div.public .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
 
 /* File messages */
-DIV.request {
+div.request {
   padding: 0px 5px;
 }
-DIV.request SPAN.salutation {
+div.request span.salutation {
   color: #606060;
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.details {
+div.request span.details {
   color: #0000FF;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.links {
+div.request span.links {
   color: #606060;
   display: block;
   margin: 0px 0px 1px 24px;
 }  
-DIV.request .icon {
+div.request .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
 
-SPAN.time {
+span.time {
   color: rgb(119,119,119);
   font-weight: normal;
   margin: 0px;
 }
 
 /* Helper styles */
-DIV.clear {
+div.clear {
   clear: both;
   height: 1px;
   overflow: hidden;
 }
 
-DIV.break {
+div.break {
   height: 1px;
   margin: 3px 0px 0px 0px;
   overflow: hidden;

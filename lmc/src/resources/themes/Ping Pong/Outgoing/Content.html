@@ -1,7 +1,11 @@
-<div class='chat out'>
- <div class='msg 1st'><img class='icon' src='%iconpath%'><span class='salutation'>%sender%:</span>
- <span class='time'>%time%</span><span style='%style%'>%message%</span></div>
- <div id='insert'></div>
- <div class='clear'></div>
-</div>
-<div class='break'></div>
+<table border='0' width='100%'>
+	<tr>
+		<td width='100%' style='padding-right: 10px; font-weight: bold; text-align: right;'>%sender%:</td><td rowspan='2'><img border='0' width='32' height='32' src='%iconpath%'></td>
+	</tr>
+	<tr>
+		<td style='padding-right: 10px; text-align: right;'><span style='color: #777777'>%time%</span><span style='%style%'>%message%</span></td>
+	</tr>
+	<tr>
+		<td colspan='2' style='background: #DCDCDC;font-size: 1px;'></td>
+	</tr>
+</table>

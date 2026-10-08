@@ -3,39 +3,39 @@ font-family: Arial, Helvetica, Tahoma, Verdana, Sans-serif;
 font-size: 9pt;
 }
 /* Ensure that our assumptions about the default browser colors are correct. */
-BODY { color: #000000; background-color: #FFFFFF; }
-BODY a:link { color: #0000FF; }
-BODY a:hover { color: #0000FF; }
-BODY a:active { color: #0000FF; }
-BODY a:visited { color: #800080; }
+body { color: #000000; background-color: #FFFFFF; }
+body a:link { color: #0000FF; }
+body a:hover { color: #0000FF; }
+body a:active { color: #0000FF; }
+body a:visited { color: #800080; }
 
-BODY {
+body {
   margin: 4px;
 }
-DIV#content {
+div#content {
   font: 12px Arial;
 }
-DIV#insert {
+div#insert {
   display: none;
 }
 
 /* System messages */
-DIV.system DIV.msg {
+div.system div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.system DIV.1st {
+div.system div.1st {
   margin: 4px 0px 4px 0px;
 }
-DIV.system DIV.Nth {
+div.system div.Nth {
   margin: 4px 0px 4px 0px;
 }
-DIV.system SPAN.salutation {
+div.system span.salutation {
   color: #777777;
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.system .icon {
+div.system .icon {
   float: left;
   margin: 0px 3px 0px 0px;
 }
@@ -45,36 +45,36 @@ DIV.system .icon {
    <div class='icon'><div style='height:1px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="%userIconPath%")'></div></div>
 */
 
-DIV.chat .icon {
+div.chat .icon {
 /*border: 1px solid #938F5A;
   padding: 2px;*/
 }
-DIV.chat DIV.msg {
+div.chat div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.chat DIV.Nth {
+div.chat div.Nth {
   margin: 5px 0px 0px 0px;
 }
-DIV.chat SPAN.salutation {
+div.chat span.salutation {
   font-weight: bold;
   display: block;
   margin: 0px 0px 1px 0px;
 }
 
-DIV.out {
+div.out {
   text-align: left;
 }
-DIV.out .icon {
+div.out .icon {
   float: left;
   margin: 0px 5px 0px 2px;
   width:32px;
   height:32px;
 }
 
-DIV.in {
+div.in {
   text-align: right;
 }
-DIV.in .icon {
+div.in .icon {
   float: right;
   margin: 0px 2px 0px 5px;
   width:32px;
@@ -82,59 +82,59 @@ DIV.in .icon {
 }
 
 /* Broadcast messages */
-DIV.public {
+div.public {
   padding: 4px 2px;
 }
-DIV.public DIV.msg {
+div.public div.msg {
   text-align: right;
   margin: 0px 0px 0px 0px;
   font-size: 9pt;
 }
-DIV.public SPAN.salutation {
+div.public span.salutation {
   display: block;
   margin: 0px 0px 1px 0px;
 }
-DIV.public .icon {
+div.public .icon {
   float: right;
   margin: 0px 2px 0px 5px;
 }
 
 /* File messages */
-DIV.request {
+div.request {
   padding: 4px 2px;
 }
-DIV.request SPAN.salutation {
+div.request span.salutation {
   color: #606060;
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.details {
+div.request span.details {
   color: #0000FF;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.links {
+div.request span.links {
   display: block;
   margin: 0px 0px 1px 24px;
 }  
-DIV.request .icon {
+div.request .icon {
   float: left;
   margin: 0px 3px 0px 0px;
 }
 
-SPAN.time {
+span.time {
   color: #777777;
   font-weight: normal;
   margin: 0px;
 }
-DIV.clear {
+div.clear {
   clear: both;
   height: 1px;
   overflow: hidden;
 }
 
-DIV.break {
+div.break {
   height: 1px;
   margin: 7px 0px 8px 0px;
   background-color: #DCDCDC;

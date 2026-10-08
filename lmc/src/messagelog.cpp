@@ -76,6 +76,7 @@ void lmcMessageLog::initMessageLog(QString themePath, bool clearLog) {
 
 void lmcMessageLog::reloadTheme() {
   themeData = lmcTheme::loadTheme(themePath);
+  document()->setDefaultStyleSheet(themeData.styleSheet);
   clear();
 }
 

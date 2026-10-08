@@ -2,61 +2,61 @@
 font-family: Arial, Helvetica, Tahoma, Verdana, Sans-serif;
 font-size: 8.25pt;
 }
-BODY {
+body {
   margin: 4px;
 }
-DIV#content {
+div#content {
   font: 12px Arial;
 }
-DIV#insert {
+div#insert {
   display: none;
 }
 
 /* System messages */
-DIV.system {
+div.system {
   padding: 2px 5px;
   background: #EAEAFF;
 }
-DIV.system DIV.msg {
+div.system div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.system DIV.1st {
+div.system div.1st {
   margin: 4px 0px 4px 0px;
 }
-DIV.system DIV.Nth {
+div.system div.Nth {
   margin: 4px 0px 4px 0px;
 }
-DIV.system SPAN.salutation {
+div.system span.salutation {
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.system .icon {
+div.system .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
 
 /* Borders */
-DIV.t-i {
+div.t-i {
 background-color:#000000;
 }
-DIV.b-i {
+div.b-i {
 background-color:#005500;
 }
-DIV.t-o {
+div.t-o {
 background-color:#000000;
 }
-DIV.b-o {
+div.b-o {
 background-color:#000055;
 }
-DIV.b1 {
+div.b1 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
   margin: 0px 5px;
   background-color:#ff0000;
 }
-DIV.b2 {
+div.b2 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -64,7 +64,7 @@ DIV.b2 {
   border-left: 2px solid #ff0000;
   border-right: 2px solid #ff0000;
 }
-DIV.b3 {
+div.b3 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -72,7 +72,7 @@ DIV.b3 {
   border-left: 1px solid #ff0000;
   border-right: 1px solid #ff0000;
 }
-DIV.b4 {
+div.b4 {
   height: 2px;
   font-size: 1px;
   overflow: hidden;
@@ -82,26 +82,26 @@ DIV.b4 {
 }
 
 /* Chat messages */
-DIV.chat {
+div.chat {
   border-left: 1px solid #ff0000;
   border-right: 1px solid #ff0000;
   padding: 0px 5px;
 }
-DIV.chat .icon {
+div.chat .icon {
 }
-DIV.chat DIV.msg {
+div.chat div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.chat DIV.Nth {
+div.chat div.Nth {
   margin: 5px 0px 0px 0px;
 }
-DIV.chat SPAN.salutation {
+div.chat span.salutation {
   font-weight: bold;
   display: block;
   border-bottom: 1px solid #CDCDCD;
   margin: 0px 0px 1px 40px;
 }
-DIV.out {
+div.out {
   text-align: left;
   background: #000055;
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#000000',endColorStr='#000055');
@@ -110,13 +110,13 @@ DIV.out {
   background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#000055));
   color: #ffffff;
 }
-DIV.out .icon {
+div.out .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
   height:32px;
 }
-DIV.in {
+div.in {
   text-align: left;
   background: #005500;
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#000000',endColorStr='#005500');
@@ -125,7 +125,7 @@ DIV.in {
   background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#005500));
   color: #ffffff;
 }
-DIV.in .icon {
+div.in .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
@@ -133,7 +133,7 @@ DIV.in .icon {
 }
 
 /* Broadcast messages */
-DIV.public {
+div.public {
   border-left: 1px solid #ff0000;
   border-right: 1px solid #ff0000;
   padding: 0px 5px;
@@ -144,55 +144,55 @@ DIV.public {
   background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#005500));
   color: #ffffff;
 }
-DIV.public DIV.msg {
+div.public div.msg {
   margin: 0px 0px 0px 0px;
   font-size: 9pt;
 }
-DIV.public SPAN.salutation {
+div.public span.salutation {
   font-weight: normal;
   display: block;
   border-bottom: 1px solid #CDCDCD;
   margin: 0px 0px 4px 24px;
 }
-DIV.public .icon {
+div.public .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
 
 /* File messages */
-DIV.request {
+div.request {
   padding: 0px 5px;
 }
-DIV.request SPAN.salutation {
+div.request span.salutation {
   color: #606060;
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.details {
+div.request span.details {
   color: #0000FF;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.links {
+div.request span.links {
   display: block;
   margin: 0px 0px 1px 24px;
 }  
-DIV.request .icon {
+div.request .icon {
   float: left;
   margin: 0px 5px 0px 0px;
 }
 
 /* Helper styles */
-SPAN.time {
+span.time {
   color: #CCC;
 }
-DIV.clear {
+div.clear {
   clear: both;
   height: 1px;
   overflow: hidden;
 }
-DIV.break {
+div.break {
   height: 1px;
   margin: 3px 0px 0px 0px;
   overflow: hidden;

@@ -71,6 +71,17 @@ const ThemeData lmcTheme::loadTheme(const QString& path) {
 
   themeData.themePath = path;
 
+  //	Style sheet is optional: themes without main.css (e.g. Classic which
+  //	uses inline styles) simply get an empty style sheet. No fallback to
+  //	the default theme here, a missing file is not an error.
+  file.setFileName(path + "/main.css");
+  if(file.open(QIODevice::ReadOnly)) {
+    themeData.styleSheet = QString(file.readAll().constData());
+    file.close();
+  } else {
+    themeData.styleSheet.clear();
+  }
+
   file.setFileName(path + "/Incoming/Content.html");
   if(!file.open(QIODevice::ReadOnly))
     return loadTheme(defTheme);

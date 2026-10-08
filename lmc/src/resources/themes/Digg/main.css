@@ -1,37 +1,37 @@
 * {
 font-family: Arial, Helvetica, Tahoma, Verdana, Sans-serif;
 }
-BODY {
+body {
   margin: 4px;
 }
-DIV#content {
+div#content {
   font: 12px Arial;
 }
-DIV#insert {
+div#insert {
   display: none;
 }
 
 /* System messages */
-DIV.system {
+div.system {
   padding-top: 4px;
 }
-DIV.system DIV.msg {
+div.system div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.system DIV.1st {
+div.system div.1st {
   padding-top: 4px;
 }
-DIV.system DIV.Nth {
+div.system div.Nth {
   padding-top: 4px;
 }
-DIV.system SPAN.salutation {
+div.system span.salutation {
   color: rgb(119,119,119);
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
   font-size: 9pt;
 }
-DIV.system .icon {
+div.system .icon {
   float: left;
   margin: 0px 3px 0px 0px;
 }
@@ -42,40 +42,40 @@ DIV.system .icon {
 */
 
 /* Borders */
-DIV.t-o {
+div.t-o {
   position: float;
   background-color: #ffffff;
 }
-DIV.b-o {
+div.b-o {
   background-color: #ffffff;
 }
-DIV.tn-o {
+div.tn-o {
   position: float;
   background-color: #224f79;
 }
-DIV.bn-o {
+div.bn-o {
   background-color: #577fa5;
 }
-DIV.t-i {
+div.t-i {
   background-color: #ffffff;
 }
-DIV.b-i {
+div.b-i {
   background-color: #ffffff;
 }
-DIV.tn-i {
+div.tn-i {
   background-color: #224f79;
 }
-DIV.bn-i {
+div.bn-i {
   background-color: #577fa5;
 }
-DIV.b1 {
+div.b1 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
   margin: 0px 5px;
   background-color: #888888;
 }
-DIV.b2 {
+div.b2 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -83,7 +83,7 @@ DIV.b2 {
   border-left: 2px solid #888888;
   border-right: 2px solid #888888;
 }
-DIV.b3 {
+div.b3 {
   height: 1px;
   font-size: 1px;
   overflow: hidden;
@@ -91,7 +91,7 @@ DIV.b3 {
   border-left: 1px solid #888888;
   border-right: 1px solid #888888;
 }
-DIV.b4 {
+div.b4 {
   height: 2px;
   font-size: 1px;
   overflow: hidden;
@@ -101,29 +101,29 @@ DIV.b4 {
 }
 
 /* Chat messages */
-DIV.chat {
+div.chat {
   border-left: 1px solid #888888;
   border-right: 1px solid #888888;
   padding: 0px 5px;
 }
-DIV.chat .icon {
+div.chat .icon {
 /*background-color: white;
   border: 1px solid white;*/
 }
-DIV.chat DIV.msg {
+div.chat div.msg {
   margin: 0px 0px 0px 0px;
 }
-DIV.chat DIV.Nth {
+div.chat div.Nth {
   margin: 5px 0px 0px 0px;
 }
-DIV.chat SPAN.salutation {
+div.chat span.salutation {
   font-weight: bold;
   display: block;
   
   margin: 0px 0px 0px 0px;
 }
 
-DIV.outname {
+div.outname {
 font-family: 04b_19;
 font-size: 25 px;
 text-align: left;
@@ -134,7 +134,7 @@ color: #fafafa;
   background: -webkit-gradient(linear, left top, left bottom, from(#224f79), to(#577fa5));
 }
 
-DIV.inname {
+div.inname {
 font-family: 04b_19;
 font-size: 25 px;
 text-align: left;
@@ -145,7 +145,7 @@ color: #fafafa;
   background: -webkit-gradient(linear, left top, left bottom, from(#224f79), to(#577fa5));
 }
 
-DIV.out {
+div.out {
   text-align: left;
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#ffffff',endColorStr='#ffffff');
   zoom:1;
@@ -153,21 +153,21 @@ DIV.out {
   background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#eeeeee));
 }
 
-DIV.out .icon {
+div.out .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
   height:32px;
 }
 
-DIV.in {
+div.in {
   text-align: left;
   filter: progid:DXImageTransform.Microsoft.Gradient(gradientType='0',startColorStr='#ffffff',endColorStr='#eeeeee');
   zoom:1;
   background: -moz-linear-gradient(top,  #ffffff,  #eeeeee);
   background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#eeeeee));
 }
-DIV.in .icon {
+div.in .icon {
   float: left;
   margin: 0px 5px 0px 0px;
   width:32px;
@@ -175,71 +175,71 @@ DIV.in .icon {
 }
 
 /* Broadcast messages */
-DIV.public {
+div.public {
   padding: 4px 2px;
   margin: 2px 0px 4px 0px;
   border-top: 1px solid #888888;
   border-bottom: 1px solid #888888;
 }
-DIV.public DIV.msg {
+div.public div.msg {
   margin: 0px 0px 0px 0px;
   font-size: 9pt;
 }
-DIV.public SPAN.salutation {
+div.public span.salutation {
   padding-top: 4px;
   width: 100%;
   display:block;
 }
-DIV.public .icon {
+div.public .icon {
   padding:4px;
   float: left;
   margin: 0px 3px 0px 0px;
 }
 
 /* Request messages */
-DIV.request {
+div.request {
   padding: 4px 2px;
   font-size: 9pt;
 }
-DIV.request SPAN.salutation {
+div.request span.salutation {
   color: #606060;
   font-weight: normal;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.details {
+div.request span.details {
   color: #0000FF;
   display: block;
   margin: 0px 0px 1px 24px;
 }
-DIV.request SPAN.links {
+div.request span.links {
   display: block;
   margin: 0px 0px 1px 24px;
 }  
-DIV.request .icon {
+div.request .icon {
   float: left;
   margin: 0px 3px 0px 0px;
 }
 
-SPAN.time {
+span.time {
   color: rgb(119,119,119);
   font-weight: normal;
   margin: 0px;
 }
 
-DIV.clear {
+div.clear {
   clear: both;
   height: 1px;
   overflow: hidden;
 }
 
-DIV.break {
+div.break {
   height: 1px;
   margin: 3px 0px 0px 0px;
   overflow: hidden;
 }
 
-DIV.innertable {
+div.innertable {
   font: 12px Arial;
 }
 
