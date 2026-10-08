@@ -189,39 +189,24 @@ add_custom_command(
     VERBATIM
 )
 
-# Translations: lang/*.qm (sysLangDir = <appdir>/lang, stdlocation.h).
-set(LMC_TS_FILES
-    src/ar_SA.ts
-    src/bg_BG.ts
-    src/de_DE.ts
-    src/el_GR.ts
-    src/en_US.ts
-    src/es_ES.ts
-    src/fr_FR.ts
-    src/hu_HU.ts
-    src/it_IT.ts
-    src/ja_JP.ts
-    src/ko_KR.ts
-    src/ml_IN.ts
-    src/pl_PL.ts
-    src/pt_BR.ts
-    src/ro_RO.ts
-    src/ru_RU.ts
-    src/sk_SK.ts
-    src/sl_SI.ts
-    src/sv_SE.ts
-    src/tr_TR.ts
-)
+# Translations: sources live in <repo>/translations/lmc_<locale>.ts (Qt Linguist
+# format, target-prefixed names; adding a file there is enough, this glob picks
+# it up). The lrelease output keeps the runtime layout: lang/*.qm
+# (sysLangDir = <appdir>/lang, stdlocation.h).
+file(GLOB LMC_TS_FILES CONFIGURE_DEPENDS
+     ${CMAKE_SOURCE_DIR}/translations/lmc_*.ts)
+list(SORT LMC_TS_FILES)
 
 set(LMC_QM_OUTPUTS "")
 foreach(ts IN LISTS LMC_TS_FILES)
-    get_filename_component(qm_name ${ts} NAME_WE)
+    get_filename_component(ts_name ${ts} NAME_WE)
+    string(REGEX REPLACE "^lmc_" "" qm_name ${ts_name})
     set(qm_out ${LMC_RUNTIME_DIR}/lang/${qm_name}.qm)
     add_custom_command(
         OUTPUT ${qm_out}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}/lang
-        COMMAND Qt6::lrelease ${CMAKE_CURRENT_SOURCE_DIR}/${ts} -qm ${qm_out}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${ts}
+        COMMAND Qt6::lrelease ${ts} -qm ${qm_out}
+        DEPENDS ${ts}
         COMMENT "lrelease ${qm_name}.ts"
         VERBATIM
     )
@@ -248,7 +233,8 @@ set(LMC_QT_SYSTEM_QMS "")
 file(REMOVE_RECURSE ${LMC_RUNTIME_DIR}/lang/system)
 set(LMC_QT_SYSTEM_SKIPPED "")
 foreach(ts IN LISTS LMC_TS_FILES)
-    get_filename_component(locale ${ts} NAME_WE)
+    get_filename_component(ts_name ${ts} NAME_WE)
+    string(REGEX REPLACE "^lmc_" "" locale ${ts_name})
     # en_US is the source language; Qt's qtbase_en.qm is an identity file.
     if(locale STREQUAL "en_US")
         continue()

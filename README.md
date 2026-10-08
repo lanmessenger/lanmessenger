@@ -132,6 +132,12 @@ translations component of the Qt installer on Windows/macOS. Configuration
 fails if none are found. Qt itself has no translations for el_GR, ml_IN,
 ro_RO, sl_SI and sv_SE, so those locales keep English standard dialogs.
 
+The application's own translation sources live in translations/ and are named
+lmc_<locale>.ts (Qt Linguist format); the build picks the directory up
+automatically (file(GLOB CONFIGURE_DEPENDS)), so adding a translation is just
+dropping a file there - the compiled .qm keeps the locale name (ru_RU.qm) in
+lang/ next to system/.
+
 Refer PLATFORM_SPECIFIC.md for additional details about setting up the build
 environment on respective platforms.
 
