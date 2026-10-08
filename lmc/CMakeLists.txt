@@ -228,6 +228,58 @@ foreach(ts IN LISTS LMC_TS_FILES)
     list(APPEND LMC_QM_OUTPUTS ${qm_out})
 endforeach()
 
+# Qt's own translations for the standard dialogs (QMessageBox buttons and the
+# like): taken from the Qt used for the build and placed into lang/system next
+# to the app's own lang/*.qm. The files keep Qt's qtbase_<lang>[_<COUNTRY>].qm
+# naming (no renaming, nothing stored in the sources) and are matched to lmc's
+# xx_YY locales at runtime (lmcapp/src/application.cpp).
+set(LMC_QT_TRANSLATIONS_DIR ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS})
+if(NOT EXISTS ${LMC_QT_TRANSLATIONS_DIR}/qtbase_de.qm)
+    message(FATAL_ERROR
+            "Qt's own translations (qtbase_*.qm) were not found at "
+            "${LMC_QT_TRANSLATIONS_DIR}. They ship with the Qt translations "
+            "package (Debian/Ubuntu: qt6-translations-l10n) and with the "
+            "translations component of the Qt installer / vcpkg.")
+endif()
+
+set(LMC_QT_SYSTEM_QMS "")
+# Drop stale copies (another Qt's set) so nothing stale is ever staged;
+# repopulated below.
+file(REMOVE_RECURSE ${LMC_RUNTIME_DIR}/lang/system)
+set(LMC_QT_SYSTEM_SKIPPED "")
+foreach(ts IN LISTS LMC_TS_FILES)
+    get_filename_component(locale ${ts} NAME_WE)
+    # en_US is the source language; Qt's qtbase_en.qm is an identity file.
+    if(locale STREQUAL "en_US")
+        continue()
+    endif()
+    # Qt ships qtbase_<lang>.qm for most languages and
+    # qtbase_<lang>_<COUNTRY>.qm for country specific ones (pt_BR).
+    string(REGEX REPLACE "_.*" "" qt_lang ${locale})
+    set(qt_file "")
+    foreach(name IN ITEMS qtbase_${locale}.qm qtbase_${qt_lang}.qm)
+        if(EXISTS ${LMC_QT_TRANSLATIONS_DIR}/${name})
+            set(qt_file ${name})
+            break()
+        endif()
+    endforeach()
+    if(NOT qt_file)
+        list(APPEND LMC_QT_SYSTEM_SKIPPED ${locale})
+        continue()
+    endif()
+    set(qm_dst ${LMC_RUNTIME_DIR}/lang/system/${qt_file})
+    configure_file(${LMC_QT_TRANSLATIONS_DIR}/${qt_file} ${qm_dst} COPYONLY)
+    list(APPEND LMC_QT_SYSTEM_QMS ${qm_dst})
+endforeach()
+list(LENGTH LMC_QT_SYSTEM_QMS qt_qm_count)
+message(STATUS "Bundling Qt translations from ${LMC_QT_TRANSLATIONS_DIR}: "
+        "${qt_qm_count} locales into ${LMC_RUNTIME_DIR}/lang/system")
+if(LMC_QT_SYSTEM_SKIPPED)
+    string(REPLACE ";" " " skipped_str "${LMC_QT_SYSTEM_SKIPPED}")
+    message(STATUS "Qt has no translations for: ${skipped_str} "
+            "(standard dialogs stay in English for these)")
+endif()
+
 add_custom_target(lmc_runtime_files ALL
     DEPENDS
         ${LMC_RUNTIME_DIR}/lmc.rcc
@@ -273,10 +325,10 @@ else()
 endif()
 
 install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
+# The app's own lang/*.qm (lrelease) plus Qt's lang/system/*.qm (copied at
+# configure time from the Qt used for the build).
 install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
         FILES_MATCHING PATTERN "*.qm")
-# Qt's own translations shipped in the sources (resources/lang/system).
-install(DIRECTORY ${LMC_RES_DIR}/lang/system DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang)
 # Themes without Classic (bundled into resource.qrc) and notification sounds.
 install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
         PATTERN "Classic" EXCLUDE)

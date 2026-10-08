@@ -65,24 +65,25 @@ void Application::loadTranslations(const QDir& dir) {
 	}
         translators.insert(IDS_LANGUAGE_VAL, NULL);
 
-	// load system translations
+	// Qt's own translations for the standard dialogs (qtbase_*.qm, bundled at
+	// build time): country specific file first (qtbase_pt_BR.qm), language
+	// only as fallback (qtbase_pt.qm).
 	QDir sysDir(dir.absolutePath() + "/system");
 	if(!sysDir.exists())
 		return;
 
-	entries = sysDir.entryInfoList(QStringList() << filter, filters, sort);
-	for (QFileInfo file : entries) {
-		// pick country and language out of the file name
-		QStringList parts = file.baseName().split("_");
-		QString language = parts.at(parts.count() - 2).toLower();
-		QString country  = parts.at(parts.count() - 1).toUpper();
+	for (const QString& locale : translators.keys()) {
+		QStringList parts = locale.split("_");
+		QString language = QString("qtbase_%1").arg(parts.value(0).toLower());
+		QString country = QString("qtbase_%1_%2")
+							  .arg(parts.value(0).toLower(), parts.value(1).toUpper());
 
-		// construct and load translator
 		QTranslator* translator = new QTranslator(instance());
-		if (translator->load(file.absoluteFilePath())) {
-			QString locale = language + "_" + country;
+		if (translator->load(country, sysDir.absolutePath()) ||
+			translator->load(language, sysDir.absolutePath()))
 			sysTranslators.insert(locale, translator);
-		}
+		else
+			delete translator;
 	}
 }
 

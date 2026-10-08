@@ -124,6 +124,14 @@ If OpenSSL is laid out in the "openssl" folder described above, pass
 -DOPENSSL_ROOT_DIR=$PWD/openssl to the configure command. Otherwise the
 system OpenSSL found by CMake is used.
 
+The build also bundles Qt's own translations (qtbase_*.qm: the strings of the
+standard dialogs) into lang/system next to the app's translations. They are
+taken from the Qt used for the build, so the Qt translations must be present
+on the build machine: the qt6-translations-l10n package on Debian/Ubuntu, the
+translations component of the Qt installer on Windows/macOS. Configuration
+fails if none are found. Qt itself has no translations for el_GR, ml_IN,
+ro_RO, sl_SI and sv_SE, so those locales keep English standard dialogs.
+
 Refer PLATFORM_SPECIFIC.md for additional details about setting up the build
 environment on respective platforms.
 
