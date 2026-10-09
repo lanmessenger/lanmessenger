@@ -27,7 +27,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <qmath.h>
-#include "uidefinitions.h"
+#include "core/uidefinitions.h"
 #include "imagepicker.h"
 
 lmcImagePicker::lmcImagePicker(QWidget* parent, QList<QString>* source, int picSize, int columns, int* selected, int actionIndex)

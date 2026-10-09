@@ -24,7 +24,7 @@
 
 #include "application.h"
 #include "lmc.h"
-#include "stdlocation.h"
+#include "core/stdlocation.h"
 #include <QResource>
 #include <QMessageBox>
 

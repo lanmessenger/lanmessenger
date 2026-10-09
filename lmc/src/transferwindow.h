@@ -33,10 +33,10 @@
 #include <QToolButton>
 #include <qevent.h>
 #include "ui_transferwindow.h"
-#include "shared.h"
-#include "settings.h"
-#include "stdlocation.h"
-#include "soundplayer.h"
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "core/soundplayer.h"
 #include "messaging/xmlmessage.h"
 
 class lmcTransferWindow : public QWidget {

@@ -27,10 +27,10 @@
 
 #include <QObject>
 #include <QTimer>
-#include "shared.h"
+#include "core/shared.h"
 #include "message.h"
 #include "network/network.h"
-#include "settings.h"
+#include "core/settings.h"
 #include "xmlmessage.h"
 
 

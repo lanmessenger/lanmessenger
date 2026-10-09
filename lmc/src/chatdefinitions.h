@@ -25,7 +25,7 @@
 #ifndef CHATDEFINITIONS_H
 #define CHATDEFINITIONS_H
 
-#include "uidefinitions.h"
+#include "core/uidefinitions.h"
 
 const int HTMLESC_COUNT = 5;
 const QString htmlSymbol[] = {"&", "\"", "<", ">", " "};

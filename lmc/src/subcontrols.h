@@ -32,7 +32,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QLineEdit>
-#include "uidefinitions.h"
+#include "core/uidefinitions.h"
 
 class lmcToolButton : public QToolButton {
 public:

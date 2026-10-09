@@ -32,8 +32,8 @@
 #include "udpnetwork.h"
 #include "tcpnetwork.h"
 #include "webnetwork.h"
-#include "crypto.h"
-#include "settings.h"
+#include "core/crypto.h"
+#include "core/settings.h"
 #include "messaging/xmlmessage.h"
 
 class lmcNetwork : public QObject {

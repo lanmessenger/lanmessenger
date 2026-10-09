@@ -23,8 +23,8 @@
 
 
 #include "messaging.h"
-#include "stdlocation.h"
-#include "trace.h"
+#include "core/stdlocation.h"
+#include "core/trace.h"
 
 lmcMessaging::lmcMessaging(void) {
   pNetwork = new lmcNetwork();

@@ -30,7 +30,7 @@
 #include <QDataStream>
 #include <QDateTime>
 #include <QList>
-#include "settings.h"
+#include "core/settings.h"
 
 #define HC_FILENAME "messenger.db"
 #define HC_HDRSIZE 28

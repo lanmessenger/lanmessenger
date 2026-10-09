@@ -28,8 +28,8 @@
 #include <QDialog>
 #include <QPicture>
 #include "ui_aboutdialog.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 
 class lmcAboutDialog : public QDialog {
   Q_OBJECT

@@ -27,7 +27,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include "settingsdialog.h"
-#include "soundplayer.h"
+#include "core/soundplayer.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
     : QDialog(parent, flags) {

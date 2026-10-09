@@ -31,8 +31,8 @@
 #include <QActionGroup>
 #include <qevent.h>
 #include "ui_broadcastwindow.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 #include "imagepickeraction.h"
 #include "subcontrols.h"
 #include "chatdefinitions.h"

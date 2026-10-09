@@ -27,7 +27,7 @@
 
 #include <QString>
 #include <QStringList>
-#include "shared.h"
+#include "core/shared.h"
 #include "xmlmessage.h"
 
 enum MessagHeaderMember {

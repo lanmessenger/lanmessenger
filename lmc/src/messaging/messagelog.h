@@ -25,11 +25,11 @@
 #ifndef MESSAGELOG_H
 #define MESSAGELOG_H
 
-#include "shared.h"
+#include "core/shared.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
 #include "xmlmessage.h"
-#include "theme.h"
+#include "core/theme.h"
 #include "qmessagebrowser.h"
 
 enum OutputFormat {

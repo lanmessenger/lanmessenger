@@ -25,7 +25,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDataStream>
-#include "trace.h"
+#include "core/trace.h"
 #include "netstreamer.h"
 
 const qint64 bufferSize = 65535;

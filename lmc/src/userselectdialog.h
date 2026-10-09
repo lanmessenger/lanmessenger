@@ -27,8 +27,8 @@
 
 #include <QDialog>
 #include "ui_userselectdialog.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 
 class lmcUserSelectDialog : public QDialog {
   Q_OBJECT

@@ -23,7 +23,7 @@
 
 
 #include <QApplication>
-#include "lmcstrings.h"
+#include "core/lmcstrings.h"
 #include "subcontrols.h"
 
 lmcToolButton::lmcToolButton(QWidget* parent)

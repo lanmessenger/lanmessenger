@@ -29,13 +29,13 @@
 #include <QTimer>
 #include <QSysInfo>
 #include <QPointer>
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 #include "messaging/messaging.h"
 #include "mainwindow.h"
 #include "chatwindow.h"
 #include "messaging/history.h"
-#include "stdlocation.h"
+#include "core/stdlocation.h"
 #include "transferwindow.h"
 #include "historywindow.h"
 #include "settingsdialog.h"

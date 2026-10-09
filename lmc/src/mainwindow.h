@@ -40,11 +40,11 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include "ui_mainwindow.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 #include "imagepickeraction.h"
-#include "soundplayer.h"
-#include "stdlocation.h"
+#include "core/soundplayer.h"
+#include "core/stdlocation.h"
 #include "messaging/xmlmessage.h"
 
 class lmcMainWindow : public QWidget {

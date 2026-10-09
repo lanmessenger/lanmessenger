@@ -29,7 +29,7 @@
 #include <QTcpServer>
 #include <QTimer>
 #include <QFile>
-#include "shared.h"
+#include "core/shared.h"
 
 /****************************************************************************
 ** Class: FileSender

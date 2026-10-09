@@ -15,7 +15,7 @@ add_library(lmc_core STATIC
     src/chathelper.cpp
     src/chatroomwindow.cpp
     src/chatwindow.cpp
-    src/crypto.cpp
+    src/core/crypto.cpp
     src/network/datagram.cpp
     src/messaging/filemessagingproc.cpp
     src/filemodelview.cpp
@@ -25,7 +25,7 @@ add_library(lmc_core STATIC
     src/imagepicker.cpp
     src/imagepickeraction.cpp
     src/lmc.cpp
-    src/lmcstrings.cpp
+    src/core/lmcstrings.cpp
     src/mainwindow.cpp
     src/messaging/message.cpp
     src/messaging/messagelog.cpp
@@ -34,14 +34,14 @@ add_library(lmc_core STATIC
     src/network/netstreamer.cpp
     src/network/network.cpp
     src/qmessagebrowser.cpp
-    src/settings.cpp
+    src/core/settings.cpp
     src/settingsdialog.cpp
-    src/shared.cpp
-    src/soundplayer.cpp
+    src/core/shared.cpp
+    src/core/soundplayer.cpp
     src/subcontrols.cpp
     src/network/tcpnetwork.cpp
-    src/theme.cpp
-    src/trace.cpp
+    src/core/theme.cpp
+    src/core/trace.cpp
     src/transferlistview.cpp
     src/transferwindow.cpp
     src/network/udpnetwork.cpp
@@ -57,9 +57,9 @@ add_library(lmc_core STATIC
     src/chatwindow.h
     src/chathelper.h
     src/chatroomwindow.h
-    src/crypto.h
+    src/core/crypto.h
     src/network/datagram.h
-    src/definitions.h
+    src/core/definitions.h
     src/filemodelview.h
     src/helpwindow.h
     src/messaging/history.h
@@ -68,7 +68,7 @@ add_library(lmc_core STATIC
     src/imagepicker.h
     src/imagepickeraction.h
     src/lmc.h
-    src/lmcstrings.h
+    src/core/lmcstrings.h
     src/mainwindow.h
     src/messaging/message.h
     src/messaging/messagelog.h
@@ -77,18 +77,18 @@ add_library(lmc_core STATIC
     src/network/network.h
     src/qmessagebrowser.h
     src/resource.h
-    src/settings.h
+    src/core/settings.h
     src/settingsdialog.h
-    src/shared.h
-    src/soundplayer.h
-    src/stdlocation.h
+    src/core/shared.h
+    src/core/soundplayer.h
+    src/core/stdlocation.h
     src/subcontrols.h
     src/network/tcpnetwork.h
-    src/theme.h
-    src/trace.h
+    src/core/theme.h
+    src/core/trace.h
     src/transferlistview.h
     src/transferwindow.h
-    src/uidefinitions.h
+    src/core/uidefinitions.h
     src/network/udpnetwork.h
     src/updatewindow.h
     src/userinfowindow.h

@@ -28,8 +28,8 @@
 #include <QWidget>
 #include <qevent.h>
 #include "ui_helpwindow.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 
 class lmcHelpWindow : public QWidget {
   Q_OBJECT

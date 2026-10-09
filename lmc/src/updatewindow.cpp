@@ -26,7 +26,7 @@
 #include <QScreen>
 #include "updatewindow.h"
 #include "ui_updatewindow.h"
-#include "shared.h"
+#include "core/shared.h"
 
 lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget* parent)
     : QWidget(parent), ui(new Ui::UpdateWindow) {

@@ -30,7 +30,7 @@
 #include <QTreeWidget>
 #include <qevent.h>
 #include "ui_historywindow.h"
-#include "settings.h"
+#include "core/settings.h"
 #include "messaging/history.h"
 #include "historytreewidget.h"
 #include "messaging/messagelog.h"

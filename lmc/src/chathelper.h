@@ -26,7 +26,7 @@
 #define CHATHELPER_H
 
 #include <QTextBlockUserData>
-#include "uidefinitions.h"
+#include "core/uidefinitions.h"
 #include "chatdefinitions.h"
 #include "messaging/xmlmessage.h"
 

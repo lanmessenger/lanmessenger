@@ -34,14 +34,14 @@
 #include <QColorDialog>
 #include <QDesktopServices>
 #include "ui_settingsdialog.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 #include "messaging/history.h"
-#include "stdlocation.h"
+#include "core/stdlocation.h"
 #include "application.h"
 #include "messaging/messagelog.h"
-#include "theme.h"
-#include "soundplayer.h"
+#include "core/theme.h"
+#include "core/soundplayer.h"
 
 class lmcSettingsDialog : public QDialog {
   Q_OBJECT

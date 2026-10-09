@@ -36,18 +36,18 @@
 #include <QTextStream>
 #include <qevent.h>
 #include "ui_chatwindow.h"
-#include "shared.h"
-#include "settings.h"
+#include "core/shared.h"
+#include "core/settings.h"
 #include "messaging/history.h"
 #include "messaging/messagelog.h"
 #include "subcontrols.h"
 #include "imagepickeraction.h"
-#include "soundplayer.h"
+#include "core/soundplayer.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
-#include "stdlocation.h"
+#include "core/stdlocation.h"
 #include "messaging/xmlmessage.h"
-#include "theme.h"
+#include "core/theme.h"
 
 class lmcChatWindow : public QWidget {
   Q_OBJECT

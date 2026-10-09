@@ -14,8 +14,8 @@
 #include "historywindow.h"
 #include "lmc.h"
 #include "mainwindow.h"
-#include "settings.h"
-#include "stdlocation.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
 #include "transferwindow.h"
 
 namespace {

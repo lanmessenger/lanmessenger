@@ -27,9 +27,9 @@
 
 #include <QDialog>
 #include "ui_userinfowindow.h"
-#include "shared.h"
-#include "settings.h"
-#include "stdlocation.h"
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
 #include "messaging/xmlmessage.h"
 
 class lmcUserInfoWindow : public QDialog {

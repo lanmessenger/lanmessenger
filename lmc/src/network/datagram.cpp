@@ -23,7 +23,7 @@
 
 
 #include <QDataStream>
-#include "trace.h"
+#include "core/trace.h"
 #include "datagram.h"
 
 void Datagram::addHeader(DatagramType type, QByteArray& baData) {

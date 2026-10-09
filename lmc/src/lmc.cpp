@@ -25,7 +25,7 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QTranslator>
-#include "trace.h"
+#include "core/trace.h"
 #include "lmc.h"
 
 lmcCore::lmcCore(void) {

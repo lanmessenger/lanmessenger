@@ -26,7 +26,7 @@
 #define XMLMESSAGE_H
 
 #include <QDomDocument>
-#include "definitions.h"
+#include "core/definitions.h"
 
 #define XN_ROOT APP_MARKER
 #define XN_HEAD "head"
