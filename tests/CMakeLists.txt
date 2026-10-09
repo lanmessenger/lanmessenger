@@ -1,4 +1,4 @@
-find_package(Qt6 6.4 REQUIRED COMPONENTS Test)
+find_package(Qt6 6.2 REQUIRED COMPONENTS Test)
 
 # resource.qrc repeats here (same as the lmc executable): the Qt resource
 # initializers must live in an object that is always linked, and a static lib

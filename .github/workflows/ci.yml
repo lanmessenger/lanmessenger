@@ -41,12 +41,11 @@ jobs:
           find lmc/src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
             | xargs -0 clang-format-18 --dry-run -Werror
 
-  # Linux, system Qt 6.4 (Ubuntu 24.04): the minimum supported Qt. Builds the
-  # deb/rpm packages against it and smoke- and e2e-tests the same layout
-  # they ship.
+  # Linux, oldest baseline (Ubuntu 22.04, Qt 6.2, glibc 2.35): one _min
+  # package per arch installs and runs on any newer Debian-family distro.
   build-linux:
     needs: [format-check]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
       PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}

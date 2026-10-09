@@ -5,6 +5,12 @@ Maintainer: Qualia Digital Solutions <lanmsngr@gmail.com>
 Installed-Size: 50000
 Section: web
 Priority: optional
-Depends: libqt6core6t64, libqt6gui6t64, libqt6widgets6t64, libqt6network6t64, libqt6xml6t64, libqt6multimedia6, libssl3t64
+Depends: libqt6core6t64 (>= 6.2) | libqt6core6 (>= 6.2),
+         libqt6gui6t64 (>= 6.2) | libqt6gui6 (>= 6.2),
+         libqt6widgets6t64 (>= 6.2) | libqt6widgets6 (>= 6.2),
+         libqt6network6t64 (>= 6.2) | libqt6network6 (>= 6.2),
+         libqt6xml6t64 (>= 6.2) | libqt6xml6 (>= 6.2),
+         libqt6multimedia6 (>= 6.2),
+         libssl3t64 | libssl3
 Homepage: http://lanmessenger.github.io/
 Description: LAN Messenger is an instant messaging application for communication over a local network. It does not require a server.

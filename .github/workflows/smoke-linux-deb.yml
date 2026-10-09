@@ -1,5 +1,6 @@
 # Smoke test for the Linux .deb package: installs the exact
-# packages-linux artifact built by ci.yml on a fresh runner and starts
+# packages-linux artifact built by ci.yml on fresh runners at both ends of
+# the supported range (22.04/24.04) and starts
 # the installed app. Shared by release.yml and nightly.yml so the two
 # publish gates cannot drift apart.
 #
@@ -18,7 +19,11 @@ permissions:
 
 jobs:
   smoke:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 20
     steps:
       - uses: actions/download-artifact@v8

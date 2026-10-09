@@ -1,6 +1,6 @@
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Network Xml LinguistTools)
+find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Widgets Network Xml LinguistTools)
 if(UNIX)
-    find_package(Qt6 6.4 REQUIRED COMPONENTS Multimedia)
+    find_package(Qt6 6.2 REQUIRED COMPONENTS Multimedia)
 endif()
 find_package(OpenSSL REQUIRED)
 
