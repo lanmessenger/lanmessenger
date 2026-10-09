@@ -30,7 +30,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcWebNetwork : public QObject {
   Q_OBJECT

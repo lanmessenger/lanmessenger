@@ -27,7 +27,7 @@
 
 #include <QWidget>
 #include <qevent.h>
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 namespace Ui {
 class UpdateWindow;

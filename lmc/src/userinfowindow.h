@@ -30,7 +30,7 @@
 #include "shared.h"
 #include "settings.h"
 #include "stdlocation.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcUserInfoWindow : public QDialog {
   Q_OBJECT

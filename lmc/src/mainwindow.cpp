@@ -27,8 +27,8 @@
 #include <QRandomGenerator>
 #include <QUrl>
 #include "mainwindow.h"
-#include "messagelog.h"
-#include "history.h"
+#include "messaging/messagelog.h"
+#include "messaging/history.h"
 
 lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {

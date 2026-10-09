@@ -17,20 +17,20 @@ add_library(lmc_core STATIC
     src/chatwindow.cpp
     src/crypto.cpp
     src/network/datagram.cpp
-    src/filemessagingproc.cpp
+    src/messaging/filemessagingproc.cpp
     src/filemodelview.cpp
     src/helpwindow.cpp
-    src/history.cpp
+    src/messaging/history.cpp
     src/historywindow.cpp
     src/imagepicker.cpp
     src/imagepickeraction.cpp
     src/lmc.cpp
     src/lmcstrings.cpp
     src/mainwindow.cpp
-    src/message.cpp
-    src/messagelog.cpp
-    src/messaging.cpp
-    src/messagingproc.cpp
+    src/messaging/message.cpp
+    src/messaging/messagelog.cpp
+    src/messaging/messaging.cpp
+    src/messaging/messagingproc.cpp
     src/network/netstreamer.cpp
     src/network/network.cpp
     src/qmessagebrowser.cpp
@@ -50,7 +50,7 @@ add_library(lmc_core STATIC
     src/userselectdialog.cpp
     src/usertreewidget.cpp
     src/network/webnetwork.cpp
-    src/xmlmessage.cpp
+    src/messaging/xmlmessage.cpp
     src/aboutdialog.h
     src/broadcastwindow.h
     src/chatdefinitions.h
@@ -62,7 +62,7 @@ add_library(lmc_core STATIC
     src/definitions.h
     src/filemodelview.h
     src/helpwindow.h
-    src/history.h
+    src/messaging/history.h
     src/historytreewidget.h
     src/historywindow.h
     src/imagepicker.h
@@ -70,9 +70,9 @@ add_library(lmc_core STATIC
     src/lmc.h
     src/lmcstrings.h
     src/mainwindow.h
-    src/message.h
-    src/messagelog.h
-    src/messaging.h
+    src/messaging/message.h
+    src/messaging/messagelog.h
+    src/messaging/messaging.h
     src/network/netstreamer.h
     src/network/network.h
     src/qmessagebrowser.h
@@ -95,7 +95,7 @@ add_library(lmc_core STATIC
     src/userselectdialog.h
     src/usertreewidget.h
     src/network/webnetwork.h
-    src/xmlmessage.h
+    src/messaging/xmlmessage.h
     src/aboutdialog.ui
     src/broadcastwindow.ui
     src/chatroomwindow.ui

@@ -30,7 +30,7 @@
 #include <QDateTime>
 #include <QDir>
 #include "stdlocation.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcTrace {
 public:

@@ -36,10 +36,10 @@
 #include "ui_settingsdialog.h"
 #include "shared.h"
 #include "settings.h"
-#include "history.h"
+#include "messaging/history.h"
 #include "stdlocation.h"
 #include "application.h"
-#include "messagelog.h"
+#include "messaging/messagelog.h"
 #include "theme.h"
 #include "soundplayer.h"
 

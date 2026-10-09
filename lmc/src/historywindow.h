@@ -31,9 +31,9 @@
 #include <qevent.h>
 #include "ui_historywindow.h"
 #include "settings.h"
-#include "history.h"
+#include "messaging/history.h"
 #include "historytreewidget.h"
-#include "messagelog.h"
+#include "messaging/messagelog.h"
 
 class lmcHistoryWindow : public QWidget {
   Q_OBJECT

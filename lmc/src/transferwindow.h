@@ -37,7 +37,7 @@
 #include "settings.h"
 #include "stdlocation.h"
 #include "soundplayer.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcTransferWindow : public QWidget {
   Q_OBJECT

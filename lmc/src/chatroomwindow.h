@@ -38,15 +38,15 @@
 #include "ui_chatroomwindow.h"
 #include "shared.h"
 #include "settings.h"
-#include "history.h"
-#include "messagelog.h"
+#include "messaging/history.h"
+#include "messaging/messagelog.h"
 #include "subcontrols.h"
 #include "imagepickeraction.h"
 #include "soundplayer.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
 #include "stdlocation.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 #include "theme.h"
 
 class lmcChatRoomWindow : public QWidget {

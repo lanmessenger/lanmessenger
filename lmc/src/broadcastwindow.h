@@ -37,7 +37,7 @@
 #include "subcontrols.h"
 #include "chatdefinitions.h"
 #include "chathelper.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcBroadcastWindow : public QWidget {
   Q_OBJECT

@@ -28,7 +28,7 @@
 #include <QString>
 #include <QStringList>
 #include "shared.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 enum DatagramHeaderMember {
   DH_AppId = 0,

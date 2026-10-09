@@ -45,7 +45,7 @@
 #include "imagepickeraction.h"
 #include "soundplayer.h"
 #include "stdlocation.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcMainWindow : public QWidget {
   Q_OBJECT

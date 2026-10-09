@@ -34,7 +34,7 @@
 #include "webnetwork.h"
 #include "crypto.h"
 #include "settings.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 
 class lmcNetwork : public QObject {
   Q_OBJECT

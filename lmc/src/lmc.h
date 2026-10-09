@@ -31,10 +31,10 @@
 #include <QPointer>
 #include "shared.h"
 #include "settings.h"
-#include "messaging.h"
+#include "messaging/messaging.h"
 #include "mainwindow.h"
 #include "chatwindow.h"
-#include "history.h"
+#include "messaging/history.h"
 #include "stdlocation.h"
 #include "transferwindow.h"
 #include "historywindow.h"
