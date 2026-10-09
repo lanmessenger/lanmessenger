@@ -129,14 +129,18 @@ standard dialogs) into lang/system next to the app's translations. They are
 taken from the Qt used for the build, so the Qt translations must be present
 on the build machine: the qt6-translations-l10n package on Debian/Ubuntu, the
 translations component of the Qt installer on Windows/macOS. Configuration
-fails if none are found. Qt itself has no translations for el_GR, ml_IN,
-ro_RO, sl_SI and sv_SE, so those locales keep English standard dialogs.
+fails if none are found (override the lookup with
+-DLMC_QT_TRANSLATIONS_DIR=<abs path> if needed). With the reference Qt
+versions (6.4/6.8.3) there are no Qt translations for el_GR, ml_IN, ro_RO,
+sl_SI and sv_SE, so those locales keep English standard dialogs (for sl_SI
+this drops the previously vendored file - accepted).
 
 The application's own translation sources live in translations/ and are named
 lmc_<locale>.ts (Qt Linguist format); the build picks the directory up
 automatically (file(GLOB CONFIGURE_DEPENDS)), so adding a translation is just
 dropping a file there - the compiled .qm keeps the locale name (ru_RU.qm) in
-lang/ next to system/.
+lang/ next to system/. With the Visual Studio generator, re-run configure
+after adding or removing a file.
 
 Refer PLATFORM_SPECIFIC.md for additional details about setting up the build
 environment on respective platforms.

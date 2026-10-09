@@ -50,9 +50,15 @@ void Application::loadTranslations(const QDir& dir) {
 	QDir::Filters filters = QDir::Files | QDir::Readable;
 	QDir::SortFlags sort = QDir::Name;
 	QFileInfoList entries = dir.entryInfoList(QStringList() << filter, filters, sort);
+	// Locales found in this directory. System translations below are loaded
+	// per directory (not from the global hash), so user-supplied
+	// <userLangDir>/system/*.qm keep working.
+	QStringList locales;
 	for (QFileInfo file : entries) {
 		// pick country and language out of the file name
 		QStringList parts = file.baseName().split("_");
+		if (parts.count() < 2)
+			continue;
 		QString language = parts.at(parts.count() - 2).toLower();
 		QString country  = parts.at(parts.count() - 1).toUpper();
 
@@ -60,10 +66,18 @@ void Application::loadTranslations(const QDir& dir) {
 		QTranslator* translator = new QTranslator(instance());
 		if (translator->load(file.absoluteFilePath())) {
 			QString locale = language + "_" + country;
+			delete translators.take(locale);
 			translators.insert(locale, translator);
+			if (!locales.contains(locale))
+				locales.append(locale);
 		}
+		else
+			delete translator;
 	}
-        translators.insert(IDS_LANGUAGE_VAL, NULL);
+	// en_US is the source language: keep the NULL marker (no app translator),
+	// dropping the just-loaded identity translator if any.
+	delete translators.take(IDS_LANGUAGE_VAL);
+	translators.insert(IDS_LANGUAGE_VAL, NULL);
 
 	// Qt's own translations for the standard dialogs (qtbase_*.qm, bundled at
 	// build time): country specific file first (qtbase_pt_BR.qm), language
@@ -72,16 +86,22 @@ void Application::loadTranslations(const QDir& dir) {
 	if(!sysDir.exists())
 		return;
 
-	for (const QString& locale : translators.keys()) {
+	for (const QString& locale : locales) {
+		// en_US is the source language (NULL translator); there is no
+		// qtbase_en*.qm for it, mirroring the CMake skip.
+		if (locale == IDS_LANGUAGE_VAL)
+			continue;
 		QStringList parts = locale.split("_");
 		QString language = QString("qtbase_%1").arg(parts.value(0).toLower());
 		QString country = QString("qtbase_%1_%2")
-							  .arg(parts.value(0).toLower(), parts.value(1).toUpper());
+			.arg(parts.value(0).toLower(), parts.value(1).toUpper());
 
 		QTranslator* translator = new QTranslator(instance());
 		if (translator->load(country, sysDir.absolutePath()) ||
-			translator->load(language, sysDir.absolutePath()))
+			translator->load(language, sysDir.absolutePath())) {
+			delete sysTranslators.take(locale);
 			sysTranslators.insert(locale, translator);
+		}
 		else
 			delete translator;
 	}

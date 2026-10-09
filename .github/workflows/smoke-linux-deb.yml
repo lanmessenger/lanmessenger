@@ -47,7 +47,8 @@ jobs:
           command -v lmc
           test -L /usr/bin/lmc
           for f in /usr/lib/lmc/lan-messenger /usr/lib/lmc/lmc.sh /usr/lib/lmc/lmc.rcc \
-                   /usr/share/applications/lmc.desktop; do
+                   /usr/share/applications/lmc.desktop \
+                   /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
 

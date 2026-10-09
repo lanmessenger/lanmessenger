@@ -65,7 +65,9 @@ jobs:
           app=/Applications/LAN-Messenger-smoke.app
           test -x "$app/Contents/MacOS/LAN-Messenger"
           test -d "$app/Contents/Frameworks"
-          for f in "$app/Contents/MacOS/lmc.rcc" "$app/Contents/Info.plist"; do
+          for f in "$app/Contents/MacOS/lmc.rcc" "$app/Contents/Info.plist" \
+                   "$app/Contents/MacOS/lang/de_DE.qm" \
+                   "$app/Contents/MacOS/lang/system/qtbase_de.qm"; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
           # Regression gate for the missing-LC_RPATH packaging bug: the

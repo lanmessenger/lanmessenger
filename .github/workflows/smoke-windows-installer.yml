@@ -57,6 +57,12 @@ jobs:
           @('C:\lmc-smoke\lmc.exe', 'C:\lmc-smoke\lmc.rcc', 'C:\lmc-smoke\uninst.exe',
             'C:\lmc-smoke\Qt6Core.dll', 'C:\lmc-smoke\Qt6Widgets.dll') | ForEach-Object {
             if (-not (Test-Path $_)) { throw "missing $_" } }
+          # Translations gate: one app .qm and one Qt system .qm. de_DE is
+          # pinned because qtbase_de.qm is the configure-time sentinel
+          # (lmc/lmc/CMakeLists.txt), so both files must always ship.
+          @('C:\lmc-smoke\lang\de_DE.qm',
+            'C:\lmc-smoke\lang\system\qtbase_de.qm') | ForEach-Object {
+            if (-not (Test-Path $_)) { throw "missing $_" } }
           if (-not (Test-Path 'C:\lmc-smoke\tls')) { throw 'missing tls plugins' }
           if (-not (Get-ChildItem C:\lmc-smoke\libcrypto-*.dll -ErrorAction SilentlyContinue)) {
             throw 'missing openssl dlls' }

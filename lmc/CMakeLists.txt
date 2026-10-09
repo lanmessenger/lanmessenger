@@ -191,7 +191,8 @@ add_custom_command(
 
 # Translations: sources live in <repo>/translations/lmc_<locale>.ts (Qt Linguist
 # format, target-prefixed names; adding a file there is enough, this glob picks
-# it up). The lrelease output keeps the runtime layout: lang/*.qm
+# it up (on the Visual Studio generator, re-run configure after add/remove).
+# The lrelease output keeps the runtime layout: lang/*.qm
 # (sysLangDir = <appdir>/lang, stdlocation.h).
 file(GLOB LMC_TS_FILES CONFIGURE_DEPENDS
      ${CMAKE_SOURCE_DIR}/translations/lmc_*.ts)
@@ -218,18 +219,25 @@ endforeach()
 # to the app's own lang/*.qm. The files keep Qt's qtbase_<lang>[_<COUNTRY>].qm
 # naming (no renaming, nothing stored in the sources) and are matched to lmc's
 # xx_YY locales at runtime (lmcapp/src/application.cpp).
-set(LMC_QT_TRANSLATIONS_DIR ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS})
+# Override with -DLMC_QT_TRANSLATIONS_DIR=<abs path> for Qt builds whose
+# translations live elsewhere.
+if(NOT DEFINED LMC_QT_TRANSLATIONS_DIR)
+    set(LMC_QT_TRANSLATIONS_DIR ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS})
+endif()
 if(NOT EXISTS ${LMC_QT_TRANSLATIONS_DIR}/qtbase_de.qm)
     message(FATAL_ERROR
             "Qt's own translations (qtbase_*.qm) were not found at "
-            "${LMC_QT_TRANSLATIONS_DIR}. They ship with the Qt translations "
-            "package (Debian/Ubuntu: qt6-translations-l10n) and with the "
-            "translations component of the Qt installer / vcpkg.")
+            "${LMC_QT_TRANSLATIONS_DIR} (Qt ${Qt6_VERSION}). They ship with "
+            "the Qt translations package (Debian/Ubuntu: "
+            "qt6-translations-l10n) and with the translations component of "
+            "the Qt installer / vcpkg. If your Qt build has no translations, "
+            "point CMake at one that has via "
+            "-DLMC_QT_TRANSLATIONS_DIR=<abs path>.")
 endif()
 
 set(LMC_QT_SYSTEM_QMS "")
 # Drop stale copies (another Qt's set) so nothing stale is ever staged;
-# repopulated below.
+# repopulated at build time by the commands below.
 file(REMOVE_RECURSE ${LMC_RUNTIME_DIR}/lang/system)
 set(LMC_QT_SYSTEM_SKIPPED "")
 foreach(ts IN LISTS LMC_TS_FILES)
@@ -254,7 +262,17 @@ foreach(ts IN LISTS LMC_TS_FILES)
         continue()
     endif()
     set(qm_dst ${LMC_RUNTIME_DIR}/lang/system/${qt_file})
-    configure_file(${LMC_QT_TRANSLATIONS_DIR}/${qt_file} ${qm_dst} COPYONLY)
+    # Build-time copy (not configure_file): the outputs join lmc_runtime_files
+    # below, so a deleted staging dir is repopulated without reconfiguring.
+    add_custom_command(
+        OUTPUT ${qm_dst}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}/lang/system
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${LMC_QT_TRANSLATIONS_DIR}/${qt_file} ${qm_dst}
+        DEPENDS ${LMC_QT_TRANSLATIONS_DIR}/${qt_file}
+        COMMENT "Bundling ${qt_file}"
+        VERBATIM
+    )
     list(APPEND LMC_QT_SYSTEM_QMS ${qm_dst})
 endforeach()
 list(LENGTH LMC_QT_SYSTEM_QMS qt_qm_count)
@@ -270,6 +288,7 @@ add_custom_target(lmc_runtime_files ALL
     DEPENDS
         ${LMC_RUNTIME_DIR}/lmc.rcc
         ${LMC_QM_OUTPUTS}
+        ${LMC_QT_SYSTEM_QMS}
 )
 add_dependencies(lmc lmc_runtime_files)
 
