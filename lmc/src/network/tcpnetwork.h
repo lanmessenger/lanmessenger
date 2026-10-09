@@ -29,8 +29,6 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include "core/shared.h"
-#include "datagram.h"
-#include "core/settings.h"
 #include "netstreamer.h"
 #include "core/crypto.h"
 
@@ -41,7 +39,7 @@ public:
   lmcTcpNetwork(void);
   ~lmcTcpNetwork(void) {}
 
-  void init(int nPort = 0);
+  void init(int nPort);
   void start(void);
   void stop(void);
   void setLocalId(QString* lpszLocalId);
@@ -83,7 +81,6 @@ private:
   QList<FileReceiver*> receiveList;
   QMap<QString, MsgStream*> messageMap;
   MsgStream* locMsgStream;
-  lmcSettings* pSettings;
   bool isRunning;
   int tcpPort;
   QString localId;

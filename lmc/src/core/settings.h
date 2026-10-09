@@ -134,7 +134,8 @@
 #define IDS_UDPPORT "Connection/UDPPort"
 #define IDS_UDPPORT_VAL 50000
 #define IDS_TCPPORT "Connection/TCPPort"
-#define IDS_TCPPORT_VAL 50000
+#define IDS_TCPPORT_VAL ""
+#define IDS_TCPPORT_LEGACY_VAL 50000
 #define IDS_AUTOFILE "FileTransfer/AutoFile"
 #define IDS_AUTOFILE_VAL false
 #define IDS_AUTOSHOWFILE "FileTransfer/AutoShow"

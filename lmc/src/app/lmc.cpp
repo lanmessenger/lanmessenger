@@ -86,9 +86,9 @@ void lmcCore::init(const QString& szCommandArgs) {
     pInitParams->addData(XN_ARGLOGFILE, StdLocation::freeLogFile());
   }
   for(int index = 0; index < arguments.count(); index++) {
-    if(arguments.at(index).startsWith("/port=", Qt::CaseInsensitive)) {
-      QString port = arguments.at(index).mid(QString("/port=").length());
-      pInitParams->addData(XN_ARGPORT, port);
+    if(arguments.at(index).startsWith("/udpport=", Qt::CaseInsensitive)) {
+      QString port = arguments.at(index).mid(QString("/udpport=").length());
+      pInitParams->addData(XN_ARGUDPPORT, port);
       continue;
     }
     if(arguments.at(index).startsWith("/config=", Qt::CaseInsensitive)) {

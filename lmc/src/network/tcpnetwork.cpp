@@ -24,6 +24,8 @@
 
 #include "core/trace.h"
 #include "tcpnetwork.h"
+#include "datagram.h"
+#include "core/settings.h"
 
 lmcTcpNetwork::lmcTcpNetwork(void) {
   sendList.clear();
@@ -38,14 +40,21 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
 }
 
 void lmcTcpNetwork::init(int nPort) {
-  pSettings = new lmcSettings();
-  tcpPort = nPort > 0 ? nPort : pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toInt();
+  tcpPort = nPort;
 }
 
 void lmcTcpNetwork::start(void) {
   lmcTrace::write("Starting TCP server");
-  isRunning = server->listen(QHostAddress::Any, tcpPort);
-  lmcTrace::write((isRunning ? "Success" : "Failed"));
+  isRunning = server->listen(QHostAddress::Any, tcpPort > 0 ? tcpPort : IDS_TCPPORT_LEGACY_VAL);
+  if(!isRunning && tcpPort == 0 && server->serverError() == QAbstractSocket::AddressInUseError) {
+    isRunning = server->listen(QHostAddress::Any, 0);
+  }
+  if(isRunning) {
+    int actualPort = server->serverPort();
+    lmcTrace::write("TCP server listening on port " + QString::number(actualPort));
+  } else {
+    lmcTrace::write("TCP server listening failed " + server->errorString());
+  }
 }
 
 void lmcTcpNetwork::stop(void) {
@@ -194,7 +203,10 @@ void lmcTcpNetwork::setIPAddress(const QString& szAddress) {
 }
 
 int lmcTcpNetwork::serverPort(void) const {
-  return isRunning ? tcpPort : 0;
+  if(!isRunning)
+    return 0;
+  int actualPort = server->serverPort();
+  return actualPort > 0 ? actualPort : tcpPort;
 }
 
 void lmcTcpNetwork::server_newConnection(void) {

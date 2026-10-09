@@ -458,6 +458,11 @@ bool lmcSettings::migrateSettings(const QString& configFile) {
     settings.endGroup();
   }
 
+  if(Helper::compareVersions(version, "1.3.3") < 0) {
+    if(settings.value(IDS_TCPPORT, IDS_TCPPORT_VAL).toInt() == IDS_TCPPORT_LEGACY_VAL)
+      settings.remove(IDS_TCPPORT);
+  }
+
   settings.setValue(IDS_VERSION, IDA_VERSION);
   settings.sync();
   return true;

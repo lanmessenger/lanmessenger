@@ -78,7 +78,7 @@
 #define XN_ARGSILENTMODE "argsilentmode"
 #define XN_ARGTRACEMODE "argtracemode"
 #define XN_ARGLOGFILE "arglogfile"
-#define XN_ARGPORT "argport"
+#define XN_ARGUDPPORT "argudpport"
 #define XN_TCPPORT "tcpport"
 #define XN_ARGCONFIG "argconfig"
 #define XN_USERCAPS "usercaps"

@@ -484,6 +484,11 @@ void lmcSettingsDialog::setUIText(void) {
   ui.rdbCmdEnter->setText("Ctrl + Enter");
 #endif
 
+  ui.txtTCPPort->setInputMask("");
+  ui.txtTCPPort->setPlaceholderText(tr("auto"));
+  ui.txtTCPPort->setToolTip(
+    tr("Empty = automatic: try 50000, use any free port if busy. Set a value to require that exact port."));
+
   //	set minimum possible size
   layout()->setSizeConstraint(QLayout::SetMinimumSize);
 }
@@ -687,7 +692,7 @@ void lmcSettingsDialog::saveSettings(void) {
   }
   pSettings->setValue(IDS_MULTICAST, ui.txtMulticast->text(), IDS_MULTICAST_VAL);
   pSettings->setValue(IDS_UDPPORT, ui.txtUDPPort->text(), IDS_UDPPORT_VAL);
-  pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text(), IDS_TCPPORT_VAL);
+  pSettings->setValue(IDS_TCPPORT, ui.txtTCPPort->text().trimmed(), IDS_TCPPORT_VAL);
 
   pSettings->setValue(IDS_AUTOFILE, ui.chkAutoFile->isChecked(), IDS_AUTOFILE_VAL);
   pSettings->setValue(IDS_AUTOSHOWFILE, ui.chkAutoShowFile->isChecked(), IDS_AUTOSHOWFILE_VAL);

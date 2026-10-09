@@ -65,9 +65,11 @@ void lmcNetwork::init(XmlMessage* pInitParams) {
                   "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
                   "\nConnection status: " + (isConnected ? "OK" : "Fail"));
 
-  int port = pInitParams->data(XN_ARGPORT).toInt();
-  pUdpNetwork->init(port);
-  pTcpNetwork->init(port);
+  int cliUdpPort = pInitParams->data(XN_ARGUDPPORT).toInt();
+  int udpPort = cliUdpPort > 0 ? cliUdpPort : pSettings->value(IDS_UDPPORT, IDS_UDPPORT_VAL).toInt();
+  int tcpPort = pSettings->value(IDS_TCPPORT, IDS_TCPPORT_VAL).toString().trimmed().toInt();
+  pUdpNetwork->init(udpPort);
+  pTcpNetwork->init(tcpPort);
 }
 
 void lmcNetwork::start(void) {

@@ -96,10 +96,10 @@ void TstLmcGui::initTestCase(void) {
   }
 
   const int port = findFreePort();
-  QVERIFY2(port > 0, "could not bind a free UDP/TCP port for the instance");
+  QVERIFY2(port > 0, "could not bind a free UDP port for the instance");
 
   pCore = new lmcCore();
-  const QString args = QStringLiteral("/silent\n/loopback\n/port=%1\n").arg(port);
+  const QString args = QStringLiteral("/silent\n/loopback\n/udpport=%1\n").arg(port);
   pCore->init(args);
   QVERIFY(pCore->receiveAppMessage(args + QStringLiteral("/new\n")));
   QVERIFY(pCore->start());
