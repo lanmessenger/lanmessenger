@@ -24,7 +24,7 @@ add_library(lmc_core STATIC
     src/gui/history/historywindow.cpp
     src/gui/widgets/imagepicker.cpp
     src/gui/widgets/imagepickeraction.cpp
-    src/lmc.cpp
+    src/app/lmc.cpp
     src/core/lmcstrings.cpp
     src/gui/main/mainwindow.cpp
     src/messaging/message.cpp
@@ -67,7 +67,7 @@ add_library(lmc_core STATIC
     src/gui/history/historywindow.h
     src/gui/widgets/imagepicker.h
     src/gui/widgets/imagepickeraction.h
-    src/lmc.h
+    src/app/lmc.h
     src/core/lmcstrings.h
     src/gui/main/mainwindow.h
     src/messaging/message.h
@@ -76,7 +76,7 @@ add_library(lmc_core STATIC
     src/network/netstreamer.h
     src/network/network.h
     src/gui/widgets/qmessagebrowser.h
-    src/resource.h
+    src/app/resource.h
     src/core/settings.h
     src/gui/main/settingsdialog.h
     src/core/shared.h
@@ -151,17 +151,17 @@ endif()
 # same .qrc so the Qt resource initializers live in an object that is always
 # linked (a static lib would drop an unreferenced qrc object).
 add_executable(lmc WIN32
-    src/main.cpp
+    src/app/main.cpp
     src/resource.qrc
 )
 target_link_libraries(lmc PRIVATE lmc_core)
 
 if(WIN32)
-    target_sources(lmc PRIVATE src/lmcwin32.rc)
+    target_sources(lmc PRIVATE src/app/lmcwin32.rc)
     set_target_properties(lmc PROPERTIES OUTPUT_NAME lmc)
 elseif(APPLE)
-    target_sources(lmc PRIVATE src/lmc.icns)
-    set_source_files_properties(src/lmc.icns PROPERTIES
+    target_sources(lmc PRIVATE src/app/lmc.icns)
+    set_source_files_properties(src/app/lmc.icns PROPERTIES
         MACOSX_PACKAGE_LOCATION Resources
     )
     set_target_properties(lmc PROPERTIES

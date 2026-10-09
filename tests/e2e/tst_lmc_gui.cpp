@@ -12,7 +12,7 @@
 #include "gui/main/aboutdialog.h"
 #include "application.h"
 #include "gui/history/historywindow.h"
-#include "lmc.h"
+#include "app/lmc.h"
 #include "gui/main/mainwindow.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
