@@ -16,7 +16,7 @@ add_library(lmc_core STATIC
     src/chatroomwindow.cpp
     src/chatwindow.cpp
     src/crypto.cpp
-    src/datagram.cpp
+    src/network/datagram.cpp
     src/filemessagingproc.cpp
     src/filemodelview.cpp
     src/helpwindow.cpp
@@ -31,25 +31,25 @@ add_library(lmc_core STATIC
     src/messagelog.cpp
     src/messaging.cpp
     src/messagingproc.cpp
-    src/netstreamer.cpp
-    src/network.cpp
+    src/network/netstreamer.cpp
+    src/network/network.cpp
     src/qmessagebrowser.cpp
     src/settings.cpp
     src/settingsdialog.cpp
     src/shared.cpp
     src/soundplayer.cpp
     src/subcontrols.cpp
-    src/tcpnetwork.cpp
+    src/network/tcpnetwork.cpp
     src/theme.cpp
     src/trace.cpp
     src/transferlistview.cpp
     src/transferwindow.cpp
-    src/udpnetwork.cpp
+    src/network/udpnetwork.cpp
     src/updatewindow.cpp
     src/userinfowindow.cpp
     src/userselectdialog.cpp
     src/usertreewidget.cpp
-    src/webnetwork.cpp
+    src/network/webnetwork.cpp
     src/xmlmessage.cpp
     src/aboutdialog.h
     src/broadcastwindow.h
@@ -58,7 +58,7 @@ add_library(lmc_core STATIC
     src/chathelper.h
     src/chatroomwindow.h
     src/crypto.h
-    src/datagram.h
+    src/network/datagram.h
     src/definitions.h
     src/filemodelview.h
     src/helpwindow.h
@@ -73,8 +73,8 @@ add_library(lmc_core STATIC
     src/message.h
     src/messagelog.h
     src/messaging.h
-    src/netstreamer.h
-    src/network.h
+    src/network/netstreamer.h
+    src/network/network.h
     src/qmessagebrowser.h
     src/resource.h
     src/settings.h
@@ -83,18 +83,18 @@ add_library(lmc_core STATIC
     src/soundplayer.h
     src/stdlocation.h
     src/subcontrols.h
-    src/tcpnetwork.h
+    src/network/tcpnetwork.h
     src/theme.h
     src/trace.h
     src/transferlistview.h
     src/transferwindow.h
     src/uidefinitions.h
-    src/udpnetwork.h
+    src/network/udpnetwork.h
     src/updatewindow.h
     src/userinfowindow.h
     src/userselectdialog.h
     src/usertreewidget.h
-    src/webnetwork.h
+    src/network/webnetwork.h
     src/xmlmessage.h
     src/aboutdialog.ui
     src/broadcastwindow.ui

@@ -29,7 +29,7 @@
 #include <QTimer>
 #include "shared.h"
 #include "message.h"
-#include "network.h"
+#include "network/network.h"
 #include "settings.h"
 #include "xmlmessage.h"
 
