@@ -42,7 +42,7 @@
 #include "ui_mainwindow.h"
 #include "core/shared.h"
 #include "core/settings.h"
-#include "imagepickeraction.h"
+#include "gui/widgets/imagepickeraction.h"
 #include "core/soundplayer.h"
 #include "core/stdlocation.h"
 #include "messaging/xmlmessage.h"

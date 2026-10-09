@@ -333,22 +333,22 @@
   <customwidget>
    <class>lmcUserTreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>usertreewidget.h</header>
+    <header>gui/contacts/usertreewidget.h</header>
   </customwidget>
   <customwidget>
    <class>lmcLabel</class>
    <extends>QLabel</extends>
-   <header>subcontrols.h</header>
+    <header>gui/widgets/subcontrols.h</header>
   </customwidget>
   <customwidget>
    <class>lmcToolButton</class>
    <extends>QToolButton</extends>
-   <header>subcontrols.h</header>
+    <header>gui/widgets/subcontrols.h</header>
   </customwidget>
   <customwidget>
    <class>lmcLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>subcontrols.h</header>
+    <header>gui/widgets/subcontrols.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

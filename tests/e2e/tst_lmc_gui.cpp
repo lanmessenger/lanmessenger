@@ -9,14 +9,14 @@
 #include <QUdpSocket>
 #include <QtTest>
 
-#include "aboutdialog.h"
+#include "gui/main/aboutdialog.h"
 #include "application.h"
-#include "historywindow.h"
+#include "gui/history/historywindow.h"
 #include "lmc.h"
-#include "mainwindow.h"
+#include "gui/main/mainwindow.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
-#include "transferwindow.h"
+#include "gui/files/transferwindow.h"
 
 namespace {
 

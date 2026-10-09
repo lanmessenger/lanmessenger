@@ -78,7 +78,7 @@
   <customwidget>
    <class>lmcUserTreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>usertreewidget.h</header>
+    <header>gui/contacts/usertreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

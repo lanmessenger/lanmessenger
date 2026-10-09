@@ -10,104 +10,104 @@ set(LMC_RUNTIME_DIR ${CMAKE_CURRENT_BINARY_DIR}/runtime)
 set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/resources)
 
 add_library(lmc_core STATIC
-    src/aboutdialog.cpp
-    src/broadcastwindow.cpp
-    src/chathelper.cpp
-    src/chatroomwindow.cpp
-    src/chatwindow.cpp
+    src/gui/main/aboutdialog.cpp
+    src/gui/chat/broadcastwindow.cpp
+    src/gui/chat/chathelper.cpp
+    src/gui/chat/chatroomwindow.cpp
+    src/gui/chat/chatwindow.cpp
     src/core/crypto.cpp
     src/network/datagram.cpp
     src/messaging/filemessagingproc.cpp
-    src/filemodelview.cpp
-    src/helpwindow.cpp
+    src/gui/files/filemodelview.cpp
+    src/gui/main/helpwindow.cpp
     src/messaging/history.cpp
-    src/historywindow.cpp
-    src/imagepicker.cpp
-    src/imagepickeraction.cpp
+    src/gui/history/historywindow.cpp
+    src/gui/widgets/imagepicker.cpp
+    src/gui/widgets/imagepickeraction.cpp
     src/lmc.cpp
     src/core/lmcstrings.cpp
-    src/mainwindow.cpp
+    src/gui/main/mainwindow.cpp
     src/messaging/message.cpp
     src/messaging/messagelog.cpp
     src/messaging/messaging.cpp
     src/messaging/messagingproc.cpp
     src/network/netstreamer.cpp
     src/network/network.cpp
-    src/qmessagebrowser.cpp
+    src/gui/widgets/qmessagebrowser.cpp
     src/core/settings.cpp
-    src/settingsdialog.cpp
+    src/gui/main/settingsdialog.cpp
     src/core/shared.cpp
     src/core/soundplayer.cpp
-    src/subcontrols.cpp
+    src/gui/widgets/subcontrols.cpp
     src/network/tcpnetwork.cpp
     src/core/theme.cpp
     src/core/trace.cpp
-    src/transferlistview.cpp
-    src/transferwindow.cpp
+    src/gui/files/transferlistview.cpp
+    src/gui/files/transferwindow.cpp
     src/network/udpnetwork.cpp
-    src/updatewindow.cpp
-    src/userinfowindow.cpp
-    src/userselectdialog.cpp
-    src/usertreewidget.cpp
+    src/gui/main/updatewindow.cpp
+    src/gui/contacts/userinfowindow.cpp
+    src/gui/contacts/userselectdialog.cpp
+    src/gui/contacts/usertreewidget.cpp
     src/network/webnetwork.cpp
     src/messaging/xmlmessage.cpp
-    src/aboutdialog.h
-    src/broadcastwindow.h
-    src/chatdefinitions.h
-    src/chatwindow.h
-    src/chathelper.h
-    src/chatroomwindow.h
+    src/gui/main/aboutdialog.h
+    src/gui/chat/broadcastwindow.h
+    src/gui/chat/chatdefinitions.h
+    src/gui/chat/chatwindow.h
+    src/gui/chat/chathelper.h
+    src/gui/chat/chatroomwindow.h
     src/core/crypto.h
     src/network/datagram.h
     src/core/definitions.h
-    src/filemodelview.h
-    src/helpwindow.h
+    src/gui/files/filemodelview.h
+    src/gui/main/helpwindow.h
     src/messaging/history.h
-    src/historytreewidget.h
-    src/historywindow.h
-    src/imagepicker.h
-    src/imagepickeraction.h
+    src/gui/history/historytreewidget.h
+    src/gui/history/historywindow.h
+    src/gui/widgets/imagepicker.h
+    src/gui/widgets/imagepickeraction.h
     src/lmc.h
     src/core/lmcstrings.h
-    src/mainwindow.h
+    src/gui/main/mainwindow.h
     src/messaging/message.h
     src/messaging/messagelog.h
     src/messaging/messaging.h
     src/network/netstreamer.h
     src/network/network.h
-    src/qmessagebrowser.h
+    src/gui/widgets/qmessagebrowser.h
     src/resource.h
     src/core/settings.h
-    src/settingsdialog.h
+    src/gui/main/settingsdialog.h
     src/core/shared.h
     src/core/soundplayer.h
     src/core/stdlocation.h
-    src/subcontrols.h
+    src/gui/widgets/subcontrols.h
     src/network/tcpnetwork.h
     src/core/theme.h
     src/core/trace.h
-    src/transferlistview.h
-    src/transferwindow.h
+    src/gui/files/transferlistview.h
+    src/gui/files/transferwindow.h
     src/core/uidefinitions.h
     src/network/udpnetwork.h
-    src/updatewindow.h
-    src/userinfowindow.h
-    src/userselectdialog.h
-    src/usertreewidget.h
+    src/gui/main/updatewindow.h
+    src/gui/contacts/userinfowindow.h
+    src/gui/contacts/userselectdialog.h
+    src/gui/contacts/usertreewidget.h
     src/network/webnetwork.h
     src/messaging/xmlmessage.h
-    src/aboutdialog.ui
-    src/broadcastwindow.ui
-    src/chatroomwindow.ui
-    src/chatwindow.ui
-    src/helpwindow.ui
-    src/historywindow.ui
-    src/mainwindow.ui
-    src/settingsdialog.ui
-    src/transferwindow.ui
-    src/updatewindow.ui
-    src/userinfowindow.ui
-    src/userselectdialog.ui
+    src/gui/main/aboutdialog.ui
+    src/gui/chat/broadcastwindow.ui
+    src/gui/chat/chatroomwindow.ui
+    src/gui/chat/chatwindow.ui
+    src/gui/main/helpwindow.ui
+    src/gui/history/historywindow.ui
+    src/gui/main/mainwindow.ui
+    src/gui/main/settingsdialog.ui
+    src/gui/files/transferwindow.ui
+    src/gui/main/updatewindow.ui
+    src/gui/contacts/userinfowindow.ui
+    src/gui/contacts/userselectdialog.ui
 )
 
 target_compile_definitions(lmc_core PUBLIC

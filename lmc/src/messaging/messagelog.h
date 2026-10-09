@@ -26,11 +26,11 @@
 #define MESSAGELOG_H
 
 #include "core/shared.h"
-#include "chatdefinitions.h"
-#include "chathelper.h"
+#include "gui/chat/chatdefinitions.h"
+#include "gui/chat/chathelper.h"
 #include "xmlmessage.h"
 #include "core/theme.h"
-#include "qmessagebrowser.h"
+#include "gui/widgets/qmessagebrowser.h"
 
 enum OutputFormat {
   HtmlFormat,
