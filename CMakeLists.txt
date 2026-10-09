@@ -9,6 +9,9 @@ message(STATUS "LMC version: ${LMC_VERSION}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Export compile_commands.json for clangd / IDEs.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
