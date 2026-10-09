@@ -41,86 +41,10 @@ jobs:
           find lmc/src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
             | xargs -0 clang-format-18 --dry-run -Werror
 
-  # Linux, Qt 6.8 from aqt: compile/smoke check against the primary target.
-  # No packages here; the runnable layout is uploaded for manual testing.
-  build-linux:
-    needs: [format-check]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.ref }}
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential cmake \
-            libssl-dev libgl1-mesa-dev \
-            xvfb xauth
-
-      - uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
-          host: linux
-          target: desktop
-          arch: linux_gcc_64
-          modules: 'qtmultimedia qtshadertools'
-          cache: true
-
-      - name: Configure
-        run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release")
-          if [ -n "${{ inputs.version }}" ]; then
-            args+=("-DLMC_VERSION=${{ inputs.version }}")
-          fi
-          cmake "${args[@]}"
-
-      - name: Build release layout
-        run: cmake --build build --config Release --target package-local --parallel
-
-      # Run the binary directly: lan-messenger.sh overwrites LD_LIBRARY_PATH
-      # with its own directory only, which would hide the aqt Qt libraries.
-      - name: Smoke test
-        run: |
-          export USER=ci
-          cd lmc/release
-          export LD_LIBRARY_PATH="$PWD:$QT_ROOT_DIR/lib"
-          timeout 60 xvfb-run -a ./lan-messenger /loopback /noconfig /quit
-
-      - name: Build e2e test
-        run: cmake --build build --config Release --target tst_lmc_gui --parallel
-
-      - name: E2E GUI test
-        timeout-minutes: 5
-        run: |
-          export USER=ci
-          cp build/tests/tst_lmc_gui lmc/release/
-          cd lmc/release
-          export LD_LIBRARY_PATH="$PWD:$QT_ROOT_DIR/lib"
-          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
-          xvfb-run -a ./tst_lmc_gui
-
-      - name: Upload e2e screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-screenshots-linux
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 3
-
-      - name: Upload release layout
-        uses: actions/upload-artifact@v7
-        with:
-          name: manual-test-linux-qt68
-          path: lmc/release
-          if-no-files-found: error
-          retention-days: 3
-
   # Linux, system Qt 6.4 (Ubuntu 24.04): the minimum supported Qt. Builds the
-  # deb/rpm packages against it and smoke-tests the same layout they ship.
-  build-linux-deb:
+  # deb/rpm packages against it and smoke- and e2e-tests the same layout
+  # they ship.
+  build-linux:
     needs: [format-check]
     runs-on: ubuntu-24.04
     env:
@@ -155,6 +79,28 @@ jobs:
           cd lmc/release
           export LD_LIBRARY_PATH="$PWD"
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
+
+      - name: Build e2e test
+        run: cmake --build build --config Release --target tst_lmc_gui --parallel
+
+      - name: E2E GUI test
+        timeout-minutes: 5
+        run: |
+          export USER=ci
+          cp build/tests/tst_lmc_gui lmc/release/
+          cd lmc/release
+          export LD_LIBRARY_PATH="$PWD"
+          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
+          xvfb-run -a ./tst_lmc_gui
+
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-linux
+          path: e2e-artifacts
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Build packages
         env:
