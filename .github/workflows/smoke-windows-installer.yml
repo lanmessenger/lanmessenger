@@ -1,7 +1,8 @@
 # Smoke test for the Windows NSIS installer: silent-installs the exact
-# packages-windows artifact built by ci.yml on a fresh runner and starts
-# the installed app. Shared by release.yml and nightly.yml so the two
-# publish gates cannot drift apart.
+# packages-windows artifact built by ci.yml on a fresh runner, asserts the
+# Defender Firewall rules, starts the installed app, then uninstalls and
+# asserts the rules are gone. Shared by release.yml and nightly.yml so the
+# two publish gates cannot drift apart.
 #
 # No inputs needed: the artifact name (packages-windows) and the isolated
 # install dir (C:\lmc-smoke) are fixed. No rebuild here by design.
@@ -50,6 +51,29 @@ jobs:
             Get-Item 'HKLM:\SOFTWARE\LAN Messenger' -ErrorAction SilentlyContinue | Out-Host
             throw "silent install failed with exit code $($p.ExitCode)"
           }
+
+      # Defender Firewall gate: the installer must create inbound
+      # program-based (not port-based) TCP+UDP rules for the real install
+      # dir on the private profile. Strict publish gate, not eyeballing.
+      - name: Assert firewall rules
+        shell: pwsh
+        run: |
+          $rules = @(Get-NetFirewallRule -DisplayName 'LAN Messenger' -ErrorAction SilentlyContinue)
+          if ($rules.Count -ne 2) { throw "expected 2 firewall rules, found $($rules.Count)" }
+          foreach ($r in $rules) {
+            if ($r.Direction -ne 'Inbound') { throw "rule: Direction=$($r.Direction), want Inbound" }
+            if ($r.Action -ne 'Allow') { throw "rule: Action=$($r.Action), want Allow" }
+            if (-not $r.Enabled) { throw 'rule is disabled' }
+            if ("$($r.Profile)" -ne 'Private') { throw "rule: Profile=$($r.Profile), want Private" }
+            $proto = (Get-NetFirewallPortFilter -AssociatedNetFirewallRule $r).Protocol
+            if ($proto -ne 'TCP' -and $proto -ne 'UDP') { throw "rule: Protocol=$proto, want TCP or UDP" }
+            $prog = (Get-NetFirewallApplicationFilter -AssociatedNetFirewallRule $r).Program
+            if ($prog -ne 'C:\lmc-smoke\lmc.exe') { throw "rule: Program=$prog, want C:\lmc-smoke\lmc.exe" }
+          }
+          $protos = @($rules | ForEach-Object {
+            (Get-NetFirewallPortFilter -AssociatedNetFirewallRule $_).Protocol }) | Sort-Object
+          if (($protos -join ',') -ne 'TCP,UDP') { throw "protocols: $($protos -join ','), want TCP,UDP" }
+          Write-Host 'firewall rules: inbound TCP+UDP allow for C:\lmc-smoke\lmc.exe on private'
 
       - name: Verify installed layout
         shell: pwsh
@@ -125,3 +149,20 @@ jobs:
             -Wait -PassThru -NoNewWindow
           Write-Host "lmc /inst exit code: $($inst.ExitCode)"
           if ($inst.ExitCode -ne 0) { throw '/inst should return 0 when no instance is running' }
+
+      # Runs last: the install dir is gone afterwards. The uninstaller must
+      # remove the firewall rules it created.
+      - name: Silent uninstall
+        shell: pwsh
+        run: |
+          $p = Start-Process 'C:\lmc-smoke\uninst.exe' -ArgumentList '/S' `
+            -Wait -PassThru -NoNewWindow
+          Write-Host "uninstaller exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { throw "silent uninstall failed with exit code $($p.ExitCode)" }
+
+      - name: Assert firewall rules removed
+        shell: pwsh
+        run: |
+          $rules = @(Get-NetFirewallRule -DisplayName 'LAN Messenger' -ErrorAction SilentlyContinue)
+          if ($rules.Count -ne 0) { throw "expected 0 firewall rules, found $($rules.Count)" }
+          Write-Host 'firewall rules removed'

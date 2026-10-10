@@ -196,11 +196,16 @@ Section
   WriteRegDWORD HKLM "${UninstKey}" "NoModify" 1
   WriteRegDWORD HKLM "${UninstKey}" "NoRepair" 1  
   
-  DetailPrint "Adding Windows Firewall Exception '${ProductName}'"
-  !ifdef USE_NSIS_FIREWALL
-  nsisFirewall::AddAuthorizedApplication "$INSTDIR\${AppExec}" "${ProductName}"
+  ; Inbound allow (private profile): ports vary, so match by program, not by port.
+  DetailPrint "Adding Windows Firewall rules '${ProductName}' (private profile)..."
+  nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="${ProductName}"'
   Pop $0
-  !endif
+  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="${ProductName}" dir=in action=allow program="$INSTDIR\${AppExec}" enable=yes profile=private protocol=TCP description="${ProductName} inbound TCP"'
+  Pop $0
+  DetailPrint "Firewall TCP rule exit code: $0"
+  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="${ProductName}" dir=in action=allow program="$INSTDIR\${AppExec}" enable=yes profile=private protocol=UDP description="${ProductName} inbound UDP"'
+  Pop $0
+  DetailPrint "Firewall UDP rule exit code: $0"
 
   ;Create Start menu shortcuts (for all users)
   DetailPrint "Adding Start menu shortcuts"
@@ -231,11 +236,10 @@ Section "Uninstall"
   RMDir "${StartMenuDir}"
   SetShellVarContext current
   
-  DetailPrint "Removing Windows Firewall Exception '${ProductName}'"
-  !ifdef USE_NSIS_FIREWALL
-  nsisFirewall::RemoveAuthorizedApplication "$INSTDIR\${AppExec}"
+  DetailPrint "Removing Windows Firewall rules '${ProductName}'"
+  nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="${ProductName}"'
   Pop $0
-  !endif
+  DetailPrint "Firewall remove exit code: $0"
   
   ;Remove registry keys
   DetailPrint "Deleting registry entries and keys..."
