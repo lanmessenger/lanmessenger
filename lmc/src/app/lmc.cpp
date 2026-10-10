@@ -30,29 +30,25 @@
 
 lmcCore::lmcCore(void) {
   pMessaging = new lmcMessaging();
-  connect(pMessaging, SIGNAL(messageReceived(MessageType, QString*, XmlMessage*)),
-          this, SLOT(receiveMessage(MessageType, QString*, XmlMessage*)));
-  connect(pMessaging, SIGNAL(connectionStateChanged()), this, SLOT(connectionStateChanged()));
+  connect(pMessaging, &lmcMessaging::messageReceived, this, &lmcCore::receiveMessage);
+  connect(pMessaging, &lmcMessaging::connectionStateChanged, this, &lmcCore::connectionStateChanged);
   pMainWindow = new lmcMainWindow();
-  connect(pMainWindow, SIGNAL(appExiting()), this, SLOT(exitApp()));
-  connect(pMainWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
-  connect(pMainWindow, SIGNAL(chatRoomStarting(QString*)), this, SLOT(startChatRoom(QString*)));
-  connect(pMainWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-          this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-  connect(pMainWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
-  connect(pMainWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
-  connect(pMainWindow, SIGNAL(showSettings()), this, SLOT(showSettings()));
-  connect(pMainWindow, SIGNAL(showHelp(QRect*)), this, SLOT(showHelp(QRect*)));
-  connect(pMainWindow, SIGNAL(showUpdate(QRect*)), this, SLOT(showUpdate(QRect*)));
-  connect(pMainWindow, SIGNAL(showAbout()), this, SLOT(showAbout()));
-  connect(pMainWindow, SIGNAL(showBroadcast()), this, SLOT(showBroadcast()));
-  connect(pMainWindow, SIGNAL(showPublicChat()), this, SLOT(showPublicChat()));
-  connect(pMainWindow, SIGNAL(groupUpdated(GroupOp, QVariant, QVariant)),
-          this, SLOT(updateGroup(GroupOp, QVariant, QVariant)));
+  connect(pMainWindow, &lmcMainWindow::appExiting, this, &lmcCore::exitApp);
+  connect(pMainWindow, &lmcMainWindow::chatStarting, this, &lmcCore::startChat);
+  connect(pMainWindow, &lmcMainWindow::chatRoomStarting, this, &lmcCore::startChatRoom);
+  connect(pMainWindow, &lmcMainWindow::messageSent, this, &lmcCore::sendMessage);
+  connect(pMainWindow, &lmcMainWindow::showTransfers, this, &lmcCore::showTransfers);
+  connect(pMainWindow, &lmcMainWindow::showHistory, this, &lmcCore::showHistory);
+  connect(pMainWindow, &lmcMainWindow::showSettings, this, &lmcCore::showSettings);
+  connect(pMainWindow, &lmcMainWindow::showHelp, this, &lmcCore::showHelp);
+  connect(pMainWindow, &lmcMainWindow::showUpdate, this, &lmcCore::showUpdate);
+  connect(pMainWindow, &lmcMainWindow::showAbout, this, &lmcCore::showAbout);
+  connect(pMainWindow, &lmcMainWindow::showBroadcast, this, &lmcCore::showBroadcast);
+  connect(pMainWindow, &lmcMainWindow::showPublicChat, this, &lmcCore::showPublicChat);
+  connect(pMainWindow, &lmcMainWindow::groupUpdated, this, &lmcCore::updateGroup);
   pPublicChatWindow = new lmcChatRoomWindow();
-  connect(pPublicChatWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-          this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-  connect(pPublicChatWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
+  connect(pPublicChatWindow, &lmcChatRoomWindow::messageSent, this, &lmcCore::sendMessage);
+  connect(pPublicChatWindow, &lmcChatRoomWindow::chatStarting, this, &lmcCore::startChat);
   chatWindows.clear();
   chatRoomWindows.clear();
   pTransferWindow = nullptr;
@@ -431,8 +427,8 @@ void lmcCore::showHistory(void) {
 void lmcCore::showSettings(void) {
   if(!pSettingsDialog) {
     pSettingsDialog = new lmcSettingsDialog(pMainWindow);
-    connect(pSettingsDialog, SIGNAL(historyCleared()), this, SLOT(historyCleared()));
-    connect(pSettingsDialog, SIGNAL(fileHistoryCleared()), this, SLOT(fileHistoryCleared()));
+    connect(pSettingsDialog, &lmcSettingsDialog::historyCleared, this, &lmcCore::historyCleared);
+    connect(pSettingsDialog, &lmcSettingsDialog::fileHistoryCleared, this, &lmcCore::fileHistoryCleared);
     pSettingsDialog->init();
   }
 
@@ -458,8 +454,7 @@ void lmcCore::showHelp(QRect* pRect) {
 void lmcCore::showUpdate(QRect* pRect) {
   if(!pUpdateWindow) {
     pUpdateWindow = new lmcUpdateWindow(pRect);
-    connect(pUpdateWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-            this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
+    connect(pUpdateWindow, &lmcUpdateWindow::messageSent, this, &lmcCore::sendMessage);
     pUpdateWindow->init();
   }
 
@@ -484,8 +479,7 @@ void lmcCore::showAbout(void) {
 void lmcCore::showBroadcast(void) {
   if(!pBroadcastWindow) {
     pBroadcastWindow = new lmcBroadcastWindow();
-    connect(pBroadcastWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-            this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
+    connect(pBroadcastWindow, &lmcBroadcastWindow::messageSent, this, &lmcCore::sendMessage);
     pBroadcastWindow->init(pMessaging->isConnected());
   }
 
@@ -781,10 +775,8 @@ void lmcCore::processPublicMessage(MessageType type, QString* lpszUserId, XmlMes
 void lmcCore::createTransferWindow(void) {
   if(!pTransferWindow) {
     pTransferWindow = new lmcTransferWindow();
-    connect(pTransferWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-            this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-    connect(pTransferWindow, SIGNAL(showTrayMessage(TrayMessageType, QString, QString, TrayMessageIcon)),
-            this, SLOT(showTrayMessage(TrayMessageType, QString, QString, TrayMessageIcon)));
+    connect(pTransferWindow, &lmcTransferWindow::messageSent, this, &lmcCore::sendMessage);
+    connect(pTransferWindow, &lmcTransferWindow::showTrayMessage, this, &lmcCore::showTrayMessage);
     pTransferWindow->init();
   }
 }
@@ -840,11 +832,10 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
   chatWindows.append(pChatWindow);
   User* pLocalUser = pMessaging->localUser;
   User* pRemoteUser = pMessaging->getUser(lpszUserId);
-  connect(pChatWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-          this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-  connect(pChatWindow, SIGNAL(showHistory()), this, SLOT(showHistory()));
-  connect(pChatWindow, SIGNAL(showTransfers()), this, SLOT(showTransfers()));
-  connect(pChatWindow, SIGNAL(closed(QString*)), this, SLOT(chatWindow_closed(QString*)));
+  connect(pChatWindow, &lmcChatWindow::messageSent, this, &lmcCore::sendMessage);
+  connect(pChatWindow, &lmcChatWindow::showHistory, this, &lmcCore::showHistory);
+  connect(pChatWindow, &lmcChatWindow::showTransfers, this, &lmcCore::showTransfers);
+  connect(pChatWindow, &lmcChatWindow::closed, this, &lmcCore::chatWindow_closed);
   pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());
 }
 
@@ -868,12 +859,10 @@ void lmcCore::createChatRoomWindow(QString* lpszThreadId) {
   lmcChatRoomWindow* pChatRoomWindow = new lmcChatRoomWindow();
   chatRoomWindows.append(pChatRoomWindow);
   User* pLocalUser = pMessaging->localUser;
-  connect(pChatRoomWindow, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-          this, SLOT(sendMessage(MessageType, QString*, XmlMessage*)));
-  connect(pChatRoomWindow, SIGNAL(contactsAdding(QStringList*)),
-          this, SLOT(addContacts(QStringList*)));
-  connect(pChatRoomWindow, SIGNAL(chatStarting(QString*)), this, SLOT(startChat(QString*)));
-  connect(pChatRoomWindow, SIGNAL(closed(QString*)), this, SLOT(chatRoomWindow_closed(QString*)));
+  connect(pChatRoomWindow, &lmcChatRoomWindow::messageSent, this, &lmcCore::sendMessage);
+  connect(pChatRoomWindow, &lmcChatRoomWindow::contactsAdding, this, &lmcCore::addContacts);
+  connect(pChatRoomWindow, &lmcChatRoomWindow::chatStarting, this, &lmcCore::startChat);
+  connect(pChatRoomWindow, &lmcChatRoomWindow::closed, this, &lmcCore::chatRoomWindow_closed);
   pChatRoomWindow->init(pLocalUser, pMessaging->isConnected(), *lpszThreadId);
 }
 

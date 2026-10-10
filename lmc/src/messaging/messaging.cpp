@@ -28,19 +28,13 @@
 
 lmcMessaging::lmcMessaging(void) {
   pNetwork = new lmcNetwork();
-  connect(pNetwork, SIGNAL(broadcastReceived(DatagramHeader*, QString*)),
-          this, SLOT(receiveBroadcast(DatagramHeader*, QString*)));
-  connect(pNetwork, SIGNAL(messageReceived(DatagramHeader*, QString*)),
-          this, SLOT(receiveMessage(DatagramHeader*, QString*)));
-  connect(pNetwork, SIGNAL(webMessageReceived(QString*)),
-          this, SLOT(receiveWebMessage(QString*)));
-  connect(pNetwork, SIGNAL(newConnection(QString*, QString*)),
-          this, SLOT(newConnection(QString*, QString*)));
-  connect(pNetwork, SIGNAL(connectionLost(QString*)),
-          this, SLOT(connectionLost(QString*)));
-  connect(pNetwork, SIGNAL(progressReceived(QString*, QString*)),
-          this, SLOT(receiveProgress(QString*, QString*)));
-  connect(pNetwork, SIGNAL(connectionStateChanged()), this, SLOT(network_connectionStateChanged()));
+  connect(pNetwork, &lmcNetwork::broadcastReceived, this, &lmcMessaging::receiveBroadcast);
+  connect(pNetwork, &lmcNetwork::messageReceived, this, &lmcMessaging::receiveMessage);
+  connect(pNetwork, &lmcNetwork::webMessageReceived, this, &lmcMessaging::receiveWebMessage);
+  connect(pNetwork, &lmcNetwork::newConnection, this, &lmcMessaging::newConnection);
+  connect(pNetwork, &lmcNetwork::connectionLost, this, &lmcMessaging::connectionLost);
+  connect(pNetwork, &lmcNetwork::progressReceived, this, &lmcMessaging::receiveProgress);
+  connect(pNetwork, &lmcNetwork::connectionStateChanged, this, &lmcMessaging::network_connectionStateChanged);
   localUser = NULL;
   userList.clear();
   groupList.clear();

@@ -90,10 +90,8 @@ void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int
   lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress + ":" + QString::number(peerPort));
 
   MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, peerPort);
-  connect(msgStream, SIGNAL(connectionLost(QString*)),
-          this, SLOT(msgStream_connectionLost(QString*)));
-  connect(msgStream, SIGNAL(messageReceived(QString*, QString*, QByteArray&)),
-          this, SLOT(receiveMessage(QString*, QString*, QByteArray&)));
+  connect(msgStream, &MsgStream::connectionLost, this, &lmcTcpNetwork::msgStream_connectionLost);
+  connect(msgStream, &MsgStream::messageReceived, this, &lmcTcpNetwork::receiveMessage);
 
   //	if connecting to own machine, this stream will be stored in local message stream, else in list
   if(lpszUserId->compare(localId) == 0)
@@ -143,8 +141,7 @@ void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, 
 
   FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), localId, *lpszReceiverId, xmlMessage.data(XN_FILEPATH),
                                       xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, peerPort, (FileType)type);
-  connect(sender, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
-          this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
+  connect(sender, &FileSender::progressUpdated, this, &lmcTcpNetwork::update);
   sendList.prepend(sender);
   sender->init();
 }
@@ -155,8 +152,7 @@ void lmcTcpNetwork::initReceiveFile(QString* lpszSenderId, QString* lpszAddress,
 
   FileReceiver* receiver = new FileReceiver(xmlMessage.data(XN_FILEID), *lpszSenderId, xmlMessage.data(XN_FILEPATH),
                                             xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, tcpPort, (FileType)type);
-  connect(receiver, SIGNAL(progressUpdated(FileMode, FileOp, FileType, QString*, QString*, QString*)),
-          this, SLOT(update(FileMode, FileOp, FileType, QString*, QString*, QString*)));
+  connect(receiver, &FileReceiver::progressUpdated, this, &lmcTcpNetwork::update);
   receiveList.prepend(receiver);
 }
 
@@ -314,10 +310,8 @@ void lmcTcpNetwork::addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket) {
   lmcTrace::write("Accepted connection from user " + *lpszUserId);
   QString address = pSocket->peerAddress().toString();
   MsgStream* msgStream = new MsgStream(localId, *lpszUserId, address, tcpPort);
-  connect(msgStream, SIGNAL(connectionLost(QString*)),
-          this, SLOT(msgStream_connectionLost(QString*)));
-  connect(msgStream, SIGNAL(messageReceived(QString*, QString*, QByteArray&)),
-          this, SLOT(receiveMessage(QString*, QString*, QByteArray&)));
+  connect(msgStream, &MsgStream::connectionLost, this, &lmcTcpNetwork::msgStream_connectionLost);
+  connect(msgStream, &MsgStream::messageReceived, this, &lmcTcpNetwork::receiveMessage);
   messageMap.insert(*lpszUserId, msgStream);
   msgStream->init(pSocket);
 

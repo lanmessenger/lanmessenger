@@ -29,18 +29,12 @@ lmcNetwork::lmcNetwork(void) {
   pUdpNetwork = new lmcUdpNetwork();
   pTcpNetwork = new lmcTcpNetwork();
   pWebNetwork = new lmcWebNetwork();
-  connect(pUdpNetwork, SIGNAL(broadcastReceived(DatagramHeader*, QString*)),
-          this, SLOT(udp_receiveBroadcast(DatagramHeader*, QString*)));
-  connect(pTcpNetwork, SIGNAL(newConnection(QString*, QString*)),
-          this, SLOT(tcp_newConnection(QString*, QString*)));
-  connect(pTcpNetwork, SIGNAL(connectionLost(QString*)),
-          this, SLOT(tcp_connectionLost(QString*)));
-  connect(pTcpNetwork, SIGNAL(messageReceived(DatagramHeader*, QString*)),
-          this, SLOT(tcp_receiveMessage(DatagramHeader*, QString*)));
-  connect(pTcpNetwork, SIGNAL(progressReceived(QString*, QString*)),
-          this, SLOT(tcp_receiveProgress(QString*, QString*)));
-  connect(pWebNetwork, SIGNAL(messageReceived(QString*)),
-          this, SLOT(web_receiveMessage(QString*)));
+  connect(pUdpNetwork, &lmcUdpNetwork::broadcastReceived, this, &lmcNetwork::udp_receiveBroadcast);
+  connect(pTcpNetwork, &lmcTcpNetwork::newConnection, this, &lmcNetwork::tcp_newConnection);
+  connect(pTcpNetwork, &lmcTcpNetwork::connectionLost, this, &lmcNetwork::tcp_connectionLost);
+  connect(pTcpNetwork, &lmcTcpNetwork::messageReceived, this, &lmcNetwork::tcp_receiveMessage);
+  connect(pTcpNetwork, &lmcTcpNetwork::progressReceived, this, &lmcNetwork::tcp_receiveProgress);
+  connect(pWebNetwork, &lmcWebNetwork::messageReceived, this, &lmcNetwork::web_receiveMessage);
   pTimer = NULL;
   pCrypto = new lmcCrypto();
   ipAddress = QString();
