@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
 
   QObject::connect(&application, SIGNAL(messageReceived(const QString&)),
                    &core, SLOT(receiveAppMessage(const QString&)));
-  QObject::connect(&application, SIGNAL(aboutToQuit()), &core, SLOT(aboutToExit()));
+  QObject::connect(&application, &QCoreApplication::aboutToQuit, &core, &lmcCore::aboutToExit);
 
   return application.exec();
 }

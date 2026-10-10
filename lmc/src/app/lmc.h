@@ -58,10 +58,10 @@ public:
 
 public slots:
   bool receiveAppMessage(const QString& szMessage);
+  void aboutToExit(void);
 
 private slots:
   void exitApp(void);
-  void aboutToExit(void);
   void timer_timeout(void);
   void startChat(QString* lpszUserId);
   void startChatRoom(QString* lpszThreadId);

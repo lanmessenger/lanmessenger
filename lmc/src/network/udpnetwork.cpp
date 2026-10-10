@@ -62,7 +62,7 @@ void lmcUdpNetwork::start(void) {
 }
 
 void lmcUdpNetwork::stop(void) {
-  disconnect(pUdpReceiver, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+  disconnect(pUdpReceiver, &QIODevice::readyRead, this, &lmcUdpNetwork::processPendingDatagrams);
   if(pUdpReceiver->state() == QAbstractSocket::BoundState) {
     lmcTrace::write("Leaving multicast group " + multicastAddress.toString() + " on interface " +
                     multicastInterface.humanReadableName());
@@ -161,7 +161,7 @@ bool lmcUdpNetwork::startReceiving(void) {
                     " on interface " + multicastInterface.humanReadableName());
     bool joined = pUdpReceiver->joinMulticastGroup(multicastAddress, multicastInterface);
     lmcTrace::write((joined ? "Success" : "Failed"));
-    connect(pUdpReceiver, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+    connect(pUdpReceiver, &QIODevice::readyRead, this, &lmcUdpNetwork::processPendingDatagrams);
     return true;
   }
 

@@ -124,7 +124,7 @@ bool lmcCore::start(void) {
   pMainWindow->start();
 
   pTimer = new QTimer(this);
-  connect(pTimer, SIGNAL(timeout(void)), this, SLOT(timer_timeout(void)));
+  connect(pTimer, &QTimer::timeout, this, &lmcCore::timer_timeout);
   //	Set the timer to trigger 10 seconds after the application starts. After the
   //	first trigger, the timeout period will be decided by user settings.
   adaptiveRefresh = false;

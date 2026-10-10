@@ -61,10 +61,10 @@ FileSender::~FileSender(void) {
 
 void FileSender::init(void) {
   socket = new QTcpSocket(this);
-  connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-  connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-  connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-  connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
+  connect(socket, &QAbstractSocket::connected, this, &FileSender::connected);
+  connect(socket, &QAbstractSocket::disconnected, this, &FileSender::disconnected);
+  connect(socket, &QIODevice::readyRead, this, &FileSender::readyRead);
+  connect(socket, &QIODevice::bytesWritten, this, &FileSender::bytesWritten);
 
   QHostAddress hostAddress(address);
   socket->connectToHost(hostAddress, port);
@@ -145,7 +145,7 @@ void FileSender::sendFile(void) {
     active = true;
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
+    connect(timer, &QTimer::timeout, this, &FileSender::timer_timeout);
     timer->start(PROGRESS_TIMEOUT);
 
     qint64 unsentBytes = fileSize - file->pos();
@@ -192,8 +192,8 @@ FileReceiver::~FileReceiver(void) {
 
 void FileReceiver::init(QTcpSocket* socket) {
   this->socket = socket;
-  connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-  connect(this->socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+  connect(socket, &QAbstractSocket::disconnected, this, &FileReceiver::disconnected);
+  connect(this->socket, &QIODevice::readyRead, this, &FileReceiver::readyRead);
 
   receiveFile();
   //	now send a START message to sender
@@ -281,7 +281,7 @@ void FileReceiver::receiveFile(void) {
     active = true;
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
+    connect(timer, &QTimer::timeout, this, &FileReceiver::timer_timeout);
     timer->start(PROGRESS_TIMEOUT);
   } else {
     socket->close();
@@ -315,10 +315,10 @@ MsgStream::~MsgStream(void) {
 
 void MsgStream::init(void) {
   socket = new QTcpSocket(this);
-  connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-  connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-  connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-  connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
+  connect(socket, &QAbstractSocket::connected, this, &MsgStream::connected);
+  connect(socket, &QAbstractSocket::disconnected, this, &MsgStream::disconnected);
+  connect(socket, &QIODevice::readyRead, this, &MsgStream::readyRead);
+  connect(socket, &QIODevice::bytesWritten, this, &MsgStream::bytesWritten);
 
   QHostAddress hostAddress(peerAddress);
   socket->connectToHost(hostAddress, port);
@@ -326,9 +326,9 @@ void MsgStream::init(void) {
 
 void MsgStream::init(QTcpSocket* socket) {
   this->socket = socket;
-  connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-  connect(this->socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-  connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
+  connect(socket, &QAbstractSocket::disconnected, this, &MsgStream::disconnected);
+  connect(this->socket, &QIODevice::readyRead, this, &MsgStream::readyRead);
+  connect(socket, &QIODevice::bytesWritten, this, &MsgStream::bytesWritten);
 }
 
 void MsgStream::stop(void) {

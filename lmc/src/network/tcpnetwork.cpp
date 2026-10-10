@@ -36,7 +36,7 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
   isRunning = false;
   ipAddress = QHostAddress::Null;
   server = new QTcpServer(this);
-  connect(server, SIGNAL(newConnection()), this, SLOT(server_newConnection()));
+  connect(server, &QTcpServer::newConnection, this, &lmcTcpNetwork::server_newConnection);
 }
 
 void lmcTcpNetwork::init(int nPort) {
@@ -212,12 +212,12 @@ int lmcTcpNetwork::serverPort(void) const {
 void lmcTcpNetwork::server_newConnection(void) {
   lmcTrace::write("New connection received");
   QTcpSocket* socket = server->nextPendingConnection();
-  connect(socket, SIGNAL(readyRead()), this, SLOT(socket_readyRead()));
+  connect(socket, &QIODevice::readyRead, this, &lmcTcpNetwork::socket_readyRead);
 }
 
 void lmcTcpNetwork::socket_readyRead(void) {
   QTcpSocket* socket = (QTcpSocket*)sender();
-  disconnect(socket, SIGNAL(readyRead()), this, SLOT(socket_readyRead()));
+  disconnect(socket, &QIODevice::readyRead, this, &lmcTcpNetwork::socket_readyRead);
 
   QByteArray buffer = socket->read(64);
   if(buffer.startsWith("MSG")) {

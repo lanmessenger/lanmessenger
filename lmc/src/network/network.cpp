@@ -77,7 +77,7 @@ void lmcNetwork::start(void) {
   pCrypto->generateRSA();
 
   pTimer = new QTimer(this);
-  connect(pTimer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
+  connect(pTimer, &QTimer::timeout, this, &lmcNetwork::timer_timeout);
   pTimer->start(2000);
 
   pUdpNetwork->setCrypto(pCrypto);

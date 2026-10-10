@@ -87,7 +87,7 @@ void lmcMessaging::init(XmlMessage* pInitParams) {
   nMaxRetry = pSettings->value(IDS_MAXRETRIES, IDS_MAXRETRIES_VAL).toInt();
 
   pTimer = new QTimer(this);
-  connect(pTimer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
+  connect(pTimer, &QTimer::timeout, this, &lmcMessaging::timer_timeout);
   pTimer->start(1000);
 
   msgId = 1;
