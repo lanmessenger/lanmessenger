@@ -30,6 +30,11 @@ target_compile_definitions(lmcapp PRIVATE
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
 )
 
+# Windows only: consumers need the classes as dllimport. MSVC links member
+# functions through import-lib thunks, but not static data, and PMF connects to
+# signals reference staticMetaObject at the call site (LNK2019 otherwise).
+target_compile_definitions(lmcapp INTERFACE QT_QTSINGLEAPPLICATION_IMPORT)
+
 target_link_libraries(lmcapp
     PUBLIC
         Qt6::Core
