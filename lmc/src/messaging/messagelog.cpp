@@ -82,11 +82,11 @@ void lmcMessageLog::reloadTheme() {
 
 void lmcMessageLog::createContextMenu(void) {
   contextMenu = new QMenu(this);
-  copyAction = contextMenu->addAction("&Copy", this, SLOT(copyAction_triggered()), QKeySequence::Copy);
-  copyLinkAction = contextMenu->addAction("&Copy Link", this, SLOT(copyLinkAction_triggered()));
+  copyAction = contextMenu->addAction("&Copy", QKeySequence::Copy, this, &lmcMessageLog::copyAction_triggered);
+  copyLinkAction = contextMenu->addAction("&Copy Link", this, &lmcMessageLog::copyLinkAction_triggered);
   contextMenu->addSeparator();
-  selectAllAction = contextMenu->addAction("Select &All", this,
-                                           SLOT(selectAllAction_triggered()), QKeySequence::SelectAll);
+  selectAllAction = contextMenu->addAction("Select &All", QKeySequence::SelectAll, this,
+                                           &lmcMessageLog::selectAllAction_triggered);
   connect(this, &QWidget::customContextMenuRequested, this, &lmcMessageLog::showContextMenu);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }

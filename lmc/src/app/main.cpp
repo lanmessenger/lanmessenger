@@ -118,8 +118,7 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
-  QObject::connect(&application, SIGNAL(messageReceived(const QString&)),
-                   &core, SLOT(receiveAppMessage(const QString&)));
+  QObject::connect(&application, &QtSingleApplication::messageReceived, &core, &lmcCore::receiveAppMessage);
   QObject::connect(&application, &QCoreApplication::aboutToQuit, &core, &lmcCore::aboutToExit);
 
   return application.exec();

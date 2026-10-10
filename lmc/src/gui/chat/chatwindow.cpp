@@ -39,8 +39,7 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   pMessageLog = new lmcMessageLog(ui.wgtLog);
   ui.logLayout->addWidget(pMessageLog);
   pMessageLog->setAcceptDrops(false);
-  connect(pMessageLog, SIGNAL(messageSent(MessageType, QString*, XmlMessage*)),
-          this, SLOT(log_sendMessage(MessageType, QString*, XmlMessage*)));
+  connect(pMessageLog, &lmcMessageLog::messageSent, this, &lmcChatWindow::log_sendMessage);
 
   int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
                           ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
@@ -454,7 +453,7 @@ void lmcChatWindow::log_sendMessage(MessageType type, QString* lpszUserId, XmlMe
 void lmcChatWindow::checkChatState(void) {
   if(keyStroke > snapKeyStroke) {
     snapKeyStroke = keyStroke;
-    QTimer::singleShot(pauseTime, this, SLOT(checkChatState()));
+    QTimer::singleShot(pauseTime, this, &lmcChatWindow::checkChatState);
     return;
   }
 
@@ -478,8 +477,8 @@ void lmcChatWindow::createToolBar(void) {
   pLeftBar->setIconSize(QSize(16, 16));
   ui.toolBarLayout->addWidget(pLeftBar);
 
-  pFontAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONT, "PNG")), "Change Font...", this, SLOT(btnFont_clicked()));
-  pFontColorAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONTCOLOR, "PNG")), "Change Color...", this, SLOT(btnFontColor_clicked()));
+  pFontAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONT, "PNG")), "Change Font...", this, &lmcChatWindow::btnFont_clicked);
+  pFontColorAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONTCOLOR, "PNG")), "Change Color...", this, &lmcChatWindow::btnFontColor_clicked);
 
   pLeftBar->addSeparator();
 
@@ -491,17 +490,17 @@ void lmcChatWindow::createToolBar(void) {
 
   pLeftBar->addSeparator();
 
-  pFileAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send A &File...", this, SLOT(btnFile_clicked()));
+  pFileAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send A &File...", this, &lmcChatWindow::btnFile_clicked);
   pFileAction->setShortcut(QKeySequence::Open);
   bool fileCap = ((peerCaps.value(peerId) & UC_File) == UC_File);
   pFileAction->setEnabled(fileCap);
-  pFolderAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SENDFOLDER, "PNG")), "Send A Fol&der...", this, SLOT(btnFolder_clicked()));
+  pFolderAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SENDFOLDER, "PNG")), "Send A Fol&der...", this, &lmcChatWindow::btnFolder_clicked);
   bool folderCap = ((peerCaps.value(peerId) & UC_Folder) == UC_Folder);
   pFolderAction->setEnabled(folderCap);
 
   pLeftBar->addSeparator();
 
-  pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, SLOT(btnSave_clicked()));
+  pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, &lmcChatWindow::btnSave_clicked);
   pSaveAction->setShortcut(QKeySequence::Save);
   pSaveAction->setEnabled(false);
 
@@ -511,9 +510,9 @@ void lmcChatWindow::createToolBar(void) {
   pRightBar->setLayoutDirection(Qt::RightToLeft);
   ui.toolBarLayout->addWidget(pRightBar);
 
-  pHistoryAction = pRightBar->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", this, SLOT(btnHistory_clicked()));
+  pHistoryAction = pRightBar->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", this, &lmcChatWindow::btnHistory_clicked);
   pHistoryAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-  pTransferAction = pRightBar->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", this, SLOT(btnTransfers_clicked()));
+  pTransferAction = pRightBar->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", this, &lmcChatWindow::btnTransfers_clicked);
   pTransferAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
 
   ui.lblDividerTop->setBackgroundRole(QPalette::Light);
@@ -717,7 +716,7 @@ void lmcChatWindow::setChatState(ChatState newChatState) {
     chatState = newChatState;
     bNotify = true;
     snapKeyStroke = keyStroke;
-    QTimer::singleShot(pauseTime, this, SLOT(checkChatState()));
+    QTimer::singleShot(pauseTime, this, &lmcChatWindow::checkChatState);
     break;
   case CS_Paused:
     if(chatState != CS_Inactive) {

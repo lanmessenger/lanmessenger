@@ -34,8 +34,7 @@ lmcTransferWindow::lmcTransferWindow(QWidget* parent)
   QRect scr = QGuiApplication::primaryScreen()->geometry();
   move(scr.center() - rect().center());
 
-  connect(ui.lvTransferList, SIGNAL(currentRowChanged(int)),
-          this, SLOT(lvTransferList_currentRowChanged(int)));
+  connect(ui.lvTransferList, &lmcTransferListView::currentRowChanged, this, &lmcTransferWindow::lvTransferList_currentRowChanged);
   connect(ui.lvTransferList, &QAbstractItemView::activated,
           this, &lmcTransferWindow::lvTransferList_activated);
   connect(ui.btnClear, &QAbstractButton::clicked, this, &lmcTransferWindow::btnClear_clicked);
@@ -304,12 +303,12 @@ void lmcTransferWindow::createToolBar(void) {
   ui.toolBarLayout->addWidget(pToolBar);
 
   pactCancel = pToolBar->addAction(QIcon(QPixmap(IDR_STOP, "PNG")), "Cancel",
-                                   this, SLOT(btnCancel_clicked()));
+                                   this, &lmcTransferWindow::btnCancel_clicked);
   pToolBar->addSeparator();
   pactShowFolder = pToolBar->addAction(QIcon(QPixmap(IDR_FOLDER, "PNG")), "Show In Folder",
-                                       this, SLOT(btnShowFolder_clicked()));
+                                       this, &lmcTransferWindow::btnShowFolder_clicked);
   pactRemove = pToolBar->addAction(QIcon(QPixmap(IDR_DECLINE, "PNG")), "Remove From List",
-                                   this, SLOT(btnRemove_clicked()));
+                                   this, &lmcTransferWindow::btnRemove_clicked);
 }
 
 void lmcTransferWindow::setUIText(void) {
