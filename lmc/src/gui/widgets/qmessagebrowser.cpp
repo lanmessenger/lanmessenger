@@ -7,7 +7,7 @@ QMessageBrowser::QMessageBrowser(QWidget* parent)
   setOpenLinks(false);
   setOpenExternalLinks(true);
 
-  connect(this, SIGNAL(anchorClicked(const QUrl&)), this, SLOT(onAnchorClicked(const QUrl&)));
+  connect(this, &QTextBrowser::anchorClicked, this, &QMessageBrowser::onAnchorClicked);
 }
 
 QMessageBrowser::~QMessageBrowser() {

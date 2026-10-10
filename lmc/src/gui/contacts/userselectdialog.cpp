@@ -30,9 +30,9 @@ lmcUserSelectDialog::lmcUserSelectDialog(QWidget* parent)
   //	remove the help button from window button group
   setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-  connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOK_clicked()));
-  connect(ui.tvUserList, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-          this, SLOT(tvUserList_itemChanged(QTreeWidgetItem*, int)));
+  connect(ui.btnOK, &QAbstractButton::clicked, this, &lmcUserSelectDialog::btnOK_clicked);
+  connect(ui.tvUserList, &QTreeWidget::itemChanged,
+          this, &lmcUserSelectDialog::tvUserList_itemChanged);
 
   parentToggling = false;
   childToggling = false;

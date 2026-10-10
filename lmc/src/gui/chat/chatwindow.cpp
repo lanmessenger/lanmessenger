@@ -466,7 +466,7 @@ void lmcChatWindow::checkChatState(void) {
 
 void lmcChatWindow::createSmileyMenu(void) {
   pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-  connect(pSmileyAction, SIGNAL(triggered()), this, SLOT(smileyAction_triggered()));
+  connect(pSmileyAction, &QAction::triggered, this, &lmcChatWindow::smileyAction_triggered);
 
   pSmileyMenu = new QMenu(this);
   pSmileyMenu->addAction(pSmileyAction);

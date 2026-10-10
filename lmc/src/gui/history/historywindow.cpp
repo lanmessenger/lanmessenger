@@ -45,9 +45,9 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
   QRect scr = QGuiApplication::primaryScreen()->geometry();
   move(scr.center() - rect().center());
 
-  connect(ui.tvMsgList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-          this, SLOT(tvMsgList_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
-  connect(ui.btnClearHistory, SIGNAL(clicked()), this, SLOT(btnClearHistory_clicked()));
+  connect(ui.tvMsgList, &QTreeWidget::currentItemChanged,
+          this, &lmcHistoryWindow::tvMsgList_currentItemChanged);
+  connect(ui.btnClearHistory, &QAbstractButton::clicked, this, &lmcHistoryWindow::btnClearHistory_clicked);
 
   ui.tvMsgList->installEventFilter(this);
   pMessageLog->installEventFilter(this);

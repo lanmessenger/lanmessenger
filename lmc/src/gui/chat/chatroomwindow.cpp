@@ -31,8 +31,8 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
   ui.setupUi(this);
   setAcceptDrops(true);
 
-  connect(ui.tvUserList, SIGNAL(itemActivated(QTreeWidgetItem*, int)),
-          this, SLOT(tvUserList_itemActivated(QTreeWidgetItem*, int)));
+  connect(ui.tvUserList, &QTreeWidget::itemActivated,
+          this, &lmcChatRoomWindow::tvUserList_itemActivated);
   connect(ui.tvUserList, SIGNAL(itemContextMenu(QTreeWidgetItem*, QPoint&)),
           this, SLOT(tvUserList_itemContextMenu(QTreeWidgetItem*, QPoint&)));
 
@@ -555,7 +555,7 @@ void lmcChatRoomWindow::createUserMenu(void) {
 
 void lmcChatRoomWindow::createSmileyMenu(void) {
   pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-  connect(pSmileyAction, SIGNAL(triggered()), this, SLOT(smileyAction_triggered()));
+  connect(pSmileyAction, &QAction::triggered, this, &lmcChatRoomWindow::smileyAction_triggered);
 
   pSmileyMenu = new QMenu(this);
   pSmileyMenu->addAction(pSmileyAction);

@@ -43,32 +43,32 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   statusTimerId = 0;
   statusNow = 0;
 
-  connect(ui.lvCategories, SIGNAL(currentRowChanged(int)), this, SLOT(lvCategories_currentRowChanged(int)));
-  connect(ui.btnOK, SIGNAL(clicked()), this, SLOT(btnOk_clicked()));
-  connect(ui.chkMessageTime, SIGNAL(toggled(bool)), this, SLOT(chkMessageTime_toggled(bool)));
-  connect(ui.chkAllowLinks, SIGNAL(toggled(bool)), this, SLOT(chkAllowLinks_toggled(bool)));
-  connect(ui.rdbSysHistoryPath, SIGNAL(toggled(bool)), this, SLOT(rdbSysHistoryPath_toggled(bool)));
-  connect(ui.btnHistoryPath, SIGNAL(clicked()), this, SLOT(btnHistoryPath_clicked()));
-  connect(ui.btnFilePath, SIGNAL(clicked()), this, SLOT(btnFilePath_clicked()));
-  connect(ui.btnClearHistory, SIGNAL(clicked()), this, SLOT(btnClearHistory_clicked()));
-  connect(ui.btnClearFileHistory, SIGNAL(clicked()), this, SLOT(btnClearFileHistory_clicked()));
-  connect(ui.btnViewFiles, SIGNAL(clicked()), this, SLOT(btnViewFiles_clicked()));
-  connect(ui.chkSound, SIGNAL(toggled(bool)), this, SLOT(chkSound_toggled(bool)));
-  connect(ui.chkAutoShowFile, SIGNAL(toggled(bool)), this, SLOT(chkAutoShowFile_toggled(bool)));
-  connect(ui.btnFont, SIGNAL(clicked()), this, SLOT(btnFont_clicked()));
-  connect(ui.btnColor, SIGNAL(clicked()), this, SLOT(btnColor_clicked()));
-  connect(ui.btnReset, SIGNAL(clicked()), this, SLOT(btnReset_clicked()));
-  connect(ui.cboTheme, SIGNAL(currentIndexChanged(int)), this, SLOT(cboTheme_currentIndexChanged(int)));
-  connect(ui.lvBroadcasts, SIGNAL(currentRowChanged(int)), this, SLOT(lvBroadcasts_currentRowChanged(int)));
-  connect(ui.txtBroadcast, SIGNAL(textEdited(QString)), this, SLOT(txtBroadcast_textEdited(QString)));
-  connect(ui.txtBroadcast, SIGNAL(returnPressed()), this, SLOT(btnAddBroadcast_clicked()));
-  connect(ui.btnAddBroadcast, SIGNAL(clicked()), this, SLOT(btnAddBroadcast_clicked()));
-  connect(ui.btnDeleteBroadcast, SIGNAL(clicked()), this, SLOT(btnDeleteBroadcast_clicked()));
-  connect(ui.lvSounds, SIGNAL(currentRowChanged(int)), this, SLOT(lvSounds_currentRowChanged(int)));
-  connect(ui.btnPlaySound, SIGNAL(clicked()), this, SLOT(btnPlaySound_clicked()));
-  connect(ui.btnSoundPath, SIGNAL(clicked()), this, SLOT(btnSoundPath_clicked()));
-  connect(ui.btnResetSounds, SIGNAL(clicked()), this, SLOT(btnResetSounds_clicked()));
-  connect(ui.btnRefresfTheme, SIGNAL(clicked()), this, SLOT(btnRefreshTheme_clicked()));
+  connect(ui.lvCategories, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvCategories_currentRowChanged);
+  connect(ui.btnOK, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnOk_clicked);
+  connect(ui.chkMessageTime, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkMessageTime_toggled);
+  connect(ui.chkAllowLinks, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkAllowLinks_toggled);
+  connect(ui.rdbSysHistoryPath, &QAbstractButton::toggled, this, &lmcSettingsDialog::rdbSysHistoryPath_toggled);
+  connect(ui.btnHistoryPath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnHistoryPath_clicked);
+  connect(ui.btnFilePath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnFilePath_clicked);
+  connect(ui.btnClearHistory, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnClearHistory_clicked);
+  connect(ui.btnClearFileHistory, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnClearFileHistory_clicked);
+  connect(ui.btnViewFiles, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnViewFiles_clicked);
+  connect(ui.chkSound, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkSound_toggled);
+  connect(ui.chkAutoShowFile, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkAutoShowFile_toggled);
+  connect(ui.btnFont, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnFont_clicked);
+  connect(ui.btnColor, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnColor_clicked);
+  connect(ui.btnReset, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnReset_clicked);
+  connect(ui.cboTheme, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::cboTheme_currentIndexChanged);
+  connect(ui.lvBroadcasts, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvBroadcasts_currentRowChanged);
+  connect(ui.txtBroadcast, &QLineEdit::textEdited, this, &lmcSettingsDialog::txtBroadcast_textEdited);
+  connect(ui.txtBroadcast, &QLineEdit::returnPressed, this, &lmcSettingsDialog::btnAddBroadcast_clicked);
+  connect(ui.btnAddBroadcast, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnAddBroadcast_clicked);
+  connect(ui.btnDeleteBroadcast, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnDeleteBroadcast_clicked);
+  connect(ui.lvSounds, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvSounds_currentRowChanged);
+  connect(ui.btnPlaySound, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnPlaySound_clicked);
+  connect(ui.btnSoundPath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnSoundPath_clicked);
+  connect(ui.btnResetSounds, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnResetSounds_clicked);
+  connect(ui.btnRefresfTheme, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnRefreshTheme_clicked);
 }
 
 lmcSettingsDialog::~lmcSettingsDialog(void) {

@@ -49,7 +49,7 @@ lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget* parent)
     setGeometry(windowRect);
   }
 
-  connect(ui->btnRecheck, SIGNAL(clicked()), this, SLOT(btnRecheck_clicked()));
+  connect(ui->btnRecheck, &QAbstractButton::clicked, this, &lmcUpdateWindow::btnRecheck_clicked);
 
   ui->btnClose->installEventFilter(this);
   ui->btnRecheck->installEventFilter(this);

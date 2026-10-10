@@ -42,7 +42,7 @@ lmcMessageLog::lmcMessageLog(QWidget* parent)
   //	connect(this->page(), SIGNAL(linkHovered(QString, QString, QString)),
   //			this, SLOT(log_linkHovered(QString, QString, QString)));
 
-  connect(this, SIGNAL(anchorClicked(const QUrl&)), this, SLOT(onAnchorClicked(const QUrl&)));
+  connect(this, &QTextBrowser::anchorClicked, this, &lmcMessageLog::onAnchorClicked);
 
   createContextMenu();
 
@@ -87,7 +87,7 @@ void lmcMessageLog::createContextMenu(void) {
   contextMenu->addSeparator();
   selectAllAction = contextMenu->addAction("Select &All", this,
                                            SLOT(selectAllAction_triggered()), QKeySequence::SelectAll);
-  connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+  connect(this, &QWidget::customContextMenuRequested, this, &lmcMessageLog::showContextMenu);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 

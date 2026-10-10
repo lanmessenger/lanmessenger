@@ -36,9 +36,9 @@ lmcTransferWindow::lmcTransferWindow(QWidget* parent)
 
   connect(ui.lvTransferList, SIGNAL(currentRowChanged(int)),
           this, SLOT(lvTransferList_currentRowChanged(int)));
-  connect(ui.lvTransferList, SIGNAL(activated(const QModelIndex&)),
-          this, SLOT(lvTransferList_activated(const QModelIndex&)));
-  connect(ui.btnClear, SIGNAL(clicked()), this, SLOT(btnClear_clicked()));
+  connect(ui.lvTransferList, &QAbstractItemView::activated,
+          this, &lmcTransferWindow::lvTransferList_activated);
+  connect(ui.btnClear, &QAbstractButton::clicked, this, &lmcTransferWindow::btnClear_clicked);
 
   ui.lvTransferList->installEventFilter(this);
   ui.btnClear->installEventFilter(this);

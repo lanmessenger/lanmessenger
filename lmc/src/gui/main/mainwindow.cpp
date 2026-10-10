@@ -34,15 +34,15 @@ lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
   ui.setupUi(this);
 
-  connect(ui.tvUserList, SIGNAL(itemActivated(QTreeWidgetItem*, int)),
-          this, SLOT(tvUserList_itemActivated(QTreeWidgetItem*, int)));
+  connect(ui.tvUserList, &QTreeWidget::itemActivated,
+          this, &lmcMainWindow::tvUserList_itemActivated);
   connect(ui.tvUserList, SIGNAL(itemContextMenu(QTreeWidgetItem*, QPoint&)),
           this, SLOT(tvUserList_itemContextMenu(QTreeWidgetItem*, QPoint&)));
   connect(ui.tvUserList, SIGNAL(itemDragDropped(QTreeWidgetItem*)),
           this, SLOT(tvUserList_itemDragDropped(QTreeWidgetItem*)));
-  connect(ui.tvUserList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-          this, SLOT(tvUserList_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
-  connect(ui.txtNote, SIGNAL(returnPressed()), this, SLOT(txtNote_returnPressed()));
+  connect(ui.tvUserList, &QTreeWidget::currentItemChanged,
+          this, &lmcMainWindow::tvUserList_currentItemChanged);
+  connect(ui.txtNote, &QLineEdit::returnPressed, this, &lmcMainWindow::txtNote_returnPressed);
   connect(ui.txtNote, SIGNAL(lostFocus()), this, SLOT(txtNote_lostFocus()));
 
   ui.txtNote->installEventFilter(this);
@@ -741,15 +741,15 @@ void lmcMainWindow::createTrayIcon(void) {
   pTrayIcon->setIcon(QIcon(IDR_APPICON));
   pTrayIcon->setContextMenu(pTrayMenu);
 
-  connect(pTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-          this, SLOT(trayIcon_activated(QSystemTrayIcon::ActivationReason)));
-  connect(pTrayIcon, SIGNAL(messageClicked()), this, SLOT(trayMessage_clicked()));
+  connect(pTrayIcon, &QSystemTrayIcon::activated,
+          this, &lmcMainWindow::trayIcon_activated);
+  connect(pTrayIcon, &QSystemTrayIcon::messageClicked, this, &lmcMainWindow::trayMessage_clicked);
 }
 
 void lmcMainWindow::createStatusMenu(void) {
   pStatusMenu = new QMenu(this);
   statusGroup = new QActionGroup(this);
-  connect(statusGroup, SIGNAL(triggered(QAction*)), this, SLOT(statusAction_triggered(QAction*)));
+  connect(statusGroup, &QActionGroup::triggered, this, &lmcMainWindow::statusAction_triggered);
 
   for(int index = 0; index < ST_COUNT; index++) {
     QAction* pAction = new QAction(QIcon(QPixmap(statusPic[index], "PNG")), lmcStrings::statusDesc()[index], this);
@@ -766,7 +766,7 @@ void lmcMainWindow::createAvatarMenu(void) {
   pAvatarMenu = new QMenu(this);
 
   lmcImagePickerAction* pAction = new lmcImagePickerAction(this, avtPic, AVT_COUNT, 48, 4, &nAvatar);
-  connect(pAction, SIGNAL(triggered()), this, SLOT(avatarAction_triggered()));
+  connect(pAction, &QAction::triggered, this, &lmcMainWindow::avatarAction_triggered);
   pAvatarMenu->addAction(pAction);
   pAvatarMenu->addSeparator();
   avatarBrowseAction = pAvatarMenu->addAction("&Select picture...", this, SLOT(avatarBrowseAction_triggered()));

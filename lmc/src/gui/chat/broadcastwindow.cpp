@@ -41,11 +41,11 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
   sizes.append(width() - width() * 0.6 - ui.splitter->handleWidth());
   ui.splitter->setSizes(sizes);
 
-  connect(ui.btnSelectAll, SIGNAL(clicked()), this, SLOT(btnSelectAll_clicked()));
-  connect(ui.btnSelectNone, SIGNAL(clicked()), this, SLOT(btnSelectNone_clicked()));
-  connect(ui.tvUserList, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-          this, SLOT(tvUserList_itemChanged(QTreeWidgetItem*, int)));
-  connect(ui.btnSend, SIGNAL(clicked()), this, SLOT(btnSend_clicked()));
+  connect(ui.btnSelectAll, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnSelectAll_clicked);
+  connect(ui.btnSelectNone, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnSelectNone_clicked);
+  connect(ui.tvUserList, &QTreeWidget::itemChanged,
+          this, &lmcBroadcastWindow::tvUserList_itemChanged);
+  connect(ui.btnSend, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnSend_clicked);
 
   //	event filters for handling keyboard input
   ui.txtMessage->installEventFilter(this);
@@ -261,7 +261,7 @@ void lmcBroadcastWindow::createToolBar(void) {
   //	create the font menu
   QMenu* pFontMenu = new QMenu(this);
   pFontGroup = new QActionGroup(this);
-  connect(pFontGroup, SIGNAL(triggered(QAction*)), this, SLOT(fontAction_triggered(QAction*)));
+  connect(pFontGroup, &QActionGroup::triggered, this, &lmcBroadcastWindow::fontAction_triggered);
 
   for(int index = 0; index < FS_COUNT; index++) {
     QAction* pAction = new QAction(lmcStrings::fontSize()[index], this);
@@ -276,12 +276,12 @@ void lmcBroadcastWindow::createToolBar(void) {
   pbtnFontSize->setToolButtonStyle(Qt::ToolButtonTextOnly);
   pbtnFontSize->setPopupMode(QToolButton::MenuButtonPopup);
   pbtnFontSize->setMenu(pFontMenu);
-  connect(pbtnFontSize, SIGNAL(clicked()), this, SLOT(btnFontSize_clicked()));
+  connect(pbtnFontSize, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnFontSize_clicked);
   pToolBar->addWidget(pbtnFontSize);
 
   //	create the smiley menu
   lmcImagePickerAction* pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-  connect(pSmileyAction, SIGNAL(triggered()), this, SLOT(smileyAction_triggered()));
+  connect(pSmileyAction, &QAction::triggered, this, &lmcBroadcastWindow::smileyAction_triggered);
 
   QMenu* pSmileyMenu = new QMenu(this);
   pSmileyMenu->addAction(pSmileyAction);
