@@ -27,6 +27,7 @@
 #include <QScreen>
 #include <QUrl>
 #include "transferwindow.h"
+#include "gui/widgets/actionhelper.h"
 
 lmcTransferWindow::lmcTransferWindow(QWidget* parent)
     : QWidget(parent) {
@@ -302,13 +303,14 @@ void lmcTransferWindow::createToolBar(void) {
   pToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   ui.toolBarLayout->addWidget(pToolBar);
 
-  pactCancel = pToolBar->addAction(QIcon(QPixmap(IDR_STOP, "PNG")), "Cancel",
-                                   this, &lmcTransferWindow::btnCancel_clicked);
+  pactCancel = ActionHelper::createAction(pToolBar, "Cancel", this, &lmcTransferWindow::btnCancel_clicked,
+                                          QIcon(QPixmap(IDR_STOP, "PNG")));
   pToolBar->addSeparator();
-  pactShowFolder = pToolBar->addAction(QIcon(QPixmap(IDR_FOLDER, "PNG")), "Show In Folder",
-                                       this, &lmcTransferWindow::btnShowFolder_clicked);
-  pactRemove = pToolBar->addAction(QIcon(QPixmap(IDR_DECLINE, "PNG")), "Remove From List",
-                                   this, &lmcTransferWindow::btnRemove_clicked);
+  pactShowFolder = ActionHelper::createAction(pToolBar, "Show In Folder", this,
+                                              &lmcTransferWindow::btnShowFolder_clicked,
+                                              QIcon(QPixmap(IDR_FOLDER, "PNG")));
+  pactRemove = ActionHelper::createAction(pToolBar, "Remove From List", this, &lmcTransferWindow::btnRemove_clicked,
+                                          QIcon(QPixmap(IDR_DECLINE, "PNG")));
 }
 
 void lmcTransferWindow::setUIText(void) {

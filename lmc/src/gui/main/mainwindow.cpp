@@ -27,6 +27,7 @@
 #include <QRandomGenerator>
 #include <QUrl>
 #include "mainwindow.h"
+#include "gui/widgets/actionhelper.h"
 #include "messaging/messagelog.h"
 #include "messaging/history.h"
 
@@ -678,33 +679,44 @@ void lmcMainWindow::txtNote_lostFocus(void) {
 void lmcMainWindow::createMainMenu(void) {
   pMainMenu = new QMenuBar(this);
   pFileMenu = pMainMenu->addMenu("&Messenger");
-  chatRoomAction = pFileMenu->addAction("&New Chat Room", QKeySequence::New, this,
-                                        &lmcMainWindow::chatRoomAction_triggered);
-  publicChatAction = pFileMenu->addAction(QIcon(QPixmap(IDR_CHATROOM, "PNG")), "&Public Chat",
-                                          this, &lmcMainWindow::publicChatAction_triggered);
+  chatRoomAction = ActionHelper::createAction(pFileMenu, "&New Chat Room", this,
+                                              &lmcMainWindow::chatRoomAction_triggered, QIcon(),
+                                              QKeySequence::New);
+  publicChatAction = ActionHelper::createAction(pFileMenu, "&Public Chat", this,
+                                                &lmcMainWindow::publicChatAction_triggered,
+                                                QIcon(QPixmap(IDR_CHATROOM, "PNG")));
   pFileMenu->addSeparator();
-  refreshAction = pFileMenu->addAction(QIcon(QPixmap(IDR_REFRESH, "PNG")), "&Refresh contacts list", QKeySequence::Refresh,
-                                       this, &lmcMainWindow::refreshAction_triggered);
+  refreshAction = ActionHelper::createAction(pFileMenu, "&Refresh contacts list", this,
+                                             &lmcMainWindow::refreshAction_triggered,
+                                             QIcon(QPixmap(IDR_REFRESH, "PNG")), QKeySequence::Refresh);
   pFileMenu->addSeparator();
-  exitAction = pFileMenu->addAction(QIcon(QPixmap(IDR_CLOSE, "PNG")), "E&xit",
-                                    this, &lmcMainWindow::trayExitAction_triggered);
+  exitAction = ActionHelper::createAction(pFileMenu, "E&xit", this, &lmcMainWindow::trayExitAction_triggered,
+                                          QIcon(QPixmap(IDR_CLOSE, "PNG")));
   pToolsMenu = pMainMenu->addMenu("&Tools");
-  historyAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History", QKeySequence(Qt::CTRL | Qt::Key_H),
-                                        this, &lmcMainWindow::trayHistoryAction_triggered);
-  transferAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers", QKeySequence(Qt::CTRL | Qt::Key_J),
-                                         this, &lmcMainWindow::trayFileAction_triggered);
+  historyAction = ActionHelper::createAction(pToolsMenu, "&History", this,
+                                             &lmcMainWindow::trayHistoryAction_triggered,
+                                             QIcon(QPixmap(IDR_HISTORY, "PNG")),
+                                             QKeySequence(Qt::CTRL | Qt::Key_H));
+  transferAction = ActionHelper::createAction(pToolsMenu, "File &Transfers", this,
+                                              &lmcMainWindow::trayFileAction_triggered,
+                                              QIcon(QPixmap(IDR_TRANSFER, "PNG")),
+                                              QKeySequence(Qt::CTRL | Qt::Key_J));
   pToolsMenu->addSeparator();
-  settingsAction = pToolsMenu->addAction(QIcon(QPixmap(IDR_TOOLS, "PNG")), "&Preferences", QKeySequence::Preferences,
-                                         this, &lmcMainWindow::traySettingsAction_triggered);
+  settingsAction = ActionHelper::createAction(pToolsMenu, "&Preferences", this,
+                                              &lmcMainWindow::traySettingsAction_triggered,
+                                              QIcon(QPixmap(IDR_TOOLS, "PNG")), QKeySequence::Preferences);
   pHelpMenu = pMainMenu->addMenu("&Help");
-  helpAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_QUESTION, "PNG")), "&Help", QKeySequence::HelpContents,
-                                    this, &lmcMainWindow::helpAction_triggered);
+  helpAction = ActionHelper::createAction(pHelpMenu, "&Help", this, &lmcMainWindow::helpAction_triggered,
+                                          QIcon(QPixmap(IDR_QUESTION, "PNG")), QKeySequence::HelpContents);
   pHelpMenu->addSeparator();
   QString text = "%1 &online";
-  onlineAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_WEB, "PNG")), text.arg(lmcStrings::appName()),
-                                      this, &lmcMainWindow::homePageAction_triggered);
-  updateAction = pHelpMenu->addAction("Check for &Updates", this, &lmcMainWindow::updateAction_triggered);
-  aboutAction = pHelpMenu->addAction(QIcon(QPixmap(IDR_INFO, "PNG")), "&About", this, &lmcMainWindow::trayAboutAction_triggered);
+  onlineAction = ActionHelper::createAction(pHelpMenu, text.arg(lmcStrings::appName()), this,
+                                            &lmcMainWindow::homePageAction_triggered,
+                                            QIcon(QPixmap(IDR_WEB, "PNG")));
+  updateAction = ActionHelper::createAction(pHelpMenu, "Check for &Updates", this,
+                                            &lmcMainWindow::updateAction_triggered);
+  aboutAction = ActionHelper::createAction(pHelpMenu, "&About", this, &lmcMainWindow::trayAboutAction_triggered,
+                                           QIcon(QPixmap(IDR_INFO, "PNG")));
 
   layout()->setMenuBar(pMainMenu);
 }
@@ -713,23 +725,29 @@ void lmcMainWindow::createTrayMenu(void) {
   pTrayMenu = new QMenu(this);
 
   QString text = "&Show %1";
-  trayShowAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_MESSENGER, "PNG")), text.arg(lmcStrings::appName()),
-                                        this, &lmcMainWindow::trayShowAction_triggered);
+  trayShowAction = ActionHelper::createAction(pTrayMenu, text.arg(lmcStrings::appName()), this,
+                                              &lmcMainWindow::trayShowAction_triggered,
+                                              QIcon(QPixmap(IDR_MESSENGER, "PNG")));
   pTrayMenu->addSeparator();
   trayStatusAction = pTrayMenu->addMenu(pStatusMenu);
   trayStatusAction->setText("&Change Status");
   pTrayMenu->addSeparator();
-  trayHistoryAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_HISTORY, "PNG")), "&History",
-                                           this, &lmcMainWindow::trayHistoryAction_triggered);
-  trayTransferAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_TRANSFER, "PNG")), "File &Transfers",
-                                            this, &lmcMainWindow::trayFileAction_triggered);
+  trayHistoryAction = ActionHelper::createAction(pTrayMenu, "&History", this,
+                                                 &lmcMainWindow::trayHistoryAction_triggered,
+                                                 QIcon(QPixmap(IDR_HISTORY, "PNG")));
+  trayTransferAction = ActionHelper::createAction(pTrayMenu, "File &Transfers", this,
+                                                  &lmcMainWindow::trayFileAction_triggered,
+                                                  QIcon(QPixmap(IDR_TRANSFER, "PNG")));
   pTrayMenu->addSeparator();
-  traySettingsAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_TOOLS, "PNG")), "&Preferences",
-                                            this, &lmcMainWindow::traySettingsAction_triggered);
-  trayAboutAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_INFO, "PNG")), "&About",
-                                         this, &lmcMainWindow::trayAboutAction_triggered);
+  traySettingsAction = ActionHelper::createAction(pTrayMenu, "&Preferences", this,
+                                                  &lmcMainWindow::traySettingsAction_triggered,
+                                                  QIcon(QPixmap(IDR_TOOLS, "PNG")));
+  trayAboutAction = ActionHelper::createAction(pTrayMenu, "&About", this,
+                                               &lmcMainWindow::trayAboutAction_triggered,
+                                               QIcon(QPixmap(IDR_INFO, "PNG")));
   pTrayMenu->addSeparator();
-  trayExitAction = pTrayMenu->addAction(QIcon(QPixmap(IDR_CLOSE, "PNG")), "E&xit", this, &lmcMainWindow::trayExitAction_triggered);
+  trayExitAction = ActionHelper::createAction(pTrayMenu, "E&xit", this, &lmcMainWindow::trayExitAction_triggered,
+                                              QIcon(QPixmap(IDR_CLOSE, "PNG")));
 
   pTrayMenu->setDefaultAction(trayShowAction);
 }
@@ -767,7 +785,8 @@ void lmcMainWindow::createAvatarMenu(void) {
   connect(pAction, &QAction::triggered, this, &lmcMainWindow::avatarAction_triggered);
   pAvatarMenu->addAction(pAction);
   pAvatarMenu->addSeparator();
-  avatarBrowseAction = pAvatarMenu->addAction("&Select picture...", this, &lmcMainWindow::avatarBrowseAction_triggered);
+  avatarBrowseAction = ActionHelper::createAction(pAvatarMenu, "&Select picture...", this,
+                                                  &lmcMainWindow::avatarBrowseAction_triggered);
 
   ui.btnAvatar->setMenu(pAvatarMenu);
 }
@@ -775,22 +794,30 @@ void lmcMainWindow::createAvatarMenu(void) {
 void lmcMainWindow::createGroupMenu(void) {
   pGroupMenu = new QMenu(this);
 
-  groupAddAction = pGroupMenu->addAction("Add &New Group", this, &lmcMainWindow::groupAddAction_triggered);
+  groupAddAction = ActionHelper::createAction(pGroupMenu, "Add &New Group", this,
+                                              &lmcMainWindow::groupAddAction_triggered);
   pGroupMenu->addSeparator();
-  groupRenameAction = pGroupMenu->addAction("&Rename This Group", this, &lmcMainWindow::groupRenameAction_triggered);
-  groupDeleteAction = pGroupMenu->addAction("&Delete This Group", this, &lmcMainWindow::groupDeleteAction_triggered);
+  groupRenameAction = ActionHelper::createAction(pGroupMenu, "&Rename This Group", this,
+                                                 &lmcMainWindow::groupRenameAction_triggered);
+  groupDeleteAction = ActionHelper::createAction(pGroupMenu, "&Delete This Group", this,
+                                                 &lmcMainWindow::groupDeleteAction_triggered);
 }
 
 void lmcMainWindow::createUserMenu(void) {
   pUserMenu = new QMenu(this);
 
-  userChatAction = pUserMenu->addAction("&Conversation", this, &lmcMainWindow::userConversationAction_triggered);
-  userFileAction = pUserMenu->addAction("Send &File", this, &lmcMainWindow::userFileAction_triggered);
-  userFolderAction = pUserMenu->addAction("Send a Fol&der", this, &lmcMainWindow::userFolderAction_triggered);
+  userChatAction = ActionHelper::createAction(pUserMenu, "&Conversation", this,
+                                              &lmcMainWindow::userConversationAction_triggered);
+  userFileAction = ActionHelper::createAction(pUserMenu, "Send &File", this,
+                                              &lmcMainWindow::userFileAction_triggered);
+  userFolderAction = ActionHelper::createAction(pUserMenu, "Send a Fol&der", this,
+                                                &lmcMainWindow::userFolderAction_triggered);
   pUserMenu->addSeparator();
-  userBroadcastAction = pUserMenu->addAction("Send &Broadcast Message", this, &lmcMainWindow::userBroadcastAction_triggered);
+  userBroadcastAction = ActionHelper::createAction(pUserMenu, "Send &Broadcast Message", this,
+                                                   &lmcMainWindow::userBroadcastAction_triggered);
   pUserMenu->addSeparator();
-  userInfoAction = pUserMenu->addAction("Get &Information", this, &lmcMainWindow::userInfoAction_triggered);
+  userInfoAction = ActionHelper::createAction(pUserMenu, "Get &Information", this,
+                                              &lmcMainWindow::userInfoAction_triggered);
 }
 
 void lmcMainWindow::createToolBar(void) {
@@ -806,20 +833,25 @@ void lmcMainWindow::createToolBar(void) {
   ui.toolBarLayout->addWidget(pToolBar);
 
   pToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  toolChatAction = pToolBar->addAction(QIcon(QPixmap(IDR_CHAT, "PNG")), "&Conversation",
-                                       this, &lmcMainWindow::userConversationAction_triggered);
+  toolChatAction = ActionHelper::createAction(pToolBar, "&Conversation", this,
+                                              &lmcMainWindow::userConversationAction_triggered,
+                                              QIcon(QPixmap(IDR_CHAT, "PNG")));
   toolChatAction->setEnabled(false);
-  toolFileAction = pToolBar->addAction(QIcon(QPixmap(IDR_FILE, "PNG")), "Send &File",
-                                       this, &lmcMainWindow::userFileAction_triggered);
+  toolFileAction = ActionHelper::createAction(pToolBar, "Send &File", this,
+                                              &lmcMainWindow::userFileAction_triggered,
+                                              QIcon(QPixmap(IDR_FILE, "PNG")));
   toolFileAction->setEnabled(false);
   pToolBar->addSeparator();
-  toolBroadcastAction = pToolBar->addAction(QIcon(QPixmap(IDR_BROADCASTMSG, "PNG")), "Send &Broadcast Message",
-                                            this, &lmcMainWindow::userBroadcastAction_triggered);
+  toolBroadcastAction = ActionHelper::createAction(pToolBar, "Send &Broadcast Message", this,
+                                                   &lmcMainWindow::userBroadcastAction_triggered,
+                                                   QIcon(QPixmap(IDR_BROADCASTMSG, "PNG")));
   pToolBar->addSeparator();
-  toolChatRoomAction = pToolBar->addAction(QIcon(QPixmap(IDR_NEWCHATROOM, "PNG")), "&New Chat Room",
-                                           this, &lmcMainWindow::chatRoomAction_triggered);
-  toolPublicChatAction = pToolBar->addAction(QIcon(QPixmap(IDR_CHATROOM, "PNG")), "&Public Chat",
-                                             this, &lmcMainWindow::publicChatAction_triggered);
+  toolChatRoomAction = ActionHelper::createAction(pToolBar, "&New Chat Room", this,
+                                                  &lmcMainWindow::chatRoomAction_triggered,
+                                                  QIcon(QPixmap(IDR_NEWCHATROOM, "PNG")));
+  toolPublicChatAction = ActionHelper::createAction(pToolBar, "&Public Chat", this,
+                                                    &lmcMainWindow::publicChatAction_triggered,
+                                                    QIcon(QPixmap(IDR_CHATROOM, "PNG")));
 
   QToolButton* pButton = (QToolButton*)pToolBar->widgetForAction(toolChatAction);
   pButton->setAutoRaise(false);

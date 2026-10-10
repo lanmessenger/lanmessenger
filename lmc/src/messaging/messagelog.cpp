@@ -30,6 +30,7 @@
 #include <QScrollBar>
 #include <QTextBlock>
 #include "messagelog.h"
+#include "gui/widgets/actionhelper.h"
 
 const QString acceptOp("accept");
 const QString declineOp("decline");
@@ -82,11 +83,14 @@ void lmcMessageLog::reloadTheme() {
 
 void lmcMessageLog::createContextMenu(void) {
   contextMenu = new QMenu(this);
-  copyAction = contextMenu->addAction("&Copy", QKeySequence::Copy, this, &lmcMessageLog::copyAction_triggered);
-  copyLinkAction = contextMenu->addAction("&Copy Link", this, &lmcMessageLog::copyLinkAction_triggered);
+  copyAction = ActionHelper::createAction(contextMenu, "&Copy", this, &lmcMessageLog::copyAction_triggered,
+                                          QIcon(), QKeySequence::Copy);
+  copyLinkAction = ActionHelper::createAction(contextMenu, "&Copy Link", this,
+                                              &lmcMessageLog::copyLinkAction_triggered);
   contextMenu->addSeparator();
-  selectAllAction = contextMenu->addAction("Select &All", QKeySequence::SelectAll, this,
-                                           &lmcMessageLog::selectAllAction_triggered);
+  selectAllAction = ActionHelper::createAction(contextMenu, "Select &All", this,
+                                               &lmcMessageLog::selectAllAction_triggered, QIcon(),
+                                               QKeySequence::SelectAll);
   connect(this, &QWidget::customContextMenuRequested, this, &lmcMessageLog::showContextMenu);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }

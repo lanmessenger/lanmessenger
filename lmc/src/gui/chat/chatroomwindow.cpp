@@ -23,6 +23,7 @@
 
 
 #include "chatroomwindow.h"
+#include "gui/widgets/actionhelper.h"
 
 QString GroupId = "PARTICIPANTS";
 
@@ -545,10 +546,13 @@ void lmcChatRoomWindow::tvUserList_itemContextMenu(QTreeWidgetItem* pItem, QPoin
 void lmcChatRoomWindow::createUserMenu(void) {
   pUserMenu = new QMenu(this);
 
-  userChatAction = pUserMenu->addAction("&Conversation", this, &lmcChatRoomWindow::userConversationAction_triggered);
-  userFileAction = pUserMenu->addAction("Send &File", this, &lmcChatRoomWindow::userFileAction_triggered);
+  userChatAction = ActionHelper::createAction(pUserMenu, "&Conversation", this,
+                                              &lmcChatRoomWindow::userConversationAction_triggered);
+  userFileAction = ActionHelper::createAction(pUserMenu, "Send &File", this,
+                                              &lmcChatRoomWindow::userFileAction_triggered);
   pUserMenu->addSeparator();
-  userInfoAction = pUserMenu->addAction("Get &Information", this, &lmcChatRoomWindow::userInfoAction_triggered);
+  userInfoAction = ActionHelper::createAction(pUserMenu, "Get &Information", this,
+                                              &lmcChatRoomWindow::userInfoAction_triggered);
 }
 
 void lmcChatRoomWindow::createSmileyMenu(void) {
@@ -565,10 +569,11 @@ void lmcChatRoomWindow::createToolBar(void) {
   pLeftBar->setIconSize(QSize(16, 16));
   ui.toolBarLayout->addWidget(pLeftBar);
 
-  pFontAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONT, "PNG")), "Change Font...",
-                                    this, &lmcChatRoomWindow::btnFont_clicked);
-  pFontColorAction = pLeftBar->addAction(QIcon(QPixmap(IDR_FONTCOLOR, "PNG")), "Change Color...",
-                                         this, &lmcChatRoomWindow::btnFontColor_clicked);
+  pFontAction = ActionHelper::createAction(pLeftBar, "Change Font...", this, &lmcChatRoomWindow::btnFont_clicked,
+                                           QIcon(QPixmap(IDR_FONT, "PNG")));
+  pFontColorAction = ActionHelper::createAction(pLeftBar, "Change Color...", this,
+                                                &lmcChatRoomWindow::btnFontColor_clicked,
+                                                QIcon(QPixmap(IDR_FONTCOLOR, "PNG")));
 
   pLeftBar->addSeparator();
 
@@ -580,8 +585,8 @@ void lmcChatRoomWindow::createToolBar(void) {
 
   pLeftBar->addSeparator();
 
-  pSaveAction = pLeftBar->addAction(QIcon(QPixmap(IDR_SAVE, "PNG")), "&Save As...", this, &lmcChatRoomWindow::btnSave_clicked);
-  pSaveAction->setShortcut(QKeySequence::Save);
+  pSaveAction = ActionHelper::createAction(pLeftBar, "&Save As...", this, &lmcChatRoomWindow::btnSave_clicked,
+                                           QIcon(QPixmap(IDR_SAVE, "PNG")), QKeySequence::Save);
   pSaveAction->setEnabled(false);
 
   ui.lblDividerTop->setBackgroundRole(QPalette::Light);
@@ -595,8 +600,9 @@ void lmcChatRoomWindow::createToolBar(void) {
     pContactsBar->setIconSize(QSize(24, 24));
     ui.contactsBarLayout->addWidget(pContactsBar);
 
-    addContactAction = pContactsBar->addAction(QIcon(QPixmap(IDR_ADDCONTACT, "PNG")), "&Add Contacts...",
-                                               this, &lmcChatRoomWindow::addContactAction_triggered);
+    addContactAction = ActionHelper::createAction(pContactsBar, "&Add Contacts...", this,
+                                                  &lmcChatRoomWindow::addContactAction_triggered,
+                                                  QIcon(QPixmap(IDR_ADDCONTACT, "PNG")));
 
     QToolButton* pButton = (QToolButton*)pContactsBar->widgetForAction(addContactAction);
     pButton->setAutoRaise(false);
