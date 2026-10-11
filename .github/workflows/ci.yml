@@ -93,6 +93,12 @@ jobs:
           export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
           xvfb-run -a ./tst_lmc_gui
 
+      - name: Build crypto unit test
+        run: cmake --build build --config Release --target tst_crypto --parallel
+
+      - name: Crypto unit test
+        run: ctest --test-dir build -R crypto --output-on-failure
+
       - name: Upload e2e screenshots
         if: always()
         uses: actions/upload-artifact@v7
@@ -195,6 +201,12 @@ jobs:
           Set-Location lmc/release
           $env:LMC_E2E_ARTIFACTS_DIR = "$env:GITHUB_WORKSPACE/e2e-artifacts"
           .\tst_lmc_gui.exe
+
+      - name: Build crypto unit test
+        run: cmake --build build --config Release --target tst_crypto --parallel
+
+      - name: Crypto unit test
+        run: ctest --test-dir build -R crypto --output-on-failure
 
       - name: Upload e2e screenshots
         if: always()
@@ -308,6 +320,12 @@ jobs:
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
           ./LAN-Messenger.app/Contents/MacOS/tst_lmc_gui
+
+      - name: Build crypto unit test
+        run: cmake --build build --config Release --target tst_crypto --parallel
+
+      - name: Crypto unit test
+        run: ctest --test-dir build -R crypto --output-on-failure
 
       - name: Upload e2e screenshots
         if: always()
