@@ -100,9 +100,9 @@ void lmcHelpWindow::setUIText(void) {
 
   setWindowTitle(tr("Help"));
 
-  QString helpLink = QString(IDA_DOMAIN "/help.php");
-  QString faqLink = QString(IDA_DOMAIN "/faq.php");
-  QString supportLink = QString(IDA_DOMAIN "/support.php");
+  QString helpLink = QString(IDA_DOMAIN "/help");
+  QString faqLink = QString(IDA_DOMAIN "/faq");
+  QString supportLink = QString(IDA_DOMAIN "/support");
 
   QString html = tr(
     "<html>"
