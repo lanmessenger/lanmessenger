@@ -97,7 +97,7 @@ jobs:
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
-        run: ctest --test-dir build -R crypto --output-on-failure
+        run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
       - name: Upload e2e screenshots
         if: always()
@@ -206,7 +206,7 @@ jobs:
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
-        run: ctest --test-dir build -R crypto --output-on-failure
+        run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
       - name: Upload e2e screenshots
         if: always()
@@ -325,7 +325,7 @@ jobs:
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
-        run: ctest --test-dir build -R crypto --output-on-failure
+        run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
       - name: Upload e2e screenshots
         if: always()
