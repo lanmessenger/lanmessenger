@@ -28,8 +28,8 @@
 
 #define IDS_LANGUAGE_VAL "en_US"
 
-QTranslator* Application::current = 0;
-QTranslator* Application::sysCurrent = 0;
+QTranslator* Application::current = nullptr;
+QTranslator* Application::sysCurrent = nullptr;
 Translators Application::translators;
 Translators Application::sysTranslators;
 
@@ -37,7 +37,7 @@ Application::Application(const QString& id, int& argc, char** argv)
 	: QtSingleApplication(id, argc, argv) {
 }
 
-Application::~Application(void) {
+Application::~Application() {
 }
 
 void Application::loadTranslations(const QString& dir) {
@@ -74,10 +74,10 @@ void Application::loadTranslations(const QDir& dir) {
 		else
 			delete translator;
 	}
-	// en_US is the source language: keep the NULL marker (no app translator),
+	// en_US is the source language: keep the nullptr marker (no app translator),
 	// dropping the just-loaded identity translator if any.
 	delete translators.take(IDS_LANGUAGE_VAL);
-	translators.insert(IDS_LANGUAGE_VAL, NULL);
+	translators.insert(IDS_LANGUAGE_VAL, nullptr);
 
 	// Qt's own translations for the standard dialogs (qtbase_*.qm, bundled at
 	// build time): country specific file first (qtbase_pt_BR.qm), language
@@ -87,7 +87,7 @@ void Application::loadTranslations(const QDir& dir) {
 		return;
 
 	for (const QString& locale : locales) {
-		// en_US is the source language (NULL translator); there is no
+		// en_US is the source language (nullptr translator); there is no
 		// qtbase_en*.qm for it, mirroring the CMake skip.
 		if (locale == IDS_LANGUAGE_VAL)
 			continue;
@@ -123,11 +123,11 @@ void Application::setLanguage(const QString& locale) {
 	// when multiple translators are included, translations are fetched
 	// in the reverse order. ie, last translator is searched first.
 	// install system translations first
-	sysCurrent = sysTranslators.value(locale, 0);
+	sysCurrent = sysTranslators.value(locale, nullptr);
 	if(sysCurrent)
 		installTranslator(sysCurrent);
 	// now install application translations
-	current = translators.value(locale, 0);
+	current = translators.value(locale, nullptr);
 	if(current)
 		installTranslator(current);
 }

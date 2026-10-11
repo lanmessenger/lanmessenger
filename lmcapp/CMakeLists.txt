@@ -11,18 +11,16 @@ add_library(lmcapp SHARED
     src/qtlockedfile.h
     src/qtsingleapplication.cpp
     src/qtsingleapplication.h
-    src/qtsinglecoreapplication.cpp
-    src/qtsinglecoreapplication.h
 )
 
-# Order matters: when building the library, its own headers (src/) must win
-# over the consumer copies (include/) — the src/ variant marks the classes
-# __declspec(dllexport) on Windows.
+# Single header set in src/: it serves both the library build and the
+# consumers. The Windows dllexport/dllimport switch does not depend on the
+# directory — consumers get QT_QTSINGLEAPPLICATION_IMPORT via the INTERFACE
+# definition below (dllimport), the library itself defines neither
+# (default branch: dllexport).
 target_include_directories(lmcapp
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
 target_compile_definitions(lmcapp PRIVATE

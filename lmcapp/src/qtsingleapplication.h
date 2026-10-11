@@ -72,23 +72,12 @@ class QT_QTSINGLEAPPLICATION_EXPORT QtSingleApplication : public QApplication
     Q_OBJECT
 
 public:
-    QtSingleApplication(int &argc, char **argv, bool GUIenabled = true);
     QtSingleApplication(const QString &id, int &argc, char **argv);
-//    QtSingleApplication(int &argc, char **argv, Type type);
 
     bool isRunning();
-    QString id() const;
-
-    void setActivationWindow(QWidget* aw, bool activateOnMessage = true);
-    QWidget* activationWindow() const;
-
-    // Obsolete:
-    void initialize(bool dummy = true)
-        { isRunning(); Q_UNUSED(dummy) }
 
 public Q_SLOTS:
     bool sendMessage(const QString &message, int timeout = 5000);
-    void activateWindow();
 
 
 Q_SIGNALS:
@@ -97,8 +86,7 @@ Q_SIGNALS:
 
 private:
     void sysInit(const QString &appId = QString());
-    QtLocalPeer *peer;
-    QWidget *actWin;
+    QtLocalPeer *peer = nullptr;
 };
 
 #endif // QTSINGLEAPPLICATION_H

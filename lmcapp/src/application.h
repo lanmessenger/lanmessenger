@@ -38,7 +38,7 @@ class QT_QTSINGLEAPPLICATION_EXPORT Application : public QtSingleApplication {
 
 public:
 	explicit Application(const QString& id, int& argc, char** argv);
-	~Application(void);
+	~Application();
 
 	static void loadTranslations(const QString& dir);
 	static void loadTranslations(const QDir& dir);

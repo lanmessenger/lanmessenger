@@ -47,7 +47,6 @@
 
 #include "qtsingleapplication.h"
 #include "qtlocalpeer.h"
-#include <QWidget>
 
 
 /*!
@@ -62,10 +61,9 @@
     where the first started instance will assume the role of server,
     and the later instances will act as clients of that server.
 
-    By default, the full path of the executable file is used to
-    determine whether two processes are instances of the same
-    application. You can also provide an explicit identifier string
-    that will be compared instead.
+    Two processes with the same identifier string are regarded as
+    instances of the same application. The identifier is mandatory —
+    pass it as the first constructor argument.
 
     The application should create the QtSingleApplication object early
     in the startup phase, and call isRunning() or sendMessage() to
@@ -85,11 +83,6 @@
     If isRunning() or sendMessage() returns true, another instance is
     already running, and the application should terminate or enter
     client mode.
-
-    If a message is received it might be helpful to the user to raise
-    the application so that it becomes visible. To facilitate this,
-    QtSingleApplication provides the setActivationWindow() function
-    and the activateWindow() slot.
 
     Here's an example that shows how to convert an existing
     application to use QtSingleApplication. It is very simple and does
@@ -111,14 +104,12 @@
     // Single instance
     int main(int argc, char **argv)
     {
-        QtSingleApplication app(argc, argv);
+        QtSingleApplication app("my-app-id", argc, argv);
 
         if (app.isRunning())
             return 0;
 
         MyMainWidget mmw;
-
-        app.setActivationWindow(&mmw);
 
         mmw.show();
         return app.exec();
@@ -130,37 +121,13 @@
     application this instance will not, of course, be encountered. The
     next instance to call isRunning() or sendMessage() will assume the
     role as the new running instance.
-
-    For console (non-GUI) applications, QtSingleCoreApplication may be
-    used instead of this class, to avoid the dependency on the QtGui
-    library.
-
-    \sa QtSingleCoreApplication
 */
 
 
 void QtSingleApplication::sysInit(const QString &appId)
 {
-    actWin = 0;
     peer = new QtLocalPeer(this, appId);
     connect(peer, &QtLocalPeer::messageReceived, this, &QtSingleApplication::messageReceived);
-}
-
-
-/*!
-    Creates a QtSingleApplication object. The application identifier
-    will be QCoreApplication::applicationFilePath(). \a argc, \a
-    argv, and \a GUIenabled are passed on to the QAppliation constructor.
-
-    If you are creating a console application (i.e. setting \a
-    GUIenabled to false), you may consider using
-    QtSingleCoreApplication instead.
-*/
-
-QtSingleApplication::QtSingleApplication(int &argc, char **argv, bool GUIenabled)
-    : QApplication(argc, argv, GUIenabled)
-{
-    sysInit();
 }
 
 
@@ -175,18 +142,6 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
 {
     sysInit(appId);
 }
-
-
-/*!
-    Creates a QtSingleApplication object. The application identifier
-    will be QCoreApplication::applicationFilePath(). \a argc, \a
-    argv, and \a type are passed on to the QAppliation constructor.
-*/
-//QtSingleApplication::QtSingleApplication(int &argc, char **argv, Type type)
-//    : QApplication(argc, argv, type)
-//{
-//    sysInit();
-//}
 
 
 /*!
@@ -226,85 +181,10 @@ bool QtSingleApplication::sendMessage(const QString &message, int timeout)
 
 
 /*!
-    Returns the application identifier. Two processes with the same
-    identifier will be regarded as instances of the same application.
-*/
-QString QtSingleApplication::id() const
-{
-    return peer->applicationId();
-}
-
-
-/*!
-  Sets the activation window of this application to \a aw. The
-  activation window is the widget that will be activated by
-  activateWindow(). This is typically the application's main window.
-
-  If \a activateOnMessage is true (the default), the window will be
-  activated automatically every time a message is received, just prior
-  to the messageReceived() signal being emitted.
-
-  \sa activateWindow(), messageReceived()
-*/
-
-void QtSingleApplication::setActivationWindow(QWidget* aw, bool activateOnMessage)
-{
-    actWin = aw;
-    if (activateOnMessage)
-        connect(peer, &QtLocalPeer::messageReceived, this, &QtSingleApplication::activateWindow);
-    else
-        disconnect(peer, &QtLocalPeer::messageReceived, this, &QtSingleApplication::activateWindow);
-}
-
-
-/*!
-    Returns the applications activation window if one has been set by
-    calling setActivationWindow(), otherwise returns 0.
-
-    \sa setActivationWindow()
-*/
-QWidget* QtSingleApplication::activationWindow() const
-{
-    return actWin;
-}
-
-
-/*!
-  De-minimizes, raises, and activates this application's activation window.
-  This function does nothing if no activation window has been set.
-
-  This is a convenience function to show the user that this
-  application instance has been activated when he has tried to start
-  another instance.
-
-  This function should typically be called in response to the
-  messageReceived() signal. By default, that will happen
-  automatically, if an activation window has been set.
-
-  \sa setActivationWindow(), messageReceived(), initialize()
-*/
-void QtSingleApplication::activateWindow()
-{
-    if (actWin) {
-        actWin->setWindowState(actWin->windowState() & ~Qt::WindowMinimized);
-        actWin->raise();
-        actWin->activateWindow();
-    }
-}
-
-
-/*!
     \fn void QtSingleApplication::messageReceived(const QString& message)
 
     This signal is emitted when the current instance receives a \a
     message from another instance of this application.
 
-    \sa sendMessage(), setActivationWindow(), activateWindow()
-*/
-
-
-/*!
-    \fn void QtSingleApplication::initialize(bool dummy = true)
-
-    \obsolete
+    \sa sendMessage()
 */
