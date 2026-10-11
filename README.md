@@ -113,7 +113,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --target package-local --parallel
 
 The "package-local" target stages the complete runtime bundle (the
-application binary, the lmcapp library, translations, the resource
+application binary, translations, the resource
 bundle, themes, sounds and the Qt image/platform/TLS plugins) into the
 LMC_RELEASE_DIR directory, which defaults to <build-dir>/release. The
 packaging scripts under lmc/setup expect the layout in lmc/release, so
@@ -155,8 +155,8 @@ OpenSSL should be built/installed first. I recommend using a folder at
 the same level as "lmc" folder as the OpenSSL folder.
 
 Build as described in the previous section. The application binary is
-lmc.exe and lmcapp is built as lmcapp.dll with the import library
-lmcapp.lib (no renaming needed). The package-local target copies the
+lmc.exe, with the lmcapp sources linked into it (no separate DLL).
+The package-local target copies the
 OpenSSL runtime DLLs from openssl\bin to the output folder.
 
 To gather the Qt libraries and plugins into the output folder, run
@@ -215,8 +215,8 @@ lmc-<version>.<arch>.rpm and will be saved to lmc/setup folder.
 Compiling LAN Messenger on Mac OS X
 ==================================
 Build as described earlier; the result is LAN-Messenger.app in the release
-layout. The lmcapp helper (liblmcapp.2.dylib) is placed inside the bundle
-with load path @executable_path.
+layout; the lmcapp sources are linked into the app binary, so no helper
+library ships inside the bundle.
 
 Note: Mac OS X does not ship a linkable OpenSSL. Install it as described
 in the OpenSSL section above and pass -DOPENSSL_ROOT_DIR when configuring.

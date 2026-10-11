@@ -26,7 +26,6 @@ if [ "$PACKAGE_MODE" != "_min" ]; then
     sudo cp -v -r ../../release/tls ./package/usr/lib/lmc
   fi
 fi
-sudo cp -v ../../release/liblmcapp.so.2 ./package/usr/lib/lmc/liblmcapp.so.2
 sudo cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc
 sudo cp -v ../../release/lan-messenger ./package/usr/lib/lmc/lan-messenger
 sudo cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING

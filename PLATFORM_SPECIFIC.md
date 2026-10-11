@@ -9,7 +9,7 @@ expect it:
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
 cmake --build build --config Release --target package-local --parallel
 
-lmcapp is built as lmcapp.dll with the import library lmcapp.lib, so no
+The lmcapp sources are linked into lmc.exe (no separate DLL), so no
 renaming step is needed. The package-local target copies the OpenSSL
 runtime DLLs (libcrypto*.dll, libssl*.dll) from openssl\bin into the
 output folder.
@@ -36,7 +36,7 @@ and it will be saved to lmc\setup folder.
 Linux/X11
 ---------
 The build is driven by CMake. The "package-local" target stages the
-runtime layout (binary, liblmcapp.so.2, lmc.rcc, lang, themes, sounds
+runtime layout (binary, lmc.rcc, lang, themes, sounds
 and the Qt imageformats/platforms/tls plugins) into the LMC_RELEASE_DIR
 directory (defaults to <build-dir>/release):
 
@@ -91,8 +91,8 @@ LAN-Messenger.app into the LMC_RELEASE_DIR directory (defaults to
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
 cmake --build build --config Release --target package-local --parallel
 
-The lmcapp helper (liblmcapp.2.dylib) is placed inside
-LAN-Messenger.app/Contents/MacOS with load path @executable_path, so no
+The lmcapp sources are linked into the app binary, so no helper
+library ships inside LAN-Messenger.app/Contents/MacOS, so no
 install_name_tool post-processing is needed. The Qt image format plugins
 go to Contents/Plugins (see setLibraryPaths in main.cpp).
 

@@ -294,7 +294,7 @@ jobs:
 
       # After stage-mac-app: it copies lmc/release/LAN-Messenger.app into
       # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
-      # It goes next to liblmcapp.2.dylib (@executable_path install name) and
+      # It goes next to the app binary (@executable_path install name) and
       # lmc.rcc (LMC_APP_DIR defaults to applicationDirPath).
       - name: Build e2e test
         run: cmake --build build --config Release --target tst_lmc_gui --parallel

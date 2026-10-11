@@ -318,18 +318,6 @@ else()
     install(TARGETS lmc RUNTIME DESTINATION .)
 endif()
 
-# lmcapp runtime library next to the binary: ship the versioned SONAME file
-# (the liblmcapp.so.2 / liblmcapp.2.dylib symlink name).
-if(WIN32)
-    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR})
-elseif(APPLE)
-    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR}
-            RENAME liblmcapp.2.dylib)
-else()
-    install(FILES $<TARGET_FILE:lmcapp> DESTINATION ${LMC_LAYOUT_BIN_DIR}
-            RENAME liblmcapp.so.2)
-endif()
-
 install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
 # The app's own lang/*.qm (lrelease) plus Qt's lang/system/*.qm (copied at
 # configure time from the Qt used for the build).
@@ -428,4 +416,4 @@ add_custom_target(package-local
     COMMENT "Staging release layout into ${LMC_RELEASE_DIR}"
     VERBATIM
 )
-add_dependencies(package-local lmc lmcapp lmc_runtime_files)
+add_dependencies(package-local lmc lmc_runtime_files)

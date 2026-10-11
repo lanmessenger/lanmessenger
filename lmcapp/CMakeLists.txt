@@ -3,7 +3,9 @@ find_package(Qt6 6.2 REQUIRED COMPONENTS Core Network Widgets)
 # qtlockedfile*.cpp are not compiled standalone: they are textually included
 # into qtlocalpeer.cpp inside the QtLP_Private namespace
 # (see qtlocalpeer.cpp:65-71).
-add_library(lmcapp SHARED
+#
+# OBJECT, not SHARED: lmcapp has a single consumer (lmc_core)
+add_library(lmcapp OBJECT
     src/application.cpp
     src/application.h
     src/qtlocalpeer.cpp
@@ -13,25 +15,15 @@ add_library(lmcapp SHARED
     src/qtsingleapplication.h
 )
 
-# Single header set in src/: it serves both the library build and the
-# consumers. The Windows dllexport/dllimport switch does not depend on the
-# directory — consumers get QT_QTSINGLEAPPLICATION_IMPORT via the INTERFACE
-# definition below (dllimport), the library itself defines neither
-# (default branch: dllexport).
+# Single header set in src/, exposed to the consumer build.
 target_include_directories(lmcapp
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
 target_compile_definitions(lmcapp PRIVATE
-    LMCAPP_LIBRARY
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
 )
-
-# Windows only: consumers need the classes as dllimport. MSVC links member
-# functions through import-lib thunks, but not static data, and PMF connects to
-# signals reference staticMetaObject at the call site (LNK2019 otherwise).
-target_compile_definitions(lmcapp INTERFACE QT_QTSINGLEAPPLICATION_IMPORT)
 
 target_link_libraries(lmcapp
     PUBLIC
@@ -40,32 +32,6 @@ target_link_libraries(lmcapp
         Qt6::Widgets
 )
 
-if(WIN32)
-    target_sources(lmcapp PRIVATE src/lmcappwin32.rc)
-    # No version suffix in the DLL/import-lib names (lmcapp.dll/lmcapp.lib).
-    set_target_properties(lmcapp PROPERTIES PREFIX "" OUTPUT_NAME lmcapp)
-else()
-    # liblmcapp.so.2.0.0 with SONAME liblmcapp.so.2, on macOS:
-    # liblmcapp.2.0.0.dylib.
-    set_target_properties(lmcapp PROPERTIES VERSION 2.0.0 SOVERSION 2)
-endif()
-
-if(APPLE)
-    # The layout ships liblmcapp.2.dylib next to the app binary with load path
-    # @executable_path; bake that install name in at link time (no
-    # install_name_tool post-processing).
-    set_target_properties(lmcapp PROPERTIES
-        MACOSX_RPATH OFF
-        INSTALL_NAME_DIR "@executable_path"
-    )
-endif()
-
-set_target_properties(lmcapp PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-)
-
-# Runtime install is part of the release layout rules in lmc/CMakeLists.txt;
-# there is no system-wide install (packages are built by lmc/setup/** from
-# the release layout).
+# No install() rules: an OBJECT library produces no runtime artifact of its
+# own. The release layout is staged by lmc/CMakeLists.txt; packages are built
+# by lmc/setup/** from that layout (no system-wide install).

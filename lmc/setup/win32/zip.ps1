@@ -19,7 +19,6 @@ $items = @(
 )
 $items += @(Get-ChildItem -Path $src -Filter "libcrypto*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
 $items += @(Get-ChildItem -Path $src -Filter "libssl*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
-$items += @(Get-ChildItem -Path $src -Filter "lmcapp*.dll" -ErrorAction SilentlyContinue | ForEach-Object FullName)
 
 Compress-Archive `
 	-LiteralPath $items `
