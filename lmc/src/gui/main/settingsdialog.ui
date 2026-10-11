@@ -257,41 +257,8 @@
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QLabel" name="lblUpdateLink">
-                <property name="focusPolicy">
-                 <enum>Qt::StrongFocus</enum>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="openExternalLinks">
-                 <bool>true</bool>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-           </layout>
+             </item>
+            </layout>
           </widget>
          </item>
          <item>
@@ -2180,7 +2147,6 @@
   <tabstop>chkSysTrayMsg</tabstop>
   <tabstop>chkAllowSysTrayMin</tabstop>
   <tabstop>cboLanguage</tabstop>
-  <tabstop>lblUpdateLink</tabstop>
   <tabstop>txtUserName</tabstop>
   <tabstop>txtFirstName</tabstop>
   <tabstop>txtLastName</tabstop>
