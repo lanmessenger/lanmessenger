@@ -29,7 +29,7 @@ lmcCrypto::lmcCrypto(void) {
   pRsa = NULL;
   encryptMap.clear();
   decryptMap.clear();
-  bits = 1024;
+  bits = 2048;
   exponent = 65537;
 }
 

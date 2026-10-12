@@ -12,9 +12,11 @@
 
 namespace {
 
-// RSA-1024 OAEP envelope; 32-byte AES-256 key + 16-byte IV.
-constexpr int kSealedSessionSize = 128;
-constexpr int kSessionKeyIvSize = 48;
+// Freshly generated (post-change) RSA-2048 OAEP envelope; 32-byte AES-256 key + 16-byte IV.
+constexpr int kSealedSessionSize2048 = 256;
+// Pre-change RSA-1024 envelope, still spoken by released peers.
+constexpr int kSealedSessionSize1024 = 128;
+constexpr int kSessionKeyIvSize = 48; // unchanged
 
 QByteArray readFixture(const char* name) {
   QFile file(QString::fromLocal8Bit(LMC_CRYPTO_FIXTURES_DIR) +
@@ -114,7 +116,7 @@ struct PeerPair {
 class TstCrypto : public QObject {
   Q_OBJECT
 
- private slots:
+private slots:
   void publicKeyIsPkcs1(void);
   void handshakeBothDirections(void);
   void payloadMatrix_data(void);
@@ -123,6 +125,8 @@ class TstCrypto : public QObject {
   void unknownPeerFails(void);
   void tamperedCiphertextFails(void);
   void legacyPkcs1PublicKeyHandshake(void);
+  void oldClientToNewServerHandshake(void);
+  void generatedKeyIs2048(void);
 };
 
 void TstCrypto::publicKeyIsPkcs1(void) {
@@ -143,7 +147,7 @@ void TstCrypto::handshakeBothDirections(void) {
 
 void TstCrypto::payloadMatrix_data(void) {
   QTest::addColumn<QByteArray>("plain");
-  QTest::newRow("empty") << QByteArray();  // padding block only
+  QTest::newRow("empty") << QByteArray(); // padding block only
   QTest::newRow("one-byte") << QByteArrayLiteral("x");
   QTest::newRow("block-minus-1") << QByteArray(15, 'a');
   QTest::newRow("one-block") << QByteArray(16, 'b');
@@ -156,7 +160,7 @@ void TstCrypto::payloadMatrix_data(void) {
 void TstCrypto::payloadMatrix(void) {
   QFETCH(QByteArray, plain);
 
-  PeerPair pair;  // fresh session per payload: isolates framing from chaining
+  PeerPair pair; // fresh session per payload: isolates framing from chaining
   QVERIFY2(pair.shakeHands(), "handshake failed");
   QCOMPARE(pair.clientToServer(plain), plain);
   QCOMPARE(pair.serverToClient(plain), plain);
@@ -202,20 +206,73 @@ void TstCrypto::tamperedCiphertextFails(void) {
 }
 
 void TstCrypto::legacyPkcs1PublicKeyHandshake(void) {
-  // Forward-compat pin: the fixture is a PKCS#1 key from pre-migration code.
-  // generateAES must keep accepting it, and the sealed session must stay
-  // stock-OpenSSL readable.
+  // Released-version pin: the fixture is a PKCS#1 key of an RSA-1024 peer
+  // (v1.3.3). generateAES must keep accepting it, and the sealed session
+  // must stay stock-OpenSSL readable.
   const QByteArray legacyPub = readFixture("test-rsa1024-pub-pkcs1.pem");
   QVERIFY2(legacyPub.startsWith("-----BEGIN RSA PUBLIC KEY-----"), "fixture is not PKCS#1");
 
   lmcCrypto client;
   const QByteArray session = wrapSession(client, QStringLiteral("legacy-peer"), legacyPub);
-  QCOMPARE(session.size(), kSealedSessionSize);
+  QCOMPARE(session.size(), kSealedSessionSize1024);
 
   EVP_PKEY* key = loadPrivateKey(readFixture("test-rsa1024-priv.pem"));
   QVERIFY2(key != nullptr, "fixture private key unreadable");
   QCOMPARE(stockDecryptOaepSha1(key, session).size(), kSessionKeyIvSize);
   EVP_PKEY_free(key);
+}
+
+void TstCrypto::oldClientToNewServerHandshake(void) {
+  // Old (released 1024) writes to new (2048): wrapping depends only on the
+  // server's public key, so any lmcCrypto emulates the old client. The new
+  // server opens the 256-byte envelope with its own private key for real.
+  lmcCrypto server;
+  const QByteArray serverPub = server.generateRSA();
+  QVERIFY2(serverPub.startsWith("-----BEGIN RSA PUBLIC KEY-----"), "public key is not PKCS#1");
+
+  lmcCrypto client;
+  QString serverId = QStringLiteral("new-server");
+  QString clientId = QStringLiteral("old-client");
+  QByteArray session = wrapSession(client, serverId, serverPub);
+  QCOMPARE(session.size(), kSealedSessionSize2048);
+
+  // Pin the mixed-pair asymmetry explicitly: same client, old vs new key.
+  const QByteArray oldPub = readFixture("test-rsa1024-pub-pkcs1.pem");
+  QVERIFY2(!oldPub.isEmpty(), "fixture missing");
+  QCOMPARE(wrapSession(client, QStringLiteral("old-server"), oldPub).size(), kSealedSessionSize1024);
+
+  server.retreiveAES(&clientId, session);
+
+  const QList<QByteArray> messages = {
+    QByteArrayLiteral("hello, new peer"),
+    QStringLiteral("привет, новый пир! ✓").toUtf8(),
+  };
+  for(const QByteArray& message : messages) {
+    QCOMPARE(decryptFrom(server, clientId, encryptFor(client, serverId, message)), message); // old -> new
+    QCOMPARE(decryptFrom(client, serverId, encryptFor(server, clientId, message)), message); // new -> old
+  }
+}
+
+void TstCrypto::generatedKeyIs2048(void) {
+  // Pin the new default: sessions wrapped for a freshly generated key are
+  // 256-byte envelopes (only a >=2048-bit modulus fits 48-byte keyIv under
+  // OAEP-SHA1), and our 2048 envelopes stay stock-OpenSSL readable.
+  lmcCrypto crypto;
+  const QByteArray pub = crypto.generateRSA();
+  QVERIFY2(pub.startsWith("-----BEGIN RSA PUBLIC KEY-----"), "public key is not PKCS#1");
+
+  lmcCrypto client;
+  QCOMPARE(wrapSession(client, QStringLiteral("peer"), pub).size(), kSealedSessionSize2048);
+
+  // Fixture pair oracle: same wrap path against a known 2048-bit key.
+  const QByteArray fixturePub = readFixture("test-rsa2048-pub-pkcs1.pem");
+  QVERIFY2(fixturePub.startsWith("-----BEGIN RSA PUBLIC KEY-----"), "fixture is not PKCS#1");
+  const QByteArray session = wrapSession(client, QStringLiteral("fixture-peer"), fixturePub);
+  QCOMPARE(session.size(), kSealedSessionSize2048);
+  EVP_PKEY* fixturePriv = loadPrivateKey(readFixture("test-rsa2048-priv.pem"));
+  QVERIFY2(fixturePriv != nullptr, "fixture private key unreadable");
+  QCOMPARE(stockDecryptOaepSha1(fixturePriv, session).size(), kSessionKeyIvSize);
+  EVP_PKEY_free(fixturePriv);
 }
 
 QTEST_MAIN(TstCrypto)
