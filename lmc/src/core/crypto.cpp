@@ -39,8 +39,8 @@ lmcCrypto::~lmcCrypto(void) {
 
 //	creates an RSA key pair and returns the string representation of the public key
 QByteArray lmcCrypto::generateRSA(void) {
-  unsigned char* buf = (unsigned char*)malloc(bits);
-  RAND_seed(buf, bits);
+  unsigned char buf[256];
+  RAND_seed(buf, sizeof(buf)); // stir only; the OS provides the real entropy
   pRsa = RSA_new();
   BIGNUM* bn = BN_new();
   BN_set_word(bn, exponent);
@@ -55,7 +55,6 @@ QByteArray lmcCrypto::generateRSA(void) {
   publicKey = QByteArray(pem_key, keylen);
   BIO_free_all(bio);
   free(pem_key);
-  free(buf);
 
   return publicKey;
 }
