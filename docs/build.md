@@ -4,9 +4,7 @@ description: Requirements, project layout, and pointers to the generic and per-p
 ---
 
 This section collects everything needed to build LAN Messenger from source:
-the generic procedure plus the per-platform specifics. It supersedes
-`PLATFORM_SPECIFIC.md` (removed) and mirrors `README.md`, so `README.md`
-can later be rewritten without losing any content.
+the generic procedure plus the per-platform specifics.
 
 ## Requirements
 
