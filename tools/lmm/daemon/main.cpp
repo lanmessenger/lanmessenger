@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
 // lmmd entry point: LAN Messenger Mock daemon over QLocalServer NDJSON.
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QSocketNotifier>
@@ -66,15 +66,13 @@ int main(int argc, char* argv[]) {
   qputenv("XDG_CONFIG_HOME", (homeDir + "/.config").toLocal8Bit());
   qputenv("XDG_DATA_HOME", (homeDir + "/.local/share").toLocal8Bit());
   qputenv("XDG_CACHE_HOME", (homeDir + "/.cache").toLocal8Bit());
-  if(qgetenv("QT_QPA_PLATFORM").isEmpty())
-    qputenv("QT_QPA_PLATFORM", "offscreen");
 
-  // QApplication parses argv; hide our custom flags from it.
+  // QCoreApplication parses argv; hide our custom flags from it.
   int qargc = 1;
-  QApplication app(qargc, argv);
-  QApplication::setApplicationName(IDA_PRODUCT);
-  QApplication::setOrganizationName(IDA_COMPANY);
-  QApplication::setOrganizationDomain(IDA_DOMAIN);
+  QCoreApplication app(qargc, argv);
+  QCoreApplication::setApplicationName(IDA_PRODUCT);
+  QCoreApplication::setOrganizationName(IDA_COMPANY);
+  QCoreApplication::setOrganizationDomain(IDA_DOMAIN);
 
   if(::pipe(gSigFd) != 0) {
     qCritical("lmmd: cannot create signal pipe");

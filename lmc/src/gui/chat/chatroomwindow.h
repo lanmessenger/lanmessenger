@@ -39,7 +39,7 @@
 #include "core/shared.h"
 #include "core/settings.h"
 #include "messaging/history.h"
-#include "messaging/messagelog.h"
+#include "gui/chat/messagelog.h"
 #include "gui/widgets/subcontrols.h"
 #include "gui/widgets/imagepickeraction.h"
 #include "core/soundplayer.h"

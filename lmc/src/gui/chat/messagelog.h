@@ -28,7 +28,7 @@
 #include "core/shared.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chathelper.h"
-#include "xmlmessage.h"
+#include "messaging/xmlmessage.h"
 #include "core/theme.h"
 #include "gui/widgets/qmessagebrowser.h"
 
