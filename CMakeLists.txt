@@ -32,3 +32,10 @@ add_subdirectory(lmc)
 
 enable_testing()
 add_subdirectory(tests)
+
+# lmm test daemon. OFF on weak VMs to keep the default build small
+# (cmake --build build --target lmmd still works when OFF).
+option(LMC_BUILD_LMM "Build the lmm test daemon (tools/lmm)" ON)
+if(LMC_BUILD_LMM)
+    add_subdirectory(tools/lmm)
+endif()
