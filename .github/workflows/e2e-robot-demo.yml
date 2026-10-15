@@ -81,8 +81,7 @@ jobs:
           export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
           .venv-robot-ci/bin/robot \
             --outputdir robot-results \
-            -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
-            -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
             -v HOLD_OPEN:"${{ inputs.hold_open }}" \
             tests/robot/
 

@@ -1,8 +1,8 @@
 # Fast regression gate: Robot Framework E2E on Linux, no video.
 #
-# Runs the real compiled binary driven by the robotframework-qtexpert C++
-# agent injected via LD_PRELOAD (mode=preload). See tests/robot/ for the
-# suites and the documented driver split (agent + xdotool).
+# Runs the lan-messenger-test binary driven by the in-process lmc-agent
+# (tests/lmc-agent, PROTOCOL.md). The agent acts on Qt objects directly, so
+# neither an injected agent library nor synthetic X key events are needed.
 # For a watchable recording of the same suite see e2e-robot-demo.yml.
 name: E2E Robot gate
 
@@ -51,12 +51,10 @@ jobs:
           EOF
 
       # Same runtime env as the CI smoke test: lan-messenger.sh would hide
-      # the aqt Qt libraries, so run the binary directly with LD_LIBRARY_PATH.
-      # The whole tests/robot/ directory runs (smoke + dialogs suites).
-      # Dialog shortcuts and menu mnemonics are sent as real X keys via
-      # xdotool (see tests/robot/common.resource for why not QTest keys).
-      # HOLD_OPEN:0s keeps the gate fast: Hold For Video is a no-op, only
-      # stability waits remain.
+      # the aqt Qt libraries, so run the binary directly with
+      # LD_LIBRARY_PATH. The whole tests/robot/ directory runs (smoke +
+      # dialog suites). HOLD_OPEN:0s keeps the gate fast: Hold For Video is
+      # a no-op, only stability waits remain.
       - name: Start virtual display
         run: |
           Xvfb :99 -screen 0 1280x1024x24 &
@@ -74,8 +72,7 @@ jobs:
           export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
           .venv-robot-ci/bin/robot \
             --outputdir robot-results \
-            -v APP_PATH:"$PWD/lmc/release/lan-messenger" \
-            -v AGENT_SO:"$PWD/build/qtexpert-agent/libqt_test_agent.so" \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
             -v HOLD_OPEN:0s \
             tests/robot/
 
