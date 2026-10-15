@@ -3,16 +3,14 @@ Documentation     Per-peer state isolation of the supervisor+workers daemon:
 ...               each peer owns its HOME (lmc.ini with its own Name/Status),
 ...               display names stay per-peer on the wire, and peer.remove
 ...               cleans only its own dir. Mock-only, no display needed.
-Library           Process
 Library           OperatingSystem
 Library           Collections
-Library           LmmLibrary.py
+Resource          ../mockstand.resource
 Suite Setup       Start Isolation Stand
-Suite Teardown    Stop Isolation Stand
+Suite Teardown    Stop Mock Stand
 
 
 *** Variables ***
-${LMMD}           ${CURDIR}/../../../build/tools/lmm/lmmd
 ${SOCKET}         lmm_iso
 ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-isolation
 
@@ -20,21 +18,12 @@ ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-isolation
 *** Keywords ***
 Start Isolation Stand
     [Documentation]    Daemon + two peers with distinct statuses, cross-visible.
-    Create Directory    ${PEER_HOME}
-    Start Process    ${LMMD}    --socket-name    ${SOCKET}
-    ...    --home    ${PEER_HOME}    alias=lmmd
-    Connect To Daemon    ${SOCKET}    timeout=10s
+    Start Mock Stand    ${SOCKET}    ${PEER_HOME}
     Add Peer    IsoAlice    chat
     Add Peer    IsoBob    busy
     Wait For Contact    IsoAlice    IsoBob    timeout=30s
     Wait For Contact    IsoBob    IsoAlice    timeout=30s
     Reset Event Cursor
-
-Stop Isolation Stand
-    [Documentation]    Clean shutdown: peers send Depart, no stale socket.
-    Run Keyword And Ignore Error    Shutdown Daemon
-    Run Keyword And Ignore Error    Disconnect From Daemon
-    Run Keyword And Ignore Error    Terminate Process    lmmd
 
 
 *** Test Cases ***

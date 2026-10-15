@@ -1,7 +1,7 @@
 # Fast regression gate: Robot Framework E2E on Linux, no video.
 #
 # Runs the lan-messenger-test binary driven by the in-process lmc-agent
-# (tests/lmc-agent, PROTOCOL.md). The agent acts on Qt objects directly, so
+# (tools/lmc-agent, PROTOCOL.md). The agent acts on Qt objects directly, so
 # neither an injected agent library nor synthetic X key events are needed.
 # For a watchable recording of the same suite see e2e-robot-demo.yml.
 name: E2E Robot gate
@@ -52,8 +52,9 @@ jobs:
 
       # Same runtime env as the CI smoke test: lan-messenger.sh would hide
       # the aqt Qt libraries, so run the binary directly with
-      # LD_LIBRARY_PATH. The whole tests/robot/ directory runs (smoke +
-      # dialog suites). HOLD_OPEN:0s keeps the gate fast: Hold For Video is
+      # LD_LIBRARY_PATH. The whole tests/robot/ directory runs (lmc
+      # scenarios plus the lmm/ self-checks).
+      # HOLD_OPEN:0s keeps the gate fast: Hold For Video is
       # a no-op, only stability waits remain.
       - name: Start virtual display
         run: |
@@ -73,6 +74,7 @@ jobs:
           .venv-robot-ci/bin/robot \
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
+            -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
             -v HOLD_OPEN:0s \
             tests/robot/
 

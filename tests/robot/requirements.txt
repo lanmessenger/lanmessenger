@@ -1,7 +1,7 @@
 # Robot Framework E2E (Linux only).
 #
 # No third-party UI driver: the suites talk to the in-process lmc-agent
-# (tests/lmc-agent, PROTOCOL.md) that is linked into the lan-messenger-test
+# (tools/lmc-agent, PROTOCOL.md) that is linked into the lan-messenger-test
 # binary, so the only dependency is robotframework itself. The agent emits
 # no X events, so xdotool is gone from the suites as well (see
 # tests/robot/common.resource).

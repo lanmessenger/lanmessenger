@@ -82,6 +82,7 @@ jobs:
           .venv-robot-ci/bin/robot \
             --outputdir robot-results \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
+            -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
             -v HOLD_OPEN:"${{ inputs.hold_open }}" \
             tests/robot/
 

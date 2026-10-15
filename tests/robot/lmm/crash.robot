@@ -4,14 +4,12 @@ Documentation     Fail-fast: an unexpected worker death exits the daemon
 ...               Mock-only, no display needed. The daemon is expected to
 ...               be dead after the test, so there is no graceful teardown.
 Library           Process
-Library           OperatingSystem
-Library           LmmLibrary.py
+Resource          ../mockstand.resource
 Suite Setup       Start Crash Stand
 Suite Teardown    Run Keyword And Ignore Error    Terminate Process    lmmd
 
 
 *** Variables ***
-${LMMD}           ${CURDIR}/../../../build/tools/lmm/lmmd
 ${SOCKET}         lmm_crash
 ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-crash
 
@@ -20,11 +18,7 @@ ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-crash
 Start Crash Stand
     [Documentation]    Daemon + two peers; the mesh itself is not asserted
     ...    here, only that both workers are up before the kill.
-    Create Directory    ${PEER_HOME}
-    Start Process    ${LMMD}    --socket-name    ${SOCKET}
-    ...    --home    ${PEER_HOME}    alias=lmmd
-    ...    stdout=${OUTPUT_DIR}/lmmd-crash-stdout.txt    stderr=STDOUT
-    Connect To Daemon    ${SOCKET}    timeout=10s
+    Start Mock Stand    ${SOCKET}    ${PEER_HOME}
     Add Peer    CrashAlice
     Add Peer    CrashBob
 

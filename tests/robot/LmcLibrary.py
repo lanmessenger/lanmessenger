@@ -1,6 +1,6 @@
 """Robot Framework driver for the lmc-agent in-process GUI adapter.
 
-Speaks the v1 NDJSON protocol (tests/lmc-agent/PROTOCOL.md) over a
+Speaks the v1 NDJSON protocol (tools/lmc-agent/PROTOCOL.md) over a
 ``QTcpServer`` socket: one JSON object per line, responses matched by the
 client-chosen ``id``. Stdlib only: no third-party dependencies.
 

@@ -38,7 +38,7 @@ runs:
       run: cmake --build build --config Release --target package-local --parallel
 
     # The E2E agent is linked into the test binary (phase B of
-    # todo/lmc-test-adapter.md): tests/lmc-agent/test-main.cpp starts the
+    # todo/lmc-test-adapter.md): tools/lmc-agent/test-main.cpp starts the
     # same agent server the LD_PRELOAD .so uses, from LMC_AGENT_PORT
     # (default 9999). The binary is copied into the release layout by hand,
     # like tst_lmc_gui in ci.yml: an install(TARGETS) rule would leak it
@@ -47,8 +47,16 @@ runs:
       shell: bash
       run: |
         cmake --build build --config Release --target lan-messenger-test --parallel
-        cp build/tests/lmc-agent/lan-messenger-test lmc/release/
+        cp build/tools/lmc-agent/lan-messenger-test lmc/release/
         test -x lmc/release/lan-messenger-test
+
+    # The mock-peer daemon for chat.robot and the lmm/ self-checks: not a
+    # dependency of package-local, so it needs its own build step.
+    - name: Build the mock daemon
+      shell: bash
+      run: |
+        cmake --build build --config Release --target lmmd --parallel
+        test -x build/tools/lmm/lmmd
 
     - name: Set up Python and Robot Framework
       shell: bash

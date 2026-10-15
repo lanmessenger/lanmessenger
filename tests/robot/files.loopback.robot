@@ -3,7 +3,7 @@ Documentation     File send/receive over the loopback self-peer, single
 ...               instance, no second user. With /loopback the app processes
 ...               its own announces, so the seeded user lists itself under
 ...               General and a conversation with it round-trips through the
-...               real UDP+TCP stack (same rig as messages.robot).
+...               real UDP+TCP stack (same rig as chat.loopback.robot).
 ...
 ...               Everything goes through the in-process lmc-agent (see
 ...               todo/lmc-test-adapter.md): the chat opens with Open Chat

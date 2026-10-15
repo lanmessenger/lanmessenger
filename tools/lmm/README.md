@@ -10,9 +10,10 @@ exchange — no X server, no `xdotool`.
   over the real network, each with its own `HOME` (`<home>/peers/<name>/`)
   and `$USER` — closer to a two-machine deployment than threads.
 - `lmm` — thin CLI client (follow-up task).
-- Robot Framework keywords — `tests/robot/lmm/` (`LmmLibrary.py` speaks
-  the protocol; `mock_smoke.robot` self-check, `isolation.robot`
-  per-peer state, `crash.robot` fail-fast, `hybrid.robot` real app vs mock).
+- Robot Framework keywords — `tests/robot/` (`lmm/LmmLibrary.py` speaks
+  the protocol; `lmm/smoke.robot` self-check, `lmm/isolation.robot`
+  per-peer state, `lmm/crash.robot` fail-fast, top-level `chat.robot`
+  real app vs mock).
 
 Protocol: [PROTOCOL.md](PROTOCOL.md).
 

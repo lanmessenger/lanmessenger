@@ -1,26 +1,25 @@
 *** Settings ***
-Documentation     Hybrid E2E: the real application against one lmmd mock
-...               peer. Two drivers in one suite, one per side: LmcLibrary
+Documentation     Chat E2E: the real application against one lmmd mock
+...               peer — the primary chat scenario (compare chat.loopback
+...               for the same feature over the loopback self-peer).
+...               Two drivers in one suite, one per side: LmcLibrary
 ...               (via common.resource) owns the GUI with the in-process
-...               lmc-agent, LmmLibrary owns the mock side over its NDJSON
-...               socket. No /loopback: the app runs in normal network mode
-...               and the mock is a foreign peer discovered via UDP
-...               multicast.
+...               lmc-agent, LmmLibrary (via mockstand.resource) owns the
+...               mock side over its NDJSON socket. No /loopback: the app
+...               runs in normal network mode and the mock is a foreign
+...               peer discovered via UDP multicast.
 ...               Run with an isolated HOME (fresh chat history, no leakage
 ...               between runs), e.g.:
-...               HOME=/tmp/hyb-home DISPLAY=:99 robot tests/robot/lmm/
-Resource          ../common.resource
-Library           Process
-Library           OperatingSystem
-Library           LmmLibrary.py
-Suite Setup       Start Hybrid Stand
-Suite Teardown    Stop Hybrid Stand
+...               HOME=/tmp/chat-home DISPLAY=:99 robot tests/robot/chat.robot
+Resource          common.resource
+Resource          mockstand.resource
+Suite Setup       Start Chat Stand
+Suite Teardown    Stop Chat Stand
 Test Teardown     Close All Chats
 
 
 *** Variables ***
-${LMMD}           ${CURDIR}/../../../build/tools/lmm/lmmd
-${SOCKET}         lmm_hyb
+${SOCKET}         lmm_chat
 ${MOCK}           MockBob
 ${APP_NAME}       E2E Tester
 # Normal network mode: /loopback would make the app talk to itself
@@ -29,43 +28,21 @@ ${APP_ARGS}       /silent
 
 
 *** Keywords ***
-Seed App Config
-    [Documentation]    Fresh lmc.ini under $HOME (caller isolates HOME per
-    ...    run). Version must match the tested binary (0.0.0 locally and
-    ...    in CI): a newer Version resets the config and blocks startup
-    ...    with a modal warning. Same recipe as the CI Seed step.
-    Create Directory    %{HOME}/.config/lmc
-    ${ini}=    Catenate    SEPARATOR=\n
-    ...    [General]
-    ...    AutoShow=true
-    ...    ${EMPTY}
-    ...    [Application]
-    ...    Version=0.0.0
-    ...    ${EMPTY}
-    ...    [User]
-    ...    Name=${APP_NAME}
-    Create File    %{HOME}/.config/lmc/lmc.ini    ${ini}\n
-
-Start Hybrid Stand
+Start Chat Stand
     [Documentation]    Daemon + real app up, mock added, cross-visibility
     ...    confirmed on the mock side, event cursor reset for delivery.
-    Seed App Config
-    Create Directory    ${OUTPUT_DIR}/lmmd-home
-    Start Process    ${LMMD}    --socket-name    ${SOCKET}
-    ...    --home    ${OUTPUT_DIR}/lmmd-home    alias=lmmd
-    Connect To Daemon    ${SOCKET}    timeout=10s
+    Seed App Config    ${APP_NAME}
+    Start Mock Stand    ${SOCKET}    ${OUTPUT_DIR}/lmmd-home
     Launch LMC
     Add Peer    ${MOCK}
     Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=30s
     Reset Event Cursor
 
-Stop Hybrid Stand
+Stop Chat Stand
     [Documentation]    App first (its Depart still goes out), then daemon.
     ...    Everything guarded: teardown must not mask test results.
     Run Keyword And Ignore Error    Close LMC
-    Run Keyword And Ignore Error    Shutdown Daemon
-    Run Keyword And Ignore Error    Disconnect From Daemon
-    Run Keyword And Ignore Error    Terminate Process    lmmd
+    Run Keyword And Ignore Error    Stop Mock Stand
 
 Open Chat With Mock
     [Documentation]    Agent-open a conversation with the mock peer (Open

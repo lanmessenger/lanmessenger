@@ -2,7 +2,7 @@
 Documentation     Shared keywords for the Robot Framework E2E suite.
 ...
 ...             One driver: the in-process lmc-agent (LmcLibrary.py)
-...             speaking the NDJSON protocol of tests/lmc-agent/PROTOCOL.md
+...             speaking the NDJSON protocol of tools/lmc-agent/PROTOCOL.md
 ...             to the application under test. Menu actions, key events,
 ...             text entry and window closing all act on Qt objects
 ...             directly (Trigger Action, Type Text, Close Window), so
@@ -11,6 +11,7 @@ Documentation     Shared keywords for the Robot Framework E2E suite.
 ...             fire-and-post, the reply leaves before the slot runs.
 Library           LmcLibrary.py
 Library           Process
+Library           OperatingSystem
 
 
 *** Variables ***
@@ -76,6 +77,27 @@ Close LMC
     Run Keyword And Ignore Error    Wait For Process    app    timeout=15s
     Run Keyword And Ignore Error    Terminate Process    app
     Run Keyword And Ignore Error    Disconnect From Test Agent
+
+Seed App Config
+    [Documentation]    Fresh lmc.ini under $HOME (caller isolates HOME per
+    ...    run): AutoShow on, Version pinned to the tested binary, user
+    ...    under the given name. A newer Version resets the config and
+    ...    blocks startup with a modal warning. Same recipe as the CI Seed
+    ...    step; never pass /noconfig here, it deletes this file. Needed
+    ...    by suites that launch the app themselves (mock-peer stands);
+    ...    the plain loopback suites rely on the pre-seeded HOME instead.
+    [Arguments]    ${name}
+    Create Directory    %{HOME}/.config/lmc
+    ${ini}=    Catenate    SEPARATOR=\n
+    ...    [General]
+    ...    AutoShow=true
+    ...    ${EMPTY}
+    ...    [Application]
+    ...    Version=0.0.0
+    ...    ${EMPTY}
+    ...    [User]
+    ...    Name=${name}
+    Create File    %{HOME}/.config/lmc/lmc.ini    ${ini}\n
 
 Window Should Be Visible
     [Documentation]    Wait for a top-level window and require it mapped.
