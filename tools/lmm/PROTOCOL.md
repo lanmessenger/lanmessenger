@@ -19,6 +19,10 @@ to a two-machine deployment than threads would be.
 - Worker control ports are private (each worker binds `127.0.0.1:0`
   and prints `READY <port>` on stdout for the supervisor to dial);
   they speak the same NDJSON protocol but are an implementation detail.
+  Worker settings are isolated per peer: XDG layout under `<home>/peers/NAME/`
+  on Unix; on Windows (where `QSettings` IniFormat ignores `HOME`/`XDG`)
+  the worker pins its settings to the peer dir via `QSettings::setPath`.
+  The live ini path is reported, never guessed — see `status.settingsFile`.
   The worker holds exactly one peer (auto-added at startup, further
   `peer.add` rejected) and takes no `peer` handles — its commands are
   self-scoped. The supervisor translates `peer.*` (user metaphor) to
@@ -61,7 +65,8 @@ Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
 
 | cmd | params | result |
 |---|---|---|
-| `status` | — | `{port, peers:[names], uptimeMs, lmcVersion}` |
+| `status` | — | `{port, peers:[names], uptimeMs, lmcVersion}` (worker daemons add `settingsFile`: the live ini path on that OS) |
+| `worker.status` | `{peer}` | the worker's own `status` dict verbatim (port, settingsFile, ...) — test introspection, not user traffic |
 | `peer.add` | `{name, status?}` | `{peer, userId}`. `name`: `1-32` of `A-Za-z0-9_.-`, unique. Starts announce immediately. |
 | `peer.list` | — | `{peers: [{peer, userId, displayName, contacts}]}` |
 | `peer.contacts` | `{peer}` | `{peer, contacts: [{userId, name, address, status}]}` |

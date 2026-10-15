@@ -77,6 +77,10 @@ Launch LMC With File Storage
     ...    under the agent. Seeding in-suite (not in the CI Seed step) so
     ...    the suite is self-contained: the app reads the path live at
     ...    accept time (StdLocation::fileStorageDir).
+    ...    Identity first: Seed File Storage edits the ini in place and
+    ...    preserves whatever is there — on a fresh HOME (Windows) that
+    ...    would be identity-less, and the self-peer lookup needs Name.
+    Seed App Config    ${SELF_PEER}
     Seed File Storage
     Launch LMC
 

@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QJsonObject>
+#include <QSettings>
 #include <QSocketNotifier>
 #include <QTemporaryDir>
 #include <QTextStream>
@@ -116,6 +117,13 @@ int runWorker(int argc, char** argv, const QString& peer, const QString& homeDir
     qCritical("lmmd worker: cannot create --home dir");
     return 1;
   }
+#ifdef Q_OS_WIN
+  // QSettings IniFormat ignores HOME/XDG on Windows (one per-user
+  // location), so without this all workers share a single settings file:
+  // no isolation, cross-talk on Name/Status. Pin this worker to its own
+  // peer dir. Unix keeps the XDG layout (untouched).
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, home);
+#endif
   int qargc = 1; // hide our custom flags from Qt
   QCoreApplication app(qargc, argv);
   setupApp(&app);

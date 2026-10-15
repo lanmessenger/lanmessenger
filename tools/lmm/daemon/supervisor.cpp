@@ -161,6 +161,8 @@ QJsonObject Supervisor::handleRequest(const QJsonObject& req) {
     error = "shutting down";
   } else if(cmd == "status")
     result = cmdStatus();
+  else if(cmd == "worker.status")
+    result = cmdWorkerStatus(params, &error);
   else if(cmd == "peer.add")
     result = cmdPeerAdd(params, &error);
   else if(cmd == "peer.list")
@@ -430,6 +432,17 @@ QJsonObject Supervisor::cmdStatus() {
     {"uptimeMs", uptime_.elapsed()},
     {"lmcVersion", IDA_VERSION},
   };
+}
+
+QJsonObject Supervisor::cmdWorkerStatus(const QJsonObject& p, QString* error) {
+  // Introspection for tests (settings-file location differs per OS):
+  // returns the worker's own status dict verbatim.
+  SupervisorWorker* w = findWorker(p.value("peer").toString());
+  if(!w) {
+    *error = "unknown peer";
+    return {};
+  }
+  return workerCall(w, "status", QJsonObject(), error);
 }
 
 QJsonObject Supervisor::cmdPeerAdd(const QJsonObject& p, QString* error) {

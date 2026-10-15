@@ -8,6 +8,7 @@
 #include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QSettings>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
@@ -166,8 +167,15 @@ QJsonObject Lmmd::cmdStatus() {
   QJsonArray names;
   for(const QString& n : peers_.keys())
     names.append(n);
+  // Live settings path (same ctor as lmcSettings): XDG layout on Unix,
+  // per-worker redirected layout on Windows. Tests locate the peer ini
+  // through this instead of guessing OS layouts.
+  const QString settingsFile =
+      QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT)
+          .fileName();
   return QJsonObject{
     {"port", int(serverPort())},
+    {"settingsFile", settingsFile},
     {"peers", names},
     {"uptimeMs", uptime_.elapsed()},
     {"lmcVersion", IDA_VERSION},

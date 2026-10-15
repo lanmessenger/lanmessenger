@@ -29,9 +29,13 @@ Start Isolation Stand
 *** Test Cases ***
 Peer Homes Are Separate
     [Documentation]    Each peer has its own lmc.ini with its own Name/Status
-    ...    (no shared-HOME cross-pollution).
-    ${a}=    Get File    ${PEER_HOME}/peers/IsoAlice/.config/lmc/lmc.ini
-    ${b}=    Get File    ${PEER_HOME}/peers/IsoBob/.config/lmc/lmc.ini
+    ...    (no shared-HOME cross-pollution). The ini path is daemon-reported
+    ...    (`Worker Status` settingsFile): XDG layout on Unix, per-worker
+    ...    redirected layout on Windows — the test never guesses OS paths.
+    ${sa}=    Worker Status    IsoAlice
+    ${sb}=    Worker Status    IsoBob
+    ${a}=    Get File    ${sa}[settingsFile]
+    ${b}=    Get File    ${sb}[settingsFile]
     Should Contain    ${a}    Name=IsoAlice
     Should Contain    ${a}    Status=chat
     Should Contain    ${b}    Name=IsoBob

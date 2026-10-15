@@ -48,6 +48,7 @@ class Supervisor : public QObject {
 
 private:
   QJsonObject cmdStatus();
+  QJsonObject cmdWorkerStatus(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerAdd(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerList(QString* error);
   QJsonObject cmdPeerContacts(const QJsonObject& p, QString* error);

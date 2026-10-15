@@ -40,6 +40,8 @@ own `HOME` (config, groups, avatar, history, logs). Worker identity
 (`userId = MAC + logon name`) comes from the peer name: `USER` on Unix,
 `LMC_LOGON_NAME` on Windows (where `GetUserName` reads the process token
 and ignores the environment — without the hook all workers collide).
+Settings follow the same isolation: XDG layout on Unix, `QSettings::setPath`
+to the peer dir on Windows (reported via `status` `settingsFile`).
 `peer.remove` deletes its dir; an unexpected worker death exits the daemon
 non-zero (fail-fast — see `PROTOCOL.md`, no silent masking).
 
