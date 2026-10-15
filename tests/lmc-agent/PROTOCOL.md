@@ -32,7 +32,8 @@ Unknown commands get `{"ok": false, "error": "unknown cmd: ..."}`.
 
 ## Locators
 
-Same selector syntax as qtexpert, so migration is mechanical:
+Selector syntax (kept qtexpert-compatible so migrated suites read the
+same):
 
 - `name=MainWindow` (alias `objectName=`), `type=QPushButton`
   (aliases `class=`, `className=`), `text=Send A File`
@@ -43,13 +44,14 @@ Same selector syntax as qtexpert, so migration is mechanical:
   (single quotes work too); unquoted values stop at whitespace.
 - Search covers `QApplication::topLevelWidgets()` plus
   `findChildren<QWidget*>()` **plus** `actions()` of
-  `QMenuBar`/`QToolBar`/`QMenu`/`QToolButton` (qtexpert cannot see
-  `QAction`). The `visible` filter applies inside `find`.
+  `QMenuBar`/`QToolBar`/`QMenu`/`QToolButton` (menus are `QAction`s, not
+  `QWidget`s, so the qtexpert agent could not see them at all). The
+  `visible` filter applies inside `find`.
 
 ## Execution model: fire-and-post
 
 No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
-`exec()` modals and asserts under Xvfb, see `todo/qtexpert-fork.md`):
+`exec()` modals and asserts under Xvfb, see `done/spix-evaluation.md`):
 
 - `click`/`send_key` post `QMouseEvent`/`QKeyEvent` (press+release) and
   return immediately.
@@ -97,7 +99,11 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
   `TypeRole = UserRole+2`, `"User"` marks a contact row).
 - Addressing is by peer name/userId, never by X window id — two open
   chats stay distinguishable by title.
-- One server per process. Two preload agents (qtexpert + this one) can
-  coexist during migration as long as ports differ (qtexpert
-  `QT_AGENT_PORT`, this one `LMC_AGENT_PORT`): qtexpert's launcher
-  prepends its `.so` to an existing `LD_PRELOAD` instead of replacing it.
+- One server per process. `liblmc_test_preload.so` (phase A,
+  `LD_PRELOAD` into the unmodified production binary) and
+  `lan-messenger-test` (phase B, the agent linked in directly) are two
+  embodiments of the same `agent_core`: same protocol, same port source
+  (`LMC_AGENT_PORT`, default 9999). `LMC_TEST_AGENT=0` disables the
+  server in the test binary for production-like runs.
+- The agent emits no X events (no focus stealing, no window ids), so
+  suites run under Xvfb without a window manager or xdotool.
