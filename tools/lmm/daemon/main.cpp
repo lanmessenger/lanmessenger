@@ -8,7 +8,14 @@
 #include <QSocketNotifier>
 #include <QTemporaryDir>
 #include <csignal>
+#ifdef Q_OS_WIN
+// No <unistd.h> here: the self-pipe below is POSIX-only (and
+// QSocketNotifier cannot watch pipe fds on Windows anyway). The Windows
+// CRT raises console Ctrl handlers for SIGINT/SIGBREAK, and quit() only
+// posts to the event loop, so no pipe is needed there.
+#else
 #include <unistd.h>
+#endif
 
 #include "core/definitions.h"
 #include "lmmd.h"
@@ -17,13 +24,21 @@
 namespace {
 // Self-pipe: the only async-signal-safe way to wake the event loop.
 // The handler must not touch Qt (stopAll()/quit() are not signal-safe).
+#ifndef Q_OS_WIN
 int gSigFd[2] = {-1, -1};
+#endif
 
 void handleSignal(int) {
+#ifdef Q_OS_WIN
+  // Runs on a Windows system thread for console Ctrl events; quit() only
+  // posts to the event loop, so this is safe without a self-pipe.
+  QCoreApplication::quit();
+#else
   if(gSigFd[1] >= 0) {
     const char c = 1;
     ::write(gSigFd[1], &c, sizeof(c));
   }
+#endif
 }
 
 void usage() {
@@ -58,6 +73,13 @@ bool setupHome(const QString& homeDir, QString* resolved) {
 }
 
 bool setupSignals(QCoreApplication* app) {
+#ifdef Q_OS_WIN
+  (void)app;
+  ::signal(SIGINT, handleSignal);
+  ::signal(SIGTERM, handleSignal);
+  ::signal(SIGBREAK, handleSignal);
+  return true;
+#else
   if(::pipe(gSigFd) != 0) {
     qCritical("lmmd: cannot create signal pipe");
     return false;
@@ -71,6 +93,7 @@ bool setupSignals(QCoreApplication* app) {
   ::signal(SIGINT, handleSignal);
   ::signal(SIGTERM, handleSignal);
   return true;
+#endif
 }
 
 void setupApp(QCoreApplication* app) {

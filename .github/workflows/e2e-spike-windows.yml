@@ -82,9 +82,9 @@ jobs:
       - name: Build test binary and mock daemon
         run: |
           cmake --build build --config Release --target lan-messenger-test lmmd --parallel
-          Copy-Item build/tools/lmc-agent/Release/lan-messenger-test.exe lmc/release/
+          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe lmc/release/
           if (-not (Test-Path lmc/release/lan-messenger-test.exe)) { throw "test binary missing" }
-          if (-not (Test-Path build/tools/lmm/Release/lmmd.exe)) { throw "lmmd missing" }
+          if (-not (Test-Path build/tools/lmm/lmmd.exe)) { throw "lmmd missing" }
 
       - name: Set up Python and Robot Framework
         shell: pwsh
@@ -120,7 +120,7 @@ jobs:
           .venv-robot-ci/Scripts/robot `
             --outputdir robot-results-native `
             -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
-            -v LMMD_BIN:"$PWD\build\tools\lmm\Release\lmmd.exe" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
             -v HOLD_OPEN:0s `
             tests/robot/smoke.robot
 
@@ -147,7 +147,7 @@ jobs:
             --outputdir robot-results-config `
             -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
             -v APP_ARGS:"/silent /loopback /config=$env:RUNNER_TEMP\lmc-seed.ini" `
-            -v LMMD_BIN:"$PWD\build\tools\lmm\Release\lmmd.exe" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
             -v HOLD_OPEN:0s `
             tests/robot/smoke.robot
 
