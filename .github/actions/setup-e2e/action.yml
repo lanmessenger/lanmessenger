@@ -37,11 +37,10 @@ runs:
       shell: bash
       run: cmake --build build --config Release --target package-local --parallel
 
-    # The E2E agent is linked into the test binary (phase B of
-    # todo/lmc-test-adapter.md): tools/lmc-agent/test-main.cpp starts the
-    # same agent server the LD_PRELOAD .so uses, from LMC_AGENT_PORT
-    # (default 9999). The binary is copied into the release layout by hand,
-    # like tst_lmc_gui in ci.yml: an install(TARGETS) rule would leak it
+    # The E2E agent is linked into the test binary (see
+    # tools/lmc-agent/PROTOCOL.md): test-main.cpp starts the agent server
+    # from LMC_AGENT_PORT (default 9999). The binary is copied into the
+    # release layout by hand, like tst_lmc_gui in ci.yml: an install(TARGETS) rule would leak it
     # into the packages built from that directory.
     - name: Build the test agent binary
       shell: bash

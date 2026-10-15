@@ -17,9 +17,8 @@ Library           OperatingSystem
 *** Variables ***
 # Overridden from CI via `-v APP_PATH:...`.
 # Default points at the local dev-VM release layout. The binary must run
-# with the agent active: lan-messenger-test (phase B) or the production
-# binary with liblmc_test_preload.so in LD_PRELOAD (phase A); Launch LMC
-# fails loudly when no agent answers.
+# with the agent active (lan-messenger-test unless LMC_TEST_AGENT=0);
+# Launch LMC fails loudly when no agent answers.
 ${APP_PATH}       ${CURDIR}/../../lmc/release/lan-messenger-test
 # The main window is shown at startup only with AutoShow=true in
 # $HOME/.config/lmc/lmc.ini (lmcMainWindow::start checks it, default false).

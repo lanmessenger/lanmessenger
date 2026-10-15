@@ -1,12 +1,11 @@
 # In-process GUI test agent (see PROTOCOL.md and todo/lmc-test-adapter.md).
 #
-# One shared core, two embodiments (same code, no duplication):
-# - lmc_test_preload (.so, phase A): LD_PRELOAD into the unmodified
-#   production binary; the server starts in the GUI thread via the
-#   constructor in preload.cpp.
-# - lan-messenger-test (phase B): test binary with the agent linked in
-#   (test-main.cpp, same lmc_core as production), no preload needed.
-#   Behind LMC_WITH_TEST_AGENT so weak VMs can skip the extra link.
+# One shared core, one embodiment: lan-messenger-test, the test binary with
+# the agent linked in (test-main.cpp, same lmc_core as production via
+# lmcRunApplication with a pre-exec hook). No LD_PRELOAD anywhere: the
+# hook keeps the agent structurally out of the production binary while the
+# test binary shares its startup line-for-line. Behind LMC_WITH_TEST_AGENT
+# so weak VMs can skip the extra link.
 
 find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Widgets Network)
 
@@ -29,27 +28,7 @@ target_include_directories(lmc_agent_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(lmc_agent_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(lmc_test_preload SHARED
-    preload.cpp
-)
-
-target_link_libraries(lmc_test_preload PRIVATE lmc_agent_core)
-
-set_target_properties(lmc_test_preload PROPERTIES
-    OUTPUT_NAME lmc_test_preload
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tools/lmc-agent
-    LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tools/lmc-agent
-)
-
-option(LMC_WITH_TEST_AGENT "Build the lan-messenger-test binary (phase B)" ON)
+option(LMC_WITH_TEST_AGENT "Build the lan-messenger-test binary" ON)
 if(LMC_WITH_TEST_AGENT)
     # resource.qrc repeats here (same as the lmc executable and tst_lmc_gui):
     # the Qt resource initializers must live in an object that is always

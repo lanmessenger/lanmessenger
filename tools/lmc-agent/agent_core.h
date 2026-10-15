@@ -2,9 +2,9 @@
 #define LMC_AGENT_CORE_H
 
 // In-process GUI adapter core: search + fire-and-post executors.
-// Pure Qt Widgets API only — deliberately no lmc headers, so the same
-// object file links both into the LD_PRELOAD .so (phase A) and into the
-// lan-messenger-test binary (phase B) without ODR/duplication hazards.
+// Pure Qt Widgets API only — deliberately no lmc headers, so the core
+// links into the lan-messenger-test binary without ODR/duplication
+// hazards.
 //
 // All entry points must run in the application's GUI thread (the
 // QTcpServer lives there). Handlers may spin a bounded local QEventLoop

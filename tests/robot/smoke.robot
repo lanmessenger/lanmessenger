@@ -2,9 +2,10 @@
 Documentation     Minimal smoke for the Robot Framework direction check.
 ...               Launches the agent-enabled binary through Launch LMC
 ...               (common.resource) and waits for the main window: one
-...               in-process lmc-agent, one process, no LD_PRELOAD
-...               composition. Video is captured outside the test (ffmpeg
-...               in CI), the test itself only asserts and dumps.
+...               in-process lmc-agent, one process, no proxy or
+...               event-injection composition. Video is captured outside
+...               the test (ffmpeg in CI), the test itself only asserts
+...               and dumps.
 Resource          common.resource
 Suite Teardown    Close LMC
 

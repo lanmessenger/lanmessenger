@@ -8,15 +8,15 @@ Low-level keywords carry the plain qtexpert-compatible names (``Wait For
 Object``, ``Click Object``, ...) so this library is a drop-in replacement:
 suites that ran against qtexpert only need the import line changed. During
 the migration the names were ``Agent ``-prefixed (Robot fails unqualified
-calls when two libraries own the same name), which qtexpert removal in
-phase B retired. Domain keywords (``Open Chat With Peer``, ``Close
+calls when two libraries own the same name), which qtexpert removal
+retired. Domain keywords (``Open Chat With Peer``, ``Close
 Window``, ...) have no qtexpert counterpart. Import plain::
 
     Library    ../LmcLibrary.py
 
-The application under test must run with the agent active: either the
-LD_PRELOAD ``liblmc_test_preload.so`` (phase A, ``LMC_AGENT_PORT`` env)
-or the ``lan-messenger-test`` binary (phase B).
+The application under test must run with the agent active: the
+``lan-messenger-test`` binary (the in-process agent linked in, enabled
+unless ``LMC_TEST_AGENT=0``).
 """
 
 import json
@@ -61,8 +61,8 @@ class LmcLibrary:
                 if time.monotonic() >= deadline:
                     raise AssertionError(
                         "cannot connect to lmc-agent at %s:%s within %s "
-                        "(is the app running with the test agent? "
-                        "LD_PRELOAD/LMC_AGENT_PORT?)" % (host, port, timeout)
+                        "(is lan-messenger-test running with the test agent? "
+                        "LMC_TEST_AGENT/LMC_AGENT_PORT?)" % (host, port, timeout)
                     )
                 time.sleep(self.POLL_INTERVAL)
         self._sock = sock

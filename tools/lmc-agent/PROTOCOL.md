@@ -99,11 +99,10 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
   `TypeRole = UserRole+2`, `"User"` marks a contact row).
 - Addressing is by peer name/userId, never by X window id — two open
   chats stay distinguishable by title.
-- One server per process. `liblmc_test_preload.so` (phase A,
-  `LD_PRELOAD` into the unmodified production binary) and
-  `lan-messenger-test` (phase B, the agent linked in directly) are two
-  embodiments of the same `agent_core`: same protocol, same port source
+- One server per process. `lan-messenger-test` carries the agent linked
+  in directly (same `lmc_core` startup as production via `lmcRunApplication`
+  with a pre-exec hook): same protocol, same port source
   (`LMC_AGENT_PORT`, default 9999). `LMC_TEST_AGENT=0` disables the
-  server in the test binary for production-like runs.
+  server for production-like runs.
 - The agent emits no X events (no focus stealing, no window ids), so
   suites run under Xvfb without a window manager or xdotool.
