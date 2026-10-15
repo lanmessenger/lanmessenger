@@ -283,7 +283,7 @@ jobs:
 
       - name: Rerun failed tests once (Linux)
         id: rerun_linux
-        if: runner.os == 'Linux' && steps.full_linux.outcome != 'success'
+        if: runner.os == 'Linux' && steps.full_linux.outcome == 'failure'
         continue-on-error: true
         env:
           DISPLAY: :99
@@ -301,7 +301,7 @@ jobs:
 
       - name: Rerun failed tests once (Windows)
         id: rerun_windows
-        if: runner.os == 'Windows' && steps.full_windows.outcome != 'success'
+        if: runner.os == 'Windows' && steps.full_windows.outcome == 'failure'
         continue-on-error: true
         shell: pwsh
         run: |
@@ -316,7 +316,7 @@ jobs:
 
       - name: Rerun failed tests once (macOS)
         id: rerun_macos
-        if: runner.os == 'macOS' && steps.full_macos.outcome != 'success'
+        if: runner.os == 'macOS' && steps.full_macos.outcome == 'failure'
         continue-on-error: true
         shell: bash
         run: |
@@ -340,7 +340,22 @@ jobs:
           if [ -f robot-results-rerun/output.xml ]; then
             inputs="$inputs robot-results-rerun/output.xml"
           fi
-          .venv-robot-ci/bin/rebot --merge -d robot-results $inputs
+          if [ ! -f robot-results-full/output.xml ]; then
+            echo "NO ROBOT OUTPUT: full run produced no output.xml (see Run full suite above)" >&2
+            exit 1
+          fi
+          rc=0
+          # NOTE: --output is explicit because `rebot --merge` in RF 7.5
+          # writes only log+report by default, no output.xml (the Check
+          # step below parses the merged XML).
+          .venv-robot-ci/bin/rebot --merge -d robot-results --output output.xml $inputs || rc=$?
+          if [ "$rc" -gt 250 ]; then
+            echo "rebot execution error (rc=$rc), not test failures" >&2
+            exit 1
+          fi
+          # rc 0-250 is the failed-test count in the merged output; the
+          # verdict belongs to the Check step below, not to the merge.
+          exit 0
 
       - name: Merge reports (Windows)
         if: always() && runner.os == 'Windows'
@@ -348,12 +363,25 @@ jobs:
         run: |
           $inputs = @("robot-results-full/output.xml")
           if (Test-Path "robot-results-rerun/output.xml") { $inputs += "robot-results-rerun/output.xml" }
-          .venv-robot-ci/Scripts/rebot --merge -d robot-results @inputs
+          if (-not (Test-Path "robot-results-full/output.xml")) { throw "NO ROBOT OUTPUT: full run produced no output.xml (see Run full suite above)" }
+          # NOTE: --output is explicit because `rebot --merge` in RF 7.5
+          # writes only log+report by default, no output.xml (the Check
+          # step below parses the merged XML).
+          .venv-robot-ci/Scripts/rebot --merge -d robot-results --output output.xml @inputs
+          $rc = $LASTEXITCODE
+          if ($rc -gt 250) { throw "rebot execution error (rc=$rc), not test failures" }
+          # rc 0-250 is the failed-test count in the merged output; the
+          # verdict belongs to the Check step below, not to the merge.
+          exit 0
 
       - name: Check merged result (Linux/macOS)
         if: always() && runner.os != 'Windows'
         shell: bash
         run: |
+          if [ ! -f robot-results/output.xml ]; then
+            echo "NO MERGED OUTPUT: merge produced nothing (see Merge reports above)" >&2
+            exit 1
+          fi
           python3 -c "
           import sys, xml.etree.ElementTree as ET
           root = ET.parse('robot-results/output.xml').getroot()
@@ -369,6 +397,7 @@ jobs:
         if: always() && runner.os == 'Windows'
         shell: pwsh
         run: |
+          if (-not (Test-Path "robot-results/output.xml")) { throw "NO MERGED OUTPUT: merge produced nothing (see Merge reports above)" }
           py -3 -c "import sys, xml.etree.ElementTree as ET; root = ET.parse('robot-results/output.xml').getroot(); tests = list(root.iter('test')); failed = [t.get('name') for t in tests if t.find('status').get('status') != 'PASS']; print(str(len(tests)) + ' tests, ' + str(len(failed)) + ' failed'); [print('FAILED: ' + n) for n in failed]; sys.exit(1 if failed else 0)"
 
       - name: Upload robot results
