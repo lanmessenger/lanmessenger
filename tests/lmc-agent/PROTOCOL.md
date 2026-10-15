@@ -1,0 +1,100 @@
+# lmc-agent wire protocol (v1)
+
+In-process GUI adapter for the LAN Messenger E2E suite. Replaces
+`robotframework-qtexpert` + `xdotool` (see `todo/lmc-test-adapter.md`).
+
+Transport: `QTcpSocket`/`QTcpServer` on `127.0.0.1`, port from env
+`LMC_AGENT_PORT` (default `9999`). The server lives in the application's
+GUI thread: every command runs there, so no cross-thread widget access.
+
+Framing: newline-delimited JSON, UTF-8. One line = one message, `\n`
+terminated. Same envelope style as `tools/lmm/PROTOCOL.md`.
+
+## Requests
+
+```json
+{"id": 1, "cmd": "open_chat", "params": {"peer": "MockBob"}}
+```
+
+- `id`: client-chosen (number or string), echoed back.
+- `cmd`: one of the commands below.
+- `params`: object, may be omitted.
+
+## Responses
+
+```json
+{"id": 1, "ok": true, "result": {"title": "MockBob - Conversation"}}
+{"id": 2, "ok": false, "error": "peer not found: Nobody"}
+```
+
+Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
+Unknown commands get `{"ok": false, "error": "unknown cmd: ..."}`.
+
+## Locators
+
+Same selector syntax as qtexpert, so migration is mechanical:
+
+- `name=MainWindow` (alias `objectName=`), `type=QPushButton`
+  (aliases `class=`, `className=`), `text=Send A File`
+  (alias `title=`), `window=History` (alias `windowTitle=`),
+  `visible=true`, `enabled=true`.
+- Bare string without `=` means `name=` (objectName match).
+- Search covers `QApplication::topLevelWidgets()` plus
+  `findChildren<QWidget*>()` **plus** `actions()` of
+  `QMenuBar`/`QToolBar`/`QMenu`/`QToolButton` (qtexpert cannot see
+  `QAction`). The `visible` filter applies inside `find`.
+
+## Execution model: fire-and-post
+
+No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
+`exec()` modals and asserts under Xvfb, see `todo/qtexpert-fork.md`):
+
+- `click`/`press` post `QMouseEvent`/`QKeyEvent` (press+release) and
+  return immediately.
+- Triggers that open `exec()` modals go through
+  `QTimer::singleShot(0, ...)` — the reply is sent before the nested
+  loop starts, so the connection stays alive.
+- Commands that must observe a result (`wait_for_object`,
+  `wait_for_gone`, `open_chat`) run a bounded local `QEventLoop`
+  (default 10s, overridable via `timeout`) and then reply. While the
+  local loop runs, the server is `busy`: a second pipelined request gets
+  `{"ok": false, "error": "busy"}`. The Robot library never pipelines
+  (one request at a time), so this is a guard, not a limit.
+
+## Commands (v1)
+
+| cmd | params | result |
+|---|---|---|
+| `wait_for_object` | `{locator, timeout?}` | `{found: true, class, objectName, visible}` or error `not found within Ns` |
+| `wait_for_gone` | `{locator, timeout?}` | `{gone: true}` or error |
+| `object_exists` | `{locator}` | `{exists: bool}` |
+| `get_property` | `{locator, property}` | `{value: ...}`. `plainText` on a `QTextEdit` reads `toPlainText()` (qtexpert parity: the chat log is a `QTextEdit` subclass) |
+| `set_property` | `{locator, property, value}` | `{set: true}` |
+| `click` | `{locator}` | `{clicked: true}` (async post; for `QAction` — async `trigger()`) |
+| `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
+| `list_windows` | `{}` | `{windows: [{objectName, class, title, visible}]}` |
+| `grab_screenshot` | `{locator?, file}` | `{file}` — rendered app-side via `QWidget::grab` (precedent: `tests/e2e/tst_lmc_gui.cpp`) |
+| `open_chat` | `{peer, timeout?}` | `{title}` — resolve `peer` by name or userId in the main-window contact tree, fire the same `tvUserList_itemActivated → chatStarting → startChat` path as keyboard Return (idempotent: reopens/shows the existing window), wait for a visible `ChatWindow`, return its title |
+| `close_app` | `{}` | `{closing: true}` — async `QCoreApplication::quit`, reply first |
+| `send_chat_text` | — | stub: `not implemented (phase 2)` |
+| `get_log` | — | stub: `not implemented (phase 2)` |
+| `open_window` | — | stub: `not implemented (phase 2)` |
+| `press` | — | stub: `not implemented (phase 2)` |
+| `close_dialog` | — | stub: `not implemented (phase 2)` |
+| `type_path` | — | stub: `not implemented (phase 2)` |
+
+`timeout` is seconds (number or `"10s"` string, Robot-style).
+
+## Notes / v1 limits
+
+- `open_chat` matches contacts by userId first, then by display name
+  (same precedence as the app's own lookups). The contact tree lives in
+  `tvUserList` (`mainwindow.ui`); item roles follow
+  `lmc/src/core/uidefinitions.h` (`IdRole = UserRole+1`,
+  `TypeRole = UserRole+2`, `"User"` marks a contact row).
+- Addressing is by peer name/userId, never by X window id — two open
+  chats stay distinguishable by title.
+- One server per process. Two preload agents (qtexpert + this one) can
+  coexist during migration as long as ports differ (qtexpert
+  `QT_AGENT_PORT`, this one `LMC_AGENT_PORT`): qtexpert's launcher
+  prepends its `.so` to an existing `LD_PRELOAD` instead of replacing it.

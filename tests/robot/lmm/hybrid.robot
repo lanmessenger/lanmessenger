@@ -5,6 +5,9 @@ Documentation     Hybrid E2E: the real application against one lmmd mock
 ...               mock side over the NDJSON socket. No /loopback: the app
 ...               runs in normal network mode and the mock is a foreign
 ...               peer discovered via UDP multicast.
+...               Chat opening is the lmc-agent pilot (LmcAgent library,
+...               todo/lmc-test-adapter.md); the rest of the GUI still rides
+...               on qtexpert+xdotool until its turn comes.
 ...               Run with an isolated HOME (fresh chat history, no leakage
 ...               between runs) and a private display, e.g.:
 ...               HOME=/tmp/hyb-home DISPLAY=:98 robot tests/robot/lmm/
@@ -12,6 +15,7 @@ Resource          ../common.resource
 Library           Process
 Library           OperatingSystem
 Library           LmmLibrary.py
+Library           ../LmcLibrary.py    WITH NAME    LmcAgent
 Suite Setup       Start Hybrid Stand
 Suite Teardown    Stop Hybrid Stand
 Test Setup        Focus Main Window
@@ -26,6 +30,11 @@ ${APP_NAME}       E2E Tester
 # Normal network mode: /loopback would make the app talk to itself
 # instead of discovering the mock (see messagingproc.cpp self-filter).
 ${APP_ARGS}       /silent
+# Pilot of the in-process lmc-agent (todo/lmc-test-adapter.md): our preload
+# .so rides along with qtexpert's (its launcher prepends to LD_PRELOAD
+# instead of replacing it) on its own port. Overridable via -v.
+${TEST_AGENT_SO}    ${CURDIR}/../../../build/tests/lmc-agent/liblmc_test_preload.so
+${TEST_AGENT_PORT}    9999
 
 
 *** Keywords ***
@@ -54,7 +63,13 @@ Start Hybrid Stand
     Start Process    ${LMMD}    --socket-name    ${SOCKET}
     ...    --home    ${OUTPUT_DIR}/lmmd-home    alias=lmmd
     Connect To Daemon    ${SOCKET}    timeout=10s
+    # lmc-agent pilot: qtexpert's launcher prepends its own .so to the
+    # inherited LD_PRELOAD, so both agents end up in the app process on
+    # different ports (qtexpert QT_AGENT_PORT vs LMC_AGENT_PORT here).
+    Set Environment Variable    LD_PRELOAD    ${TEST_AGENT_SO}
+    Set Environment Variable    LMC_AGENT_PORT    ${TEST_AGENT_PORT}
     Launch LMC
+    LmcAgent.Connect To Test Agent    ${TEST_AGENT_PORT}    timeout=30s
     Add Peer    ${MOCK}
     Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=30s
     Reset Event Cursor
@@ -63,31 +78,27 @@ Stop Hybrid Stand
     [Documentation]    App first (its Depart still goes out), then daemon.
     ...    Everything guarded: teardown must not mask test results.
     Run Keyword And Ignore Error    Close All Chats
+    Run Keyword And Ignore Error    LmcAgent.Disconnect From Test Agent
     Run Keyword And Ignore Error    Close Application
     Run Keyword And Ignore Error    Shutdown Daemon
     Run Keyword And Ignore Error    Disconnect From Daemon
     Run Keyword And Ignore Error    Terminate Process    lmmd
 
 Open Chat With Mock
-    [Documentation]    Keyboard-open a conversation with the mock peer.
-    ...    Mirrors Open Self Chat Once, but asserts the exact title:
-    ...    without /loopback the app lists no self row, and the suite
-    ...    keeps a single mock, so Down lands on its row. Retried: the
-    ...    mock row appears only after the app processes its announce
+    [Documentation]    Agent-open a conversation with the mock peer
+    ...    (lmc-agent pilot: Open Chat With Peer instead of the
+    ...    Click tvUserList + 6x Send Key keyboard walk). Asserts the exact
+    ...    title: without /loopback the suite keeps a single mock. Retried:
+    ...    the mock row appears only after the app processes its announce
     ...    (seconds), and each attempt starts from a clean slate.
     Wait Until Keyword Succeeds    45s    3s    Open Chat With Mock Once
 
 Open Chat With Mock Once
     [Documentation]    One open attempt (see Open Chat With Mock).
+    ...    The xdotool search stays until Send Chat Text migrates too:
+    ...    the X window id is still needed to type into the chat.
     Close All Chats
-    Focus Main Window
-    Click Object      name=tvUserList
-    Send Key          Home
-    Send Key          Left
-    Send Key          Left
-    Send Key          Right
-    Send Key          Down
-    Send Key          Return
+    LmcAgent.Open Chat With Peer    ${MOCK}
     Window Should Be Visible    ChatWindow
     ${title}=    Get Object Property    name=ChatWindow    windowTitle
     Should Be Equal    ${title}    ${MOCK} - Conversation
