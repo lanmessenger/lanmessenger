@@ -9,11 +9,11 @@
 #include <QJsonDocument>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <QRegularExpression>
 #include <QTimer>
 
 #include "core/settings.h"
 #include "messaging/xmlmessage.h"
+#include "rpc.h"
 
 namespace {
 const int kMaxEvents = 10000;
@@ -54,6 +54,7 @@ bool Lmmd::start(QString* error) {
   server_ = new QLocalServer(this);
   connect(server_, &QLocalServer::newConnection, this, [this]() {
     while(QLocalSocket* sock = server_->nextPendingConnection()) {
+      clients_++;
       auto* buf = new QByteArray(); // per-socket line buffer, freed on disconnect
       connect(sock, &QLocalSocket::readyRead, this, [this, sock, buf]() {
         buf->append(sock->readAll());
@@ -81,7 +82,8 @@ bool Lmmd::start(QString* error) {
           }
         }
       });
-      connect(sock, &QLocalSocket::disconnected, this, [sock, buf]() {
+      connect(sock, &QLocalSocket::disconnected, this, [this, sock, buf]() {
+        clients_--;
         delete buf;
         sock->deleteLater();
       });
@@ -152,11 +154,6 @@ QJsonObject Lmmd::handleRequest(const QJsonObject& req) {
   return resp;
 }
 
-bool Lmmd::validName(const QString& name) {
-  static const QRegularExpression re("^[A-Za-z0-9_.-]{1,32}$");
-  return re.match(name).hasMatch();
-}
-
 LmmPeer* Lmmd::findPeer(const QString& name) const {
   return peers_.value(name, nullptr);
 }
@@ -185,12 +182,16 @@ QJsonObject Lmmd::cmdStatus() {
 
 QJsonObject Lmmd::cmdPeerAdd(const QJsonObject& p, QString* error) {
   const QString name = p.value("name").toString();
-  if(!validName(name)) {
+  if(!lmmRpc::validName(name)) {
     *error = "invalid name (1-32 of A-Za-z0-9_.-)";
     return {};
   }
   if(peers_.contains(name)) {
     *error = "peer already exists: " + name;
+    return {};
+  }
+  if(singlePeer_ && !peers_.isEmpty()) {
+    *error = "worker holds a single peer";
     return {};
   }
   // Identity: userId = MAC + $USER, so each peer needs its own $USER at init.
@@ -200,8 +201,8 @@ QJsonObject Lmmd::cmdPeerAdd(const QJsonObject& p, QString* error) {
   {
     lmcSettings s;
     s.setValue(IDS_USERNAME, name);
-    // All peers share one HOME/settings file: always write the status,
-    // otherwise a peer added without one inherits a previous peer's leftover.
+    // Always write the status: a re-added peer (e.g. after an unclean
+    // shutdown left its peer dir behind) must not inherit a stale one.
     const QString status = p.value("status").toString();
     s.setValue(IDS_STATUS, status.isEmpty() ? IDS_STATUS_VAL : status);
     s.sync();
@@ -375,6 +376,23 @@ void Lmmd::onPeerMessage(LmmPeer* peer, MessageType type, QString* from, XmlMess
 }
 
 void Lmmd::pollContacts() {
+  if(singlePeer_) {
+    // Orphan watchdog: normal operation holds one persistent supervisor
+    // connection. Had a client, now none for a while => supervisor is gone.
+    // (Normal shutdown arrives as a "shutdown" RPC first and quits above.)
+    if(clients_ > 0) {
+      everConnected_ = true;
+      emptySince_.invalidate();
+    } else if(everConnected_) {
+      if(!emptySince_.isValid())
+        emptySince_.start();
+      else if(emptySince_.elapsed() > 5000) {
+        qWarning("lmmd worker: supervisor gone, quitting");
+        qApp->quit();
+        return;
+      }
+    }
+  }
   for(LmmPeer* peer : peers_) {
     QSet<QString> now;
     QMap<QString, QString> names;

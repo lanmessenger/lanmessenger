@@ -2,6 +2,9 @@ add_executable(lmmd
     daemon/main.cpp
     daemon/lmmd.cpp
     daemon/lmmd.h
+    daemon/supervisor.cpp
+    daemon/supervisor.h
+    daemon/rpc.h
 )
 
 target_compile_definitions(lmmd PRIVATE

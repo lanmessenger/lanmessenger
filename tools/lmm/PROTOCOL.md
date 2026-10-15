@@ -3,6 +3,38 @@
 Transport: `QLocalServer` named `lmm` (override with `lmmd --socket-name`).
 Framing: newline-delimited JSON, UTF-8. One line = one message, `\n` terminated.
 
+## Architecture (v2): supervisor + workers
+
+External clients see one daemon and the command table below is unchanged
+(v1 wire-compatible: same commands, same shapes, same `seq`/`next`
+polling semantics). Inside, `lmmd` is a supervisor: `peer.add NAME`
+spawns one worker OS process (the same `lmmd` binary, hidden
+`--worker` flags) with its own `HOME` (`<home>/peers/NAME/`), its own
+`$USER=NAME` and its own `lmcMessaging` stack. Workers see each other
+over the real network (shared UDP discovery, auto TCP ports) — closer
+to a two-machine deployment than threads would be.
+
+- Worker control sockets are private (`lmm-<supervisor-pid>-<NAME>`);
+  they speak the same NDJSON protocol but are an implementation detail.
+  The worker holds exactly one peer (auto-added at startup, further
+  `peer.add` rejected) and takes no `peer` handles — its commands are
+  self-scoped. The supervisor translates `peer.*` (user metaphor) to
+  worker self-commands; no worker-only command is ever exposed outside.
+- Events from all workers are republished by the supervisor with a
+  single global `seq`. Worker `peer.added`/`peer.removed` are dropped
+  (the supervisor owns those); the rest (`contact.*`,
+  `message.received`/`message.failed`) pass through with a new `seq`.
+- `peer.remove` sends the worker a `shutdown` (its peer emits `Depart`),
+  then reaps the process and deletes `<home>/peers/NAME/`.
+- `shutdown` stops every worker (each sends `Depart`), waits up to 5s
+  per worker, then exits 0.
+- Fail-fast: an unexpected worker death is fatal — the supervisor logs
+  peer name, exit code/signal and exits non-zero. No silent masking;
+  chaos-style "peer vanished" tests are a future step, not this iteration.
+- No status mutation in this iteration: peer status is set once via
+  `peer.add {status?}`, exactly as before. There is deliberately no
+  `peer.status` command.
+
 ## Requests
 
 ```json
@@ -69,11 +101,13 @@ events.poll until message.received on Bob;
   two-instance setup in `howto/runbook.md`. TCP ports are auto-assigned;
   announces carry the real port, so dial always works.
 - Peer identity = MAC + handle. Handles must differ per daemon.
-- `XN_LOGON` in broadcasts reflects the most recently added peer (single
-  `$USER` env per process) — display names (`IDS_USERNAME`) are per-peer
-  and correct; `userId` routing is unaffected.
-- Files, statuses, groups, broadcast messages: not in v1.
-- Known defect (core, out of scope for the mock): `~lmcMessaging` frees
-  nothing, so `peer.add`/`peer.remove` cycles leak a bounded amount
-  (`pNetwork`, `pSettings`, `localUser` per removed peer). Keep scripted
-  add/remove loops bounded, or restart the daemon between suites.
+- Each peer owns its `HOME` (`<home>/peers/<name>/`): `lmc.ini`,
+  groups, avatar, history and logs are per-peer. Since v2 the old
+  shared-`HOME` caveats are gone: no `ini` cross-pollution between
+  peers, and `XN_LOGON` is correct per peer (own `$USER` per worker).
+- Files, statuses, groups, broadcast messages: not in v1 (status is
+  set once at `peer.add`; no late mutation command by design).
+- `peer.add`/`peer.remove` cycles spawn/reap an OS process per peer;
+  the old in-process `~lmcMessaging` leak note no longer applies —
+  removal frees the whole worker address space. Keep scripted
+  add/remove loops bounded anyway (process spawn is not free).

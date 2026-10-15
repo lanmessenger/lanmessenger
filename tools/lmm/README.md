@@ -5,9 +5,14 @@ Test stand on the real network stack (`lmcMessaging`/`lmcNetwork` from
 tests and full-GUI Robot runs: scriptable peers, contact lists, message
 exchange — no X server, no `xdotool`.
 
-- `lmmd` — daemon holding N peers in one process (this task).
+- `lmmd` — supervisor daemon: one external socket, one worker OS process
+  per peer (same binary, hidden `--worker` flags). Workers see each other
+  over the real network, each with its own `HOME` (`<home>/peers/<name>/`)
+  and `$USER` — closer to a two-machine deployment than threads.
 - `lmm` — thin CLI client (follow-up task).
-- Robot Framework keywords — later, on top of `lmm`.
+- Robot Framework keywords — `tests/robot/lmm/` (`LmmLibrary.py` speaks
+  the protocol; `mock_smoke.robot` self-check, `isolation.robot`
+  per-peer state, `crash.robot` fail-fast, `hybrid.robot` real app vs mock).
 
 Protocol: [PROTOCOL.md](PROTOCOL.md).
 
@@ -28,6 +33,11 @@ Binary lands in `build/tools/lmm/lmmd`.
 ./build/tools/lmm/lmmd                  # socket "lmm", fresh temp HOME
 ./build/tools/lmm/lmmd --socket-name test1 --home /tmp/lmm-home
 ```
+
+`--home` is the base dir; each peer gets `<home>/peers/<name>/` as its
+own `HOME` (config, groups, avatar, history, logs). `peer.remove`
+deletes its dir; an unexpected worker death exits the daemon non-zero
+(fail-fast — see `PROTOCOL.md`, no silent masking).
 
 ## Probe without CLI (raw socket)
 

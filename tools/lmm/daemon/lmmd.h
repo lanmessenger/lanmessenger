@@ -29,6 +29,9 @@ class Lmmd : public QObject {
 
 public:
   explicit Lmmd(const QString& socketName, QObject* parent = nullptr);
+  // Worker mode: the daemon holds exactly one peer (auto-added by main).
+  // Further peer.add is rejected so the supervisor's 1:1 mapping holds.
+  void setSinglePeer(bool on) { singlePeer_ = on; }
   bool start(QString* error);
   void stopAll(); // Depart + stop every peer (graceful shutdown)
 
@@ -49,13 +52,19 @@ private:
   void onPeerMessage(LmmPeer* peer, MessageType type, QString* from, XmlMessage* msg);
   void pollContacts(); // 1s timer: diff userList -> contact.added/removed
 
-  static bool validName(const QString& name);
   LmmPeer* findPeer(const QString& name) const;
   QString resolveUserId(LmmPeer* sender, const QString& to) const;
 
   QString socketName_;
   class QLocalServer* server_ = nullptr;
   QMap<QString, LmmPeer*> peers_; // by handle
+  bool singlePeer_ = false;
+  // Orphan watchdog (worker mode only): the supervisor holds one persistent
+  // control connection. If it had a client and has none for a while, the
+  // supervisor is gone — quit instead of lingering with a stale socket.
+  int clients_ = 0;
+  bool everConnected_ = false;
+  QElapsedTimer emptySince_;
   QList<QJsonObject> events_;     // ring, each has "seq"
   qint64 nextSeq_ = 1;
   QElapsedTimer uptime_;
