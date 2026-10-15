@@ -185,6 +185,16 @@ private:
       result[QStringLiteral("clicked")] = true;
       return okReply(id, result);
     }
+    if(cmd == QStringLiteral("trigger_action")) {
+      QString triggered;
+      QString error;
+      if(!triggerAction(parseLocator(params.value(QStringLiteral("locator")).toString()),
+                        &triggered, &error))
+        return errorReply(id, error);
+      QJsonObject result;
+      result[QStringLiteral("triggered")] = triggered;
+      return okReply(id, result);
+    }
     if(cmd == QStringLiteral("dump_tree")) {
       QJsonObject result;
       result[QStringLiteral("tree")] = dumpTree();

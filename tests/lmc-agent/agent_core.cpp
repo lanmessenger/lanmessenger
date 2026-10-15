@@ -378,6 +378,27 @@ bool postClick(const QJsonObject& criteria, QString* error) {
   return false;
 }
 
+bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
+                   QString* error) {
+  QAction* action = findAction(criteria);
+  if(!action) {
+    if(error)
+      *error = QStringLiteral("no action matches locator");
+    return false;
+  }
+  // Same fire-and-post shape as the QAction branch of postClick: the
+  // reply goes out before the slot runs, so an exec() modal opened by
+  // the trigger cannot swallow the connection.
+  QPointer<QAction> guard(action);
+  QTimer::singleShot(0, [guard]() {
+    if(guard)
+      guard->trigger();
+  });
+  if(triggeredText)
+    *triggeredText = strippedActionText(action->text());
+  return true;
+}
+
 bool waitForObject(const QJsonObject& criteria, double timeoutSecs,
                    QJsonObject* found, QString* error) {
   if(QWidget* widget = findWidget(criteria)) {

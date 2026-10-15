@@ -46,6 +46,13 @@ QJsonArray listWindows();
 // (or async trigger() for a QAction). Returns immediately.
 bool postClick(const QJsonObject& criteria, QString* error);
 
+// Fire-and-post QAction trigger: finds a menu/toolbar action only
+// (never a widget), queues trigger() via singleShot(0) so the reply
+// goes out before any exec() modal starts its nested loop. Returns
+// the action text (mnemonic '&' stripped). Same thread rule as postClick.
+bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
+                   QString* error);
+
 // Blocking wait helpers (bounded local event loop, GUI thread).
 bool waitForObject(const QJsonObject& criteria, double timeoutSecs,
                    QJsonObject* found, QString* error);

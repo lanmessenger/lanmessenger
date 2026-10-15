@@ -144,6 +144,15 @@ class LmcLibrary:
         """Async in-process click (fire-and-post, never blocks on modals)."""
         self._request("click", {"locator": locator})
 
+    @keyword("Agent Trigger Action")
+    def trigger_action(self, locator):
+        """Trigger a menu/toolbar QAction by ``locator`` (e.g. ``text=History``,
+        ``&`` mnemonic stripped). Async: the reply precedes the slot, so an
+        exec() modal opened by the action keeps the connection alive. Returns
+        the triggered action text.
+        """
+        return self._request("trigger_action", {"locator": locator}).get("triggered")
+
     @keyword("Agent Dump Object Tree")
     def dump_object_tree(self, output_file):
         """Write the full widget/action tree JSON to ``output_file``."""

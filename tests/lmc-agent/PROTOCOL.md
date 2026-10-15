@@ -39,6 +39,8 @@ Same selector syntax as qtexpert, so migration is mechanical:
   (alias `title=`), `window=History` (alias `windowTitle=`),
   `visible=true`, `enabled=true`.
 - Bare string without `=` means `name=` (objectName match).
+- Values with spaces need quoting: `text="File Transfers"`
+  (single quotes work too); unquoted values stop at whitespace.
 - Search covers `QApplication::topLevelWidgets()` plus
   `findChildren<QWidget*>()` **plus** `actions()` of
   `QMenuBar`/`QToolBar`/`QMenu`/`QToolButton` (qtexpert cannot see
@@ -71,6 +73,7 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `get_property` | `{locator, property}` | `{value: ...}`. `plainText` on a `QTextEdit` reads `toPlainText()` (qtexpert parity: the chat log is a `QTextEdit` subclass) |
 | `set_property` | `{locator, property, value}` | `{set: true}` |
 | `click` | `{locator}` | `{clicked: true}` (async post; for `QAction` — async `trigger()`) |
+| `trigger_action` | `{locator}` | `{triggered: "<action text>"}` — `QAction` only (menus/toolbars, matched by `text=` with `&` stripped, e.g. `text=History`); async `trigger()` via `singleShot(0)`, so an `exec()` modal opened by the slot cannot swallow the reply |
 | `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
 | `list_windows` | `{}` | `{windows: [{objectName, class, title, visible}]}` |
 | `grab_screenshot` | `{locator?, file}` | `{file}` — rendered app-side via `QWidget::grab` (precedent: `tests/e2e/tst_lmc_gui.cpp`) |
