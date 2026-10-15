@@ -43,8 +43,11 @@ class LmmLibrary:
     @keyword("Connect To Daemon")
     def connect_to_daemon(self, socket_name="lmm", timeout="10s"):
         """Connect to a running lmmd. Retries until ``timeout``; the
-        socket is ``/tmp/<socket_name>`` (or a full path if it contains
-        ``/``). Resets the event cursor."""
+        socket is ``<socket_name>`` verbatim when it contains a slash
+        (Start Mock Stand passes a full path under the suite output dir,
+        since QLocalServer resolves a bare name via QDir::tempPath()
+        which differs per OS); otherwise ``/tmp/<socket_name>``. Resets
+        the event cursor."""
         if self._sock is not None:
             raise AssertionError("already connected; Disconnect From Daemon first")
         path = socket_name if "/" in socket_name else "%s/%s" % (self.SOCKET_DIR, socket_name)

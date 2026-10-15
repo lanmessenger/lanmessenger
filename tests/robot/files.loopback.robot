@@ -97,9 +97,12 @@ Send File
     ...    toolbar action (fires btnFile_clicked -> QFileDialog), type the
     ...    full path into the dialog's fileNameEdit, Return submits. The
     ...    dialog is the non-native QFileDialog (visible in the object tree
-    ...    with name=fileNameEdit), so it can be driven by the agent; the
-    ...    trigger is fire-and-post, so the exec-modal dialog does not
-    ...    swallow the connection.
+    ...    with name=fileNameEdit): on platforms with a native panel (macOS
+    ...    NSOpenPanel, invisible to the agent) the harness exports
+    ...    LMC_NON_NATIVE_DIALOGS=1, which btnFile_clicked honors with
+    ...    DontUseNativeDialog; elsewhere the fallback is non-native
+    ...    already. The trigger is fire-and-post, so the exec-modal dialog
+    ...    does not swallow the connection.
     [Arguments]    ${path}
     Trigger Action    text="Send A File..."
     Wait For Object    type=QFileDialog visible=true    timeout=10s

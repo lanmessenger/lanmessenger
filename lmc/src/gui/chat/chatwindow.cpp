@@ -394,7 +394,14 @@ void lmcChatWindow::btnFontColor_clicked(void) {
 
 void lmcChatWindow::btnFile_clicked(void) {
   QString dir = pSettings->value(IDS_OPENPATH, IDS_OPENPATH_VAL).toString();
-  QString fileName = QFileDialog::getOpenFileName(this, QString(), dir);
+  // E2E (Robot through the in-process lmc-agent) cannot drive the
+  // platform-native open panel (NSOpenPanel on macOS is outside the Qt
+  // object tree): force the Qt dialog when the harness asks for it.
+  // Unset => production behavior on every OS.
+  QFileDialog::Options options;
+  if(!qEnvironmentVariableIsEmpty("LMC_NON_NATIVE_DIALOGS"))
+    options |= QFileDialog::DontUseNativeDialog;
+  QString fileName = QFileDialog::getOpenFileName(this, QString(), dir, QString(), nullptr, options);
   if(!fileName.isEmpty()) {
     pSettings->setValue(IDS_OPENPATH, QFileInfo(fileName).dir().absolutePath());
     sendFile(&fileName);

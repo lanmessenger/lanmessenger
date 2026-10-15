@@ -27,10 +27,16 @@ Start Mock Stand
     ...    Event Cursor only makes sense after the setup chatter.
     [Arguments]    ${socket}    ${home}
     Create Directory    ${home}
-    Start Process    ${LMMD_BIN}    --socket-name    ${socket}
+    # Full socket path under the suite output dir: QLocalServer resolves
+    # a bare name via QDir::tempPath (($TMPDIR, /var/folders/... on macOS;
+    # /tmp on Linux where TMPDIR is unset), so with a bare name daemon and
+    # client would disagree across OSes. A name containing '/' is used
+    # verbatim as the socket file on all platforms.
+    ${sockpath}=    Join Path    ${OUTPUT_DIR}    lmm-${socket}.sock
+    Start Process    ${LMMD_BIN}    --socket-name    ${sockpath}
     ...    --home    ${home}    alias=lmmd
     ...    stdout=${OUTPUT_DIR}/lmmd-${socket}-stdout.txt    stderr=STDOUT
-    Connect To Daemon    ${socket}    timeout=10s
+    Connect To Daemon    ${sockpath}    timeout=10s
 
 Stop Mock Stand
     [Documentation]    Clean shutdown: peers send Depart, no stale socket.

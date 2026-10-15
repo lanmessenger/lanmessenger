@@ -96,6 +96,7 @@ jobs:
         continue-on-error: true
         run: |
           cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
@@ -122,6 +123,7 @@ jobs:
         continue-on-error: true
         run: |
           cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
@@ -142,6 +144,7 @@ jobs:
           printf '[General]\nAutoShow=true\n\n[Application]\nVersion=0.0.0\n\n[User]\nName=E2E Tester\n' \
             > "$RUNNER_TEMP/lmc-seed.ini"
           cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
@@ -160,6 +163,7 @@ jobs:
         if: steps.smoke_a.outcome == 'success' || steps.smoke_b.outcome == 'success'
         run: |
           cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
@@ -174,6 +178,7 @@ jobs:
         if: steps.smoke_c.outcome == 'success'
         run: |
           cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
           export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
