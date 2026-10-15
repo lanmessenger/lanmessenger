@@ -1,0 +1,187 @@
+# SPIKE (draft, manual runs only): macOS E2E feasibility for the Robot matrix.
+#
+# Validates in one run (arm64 first; x86_64 is a copy-paste repeat):
+#  1. lan-messenger-test + lmmd build with Clang (agent_core is pure Qt;
+#     lmmd signal handling is POSIX on macOS via the Q_OS_WIN guards).
+#  2. Seed path for QSettings(IniFormat, UserScope, lmc, lmc): candidate A
+#     ($HOME/.config, XDG-style as on Linux) first, then candidate B
+#     (~/Library/Preferences), then /config= fallback (lmc/src/app/lmc.cpp).
+#     Probes run smoke.robot only and stop at the first green one.
+#  3. Full tests/robot/ with the winning seed (no rebuild needed).
+#
+# Deleted or promoted to e2e-robot-matrix.yml once green. Never add push/pull
+# triggers here: each run costs a full Qt + lmc build.
+name: E2E spike macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spike-macos:
+    runs-on: macos-14
+    timeout-minutes: 120
+    env:
+      PKG_VERSION: 0.0.0
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: clang_64
+          modules: 'qtmultimedia qtshadertools qtimageformats'
+          cache: true
+
+      # Same recipe as ci.yml build-macos.
+      - name: Install OpenSSL
+        run: |
+          brew install openssl@3
+          mkdir -p openssl
+          ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
+          ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
+
+      - name: Configure
+        shell: bash
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
+
+      # As in ci.yml: the test binary goes next to the app binary inside
+      # the bundle (@executable_path install name, LMC_APP_DIR next to it).
+      # It never ships: stage-mac-app already copied the .app for the DMG.
+      - name: Build test binary and mock daemon
+        run: |
+          cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+          cp build/tools/lmc-agent/lan-messenger-test lmc/release/LAN-Messenger.app/Contents/MacOS/
+          test -x lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test
+          test -x build/tools/lmm/lmmd
+
+      - name: Set up Python and Robot Framework
+        run: |
+          python3 -m venv .venv-robot-ci
+          .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
+
+      # Probe A: XDG-style path, same as Linux
+      # ($HOME/.config/lmc/lmc.ini).
+      - name: Seed lmc settings (candidate A)
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          printf '[General]\nAutoShow=true\n\n[Application]\nVersion=0.0.0\n\n[User]\nName=E2E Tester\n' \
+            > "$HOME/.config/lmc/lmc.ini"
+          cat "$HOME/.config/lmc/lmc.ini"
+
+      - name: Run smoke (candidate A)
+        id: smoke_a
+        continue-on-error: true
+        run: |
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-a" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/smoke.robot"
+
+      # Probe B: macOS Preferences path. Candidate A file removed first to
+      # isolate the probe.
+      - name: Seed lmc settings (candidate B)
+        if: steps.smoke_a.outcome != 'success'
+        run: |
+          rm -rf "$HOME/.config/lmc"
+          mkdir -p "$HOME/Library/Preferences/lmc"
+          printf '[General]\nAutoShow=true\n\n[Application]\nVersion=0.0.0\n\n[User]\nName=E2E Tester\n' \
+            > "$HOME/Library/Preferences/lmc/lmc.ini"
+          cat "$HOME/Library/Preferences/lmc/lmc.ini"
+
+      - name: Run smoke (candidate B)
+        id: smoke_b
+        if: steps.smoke_a.outcome != 'success'
+        continue-on-error: true
+        run: |
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-b" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/smoke.robot"
+
+      # Probe C: explicit config file via /config= (lmc/src/app/lmc.cpp),
+      # OS-independent. APP_ARGS is a plain Robot variable, override with -v.
+      - name: Run smoke (/config fallback)
+        id: smoke_c
+        if: steps.smoke_a.outcome != 'success' && steps.smoke_b.outcome != 'success'
+        continue-on-error: true
+        run: |
+          rm -rf "$HOME/.config/lmc" "$HOME/Library/Preferences/lmc"
+          printf '[General]\nAutoShow=true\n\n[Application]\nVersion=0.0.0\n\n[User]\nName=E2E Tester\n' \
+            > "$RUNNER_TEMP/lmc-seed.ini"
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-c" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v APP_ARGS:"/silent /loopback /config=$RUNNER_TEMP/lmc-seed.ini" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/smoke.robot"
+
+      # Full suite with the winning seed. A and B both use default APP_ARGS
+      # (only the seed file location differs, already in place); C needs
+      # the /config= override.
+      - name: Run full suite (native seed A/B)
+        id: full_native
+        if: steps.smoke_a.outcome == 'success' || steps.smoke_b.outcome == 'success'
+        run: |
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-full" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/"
+
+      - name: Run full suite (/config seed C)
+        id: full_config
+        if: steps.smoke_c.outcome == 'success'
+        run: |
+          cd lmc/release
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-full" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v APP_ARGS:"/silent /loopback /config=$RUNNER_TEMP/lmc-seed.ini" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/"
+
+      - name: Report which seed worked
+        if: always()
+        run: |
+          echo "smoke_a=${{ steps.smoke_a.outcome }} smoke_b=${{ steps.smoke_b.outcome }} smoke_c=${{ steps.smoke_c.outcome }} full_native=${{ steps.full_native.outcome }} full_config=${{ steps.full_config.outcome }}"
+
+      - name: Upload robot results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: spike-macos-results
+          path: robot-results-*
+          if-no-files-found: warn
+          retention-days: 3
