@@ -37,8 +37,11 @@ Test Teardown     Close File Test
 *** Variables ***
 ${PAYLOAD_BYTES}    4096
 ${PAYLOAD_SEED}     1234
-${SEND_DIR}         /tmp/e2e-lmc-files-send
-${RECV_DIR}         /tmp/e2e-lmc-files-recv
+# TEMPDIR, not hardcoded /tmp: on Windows /tmp is drive-relative mush and
+# the typed path never resolves in the file dialog (silent empty submit —
+# no send entry, no error). TEMPDIR keeps native separators on every OS.
+${SEND_DIR}         ${TEMPDIR}${/}e2e-lmc-files-send
+${RECV_DIR}         ${TEMPDIR}${/}e2e-lmc-files-recv
 
 
 *** Test Cases ***
@@ -86,12 +89,23 @@ Launch LMC With File Storage
 
 Seed File Storage
     [Documentation]    Wipe the send/receive dirs and point the app's
-    ...    storage at ${RECV_DIR} via ~/.config/lmc/lmc.ini.
+    ...    storage at ${RECV_DIR} via FileTransfer/StoragePath. Seeded
+    ...    into every ini the app may read: %{HOME}/.config on Unix, and
+    ...    %APPDATA% on Windows (the Windows app never looks at HOME).
     Create Directory    ${SEND_DIR}
     Empty Directory     ${SEND_DIR}
     Create Directory    ${RECV_DIR}
     Empty Directory     ${RECV_DIR}
-    ${ini}=    Set Variable    %{HOME}${/}.config${/}lmc${/}lmc.ini
+    Seed Storage Path In    %{HOME}${/}.config${/}lmc${/}lmc.ini
+    ${appdata}=    Get Environment Variable    APPDATA    default=${EMPTY}
+    IF    '${appdata}' != ''
+        Seed Storage Path In    ${appdata}${/}LAN Messenger${/}LAN Messenger.ini
+    END
+
+Seed Storage Path In
+    [Documentation]    Patch FileTransfer/StoragePath into one ini file in
+    ...    place, preserving whatever identity the CI seed put there.
+    [Arguments]    ${ini}
     ${code}=    Set Variable    import configparser,sys; p=sys.argv[1]; d=sys.argv[2]; c=configparser.ConfigParser(); c.optionxform=str; c.read(p); s='FileTransfer'; c.add_section(s) if not c.has_section(s) else 0; c.set(s,'StoragePath',d); f=open(p,'w'); c.write(f); f.close()
     ${res}=    Run Process    python3    -c    ${code}    ${ini}    ${RECV_DIR}
     Should Be Equal As Integers    ${res.rc}    0
@@ -126,16 +140,24 @@ Send File With Retry
     [Documentation]    Send until the request shows up. The first send on a
     ...    fresh self-connection can vanish before the TCP handshake
     ...    completes (same flake as messages); a vanished send leaves no
-    ...    log entry, so resends never pile up pending requests.
+    ...    log entry, so resends never pile up pending requests. Two-phase:
+    ...    the send-side `Sending '...' to` entry proves the dialog
+    ...    submitted (no send entry means the path never reached sendFile);
+    ...    the receive entry proves the loopback delivery.
     [Arguments]    ${path}    ${filename}
     Create Payload File    ${path}
     FOR    ${i}    IN RANGE    1    4
         Send File    ${path}
+        ${sent}=    Run Keyword And Return Status
+        ...    Wait Until Keyword Succeeds    10s    2s
+        ...    Chat Log Should Contain    Sending '${filename}' to
+        IF    not ${sent}    CONTINUE
         ${ok}=    Run Keyword And Return Status
         ...    Wait Until Keyword Succeeds    10s    2s
         ...    File Request Should Appear    ${filename}
         IF    ${ok}    BREAK
     END
+    Chat Log Should Contain    Sending '${filename}' to
     File Request Should Appear    ${filename}
 
 Create Payload File
