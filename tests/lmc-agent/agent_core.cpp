@@ -182,13 +182,13 @@ QList<QAction*> allActions() {
   for(QWidget* top : tops) {
     collectActions(top, &out);
     const QList<QMenuBar*> bars =
-        top->findChildren<QMenuBar*>(QString(), Qt::FindChildrenRecursively);
+      top->findChildren<QMenuBar*>(QString(), Qt::FindChildrenRecursively);
     const QList<QToolBar*> tools =
-        top->findChildren<QToolBar*>(QString(), Qt::FindChildrenRecursively);
+      top->findChildren<QToolBar*>(QString(), Qt::FindChildrenRecursively);
     const QList<QMenu*> menus =
-        top->findChildren<QMenu*>(QString(), Qt::FindChildrenRecursively);
+      top->findChildren<QMenu*>(QString(), Qt::FindChildrenRecursively);
     const QList<QToolButton*> buttons = top->findChildren<QToolButton*>(
-        QString(), Qt::FindChildrenRecursively);
+      QString(), Qt::FindChildrenRecursively);
     for(QMenuBar* bar : bars)
       collectActions(bar, &out);
     for(QToolBar* tool : tools)
@@ -259,7 +259,7 @@ QJsonObject dumpNode(QWidget* widget) {
 QJsonObject parseLocator(const QString& locator) {
   const QString trimmed = locator.trimmed();
   static const QRegularExpression pairRe(
-      QStringLiteral("(\\w+)=(?:\"([^\"]*)\"|'([^']*)'|(\\S+))"));
+    QStringLiteral("(\\w+)=(?:\"([^\"]*)\"|'([^']*)'|(\\S+))"));
   QJsonObject raw;
   auto it = pairRe.globalMatch(trimmed);
   bool any = false;
@@ -291,7 +291,7 @@ QWidget* findWidget(const QJsonObject& criteria) {
     if(widgetMatches(top, criteria))
       return top;
     const QList<QWidget*> kids = top->findChildren<QWidget*>(
-        QString(), Qt::FindChildrenRecursively);
+      QString(), Qt::FindChildrenRecursively);
     for(QWidget* kid : kids) {
       if(widgetMatches(kid, criteria))
         return kid;
@@ -342,7 +342,7 @@ QJsonArray listWindows() {
     QJsonObject entry;
     entry[QStringLiteral("objectName")] = top->objectName();
     entry[QStringLiteral("class")] =
-        QString::fromLatin1(top->metaObject()->className());
+      QString::fromLatin1(top->metaObject()->className());
     entry[QStringLiteral("title")] = top->windowTitle();
     entry[QStringLiteral("visible")] = top->isVisible();
     out.append(entry);
@@ -443,7 +443,7 @@ bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
   if(closed) {
     (*closed)[QStringLiteral("objectName")] = window->objectName();
     (*closed)[QStringLiteral("class")] =
-        QString::fromLatin1(window->metaObject()->className());
+      QString::fromLatin1(window->metaObject()->className());
     (*closed)[QStringLiteral("title")] = window->windowTitle();
   }
   return true;
@@ -457,14 +457,21 @@ bool keyFromName(const QString& name, int* key, QString* error) {
     const char* name;
     int key;
   } table[] = {
-      {"return", Qt::Key_Return}, {"enter", Qt::Key_Enter},
-      {"tab", Qt::Key_Tab}, {"backtab", Qt::Key_Backtab},
-      {"escape", Qt::Key_Escape}, {"esc", Qt::Key_Escape},
-      {"space", Qt::Key_Space}, {"backspace", Qt::Key_Backspace},
-      {"delete", Qt::Key_Delete}, {"home", Qt::Key_Home},
-      {"end", Qt::Key_End}, {"left", Qt::Key_Left},
-      {"right", Qt::Key_Right}, {"up", Qt::Key_Up},
-      {"down", Qt::Key_Down},
+    {"return", Qt::Key_Return},
+    {"enter", Qt::Key_Enter},
+    {"tab", Qt::Key_Tab},
+    {"backtab", Qt::Key_Backtab},
+    {"escape", Qt::Key_Escape},
+    {"esc", Qt::Key_Escape},
+    {"space", Qt::Key_Space},
+    {"backspace", Qt::Key_Backspace},
+    {"delete", Qt::Key_Delete},
+    {"home", Qt::Key_Home},
+    {"end", Qt::Key_End},
+    {"left", Qt::Key_Left},
+    {"right", Qt::Key_Right},
+    {"up", Qt::Key_Up},
+    {"down", Qt::Key_Down},
   };
   const QString lower = name.toLower();
   for(const auto& entry : table) {
@@ -535,8 +542,7 @@ bool typeText(const QJsonObject& criteria, const QString& text, bool send,
     line->setText(text);
   else {
     if(error)
-      *error = QStringLiteral("not an editable text widget: %1").arg(
-          QString::fromLatin1(widget->metaObject()->className()));
+      *error = QStringLiteral("not an editable text widget: %1").arg(QString::fromLatin1(widget->metaObject()->className()));
     return false;
   }
   // Direct set (never blocks: no exec() involved). The Return press is
@@ -673,14 +679,14 @@ bool openChat(const QString& peer, double timeoutSecs, QString* title,
   // slot cannot be invoked by name (metatype gap), fall back to posting
   // Return to the tree — still in-process, no X focus needed.
   const bool invoked = QMetaObject::invokeMethod(
-      main, "tvUserList_itemActivated", Qt::DirectConnection,
-      Q_ARG(QTreeWidgetItem*, match), Q_ARG(int, 0));
+    main, "tvUserList_itemActivated", Qt::DirectConnection,
+    Q_ARG(QTreeWidgetItem*, match), Q_ARG(int, 0));
   if(!invoked) {
     tree->setCurrentItem(match);
     tree->scrollToItem(match);
     auto* press = new QKeyEvent(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
     auto* release =
-        new QKeyEvent(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier);
+      new QKeyEvent(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier);
     QCoreApplication::postEvent(tree, press);
     QCoreApplication::postEvent(tree, release);
   }
@@ -722,8 +728,8 @@ bool openChat(const QString& peer, double timeoutSecs, QString* title,
   }
   if(error)
     *error = QStringLiteral("chat window did not appear within %1s for peer %2")
-                 .arg(timeoutSecs)
-                 .arg(peer);
+               .arg(timeoutSecs)
+               .arg(peer);
   return false;
 }
 

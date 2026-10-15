@@ -39,12 +39,12 @@ void watchAndStart() {
     return;
   const quint16 port = agentPort();
   QMetaObject::invokeMethod(
-      app,
-      [app, port]() {
-        // Parented to the application: dies with it, lives in its thread.
-        new lmc_agent::AgentServer(port, app);
-      },
-      Qt::QueuedConnection);
+    app,
+    [app, port]() {
+      // Parented to the application: dies with it, lives in its thread.
+      new lmc_agent::AgentServer(port, app);
+    },
+    Qt::QueuedConnection);
 }
 
 } // namespace

@@ -137,15 +137,15 @@ private:
     }
     if(cmd == QStringLiteral("object_exists")) {
       const QJsonObject criteria =
-          parseLocator(params.value(QStringLiteral("locator")).toString());
+        parseLocator(params.value(QStringLiteral("locator")).toString());
       QJsonObject result;
       result[QStringLiteral("exists")] =
-          (findWidget(criteria) != nullptr) || (findAction(criteria) != nullptr);
+        (findWidget(criteria) != nullptr) || (findAction(criteria) != nullptr);
       return okReply(id, result);
     }
     if(cmd == QStringLiteral("get_property")) {
       QWidget* widget =
-          findWidget(parseLocator(params.value(QStringLiteral("locator")).toString()));
+        findWidget(parseLocator(params.value(QStringLiteral("locator")).toString()));
       if(!widget)
         return errorReply(id, QStringLiteral("no widget matches locator"));
       const QString name = params.value(QStringLiteral("property")).toString();
@@ -174,7 +174,7 @@ private:
     }
     if(cmd == QStringLiteral("set_property")) {
       QWidget* widget =
-          findWidget(parseLocator(params.value(QStringLiteral("locator")).toString()));
+        findWidget(parseLocator(params.value(QStringLiteral("locator")).toString()));
       if(!widget)
         return errorReply(id, QStringLiteral("no widget matches locator"));
       const QString name = params.value(QStringLiteral("property")).toString();
@@ -210,10 +210,10 @@ private:
       const QString text = params.value(QStringLiteral("text")).toString();
       const QJsonValue sendValue = params.value(QStringLiteral("send"));
       const bool send = sendValue.isBool()
-                            ? sendValue.toBool()
-                            : sendValue.toString().compare(
-                                  QStringLiteral("true"),
-                                  Qt::CaseInsensitive) == 0;
+                          ? sendValue.toBool()
+                          : sendValue.toString().compare(
+                              QStringLiteral("true"),
+                              Qt::CaseInsensitive) == 0;
       QString error;
       if(!typeText(parseLocator(params.value(QStringLiteral("locator")).toString()),
                    text, send, &error))
@@ -236,7 +236,7 @@ private:
       QString error;
       if(!postKey(widget, key,
                   modifiersFromNames(params.value(QStringLiteral("modifiers"))
-                                         .toArray()),
+                                       .toArray()),
                   &error))
         return errorReply(id, error);
       QJsonObject result;
@@ -320,7 +320,8 @@ private:
 
 } // namespace
 
-AgentServer::AgentServer(quint16 port, QObject* parent) : QTcpServer(parent) {
+AgentServer::AgentServer(quint16 port, QObject* parent)
+    : QTcpServer(parent) {
   if(!listen(QHostAddress::LocalHost, port)) {
     qWarning("lmc-agent: cannot listen on 127.0.0.1:%d: %s", port,
              qPrintable(errorString()));

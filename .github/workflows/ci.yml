@@ -25,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Style gate for lmc/src. Version pinned to match tools/format.sh and .clang-format.
+  # Style gate for lmc/src and tests. Version pinned to match tools/format.sh and .clang-format.
   format-check:
     runs-on: ubuntu-24.04
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - name: Check formatting
         run: |
-          find lmc/src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
+          find lmc/src tests -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
             | xargs -0 clang-format-18 --dry-run -Werror
 
   # Linux, oldest baseline (Ubuntu 22.04, Qt 6.2, glibc 2.35): one _min

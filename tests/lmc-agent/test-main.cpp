@@ -22,7 +22,7 @@ namespace {
 
 bool testAgentEnabled() {
   const QString value =
-      QString::fromLocal8Bit(qgetenv("LMC_TEST_AGENT")).trimmed().toLower();
+    QString::fromLocal8Bit(qgetenv("LMC_TEST_AGENT")).trimmed().toLower();
   return value != QStringLiteral("0") && value != QStringLiteral("off") &&
          value != QStringLiteral("no");
 }
@@ -30,7 +30,7 @@ bool testAgentEnabled() {
 quint16 testAgentPort() {
   bool ok = false;
   const uint parsed =
-      QString::fromLocal8Bit(qgetenv("LMC_AGENT_PORT")).trimmed().toUInt(&ok);
+    QString::fromLocal8Bit(qgetenv("LMC_AGENT_PORT")).trimmed().toUInt(&ok);
   if(ok && parsed > 0 && parsed < 65536)
     return quint16(parsed);
   return 9999;

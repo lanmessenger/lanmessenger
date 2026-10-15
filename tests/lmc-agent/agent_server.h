@@ -20,10 +20,16 @@ class AgentServer : public QTcpServer {
 public:
   explicit AgentServer(quint16 port, QObject* parent = nullptr);
 
-  quint16 port() const { return serverPort(); }
+  quint16 port() const {
+    return serverPort();
+  }
 
-  bool isBusy() const { return busy_; }
-  void setBusy(bool busy) { busy_ = busy; }
+  bool isBusy() const {
+    return busy_;
+  }
+  void setBusy(bool busy) {
+    busy_ = busy;
+  }
 
 private slots:
   void onNewConnection();
