@@ -17,6 +17,7 @@
 #include <QMetaObject>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QRegularExpression>
 #include <QTextEdit>
 #include <QTimer>
