@@ -65,6 +65,18 @@ jobs:
           test -x lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test
           test -x build/tools/lmm/lmmd
 
+      # Ship-like plugin set inside the bundle. On macOS apprunner.cpp
+      # REPLACES the default Qt plugin paths with Contents/Plugins, so
+      # without this QSslSocket::supportsSsl() is false and the app blocks
+      # forever in the "missing openssl" QMessageBox BEFORE the test agent
+      # starts (same class of issue as the explicit tls/ step on Windows;
+      # full copy also covers imageformats/multimedia for later suites).
+      - name: Deploy Qt plugins into the bundle
+        run: |
+          mkdir -p lmc/release/LAN-Messenger.app/Contents/Plugins
+          cp -R "$QT_ROOT_DIR/plugins/"* lmc/release/LAN-Messenger.app/Contents/Plugins/
+          ls lmc/release/LAN-Messenger.app/Contents/Plugins
+
       - name: Set up Python and Robot Framework
         run: |
           python3 -m venv .venv-robot-ci
