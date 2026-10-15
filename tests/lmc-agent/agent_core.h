@@ -46,6 +46,27 @@ QJsonArray listWindows();
 // (or async trigger() for a QAction). Returns immediately.
 bool postClick(const QJsonObject& criteria, QString* error);
 
+// Key/modifier name tables for send_key. Key names: Return, Enter, Tab,
+// Backtab, Escape (Esc), Space, Backspace, Delete, Home, End, Left, Right,
+// Up, Down (case-insensitive). Modifier names: ctrl/control, shift, alt,
+// meta (case-insensitive, unknown names ignored).
+bool keyFromName(const QString& name, int* key, QString* error);
+Qt::KeyboardModifiers modifiersFromNames(const QJsonArray& names);
+
+// Fire-and-post key press+release to a widget, or to the focus widget
+// (else the active window) when target is null. Key names: Return, Enter,
+// Tab, Backtab, Escape, Space, Backspace, Delete, Home, End, Left, Right,
+// Up, Down (case-insensitive). Never blocks.
+bool postKey(::QWidget* target, const QString& keyName,
+             Qt::KeyboardModifiers mods, QString* error);
+
+// Set editable text (QTextEdit/QPlainTextEdit/QLineEdit). With send=true
+// a Return press is posted right after, so the widget's own Enter
+// handling runs (e.g. ChatWindow::eventFilter -> sendMessage, honoring
+// the SendKeyMod setting). Fire-and-post: returns immediately.
+bool typeText(const QJsonObject& criteria, const QString& text, bool send,
+              QString* error);
+
 // Fire-and-post QAction trigger: finds a menu/toolbar action only
 // (never a widget), queues trigger() via singleShot(0) so the reply
 // goes out before any exec() modal starts its nested loop. Returns

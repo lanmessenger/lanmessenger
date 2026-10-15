@@ -51,7 +51,7 @@ Same selector syntax as qtexpert, so migration is mechanical:
 No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 `exec()` modals and asserts under Xvfb, see `todo/qtexpert-fork.md`):
 
-- `click`/`press` post `QMouseEvent`/`QKeyEvent` (press+release) and
+- `click`/`send_key` post `QMouseEvent`/`QKeyEvent` (press+release) and
   return immediately.
 - Triggers that open `exec()` modals go through
   `QTimer::singleShot(0, ...)` — the reply is sent before the nested
@@ -73,16 +73,16 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `get_property` | `{locator, property}` | `{value: ...}`. `plainText` on a `QTextEdit` reads `toPlainText()` (qtexpert parity: the chat log is a `QTextEdit` subclass) |
 | `set_property` | `{locator, property, value}` | `{set: true}` |
 | `click` | `{locator}` | `{clicked: true}` (async post; for `QAction` — async `trigger()`) |
-| `trigger_action` | `{locator}` | `{triggered: "<action text>"}` — `QAction` only (menus/toolbars, matched by `text=` with `&` stripped, e.g. `text=History`); async `trigger()` via `singleShot(0)`, so an `exec()` modal opened by the slot cannot swallow the reply |
+| `trigger_action` | `{locator}` | `{triggered: "<action text>"}` — `QAction` only (menus/toolbars, matched by `text=` with `&` stripped, e.g. `text=History`); async `trigger()` via `singleShot(0)`, so an `exec()` modal opened by the slot cannot swallow the reply. Leaf commands win over same-named submenu titles (e.g. the `Help` item over the `Help` menu itself, whose trigger would only pop the dropdown): `topLevelWidgets()` order is not stable, so first-match would be a coin flip |
 | `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
 | `list_windows` | `{}` | `{windows: [{objectName, class, title, visible}]}` |
 | `grab_screenshot` | `{locator?, file}` | `{file}` — rendered app-side via `QWidget::grab` (precedent: `tests/e2e/tst_lmc_gui.cpp`) |
 | `open_chat` | `{peer, timeout?}` | `{title}` — resolve `peer` by name or userId in the main-window contact tree, fire the same `tvUserList_itemActivated → chatStarting → startChat` path as keyboard Return (idempotent: reopens/shows the existing window), wait for a visible `ChatWindow`, return its title |
 | `close_app` | `{}` | `{closing: true}` — async `QCoreApplication::quit`, reply first |
-| `send_chat_text` | — | stub: `not implemented (phase 2)` |
+| `type_text` | `{locator, text, send?}` | `{typed: true}` — set text on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` directly; with `send=true` (default) a `Return` press is posted right after, so the widget's own Enter handling runs (e.g. `ChatWindow::eventFilter → sendMessage`, honoring the `SendKeyMod` setting) |
+| `send_key` | `{locator?, key, modifiers?}` | `{sent: "<key>"}` — post press+release to the widget (or the focus widget / active window when `locator` is omitted). `key`: `Return Enter Tab Backtab Escape(Esc) Space Backspace Delete Home End Left Right Up Down` (case-insensitive). `modifiers`: array of `ctrl/control shift alt meta`. No printable characters — text entry goes through `type_text` |
 | `get_log` | — | stub: `not implemented (phase 2)` |
 | `open_window` | — | stub: `not implemented (phase 2)` |
-| `press` | — | stub: `not implemented (phase 2)` |
 | `close_dialog` | — | stub: `not implemented (phase 2)` |
 | `type_path` | — | stub: `not implemented (phase 2)` |
 

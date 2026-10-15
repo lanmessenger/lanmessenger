@@ -195,6 +195,43 @@ private:
       result[QStringLiteral("triggered")] = triggered;
       return okReply(id, result);
     }
+    if(cmd == QStringLiteral("type_text")) {
+      const QString text = params.value(QStringLiteral("text")).toString();
+      const QJsonValue sendValue = params.value(QStringLiteral("send"));
+      const bool send = sendValue.isBool()
+                            ? sendValue.toBool()
+                            : sendValue.toString().compare(
+                                  QStringLiteral("true"),
+                                  Qt::CaseInsensitive) == 0;
+      QString error;
+      if(!typeText(parseLocator(params.value(QStringLiteral("locator")).toString()),
+                   text, send, &error))
+        return errorReply(id, error);
+      QJsonObject result;
+      result[QStringLiteral("typed")] = true;
+      return okReply(id, result);
+    }
+    if(cmd == QStringLiteral("send_key")) {
+      QWidget* widget = nullptr;
+      const QString locator = params.value(QStringLiteral("locator")).toString();
+      if(!locator.isEmpty()) {
+        widget = findWidget(parseLocator(locator));
+        if(!widget)
+          return errorReply(id, QStringLiteral("no widget matches locator"));
+      }
+      const QString key = params.value(QStringLiteral("key")).toString();
+      if(key.isEmpty())
+        return errorReply(id, QStringLiteral("missing key"));
+      QString error;
+      if(!postKey(widget, key,
+                  modifiersFromNames(params.value(QStringLiteral("modifiers"))
+                                         .toArray()),
+                  &error))
+        return errorReply(id, error);
+      QJsonObject result;
+      result[QStringLiteral("sent")] = key;
+      return okReply(id, result);
+    }
     if(cmd == QStringLiteral("dump_tree")) {
       QJsonObject result;
       result[QStringLiteral("tree")] = dumpTree();
@@ -249,10 +286,8 @@ private:
       result[QStringLiteral("closing")] = true;
       return okReply(id, result);
     }
-    if(cmd == QStringLiteral("send_chat_text") ||
-       cmd == QStringLiteral("get_log") ||
-       cmd == QStringLiteral("open_window") || cmd == QStringLiteral("press") ||
-       cmd == QStringLiteral("close_dialog") ||
+    if(cmd == QStringLiteral("get_log") ||
+       cmd == QStringLiteral("open_window") || cmd == QStringLiteral("close_dialog") ||
        cmd == QStringLiteral("type_path")) {
       return errorReply(id, QStringLiteral("%1: not implemented (phase 2)").arg(cmd));
     }

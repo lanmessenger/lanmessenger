@@ -11,10 +11,12 @@
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMetaObject>
 #include <QMouseEvent>
+#include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QTextEdit>
 #include <QTimer>
@@ -380,7 +382,28 @@ bool postClick(const QJsonObject& criteria, QString* error) {
 
 bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
                    QString* error) {
-  QAction* action = findAction(criteria);
+  // Two passes: leaf commands first, submenu owners second. A menu title
+  // often repeats one of its items (Help menu vs Help item): the bare
+  // menuAction only pops the dropdown, while the item runs the slot.
+  // allActions() order follows topLevelWidgets(), which is not stable
+  // (a popup-flagged QMenu is visited both as a top and as a child), so
+  // first-match-wins would be a coin flip.
+  const QList<QAction*> actions = allActions();
+  QAction* action = nullptr;
+  for(QAction* candidate : actions) {
+    if(candidate->menu() == nullptr && actionMatches(candidate, criteria)) {
+      action = candidate;
+      break;
+    }
+  }
+  if(!action) {
+    for(QAction* candidate : actions) {
+      if(actionMatches(candidate, criteria)) {
+        action = candidate;
+        break;
+      }
+    }
+  }
   if(!action) {
     if(error)
       *error = QStringLiteral("no action matches locator");
@@ -396,6 +419,104 @@ bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
   });
   if(triggeredText)
     *triggeredText = strippedActionText(action->text());
+  return true;
+}
+
+bool keyFromName(const QString& name, int* key, QString* error) {
+  // Small table on purpose: only keys E2E drives (chat send, dialog
+  // Tab-chains, Escape closes). No printable characters — text entry
+  // goes through typeText, like xdotool type vs key.
+  static const struct {
+    const char* name;
+    int key;
+  } table[] = {
+      {"return", Qt::Key_Return}, {"enter", Qt::Key_Enter},
+      {"tab", Qt::Key_Tab}, {"backtab", Qt::Key_Backtab},
+      {"escape", Qt::Key_Escape}, {"esc", Qt::Key_Escape},
+      {"space", Qt::Key_Space}, {"backspace", Qt::Key_Backspace},
+      {"delete", Qt::Key_Delete}, {"home", Qt::Key_Home},
+      {"end", Qt::Key_End}, {"left", Qt::Key_Left},
+      {"right", Qt::Key_Right}, {"up", Qt::Key_Up},
+      {"down", Qt::Key_Down},
+  };
+  const QString lower = name.toLower();
+  for(const auto& entry : table) {
+    if(lower == QString::fromLatin1(entry.name)) {
+      *key = entry.key;
+      return true;
+    }
+  }
+  if(error)
+    *error = QStringLiteral("unknown key name: %1").arg(name);
+  return false;
+}
+
+Qt::KeyboardModifiers modifiersFromNames(const QJsonArray& names) {
+  Qt::KeyboardModifiers mods = Qt::NoModifier;
+  for(const QJsonValue& value : names) {
+    const QString name = value.toString().toLower();
+    if(name == QStringLiteral("ctrl") || name == QStringLiteral("control"))
+      mods |= Qt::ControlModifier;
+    else if(name == QStringLiteral("shift"))
+      mods |= Qt::ShiftModifier;
+    else if(name == QStringLiteral("alt"))
+      mods |= Qt::AltModifier;
+    else if(name == QStringLiteral("meta"))
+      mods |= Qt::MetaModifier;
+  }
+  return mods;
+}
+
+bool postKey(QWidget* target, const QString& keyName,
+             Qt::KeyboardModifiers mods, QString* error) {
+  int key = 0;
+  if(!keyFromName(keyName, &key, error))
+    return false;
+  QObject* receiver = target;
+  if(!receiver)
+    receiver = QApplication::focusWidget();
+  if(!receiver)
+    receiver = QApplication::activeWindow();
+  if(!receiver) {
+    if(error)
+      *error = QStringLiteral("no target widget (no focus, no active window)");
+    return false;
+  }
+  // Same fire-and-post shape as postClick: posted press+release land on
+  // later loop iterations, after the reply. installEventFilter hooks
+  // (ChatWindow::eventFilter for txtMessage) see posted events too.
+  auto* press = new QKeyEvent(QEvent::KeyPress, key, mods);
+  auto* release = new QKeyEvent(QEvent::KeyRelease, key, mods);
+  QCoreApplication::postEvent(receiver, press);
+  QCoreApplication::postEvent(receiver, release);
+  return true;
+}
+
+bool typeText(const QJsonObject& criteria, const QString& text, bool send,
+              QString* error) {
+  QWidget* widget = findWidget(criteria);
+  if(!widget) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  if(auto* edit = qobject_cast<QTextEdit*>(widget))
+    edit->setPlainText(text);
+  else if(auto* plain = qobject_cast<QPlainTextEdit*>(widget))
+    plain->setPlainText(text);
+  else if(auto* line = qobject_cast<QLineEdit*>(widget))
+    line->setText(text);
+  else {
+    if(error)
+      *error = QStringLiteral("not an editable text widget: %1").arg(
+          QString::fromLatin1(widget->metaObject()->className()));
+    return false;
+  }
+  // Direct set (never blocks: no exec() involved). The Return press is
+  // posted, so the widget's own Enter handling runs exactly as with a
+  // real key — including the SendKeyMod setting check.
+  if(send && !postKey(widget, QStringLiteral("Return"), Qt::NoModifier, error))
+    return false;
   return true;
 }
 

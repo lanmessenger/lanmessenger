@@ -153,6 +153,34 @@ class LmcLibrary:
         """
         return self._request("trigger_action", {"locator": locator}).get("triggered")
 
+    @keyword("Agent Type Text")
+    def type_text(self, locator, text, send=True):
+        """Set text on a ``QTextEdit``/``QPlainTextEdit``/``QLineEdit``
+        matching ``locator``. With ``send`` (default ``True``) a ``Return``
+        press is posted right after, so the widget's own Enter handling
+        runs — e.g. the chat input sends through ``sendMessage``. Fire-and-post:
+        the reply precedes the key handling.
+        """
+        if isinstance(send, str):
+            send = send.strip().lower() in ("true", "1", "yes")
+        self._request("type_text",
+                      {"locator": locator, "text": text, "send": bool(send)})
+
+    @keyword("Agent Send Key")
+    def send_key(self, key, locator=None, modifiers=None):
+        """Post a ``key`` press+release (see PROTOCOL.md for names) to the
+        widget matching ``locator`` — or to the focus widget / active window
+        when omitted. ``modifiers`` is a comma-separated string, e.g.
+        ``ctrl,shift``. For text entry use ``Agent Type Text`` instead.
+        """
+        params = {"key": key}
+        if locator is not None:
+            params["locator"] = locator
+        if modifiers is not None:
+            params["modifiers"] = [m.strip() for m in str(modifiers).split(",")
+                                   if m.strip()]
+        self._request("send_key", params)
+
     @keyword("Agent Dump Object Tree")
     def dump_object_tree(self, output_file):
         """Write the full widget/action tree JSON to ``output_file``."""
