@@ -171,10 +171,13 @@ QJsonObject Lmmd::cmdStatus() {
   // per-worker redirected layout on Windows. Tests locate the peer ini
   // through this instead of guessing OS layouts.
   const QString settingsFile =
-      QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT)
-          .fileName();
+    QSettings(QSettings::IniFormat, QSettings::UserScope, IDA_COMPANY, IDA_PRODUCT)
+      .fileName();
   return QJsonObject{
     {"port", int(serverPort())},
+    // Own pid for kill-target checks (crash suite): reported, not parsed
+    // out of a platform process table.
+    {"pid", int(QCoreApplication::applicationPid())},
     {"settingsFile", settingsFile},
     {"peers", names},
     {"uptimeMs", uptime_.elapsed()},

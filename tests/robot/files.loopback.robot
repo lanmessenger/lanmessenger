@@ -100,13 +100,14 @@ Send File
     [Documentation]    One send attempt: trigger the "Send A File..."
     ...    toolbar action (fires btnFile_clicked -> QFileDialog), type the
     ...    full path into the dialog's fileNameEdit, Return submits. The
-    ...    dialog is the non-native QFileDialog (visible in the object tree
-    ...    with name=fileNameEdit): on platforms with a native panel (macOS
-    ...    NSOpenPanel, invisible to the agent) the harness exports
-    ...    LMC_NON_NATIVE_DIALOGS=1, which btnFile_clicked honors with
-    ...    DontUseNativeDialog; elsewhere the fallback is non-native
-    ...    already. The trigger is fire-and-post, so the exec-modal dialog
-    ...    does not swallow the connection.
+    ...    dialog must be the Qt non-native QFileDialog (visible in the
+    ...    object tree with name=fileNameEdit): Qt static file dialogs
+    ...    default to the platform-native panel (IFileDialog on Windows,
+    ...    NSOpenPanel on macOS — both invisible to the agent), so the
+    ...    harness exports LMC_NON_NATIVE_DIALOGS=1 on those legs, which
+    ...    btnFile_clicked honors with DontUseNativeDialog; on Linux the
+    ...    fallback is non-native already. The trigger is fire-and-post,
+    ...    so the exec-modal dialog does not swallow the connection.
     [Arguments]    ${path}
     Trigger Action    text="Send A File..."
     Wait For Object    type=QFileDialog visible=true    timeout=10s

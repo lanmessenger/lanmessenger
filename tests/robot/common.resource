@@ -55,9 +55,12 @@ Launch LMC
     # Split, not a single argument: the app parses /silent and /loopback
     # as separate argv entries, and shell=False passes them through
     # verbatim.
+    # Per-suite log name: OUTPUT_DIR is per run, and every suite launches
+    # its own app — one shared lmc-app.log would be overwritten by the
+    # next suite, destroying the post-mortem of a flaky one.
     @{app_args}=    Split Command Line    ${APP_ARGS}
     Start Process    ${APP_PATH}    @{app_args}    alias=app
-    ...    stdout=${OUTPUT_DIR}${/}lmc-app.log    stderr=STDOUT
+    ...    stdout=${OUTPUT_DIR}${/}lmc-app-${SUITE NAME}.log    stderr=STDOUT
     Connect To Test Agent    ${AGENT_PORT}    timeout=30s
     Wait For Object    name=MainWindow    timeout=30
     ${visible}=      Get Object Property    name=MainWindow    visible

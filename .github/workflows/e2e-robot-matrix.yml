@@ -261,6 +261,10 @@ jobs:
           # %APPDATA% seed above; this dir is the suites' scratch space).
           $env:HOME = "$env:RUNNER_TEMP\e2e-home"
           $env:PATH = "$PWD\lmc\release;$env:PATH"
+          # Qt static file dialogs are native (IFileDialog) unless told
+          # otherwise: without this the agent cannot see fileNameEdit
+          # (same reason LMC_NON_NATIVE_DIALOGS exists on macOS).
+          $env:LMC_NON_NATIVE_DIALOGS = "1"
           .venv-robot-ci/Scripts/robot `
             --outputdir robot-results-full `
             -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
@@ -311,6 +315,7 @@ jobs:
         run: |
           $env:HOME = "$env:RUNNER_TEMP\e2e-home"
           $env:PATH = "$PWD\lmc\release;$env:PATH"
+          $env:LMC_NON_NATIVE_DIALOGS = "1"
           .venv-robot-ci/Scripts/robot `
             --rerunfailed robot-results-full/output.xml `
             --outputdir robot-results-rerun `

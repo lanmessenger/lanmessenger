@@ -22,43 +22,33 @@ Start Crash Stand
     Add Peer    CrashAlice
     Add Peer    CrashBob
 
-Worker Cmdline
-    [Documentation]    Full command line of a pid (to verify the kill target).
-    ...    Unix: portable `ps -p PID -o args` (GNU-only `--no-headers`
-    ...    breaks macOS; the header is harmless, the caller matches with
-    ...    Should Contain). Windows: CIM query by ProcessId (no ps/pgrep
-    ...    there; run under `powershell`, not pwsh, which may be absent).
+Worker Pid
+    [Documentation]    PID of the worker process serving a peer handle,
+    ...    reported by the daemon itself (worker.status `pid`): no
+    ...    process-table parsing, so no platform shell quoting to get
+    ...    wrong (an RF `name=value` token inside a PowerShell one-liner
+    ...    once parsed as a Run Process named argument).
+    [Arguments]    ${peer}
+    ${st}=    Worker Status    ${peer}
+    ${pid}=    Set Variable    ${st}[pid]
+    Should Match Regexp    ${pid}    ^[0-9]+$
+    RETURN    ${pid}
+
+Worker Process Should Be An Lmmd Worker
+    [Documentation]    The reported pid is a live lmmd process: the
+    ...    kill-target check. Unix `ps -p PID -o args` (portable, BSD-safe);
+    ...    Windows `tasklist /FI "PID eq N"` — `eq`, never `=` (see above).
     [Arguments]    ${pid}
     ${sys}=    Evaluate    platform.system()    modules=platform
     IF    '${sys}' == 'Windows'
-        ${ps}=    Run Process    powershell    -NoProfile    -c
-        ...    (Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}').CommandLine
-        ...    stdout=${OUTPUT_DIR}/ps-${pid}.txt
+        ${ps}=    Run Process    tasklist    /FI    PID eq ${pid}
+        ...    stdout=${OUTPUT_DIR}/tasklist-${pid}.txt
     ELSE
         ${ps}=    Run Process    ps    -p    ${pid}    -o    args
         ...    stdout=${OUTPUT_DIR}/ps-${pid}.txt
     END
     Should Be Equal As Integers    ${ps.rc}    0
-    RETURN    ${ps.stdout}
-
-Find Worker Pid
-    [Documentation]    PID of the worker process serving a peer handle.
-    ...    Unix: `pgrep -f`; Windows: CIM query matching the worker
-    ...    command line (the supervisor itself has no --worker flag).
-    [Arguments]    ${peer}
-    ${sys}=    Evaluate    platform.system()    modules=platform
-    IF    '${sys}' == 'Windows'
-        ${pg}=    Run Process    powershell    -NoProfile    -c
-        ...    (Get-CimInstance Win32_Process -Filter "Name='lmmd.exe'" | Where-Object { $_.CommandLine -like '*--worker --peer ${peer}*' }).ProcessId
-        ...    stdout=${OUTPUT_DIR}/pgrep-${peer}.txt
-    ELSE
-        ${pg}=    Run Process    pgrep    -f    lmmd --worker --peer ${peer}
-        ...    stdout=${OUTPUT_DIR}/pgrep-${peer}.txt
-    END
-    Should Be Equal As Integers    ${pg.rc}    0
-    ${words}=    Evaluate    """${pg.stdout}""".split()
-    Should Not Be Empty    ${words}
-    RETURN    ${words}[0]
+    Should Contain    ${ps.stdout}    lmmd
 
 Kill Worker Process
     [Documentation]    Force-kill a worker, no cleanup (SIGKILL semantics;
@@ -76,11 +66,10 @@ Kill Worker Process
 
 *** Test Cases ***
 Worker Crash Exits Daemon Non-Zero
-    [Documentation]    SIGKILL one worker; the supervisor must log the peer
-    ...    name and exit non-zero (fail-fast, no silent masking).
-    ${pid}=    Find Worker Pid    CrashBob
-    ${cmd}=    Worker Cmdline    ${pid}
-    Should Contain    ${cmd}    --worker --peer CrashBob
+    [Documentation]    SIGKILL one worker; the supervisor must exit non-zero
+    ...    (fail-fast, no silent masking).
+    ${pid}=    Worker Pid    CrashBob
+    Worker Process Should Be An Lmmd Worker    ${pid}
     Kill Worker Process    ${pid}
     ${res}=    Wait For Process    lmmd    timeout=30s
     Should Not Be Equal As Integers    ${res.rc}    0
