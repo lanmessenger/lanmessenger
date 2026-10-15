@@ -24,8 +24,12 @@ Start Crash Stand
 
 Worker Cmdline
     [Documentation]    Full command line of a pid (to verify the kill target).
+    ...    Portable form: plain `-o args` prints a one-line header plus
+    ...    the command on both GNU and BSD ps (GNU-only `--no-headers`
+    ...    breaks macOS); the caller matches with Should Contain, so the
+    ...    header is harmless.
     [Arguments]    ${pid}
-    ${ps}=    Run Process    ps    --no-headers    -p    ${pid}    -o    args
+    ${ps}=    Run Process    ps    -p    ${pid}    -o    args
     ...    stdout=${OUTPUT_DIR}/ps-${pid}.txt
     Should Be Equal As Integers    ${ps.rc}    0
     RETURN    ${ps.stdout}
