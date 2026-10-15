@@ -11,6 +11,7 @@ Resource          common.resource
 Library           OperatingSystem
 Suite Setup       Launch LMC
 Suite Teardown    Close LMC
+Test Teardown     Log App Liveness On Failure
 
 
 *** Test Cases ***

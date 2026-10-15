@@ -97,8 +97,12 @@ Seed File Storage
     Create Directory    ${RECV_DIR}
     Empty Directory     ${RECV_DIR}
     Seed Storage Path In    %{HOME}${/}.config${/}lmc${/}lmc.ini
+    # NOTE: $appdata (object form), never '${appdata}': ${}-substitution
+    # puts a raw Windows path (C:\...) into the expression and the parser
+    # chokes on \U-escapes (unicodeescape SyntaxError). $var passes the
+    # object and never re-parses it.
     ${appdata}=    Get Environment Variable    APPDATA    default=${EMPTY}
-    IF    '${appdata}' != ''
+    IF    $appdata != ''
         Seed Storage Path In    ${appdata}${/}LAN Messenger${/}LAN Messenger.ini
     END
 

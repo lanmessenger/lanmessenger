@@ -80,6 +80,27 @@ Close LMC
     Run Keyword And Ignore Error    Terminate Process    app
     Run Keyword And Ignore Error    Disconnect From Test Agent
 
+Log App Liveness On Failure
+    [Documentation]    Post-mortem probe for a deaf agent (the Windows
+    ...    dialogs wedge: commands time out mid-suite after a healthy
+    ...    start). If the test failed, report whether the app process is
+    ...    still alive: APP DEAD means a probable crash, APP ALIVE with a
+    ...    dead agent means a blocked event loop (e.g. a modal). Never
+    ...    fails: teardown must not mask test results. The probe is Wait
+    ...    For Process with 1s: finished means dead, timeout means alive.
+    IF    '${TEST STATUS}' == 'FAIL'    Probe And Log App Liveness
+
+Probe And Log App Liveness
+    [Documentation]    One-shot liveness probe, see Log App Liveness On
+    ...    Failure. Only called from there.
+    ${finished}=    Run Keyword And Return Status
+    ...    Wait For Process    app    timeout=1s
+    IF    ${finished}
+        Log    APP DEAD: app process finished (probable crash)    WARN
+    ELSE
+        Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN
+    END
+
 Seed App Config
     [Documentation]    Fresh lmc.ini under $HOME (caller isolates HOME per
     ...    run): AutoShow on, Version pinned to the tested binary, user
