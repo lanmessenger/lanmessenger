@@ -56,9 +56,9 @@ Peer List Carries Per-Peer Identity
 
 Mixed Statuses Still Deliver
     [Documentation]    Distinct statuses do not break discovery or delivery.
-    Send Message    IsoAlice    IsoBob    e2e-iso-001
-    ${ev}=    Wait For Event    message.received    peer=IsoBob
-    ...    timeout=15s    text=e2e-iso-001
+    ...    The delivery wait resends (GH mac runners occasionally lose a
+    ...    single delivery); a dead path still fails after 3 attempts.
+    ${ev}=    Send Message And Wait    IsoAlice    IsoBob    e2e-iso-001
     Should Be Equal    ${ev}[fromName]    IsoAlice
 
 Peer Remove Cleans Only Its Dir

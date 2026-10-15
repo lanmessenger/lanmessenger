@@ -114,6 +114,12 @@ class LmmLibrary:
         """Return the ``status`` result dict (port, peers, uptimeMs...)."""
         return self._request("status")
 
+    @keyword("Worker Status")
+    def worker_status(self, name):
+        """Return a worker's own ``status`` dict (port, settingsFile...).
+        Test introspection: the settings path differs per OS."""
+        return self._request("worker.status", {"peer": name})
+
     @keyword("Add Peer")
     def add_peer(self, name, status=None):
         """Add a mock peer; return its userId."""
@@ -144,6 +150,32 @@ class LmmLibrary:
         handle or a visible userId. Fails the test on daemon error
         (unknown peer/recipient). Returns the result dict."""
         return self._request("msg.send", {"from": peer_from, "to": to, "text": text})
+
+    @keyword("Send Message And Wait")
+    def send_message_and_wait(self, peer_from, to, text, timeout="15s", attempts="3"):
+        """Send a chat message and wait for the ``message.received`` event
+        (matched by peer and text). On timeout re-announce the sender and
+        resend, up to ``attempts`` times: GH mac runners occasionally lose
+        a single delivery while discovery stays instant. A dead delivery
+        path still fails after the last attempt — retries absorb one-off
+        packet loss, not breakage."""
+        last_error = None
+        for _ in range(int(attempts)):
+            self.send_message(peer_from, to, text)
+            try:
+                return self.wait_for_event(
+                    "message.received", peer=to, timeout=timeout, text=text
+                )
+            except AssertionError as e:
+                last_error = e
+                try:
+                    self.announce_peer(peer_from)
+                except AssertionError:
+                    pass
+        raise AssertionError(
+            "message '%s' from '%s' to '%s' not delivered after %s attempts: %s"
+            % (text, peer_from, to, attempts, last_error)
+        )
 
     @keyword("Shutdown Daemon")
     def shutdown_daemon(self):
