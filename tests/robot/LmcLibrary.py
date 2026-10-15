@@ -4,17 +4,15 @@ Speaks the v1 NDJSON protocol (tests/lmc-agent/PROTOCOL.md) over a
 ``QTcpServer`` socket: one JSON object per line, responses matched by the
 client-chosen ``id``. Stdlib only: no third-party dependencies.
 
-Low-level keywords mirror qtexpert semantics but carry an ``Agent ``
-prefix (``Agent Wait For Object``, ``Agent Click Object``, ...) so both
-libraries can coexist in one suite during migration: Robot fails
-unqualified calls when two libraries own the same name, and WITH NAME
-does not hide the short forms. When qtexpert leaves (phase B), the
-prefix goes away and the names become drop-in replacements.
-Domain keywords (``Open Chat With Peer``, ...) are new and have no
-qtexpert counterpart; import this library WITH NAME to keep calls
-explicit, e.g.::
+Low-level keywords carry the plain qtexpert-compatible names (``Wait For
+Object``, ``Click Object``, ...) so this library is a drop-in replacement:
+suites that ran against qtexpert only need the import line changed. During
+the migration the names were ``Agent ``-prefixed (Robot fails unqualified
+calls when two libraries own the same name), which qtexpert removal in
+phase B retired. Domain keywords (``Open Chat With Peer``, ``Close
+Window``, ...) have no qtexpert counterpart. Import plain::
 
-    Library    ../LmcLibrary.py    WITH NAME    LmcAgent
+    Library    ../LmcLibrary.py
 
 The application under test must run with the agent active: either the
 LD_PRELOAD ``liblmc_test_preload.so`` (phase A, ``LMC_AGENT_PORT`` env)
@@ -113,38 +111,38 @@ class LmcLibrary:
 
     # -- low level (qtexpert-compatible names) -------------------------
 
-    @keyword("Agent Wait For Object")
+    @keyword("Wait For Object")
     def wait_for_object(self, locator, timeout="10s"):
         """Wait until a widget/action matches ``locator``. Returns its dict."""
         return self._request("wait_for_object", {"locator": locator, "timeout": timeout})
 
-    @keyword("Agent Wait For Object To Disappear")
+    @keyword("Wait For Object To Disappear")
     def wait_for_object_to_disappear(self, locator, timeout="10s"):
         self._request("wait_for_gone", {"locator": locator, "timeout": timeout})
 
-    @keyword("Agent Object Should Exist")
+    @keyword("Object Should Exist")
     def object_should_exist(self, locator):
         res = self._request("object_exists", {"locator": locator})
         if not res.get("exists"):
             raise AssertionError("no object matches '%s'" % locator)
 
-    @keyword("Agent Get Object Property")
+    @keyword("Get Object Property")
     def get_object_property(self, locator, property):
         """Return the property value (number/bool/string)."""
         return self._request("get_property",
                              {"locator": locator, "property": property}).get("value")
 
-    @keyword("Agent Set Object Property")
+    @keyword("Set Object Property")
     def set_object_property(self, locator, property, value):
         self._request("set_property",
                       {"locator": locator, "property": property, "value": value})
 
-    @keyword("Agent Click Object")
+    @keyword("Click Object")
     def click_object(self, locator):
         """Async in-process click (fire-and-post, never blocks on modals)."""
         self._request("click", {"locator": locator})
 
-    @keyword("Agent Trigger Action")
+    @keyword("Trigger Action")
     def trigger_action(self, locator):
         """Trigger a menu/toolbar QAction by ``locator`` (e.g. ``text=History``,
         ``&`` mnemonic stripped). Async: the reply precedes the slot, so an
@@ -153,7 +151,19 @@ class LmcLibrary:
         """
         return self._request("trigger_action", {"locator": locator}).get("triggered")
 
-    @keyword("Agent Type Text")
+    @keyword("Close Window")
+    def close_window(self, locator):
+        """Close the top-level window matching ``locator`` (``name=ChatWindow``
+        or any unique child, e.g. ``name=tvUserList``). Deterministic
+        counterpart of a real Escape: lmc windows that reject on Escape
+        install the filter on their children and the handler is only
+        ``close()``, so this runs the same path without depending on which
+        widget holds the X focus. Modeless reuse windows (Transfers, Chat
+        Room) hide; windows with WA_DeleteOnClose are deleted.
+        """
+        return self._request("close_window", {"locator": locator})
+
+    @keyword("Type Text")
     def type_text(self, locator, text, send=True):
         """Set text on a ``QTextEdit``/``QPlainTextEdit``/``QLineEdit``
         matching ``locator``. With ``send`` (default ``True``) a ``Return``
@@ -166,12 +176,12 @@ class LmcLibrary:
         self._request("type_text",
                       {"locator": locator, "text": text, "send": bool(send)})
 
-    @keyword("Agent Send Key")
+    @keyword("Send Key")
     def send_key(self, key, locator=None, modifiers=None):
         """Post a ``key`` press+release (see PROTOCOL.md for names) to the
         widget matching ``locator`` — or to the focus widget / active window
         when omitted. ``modifiers`` is a comma-separated string, e.g.
-        ``ctrl,shift``. For text entry use ``Agent Type Text`` instead.
+        ``ctrl,shift``. For text entry use ``Type Text`` instead.
         """
         params = {"key": key}
         if locator is not None:
@@ -181,18 +191,18 @@ class LmcLibrary:
                                    if m.strip()]
         self._request("send_key", params)
 
-    @keyword("Agent Dump Object Tree")
+    @keyword("Dump Object Tree")
     def dump_object_tree(self, output_file):
         """Write the full widget/action tree JSON to ``output_file``."""
         res = self._request("dump_tree")
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(res.get("tree", []), f, indent=2, ensure_ascii=False)
 
-    @keyword("Agent List Windows")
+    @keyword("List Windows")
     def list_windows(self):
         return self._request("list_windows").get("windows", [])
 
-    @keyword("Agent Grab Screenshot")
+    @keyword("Grab Screenshot")
     def grab_screenshot(self, output_file, locator=None):
         """Render a widget app-side (QWidget::grab) into ``output_file``."""
         params = {"file": output_file}
@@ -200,7 +210,7 @@ class LmcLibrary:
             params["locator"] = locator
         return self._request("grab_screenshot", params).get("file")
 
-    @keyword("Agent Close Application")
+    @keyword("Close Application")
     def close_application(self):
         """Ask the app to quit via the agent (async quit after reply)."""
         self._request("close_app")

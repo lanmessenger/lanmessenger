@@ -6,7 +6,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLineEdit>
 #include <QPixmap>
+#include <QPlainTextEdit>
 #include <QPointer>
 #include <QTcpSocket>
 #include <QTextEdit>
@@ -148,11 +150,20 @@ private:
         return errorReply(id, QStringLiteral("no widget matches locator"));
       const QString name = params.value(QStringLiteral("property")).toString();
       QJsonObject result;
-      if(name == QStringLiteral("plainText")) {
-        if(auto* edit = qobject_cast<QTextEdit*>(widget))
+      // qtexpert parity: "text"/"plainText" on an editable widget means its
+      // textual content — Qt exposes no such dynamic property on a
+      // QTextEdit, only QLineEdit has "text".
+      if(name == QStringLiteral("text") ||
+         name == QStringLiteral("plainText")) {
+        if(auto* textEdit = qobject_cast<QTextEdit*>(widget))
+          result[QStringLiteral("value")] = textEdit->toPlainText();
+        else if(auto* edit = qobject_cast<QPlainTextEdit*>(widget))
           result[QStringLiteral("value")] = edit->toPlainText();
+        else if(auto* lineEdit = qobject_cast<QLineEdit*>(widget))
+          result[QStringLiteral("value")] = lineEdit->text();
         else
-          return errorReply(id, QStringLiteral("plainText needs a QTextEdit"));
+          return errorReply(id,
+                            QStringLiteral("%1 needs a text widget").arg(name));
       } else {
         const QVariant value = widget->property(name.toLatin1().constData());
         if(!value.isValid())
@@ -231,6 +242,14 @@ private:
       QJsonObject result;
       result[QStringLiteral("sent")] = key;
       return okReply(id, result);
+    }
+    if(cmd == QStringLiteral("close_window")) {
+      QJsonObject closed;
+      QString error;
+      if(!closeWindow(parseLocator(params.value(QStringLiteral("locator")).toString()),
+                      &closed, &error))
+        return errorReply(id, error);
+      return okReply(id, closed);
     }
     if(cmd == QStringLiteral("dump_tree")) {
       QJsonObject result;

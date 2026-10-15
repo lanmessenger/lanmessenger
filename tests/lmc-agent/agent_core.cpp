@@ -422,6 +422,33 @@ bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
   return true;
 }
 
+bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
+                 QString* error) {
+  QWidget* match = findWidget(criteria);
+  if(!match) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  // Resolve to the top-level: closing a child would be a no-op.
+  QWidget* window = match->isWindow() ? match : match->window();
+  // Fire-and-post, same reason as postClick/triggerAction: the reply must
+  // precede whatever closeEvent handlers do (lmcChatWindow saves history
+  // there; reused modeless windows only hide).
+  QPointer<QWidget> guard(window);
+  QTimer::singleShot(0, [guard]() {
+    if(guard)
+      guard->close();
+  });
+  if(closed) {
+    (*closed)[QStringLiteral("objectName")] = window->objectName();
+    (*closed)[QStringLiteral("class")] =
+        QString::fromLatin1(window->metaObject()->className());
+    (*closed)[QStringLiteral("title")] = window->windowTitle();
+  }
+  return true;
+}
+
 bool keyFromName(const QString& name, int* key, QString* error) {
   // Small table on purpose: only keys E2E drives (chat send, dialog
   // Tab-chains, Escape closes). No printable characters — text entry

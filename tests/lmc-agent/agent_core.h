@@ -74,6 +74,16 @@ bool typeText(const QJsonObject& criteria, const QString& text, bool send,
 bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
                    QString* error);
 
+// Close the top-level window matching the locator: QWidget::close() via
+// singleShot(0). Deterministic counterpart of Escape: every lmc window
+// that rejects on Escape installs the filter on its children and the
+// handler is just close() (chatwindow.cpp, historywindow.cpp,
+// helpwindow.cpp, transferwindow.cpp), so this runs the same close path
+// without depending on the focus widget. Modeless reuse windows only
+// hide, WA_DeleteOnClose windows are deleted.
+bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
+                 QString* error);
+
 // Blocking wait helpers (bounded local event loop, GUI thread).
 bool waitForObject(const QJsonObject& criteria, double timeoutSecs,
                    QJsonObject* found, QString* error);

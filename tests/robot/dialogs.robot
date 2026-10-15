@@ -2,42 +2,22 @@
 Documentation     Tier-1 dialogs of LAN Messenger, single instance, no peers.
 ...
 ...               Opening goes through the in-process lmc-agent
-...               (Agent Trigger Action on the menu QAction, see
+...               (Trigger Action on the menu QAction, see
 ...               todo/lmc-test-adapter.md): an agent trigger is queued past
 ...               the reply, so exec-modal dialogs opened this way keep the
-...               connection alive. Driving and asserting uses the qtexpert
-...               agent until its turn comes.
+...               connection alive. Driving, asserting and closing all run
+...               on the same agent (see common.resource).
 Resource          common.resource
 Library           OperatingSystem
-Library           LmcLibrary.py    WITH NAME    LmcAgent
-Suite Setup       Launch LMC With Test Agent
-Suite Teardown    Close LMC With Test Agent
-
-*** Variables ***
-# Our preload .so rides along with qtexpert's (its launcher prepends to
-# LD_PRELOAD instead of replacing it) on its own port. Overridable via -v.
-${TEST_AGENT_SO}    ${CURDIR}/../../build/tests/lmc-agent/liblmc_test_preload.so
-${TEST_AGENT_PORT}    9999
-
-
-*** Keywords ***
-Launch LMC With Test Agent
-    Set Environment Variable    LD_PRELOAD    ${TEST_AGENT_SO}
-    Set Environment Variable    LMC_AGENT_PORT    ${TEST_AGENT_PORT}
-    Launch LMC
-    LmcAgent.Connect To Test Agent    ${TEST_AGENT_PORT}    timeout=30s
-
-Close LMC With Test Agent
-    Run Keyword And Ignore Error    LmcAgent.Disconnect From Test Agent
-    Run Keyword And Ignore Error    Close Application
+Suite Setup       Launch LMC
+Suite Teardown    Close LMC
 
 
 *** Test Cases ***
 History Opens And Closes
     [Documentation]    Tools > History: modeless window, empty list
     ...    without peers. Mirrors QTest openHistory.
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text=History
+    Trigger Action    text=History
     Window Should Be Visible    HistoryWindow
     ${title}=         Get Object Property    name=HistoryWindow    windowTitle
     Should Be Equal    ${title}    Message History
@@ -45,14 +25,13 @@ History Opens And Closes
     Object Should Exist    name=btnClearHistory
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-history.json
     Hold For Video
-    Dismiss Dialog    Message History
+    Close Window    name=HistoryWindow
     Wait For Object To Disappear    name=HistoryWindow    timeout=10
 
 File Transfers Opens And Closes
     [Documentation]    Tools > File Transfers: modeless window,
     ...    empty transfer list without peers. Mirrors QTest openFileTransfers.
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text="File Transfers"
+    Trigger Action    text="File Transfers"
     Window Should Be Visible    TransferWindow
     ${title}=         Get Object Property    name=TransferWindow    windowTitle
     Should Be Equal    ${title}    File Transfers
@@ -60,13 +39,12 @@ File Transfers Opens And Closes
     Object Should Exist    name=btnClear
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-transfers.json
     Hold For Video
-    Dismiss Dialog    File Transfers
+    Close Window    name=TransferWindow
     Window Should Be Hidden    TransferWindow
 
 Help Opens And Closes
     [Documentation]    Help > Help: modeless window with bundled text.
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text=Help
+    Trigger Action    text=Help
     Window Should Be Visible    HelpWindow
     ${title}=         Get Object Property    name=HelpWindow    windowTitle
     Should Be Equal    ${title}    Help
@@ -75,7 +53,7 @@ Help Opens And Closes
     Should Be True    ${length} > 0    Help text is empty
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-help.json
     Hold For Video
-    Dismiss Dialog    ^Help$
+    Close Window    name=HelpWindow
     Wait For Object To Disappear    name=HelpWindow    timeout=10
 
 New Chat Room Asks For Contacts
@@ -83,14 +61,13 @@ New Chat Room Asks For Contacts
     ...    a modal Select Contacts dialog (UserSelectDialog.exec()). With no
     ...    peers Cancel closes the dialog and the room window follows
     ...    (lmcCore::showChatRoomWindow closes on empty selection).
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text="New Chat Room"
+    Trigger Action    text="New Chat Room"
     Window Should Be Visible    UserSelectDialog
     Object Should Exist    name=tvUserList
     Object Should Exist    name=btnOK
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-select-contacts.json
     Hold For Video
-    LmcAgent.Agent Click Object    name=btnCancel
+    Click Object    name=btnCancel
     Wait For Object To Disappear    name=UserSelectDialog    timeout=10
     Window Should Be Hidden    ChatRoomWindow
     Object Should Exist    name=MainWindow
@@ -98,8 +75,7 @@ New Chat Room Asks For Contacts
 Preferences Navigates And Cancels
     [Documentation]    Tools > Preferences: modal
     ...    dialog. Spot-check category navigation, cancel without saving.
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text=Preferences
+    Trigger Action    text=Preferences
     Window Should Be Visible    SettingsDialog
     Set Object Property    name=lvCategories    currentRow    1
     ${idx}=           Get Object Property    name=stackedWidget    currentIndex
@@ -114,12 +90,11 @@ Preferences Navigates And Cancels
 About Opens And Closes
     [Documentation]    Help > About: modal dialog
     ...    with title and tabbed texts.
-    Focus Main Window
-    LmcAgent.Agent Trigger Action    text=About
+    Trigger Action    text=About
     Window Should Be Visible    AboutDialog
     Object Should Exist    name=lblTitle
     Object Should Exist    name=tabWidget
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-about.json
     Hold For Video
-    Dismiss Dialog    About LAN Messenger
+    Close Window    name=AboutDialog
     Wait For Object To Disappear    name=AboutDialog    timeout=10
