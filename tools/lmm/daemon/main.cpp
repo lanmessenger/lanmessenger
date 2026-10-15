@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
 // lmmd entry point: supervisor by default, hidden --worker mode per peer.
-// External face is one QLocalServer NDJSON socket (see PROTOCOL.md).
+// External face is one QTcpServer NDJSON socket on 127.0.0.1 (see PROTOCOL.md).
 #include <QCoreApplication>
 #include <QDir>
 #include <QJsonObject>
 #include <QSocketNotifier>
 #include <QTemporaryDir>
+#include <QTextStream>
 #include <csignal>
 #ifdef Q_OS_WIN
 // No <unistd.h> here: the self-pipe below is POSIX-only (and
@@ -42,12 +43,12 @@ void handleSignal(int) {
 }
 
 void usage() {
-  qInfo("usage: lmmd [--socket-name NAME] [--home DIR] [--version]");
-  qInfo("  --socket-name NAME  QLocalServer name (default: lmm)");
+  qInfo("usage: lmmd [--port N] [--home DIR] [--version]");
+  qInfo("  --port N   TCP loopback port (default: $LMMD_PORT or 17777)");
   qInfo("  --home DIR          base HOME for peer state (default: fresh temp dir)");
   qInfo("  --version           print version and exit");
   qInfo("hidden worker mode (spawned by the supervisor, not for manual use):");
-  qInfo("  lmmd --worker --peer NAME --control SOCK --home DIR [--status S]");
+  qInfo("  lmmd --worker --peer NAME --home DIR [--status S]");
 }
 
 // HOME + XDG_* isolation. Shared by supervisor (base dir) and worker
@@ -102,8 +103,8 @@ void setupApp(QCoreApplication* app) {
   app->setOrganizationDomain(IDA_DOMAIN);
 }
 
-int runWorker(int argc, char** argv, const QString& peer, const QString& control,
-              const QString& homeDir, const QString& status) {
+int runWorker(int argc, char** argv, const QString& peer, const QString& homeDir,
+              const QString& status) {
   // Identity: userId = MAC + $USER, so the worker owns its $USER.
   qputenv("USER", peer.toLatin1());
   QString home;
@@ -117,13 +118,13 @@ int runWorker(int argc, char** argv, const QString& peer, const QString& control
   if(!setupSignals(&app))
     return 1;
 
-  Lmmd daemon(control);
+  Lmmd daemon(0); // ephemeral port; the supervisor reads it back below
   daemon.setSinglePeer(true);
   QObject::connect(&app, &QCoreApplication::aboutToQuit, &daemon, &Lmmd::stopAll);
 
   QString error;
   if(!daemon.start(&error)) {
-    qCritical("lmmd worker: cannot listen on %s: %s", qPrintable(control), qPrintable(error));
+    qCritical("lmmd worker: cannot listen: %s", qPrintable(error));
     return 1;
   }
   // The worker holds exactly one peer, added up front. No peer handles
@@ -137,12 +138,17 @@ int runWorker(int argc, char** argv, const QString& peer, const QString& control
     qCritical("lmmd worker: peer.add failed: %s", qPrintable(res.value("error").toString()));
     return 1;
   }
-  qInfo("lmmd worker %s: listening on %s (home %s)", qPrintable(peer), qPrintable(control),
-        qPrintable(home));
+  // Rendezvous for the supervisor (stdout; logs go to stderr): the only
+  // line in this stream, read before the first control connection.
+  QTextStream out(stdout);
+  out << "READY " << daemon.serverPort() << "\n";
+  out.flush();
+  qInfo("lmmd worker %s: listening on 127.0.0.1:%u (home %s)", qPrintable(peer),
+        daemon.serverPort(), qPrintable(home));
   return app.exec();
 }
 
-int runSupervisor(int argc, char** argv, const QString& socketName, const QString& homeDir) {
+int runSupervisor(int argc, char** argv, quint16 port, const QString& homeDir) {
   QString home;
   if(!setupHome(homeDir, &home)) {
     qCritical("lmmd: cannot create --home dir");
@@ -158,7 +164,7 @@ int runSupervisor(int argc, char** argv, const QString& socketName, const QStrin
   if(!setupSignals(&app))
     return 1;
 
-  Supervisor daemon(socketName, home);
+  Supervisor daemon(port, home);
   // Single cleanup point: quit() (signal, shutdown RPC, fatal) lands here.
   QObject::connect(&app, &QCoreApplication::aboutToQuit, &daemon, [&daemon]() {
     daemon.shutdown(daemon.exitCode());
@@ -166,32 +172,35 @@ int runSupervisor(int argc, char** argv, const QString& socketName, const QStrin
 
   QString error;
   if(!daemon.start(&error)) {
-    qCritical("lmmd: cannot listen on %s: %s", qPrintable(socketName), qPrintable(error));
+    qCritical("lmmd: cannot listen on 127.0.0.1:%u: %s", port, qPrintable(error));
     return 1;
   }
-  qInfo("lmmd: listening on %s (home %s)", qPrintable(socketName), qPrintable(home));
+  qInfo("lmmd: listening on 127.0.0.1:%u (home %s)", port, qPrintable(home));
   app.exec();
   return daemon.exitCode();
 }
 } // namespace
 
 int main(int argc, char* argv[]) {
-  QString socketName = "lmm";
+  quint16 port = 0; // 0 = unset; resolved below (CLI > $LMMD_PORT > default)
   QString homeDir;
   bool worker = false;
-  QString peer, control, status;
+  QString peer, status;
   for(int i = 1; i < argc; i++) {
     const QString a = QString::fromLocal8Bit(argv[i]);
-    if(a == "--socket-name" && i + 1 < argc)
-      socketName = QString::fromLocal8Bit(argv[++i]);
-    else if(a == "--home" && i + 1 < argc)
+    if(a == "--port" && i + 1 < argc) {
+      bool ok = false;
+      port = QString::fromLocal8Bit(argv[++i]).toUShort(&ok);
+      if(!ok || port == 0) {
+        usage();
+        return 2;
+      }
+    } else if(a == "--home" && i + 1 < argc)
       homeDir = QString::fromLocal8Bit(argv[++i]);
     else if(a == "--worker")
       worker = true;
     else if(a == "--peer" && i + 1 < argc)
       peer = QString::fromLocal8Bit(argv[++i]);
-    else if(a == "--control" && i + 1 < argc)
-      control = QString::fromLocal8Bit(argv[++i]);
     else if(a == "--status" && i + 1 < argc)
       status = QString::fromLocal8Bit(argv[++i]);
     else if(a == "--version") {
@@ -204,15 +213,21 @@ int main(int argc, char* argv[]) {
   }
 
   if(worker) {
-    if(peer.isEmpty() || control.isEmpty() || homeDir.isEmpty()) {
+    if(port != 0 || peer.isEmpty() || homeDir.isEmpty()) {
       usage();
       return 2;
     }
-    return runWorker(argc, argv, peer, control, homeDir, status);
+    return runWorker(argc, argv, peer, homeDir, status);
   }
-  if(!peer.isEmpty() || !control.isEmpty() || !status.isEmpty()) {
+  if(!peer.isEmpty() || !status.isEmpty()) {
     usage();
     return 2;
   }
-  return runSupervisor(argc, argv, socketName, homeDir);
+  if(port == 0) {
+    bool ok = false;
+    port = QString::fromLocal8Bit(qgetenv("LMMD_PORT")).toUShort(&ok);
+    if(!ok || port == 0)
+      port = 17777;
+  }
+  return runSupervisor(argc, argv, port, homeDir);
 }

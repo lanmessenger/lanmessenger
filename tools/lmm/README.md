@@ -31,8 +31,8 @@ Binary lands in `build/tools/lmm/lmmd`.
 ## Run
 
 ```sh
-./build/tools/lmm/lmmd                  # socket "lmm", fresh temp HOME
-./build/tools/lmm/lmmd --socket-name test1 --home /tmp/lmm-home
+./build/tools/lmm/lmmd                  # 127.0.0.1:17777, fresh temp HOME
+./build/tools/lmm/lmmd --port 17771 --home /tmp/lmm-home
 ```
 
 `--home` is the base dir; each peer gets `<home>/peers/<name>/` as its
@@ -40,13 +40,12 @@ own `HOME` (config, groups, avatar, history, logs). `peer.remove`
 deletes its dir; an unexpected worker death exits the daemon non-zero
 (fail-fast — see `PROTOCOL.md`, no silent masking).
 
-## Probe without CLI (raw socket)
+## Probe without CLI (raw TCP)
 
 ```sh
 python3 - <<'EOF'
 import json, socket
-s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-s.connect("/tmp/lmm")  # QLocalServer default path; see note below
+s = socket.create_connection(("127.0.0.1", 17777))
 def rpc(cmd, **params):
     s.sendall((json.dumps({"id": 1, "cmd": cmd, "params": params}) + "\n").encode())
     return json.loads(s.makefile().readline())
@@ -55,10 +54,6 @@ print(rpc("peer.add", name="Alice"))
 print(rpc("peer.add", name="Bob"))
 EOF
 ```
-
-> QLocalServer socket path: Qt puts `lmm` under `$XDG_RUNTIME_DIR` if set,
-> else `/tmp`. If connect fails, find it with
-> `find /tmp /run/user/$UID -name 'lmm' 2>/dev/null`.
 
 Typical scripted check: `peer.add Alice/Bob` → poll `peer.contacts`
 until cross-visible → `msg.send {from: Alice, to: Bob}` →

@@ -10,14 +10,14 @@ Suite Teardown    Stop Mock Stand
 
 
 *** Variables ***
-${SOCKET}         lmm_smoke
+${LMM_PORT}       17773
 
 
 *** Keywords ***
 Start Smoke Stand
     [Documentation]    Daemon up, two peers cross-visible, event cursor
     ...    reset for delivery (per tools/lmm/PROTOCOL.md flow).
-    Start Mock Stand    ${SOCKET}    ${OUTPUT_DIR}/lmmd-home
+    Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
     Add Peer    SmokeAlice
     Add Peer    SmokeBob
     Wait For Contact    SmokeAlice    SmokeBob    timeout=30s

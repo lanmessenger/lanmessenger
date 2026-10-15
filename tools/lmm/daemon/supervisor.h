@@ -2,7 +2,7 @@
 // Copyright (c) 2026 LAN Messenger.
 // Supervisor: one external NDJSON face, one worker OS process per peer.
 // External protocol is v1 wire-compatible (see PROTOCOL.md); workers are
-// the same lmmd binary in hidden --worker mode on private sockets.
+// the same lmmd binary in hidden --worker mode on ephemeral loopback ports.
 #ifndef LMM_SUPERVISOR_H
 #define LMM_SUPERVISOR_H
 
@@ -16,15 +16,15 @@
 
 #include "core/definitions.h"
 
-class QLocalServer;
-class QLocalSocket;
+class QTcpServer;
+class QTcpSocket;
 
 struct SupervisorWorker {
   QString name;
   QString userId;
   QString displayName;
   QProcess* proc = nullptr;
-  QLocalSocket* ctl = nullptr;
+  QTcpSocket* ctl = nullptr;
   QByteArray ctlBuf; // per-connection line buffer for blocking RPC
   qint64 nextId = 1; // control request ids
   qint64 cursor = 0; // worker events cursor
@@ -37,9 +37,8 @@ struct SupervisorWorker {
 class Supervisor : public QObject {
   Q_OBJECT
 
-public:
-  explicit Supervisor(const QString& socketName, const QString& homeDir,
-                      QObject* parent = nullptr);
+ public:
+  explicit Supervisor(quint16 port, const QString& homeDir, QObject* parent = nullptr);
   bool start(QString* error);
   // Graceful shutdown: Depart via workers, reap, then quit with code.
   void shutdown(int exitCode);
@@ -71,9 +70,9 @@ private:
   void fatal(const QString& msg, int code); // reap all, quit(code)
   SupervisorWorker* findWorker(const QString& name) const;
 
-  QString socketName_;
+  quint16 port_;
   QString homeDir_;
-  QLocalServer* server_ = nullptr;
+  QTcpServer* server_ = nullptr;
   QMap<QString, SupervisorWorker*> workers_; // by handle
   QList<QJsonObject> events_; // ring, each has "seq"
   qint64 nextSeq_ = 1;

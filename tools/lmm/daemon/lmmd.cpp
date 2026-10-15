@@ -5,10 +5,11 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QLocalServer>
-#include <QLocalSocket>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QTimer>
 
 #include "core/settings.h"
@@ -29,8 +30,7 @@ QJsonObject contactJson(const User& u) {
 }
 } // namespace
 
-Lmmd::Lmmd(const QString& socketName, QObject* parent)
-    : QObject(parent), socketName_(socketName) {
+Lmmd::Lmmd(quint16 port, QObject* parent) : QObject(parent), port_(port) {
   uptime_.start();
   auto* timer = new QTimer(this);
   connect(timer, &QTimer::timeout, this, &Lmmd::pollContacts);
@@ -38,25 +38,15 @@ Lmmd::Lmmd(const QString& socketName, QObject* parent)
 }
 
 bool Lmmd::start(QString* error) {
-  // Never steal the name from a live daemon: probe first, and only clear
-  // a stale socket left by a crash.
-  {
-    QLocalSocket probe;
-    probe.connectToServer(socketName_);
-    if(probe.waitForConnected(500)) {
-      probe.disconnectFromServer();
-      if(error)
-        *error = "name already taken by a live server: " + socketName_;
-      return false;
-    }
-  }
-  QLocalServer::removeServer(socketName_); // drop stale socket from a crash
-  server_ = new QLocalServer(this);
-  connect(server_, &QLocalServer::newConnection, this, [this]() {
-    while(QLocalSocket* sock = server_->nextPendingConnection()) {
+  // Ephemeral bind (:0) by construction: a fresh port cannot collide, so
+  // there is no probe and no stale-artifact cleanup (the Unix-socket era's
+  // removeServer dance died with the transport).
+  server_ = new QTcpServer(this);
+  connect(server_, &QTcpServer::newConnection, this, [this]() {
+    while(QTcpSocket* sock = server_->nextPendingConnection()) {
       clients_++;
       auto* buf = new QByteArray(); // per-socket line buffer, freed on disconnect
-      connect(sock, &QLocalSocket::readyRead, this, [this, sock, buf]() {
+      connect(sock, &QTcpSocket::readyRead, this, [this, sock, buf]() {
         buf->append(sock->readAll());
         int nl = -1;
         while((nl = buf->indexOf('\n')) >= 0) {
@@ -82,19 +72,23 @@ bool Lmmd::start(QString* error) {
           }
         }
       });
-      connect(sock, &QLocalSocket::disconnected, this, [this, sock, buf]() {
+      connect(sock, &QTcpSocket::disconnected, this, [this, sock, buf]() {
         clients_--;
         delete buf;
         sock->deleteLater();
       });
     }
   });
-  if(!server_->listen(socketName_)) {
+  if(!server_->listen(QHostAddress::LocalHost, port_)) {
     if(error)
       *error = server_->errorString();
     return false;
   }
   return true;
+}
+
+quint16 Lmmd::serverPort() const {
+  return server_ ? server_->serverPort() : 0;
 }
 
 void Lmmd::stopAll() {
@@ -173,7 +167,7 @@ QJsonObject Lmmd::cmdStatus() {
   for(const QString& n : peers_.keys())
     names.append(n);
   return QJsonObject{
-    {"socket", socketName_},
+    {"port", int(serverPort())},
     {"peers", names},
     {"uptimeMs", uptime_.elapsed()},
     {"lmcVersion", IDA_VERSION},

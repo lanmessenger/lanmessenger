@@ -10,7 +10,7 @@ Suite Teardown    Run Keyword And Ignore Error    Terminate Process    lmmd
 
 
 *** Variables ***
-${SOCKET}         lmm_crash
+${LMM_PORT}       17774
 ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-crash
 
 
@@ -18,7 +18,7 @@ ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-crash
 Start Crash Stand
     [Documentation]    Daemon + two peers; the mesh itself is not asserted
     ...    here, only that both workers are up before the kill.
-    Start Mock Stand    ${SOCKET}    ${PEER_HOME}
+    Start Mock Stand    ${LMM_PORT}    ${PEER_HOME}
     Add Peer    CrashAlice
     Add Peer    CrashBob
 

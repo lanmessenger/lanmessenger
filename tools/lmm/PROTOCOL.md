@@ -1,6 +1,8 @@
 # lmmd wire protocol (v1)
 
-Transport: `QLocalServer` named `lmm` (override with `lmmd --socket-name`).
+Transport: TCP on `127.0.0.1:<port>` (`lmmd --port`, default `$LMMD_PORT`
+or `17777`) — one address namespace on every OS, no socket files, no
+per-OS path resolution.
 Framing: newline-delimited JSON, UTF-8. One line = one message, `\n` terminated.
 
 ## Architecture (v2): supervisor + workers
@@ -14,7 +16,8 @@ spawns one worker OS process (the same `lmmd` binary, hidden
 over the real network (shared UDP discovery, auto TCP ports) — closer
 to a two-machine deployment than threads would be.
 
-- Worker control sockets are private (`lmm-<supervisor-pid>-<NAME>`);
+- Worker control ports are private (each worker binds `127.0.0.1:0`
+  and prints `READY <port>` on stdout for the supervisor to dial);
   they speak the same NDJSON protocol but are an implementation detail.
   The worker holds exactly one peer (auto-added at startup, further
   `peer.add` rejected) and takes no `peer` handles — its commands are
@@ -58,7 +61,7 @@ Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
 
 | cmd | params | result |
 |---|---|---|
-| `status` | — | `{socket, peers:[names], uptimeMs, lmcVersion}` |
+| `status` | — | `{port, peers:[names], uptimeMs, lmcVersion}` |
 | `peer.add` | `{name, status?}` | `{peer, userId}`. `name`: `1-32` of `A-Za-z0-9_.-`, unique. Starts announce immediately. |
 | `peer.list` | — | `{peers: [{peer, userId, displayName, contacts}]}` |
 | `peer.contacts` | `{peer}` | `{peer, contacts: [{userId, name, address, status}]}` |

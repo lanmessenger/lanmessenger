@@ -11,14 +11,14 @@ Suite Teardown    Stop Mock Stand
 
 
 *** Variables ***
-${SOCKET}         lmm_iso
+${LMM_PORT}       17772
 ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-isolation
 
 
 *** Keywords ***
 Start Isolation Stand
     [Documentation]    Daemon + two peers with distinct statuses, cross-visible.
-    Start Mock Stand    ${SOCKET}    ${PEER_HOME}
+    Start Mock Stand    ${LMM_PORT}    ${PEER_HOME}
     Add Peer    IsoAlice    chat
     Add Peer    IsoBob    busy
     Wait For Contact    IsoAlice    IsoBob    timeout=30s

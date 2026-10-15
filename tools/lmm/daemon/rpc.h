@@ -7,11 +7,12 @@
 
 #include <QByteArray>
 #include <QElapsedTimer>
+#include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QLocalSocket>
 #include <QRegularExpression>
 #include <QString>
+#include <QTcpSocket>
 #include <QThread>
 
 namespace lmmRpc {
@@ -27,11 +28,11 @@ inline QJsonObject makeRequest(const QJsonValue& id, const QString& cmd,
   return QJsonObject{{"id", id}, {"cmd", cmd}, {"params", params}};
 }
 
-// Blocking request/response over a connected QLocalSocket.
+// Blocking request/response over a connected QTcpSocket.
 // *buf is the per-socket line buffer, kept across calls.
 // On success returns the "result" object; on failure returns {} and
 // sets *error. The caller owns timeout budget (single call, no retries).
-inline QJsonObject exchange(QLocalSocket* sock, QByteArray* buf, const QJsonObject& req,
+inline QJsonObject exchange(QTcpSocket* sock, QByteArray* buf, const QJsonObject& req,
                             int timeoutMs, QString* error) {
   const QJsonValue id = req.value("id");
   sock->write(QJsonDocument(req).toJson(QJsonDocument::Compact) + "\n");
@@ -78,11 +79,12 @@ inline QJsonObject exchange(QLocalSocket* sock, QByteArray* buf, const QJsonObje
 }
 
 // Connect with retries; short sleeps, no event-loop reentrancy.
-inline bool connectRetry(QLocalSocket* sock, const QString& socketName, int timeoutMs) {
+inline bool connectRetry(QTcpSocket* sock, const QHostAddress& host, quint16 port,
+                         int timeoutMs) {
   QElapsedTimer timer;
   timer.start();
   while(true) {
-    sock->connectToServer(socketName);
+    sock->connectToHost(host, port);
     if(sock->waitForConnected(300))
       return true;
     if(timer.elapsed() > timeoutMs)

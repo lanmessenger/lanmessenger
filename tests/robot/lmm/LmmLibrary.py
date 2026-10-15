@@ -1,8 +1,11 @@
 """Robot Framework driver for the lmmd mock-peer daemon (tools/lmm).
 
-Speaks the v1 NDJSON protocol (tools/lmm/PROTOCOL.md) over the
-``QLocalServer`` unix socket: one JSON object per line, responses matched
+Speaks the v1 NDJSON protocol (tools/lmm/PROTOCOL.md) over TCP loopback
+(``127.0.0.1:<port>``): one JSON object per line, responses matched
 by the client-chosen ``id``. Stdlib only: no third-party dependencies.
+Loopback TCP is one address namespace on every OS (unlike unix sockets:
+``/tmp`` on Linux, ``$TMPDIR`` on macOS, named pipes on Windows), so no
+per-OS path resolution is needed anywhere.
 
 Cursor model: the library keeps one ``since`` cursor per connection.
 ``Poll Events`` and ``Wait For Event`` advance it to the ``next`` value
@@ -28,7 +31,6 @@ from robot.utils import timestr_to_secs
 class LmmLibrary:
     ROBOT_LIBRARY_DOC_FORMAT = "reST"
 
-    SOCKET_DIR = "/tmp"
     POLL_INTERVAL = 0.5
     ANNOUNCE_INTERVAL = 5.0
 
@@ -41,28 +43,23 @@ class LmmLibrary:
     # -- connection ---------------------------------------------------
 
     @keyword("Connect To Daemon")
-    def connect_to_daemon(self, socket_name="lmm", timeout="10s"):
-        """Connect to a running lmmd. Retries until ``timeout``; the
-        socket is ``<socket_name>`` verbatim when it contains a slash
-        (Start Mock Stand passes a full path under the suite output dir,
-        since QLocalServer resolves a bare name via QDir::tempPath()
-        which differs per OS); otherwise ``/tmp/<socket_name>``. Resets
-        the event cursor."""
+    def connect_to_daemon(self, port=17777, host="127.0.0.1", timeout="10s"):
+        """Connect to a running lmmd on TCP loopback ``host:port``.
+        Retries until ``timeout``. Resets the event cursor."""
         if self._sock is not None:
             raise AssertionError("already connected; Disconnect From Daemon first")
-        path = socket_name if "/" in socket_name else "%s/%s" % (self.SOCKET_DIR, socket_name)
         deadline = time.monotonic() + timestr_to_secs(timeout)
         while True:
             try:
-                sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(5)
-                sock.connect(path)
+                sock.connect((host, int(port)))
                 break
             except OSError:
                 if time.monotonic() >= deadline:
                     raise AssertionError(
-                        "cannot connect to lmmd socket '%s' within %s "
-                        "(is the daemon running with --socket-name?)" % (path, timeout)
+                        "cannot connect to lmmd at '%s:%s' within %s "
+                        "(is the daemon running with --port?)" % (host, port, timeout)
                     )
                 time.sleep(self.POLL_INTERVAL)
         self._sock = sock
@@ -114,7 +111,7 @@ class LmmLibrary:
 
     @keyword("Daemon Status")
     def daemon_status(self):
-        """Return the ``status`` result dict (socket, peers, uptimeMs...)."""
+        """Return the ``status`` result dict (port, peers, uptimeMs...)."""
         return self._request("status")
 
     @keyword("Add Peer")

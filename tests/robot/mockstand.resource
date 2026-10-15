@@ -25,21 +25,17 @@ Start Mock Stand
     ...    connect to it. Peers, cross-visibility and the event cursor are
     ...    the caller's job: each suite needs its own peer set, and Reset
     ...    Event Cursor only makes sense after the setup chatter.
-    [Arguments]    ${socket}    ${home}
+    [Arguments]    ${port}    ${home}
     Create Directory    ${home}
-    # Full socket path under the suite output dir: QLocalServer resolves
-    # a bare name via QDir::tempPath (($TMPDIR, /var/folders/... on macOS;
-    # /tmp on Linux where TMPDIR is unset), so with a bare name daemon and
-    # client would disagree across OSes. A name containing '/' is used
-    # verbatim as the socket file on all platforms.
-    ${sockpath}=    Join Path    ${OUTPUT_DIR}    lmm-${socket}.sock
-    Start Process    ${LMMD_BIN}    --socket-name    ${sockpath}
+    # TCP loopback, one address namespace on every OS: no socket files,
+    # no per-OS path resolution, nothing to clean up after a crash.
+    Start Process    ${LMMD_BIN}    --port    ${port}
     ...    --home    ${home}    alias=lmmd
-    ...    stdout=${OUTPUT_DIR}/lmmd-${socket}-stdout.txt    stderr=STDOUT
-    Connect To Daemon    ${sockpath}    timeout=10s
+    ...    stdout=${OUTPUT_DIR}/lmmd-${port}-stdout.txt    stderr=STDOUT
+    Connect To Daemon    ${port}    timeout=10s
 
 Stop Mock Stand
-    [Documentation]    Clean shutdown: peers send Depart, no stale socket.
+    [Documentation]    Clean shutdown: peers send Depart.
     ...    Everything guarded: teardown must not mask test results.
     Run Keyword And Ignore Error    Shutdown Daemon
     Run Keyword And Ignore Error    Disconnect From Daemon

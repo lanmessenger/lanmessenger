@@ -19,7 +19,7 @@ Test Teardown     Close All Chats
 
 
 *** Variables ***
-${SOCKET}         lmm_chat
+${LMM_PORT}       17771
 ${MOCK}           MockBob
 ${APP_NAME}       E2E Tester
 # Normal network mode: /loopback would make the app talk to itself
@@ -32,7 +32,7 @@ Start Chat Stand
     [Documentation]    Daemon + real app up, mock added, cross-visibility
     ...    confirmed on the mock side, event cursor reset for delivery.
     Seed App Config    ${APP_NAME}
-    Start Mock Stand    ${SOCKET}    ${OUTPUT_DIR}/lmmd-home
+    Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
     Launch LMC
     Add Peer    ${MOCK}
     Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=30s

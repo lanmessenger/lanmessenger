@@ -5,11 +5,13 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QElapsedTimer>
+#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QLocalServer>
-#include <QLocalSocket>
 #include <QProcess>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QTimer>
 
 #include "rpc.h"
@@ -20,13 +22,43 @@ const int kRpcTimeoutMs = 10000;
 const int kSpawnTimeoutMs = 15000;
 const int kShutdownWaitMs = 5000;
 
-QString controlSocketName(const QString& peer) {
-  return QString("lmm-%1-%2").arg(QCoreApplication::applicationPid()).arg(peer);
+// Worker rendezvous: the worker binds 127.0.0.1:0 and prints
+// "READY <port>" on stdout (its logs go to stderr). No port-picking
+// race by construction: the supervisor dials the announced port.
+quint16 readWorkerPort(QProcess* proc, QString* error) {
+  QByteArray out;
+  QElapsedTimer timer;
+  timer.start();
+  while(timer.elapsed() < kSpawnTimeoutMs) {
+    if(proc->state() == QProcess::NotRunning) {
+      if(error)
+        *error = "worker exited before READY (crashed on startup?)";
+      return 0;
+    }
+    proc->waitForReadyRead(250);
+    out += proc->readAllStandardOutput();
+    const int nl = out.indexOf('\n');
+    if(nl < 0)
+      continue;
+    const QByteArray line = out.left(nl).trimmed();
+    if(line.startsWith("READY ")) {
+      bool ok = false;
+      const quint16 port = line.mid(6).trimmed().toUShort(&ok);
+      if(ok && port != 0)
+        return port;
+    }
+    if(error)
+      *error = "worker printed garbage instead of READY: " + QString::fromUtf8(line);
+    return 0;
+  }
+  if(error)
+    *error = "worker printed no READY in time (crashed on startup?)";
+  return 0;
 }
 } // namespace
 
-Supervisor::Supervisor(const QString& socketName, const QString& homeDir, QObject* parent)
-    : QObject(parent), socketName_(socketName), homeDir_(homeDir) {
+Supervisor::Supervisor(quint16 port, const QString& homeDir, QObject* parent)
+    : QObject(parent), port_(port), homeDir_(homeDir) {
   uptime_.start();
   auto* timer = new QTimer(this);
   connect(timer, &QTimer::timeout, this, &Supervisor::pollWorkers);
@@ -34,24 +66,23 @@ Supervisor::Supervisor(const QString& socketName, const QString& homeDir, QObjec
 }
 
 bool Supervisor::start(QString* error) {
-  // Same never-steal rule as the worker engine: probe first, drop only
-  // a stale socket left by a crash.
+  // Never steal the port from a live daemon. No stale-artifact cleanup:
+  // a TCP port frees itself when the process dies (unlike socket files).
   {
-    QLocalSocket probe;
-    probe.connectToServer(socketName_);
+    QTcpSocket probe;
+    probe.connectToHost(QHostAddress::LocalHost, port_);
     if(probe.waitForConnected(500)) {
-      probe.disconnectFromServer();
+      probe.disconnectFromHost();
       if(error)
-        *error = "name already taken by a live server: " + socketName_;
+        *error = QString("port already taken by a live server: %1").arg(port_);
       return false;
     }
   }
-  QLocalServer::removeServer(socketName_);
-  server_ = new QLocalServer(this);
-  connect(server_, &QLocalServer::newConnection, this, [this]() {
-    while(QLocalSocket* sock = server_->nextPendingConnection()) {
+  server_ = new QTcpServer(this);
+  connect(server_, &QTcpServer::newConnection, this, [this]() {
+    while(QTcpSocket* sock = server_->nextPendingConnection()) {
       auto* buf = new QByteArray();
-      connect(sock, &QLocalSocket::readyRead, this, [this, sock, buf]() {
+      connect(sock, &QTcpSocket::readyRead, this, [this, sock, buf]() {
         buf->append(sock->readAll());
         int nl = -1;
         while((nl = buf->indexOf('\n')) >= 0) {
@@ -74,13 +105,13 @@ bool Supervisor::start(QString* error) {
           }
         }
       });
-      connect(sock, &QLocalSocket::disconnected, this, [sock, buf]() {
+      connect(sock, &QTcpSocket::disconnected, this, [sock, buf]() {
         delete buf;
         sock->deleteLater();
       });
     }
   });
-  if(!server_->listen(socketName_)) {
+  if(!server_->listen(QHostAddress::LocalHost, port_)) {
     if(error)
       *error = server_->errorString();
     return false;
@@ -98,7 +129,7 @@ void Supervisor::shutdown(int exitCode) {
   // Ask all workers to Depart in parallel, then reap with a deadline.
   for(SupervisorWorker* w : workers_) {
     w->dying = true;
-    if(w->ctl && w->ctl->state() == QLocalSocket::ConnectedState) {
+    if(w->ctl && w->ctl->state() == QTcpSocket::ConnectedState) {
       QString ignored;
       workerCall(w, "shutdown", QJsonObject(), &ignored);
     }
@@ -177,7 +208,7 @@ SupervisorWorker* Supervisor::findWorker(const QString& name) const {
 
 QJsonObject Supervisor::workerCall(SupervisorWorker* w, const QString& cmd,
                                    const QJsonObject& params, QString* error) {
-  if(!w->ctl || w->ctl->state() != QLocalSocket::ConnectedState) {
+  if(!w->ctl || w->ctl->state() != QTcpSocket::ConnectedState) {
     if(error)
       *error = "worker control down: " + w->name;
     return {};
@@ -194,10 +225,7 @@ SupervisorWorker* Supervisor::spawnWorker(const QString& name, const QString& st
       *error = "cannot create peer dir: " + peerDir;
     return nullptr;
   }
-  const QString ctlName = controlSocketName(name);
-  // A stale private socket from a crashed run must not block the worker:
-  // its own probe drops it only when no live server answers, same rule.
-  QStringList args{"--worker", "--peer", name, "--control", ctlName, "--home", peerDir};
+  QStringList args{"--worker", "--peer", name, "--home", peerDir};
   if(!status.isEmpty())
     args << "--status" << status;
 
@@ -228,8 +256,18 @@ SupervisorWorker* Supervisor::spawnWorker(const QString& name, const QString& st
     delete w;
     return nullptr;
   }
-  auto* ctl = new QLocalSocket(this);
-  if(!lmmRpc::connectRetry(ctl, ctlName, kSpawnTimeoutMs)) {
+  const quint16 workerPort = readWorkerPort(proc, error);
+  if(workerPort == 0) {
+    if(proc->state() != QProcess::NotRunning) {
+      proc->kill();
+      proc->waitForFinished(2000);
+    }
+    proc->deleteLater();
+    delete w;
+    return nullptr;
+  }
+  auto* ctl = new QTcpSocket(this);
+  if(!lmmRpc::connectRetry(ctl, QHostAddress::LocalHost, workerPort, kSpawnTimeoutMs)) {
     if(error)
       *error = "worker control unreachable (crashed on startup?)";
     if(proc->state() != QProcess::NotRunning) {
@@ -317,7 +355,7 @@ void Supervisor::pollWorkers() {
       continue; // dropped by a nested request
     if(w->dying)
       continue;
-    if(!w->ctl || w->ctl->state() != QLocalSocket::ConnectedState)
+    if(!w->ctl || w->ctl->state() != QTcpSocket::ConnectedState)
       continue;
     QString error;
     QJsonObject res = workerCall(w, "events.poll",
@@ -387,7 +425,7 @@ QJsonObject Supervisor::cmdStatus() {
   for(const QString& n : workers_.keys())
     names.append(n);
   return QJsonObject{
-    {"socket", socketName_},
+    {"port", int(port_)},
     {"peers", names},
     {"uptimeMs", uptime_.elapsed()},
     {"lmcVersion", IDA_VERSION},
