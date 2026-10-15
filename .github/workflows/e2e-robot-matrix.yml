@@ -234,7 +234,7 @@ jobs:
 
       # ---- Full suite + one flake-absorbing retry + merge ----
       - name: Run full suite (Linux)
-        id: full
+        id: full_linux
         if: runner.os == 'Linux'
         continue-on-error: true
         env:
@@ -251,7 +251,7 @@ jobs:
             tests/robot/
 
       - name: Run full suite (Windows)
-        id: full
+        id: full_windows
         if: runner.os == 'Windows'
         continue-on-error: true
         shell: pwsh
@@ -265,7 +265,7 @@ jobs:
             tests/robot/
 
       - name: Run full suite (macOS)
-        id: full
+        id: full_macos
         if: runner.os == 'macOS'
         continue-on-error: true
         shell: bash
@@ -282,8 +282,8 @@ jobs:
             "$GITHUB_WORKSPACE/tests/robot/"
 
       - name: Rerun failed tests once (Linux)
-        id: rerun
-        if: runner.os == 'Linux' && steps.full.outcome != 'success'
+        id: rerun_linux
+        if: runner.os == 'Linux' && steps.full_linux.outcome != 'success'
         continue-on-error: true
         env:
           DISPLAY: :99
@@ -300,8 +300,8 @@ jobs:
             tests/robot/
 
       - name: Rerun failed tests once (Windows)
-        id: rerun
-        if: runner.os == 'Windows' && steps.full.outcome != 'success'
+        id: rerun_windows
+        if: runner.os == 'Windows' && steps.full_windows.outcome != 'success'
         continue-on-error: true
         shell: pwsh
         run: |
@@ -315,8 +315,8 @@ jobs:
             tests/robot/
 
       - name: Rerun failed tests once (macOS)
-        id: rerun
-        if: runner.os == 'macOS' && steps.full.outcome != 'success'
+        id: rerun_macos
+        if: runner.os == 'macOS' && steps.full_macos.outcome != 'success'
         continue-on-error: true
         shell: bash
         run: |
