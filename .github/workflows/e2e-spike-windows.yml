@@ -1,0 +1,167 @@
+# SPIKE (draft, manual runs only): Windows E2E feasibility for the Robot matrix.
+#
+# Validates three unknowns in one run:
+#  1. lan-messenger-test + lmmd build with MSVC (agent_core is pure Qt,
+#     no preload anywhere since 1d446c6).
+#  2. Seed path: native IniFormat/UserScope (%APPDATA%\LAN Messenger\...)
+#     vs /config= fallback — the job tries native first and retries with
+#     /config= only if native fails, then reports which one worked.
+#  3. smoke.robot green on windows-2022 (desktop session exists, no Xvfb).
+#
+# Deleted or promoted to e2e-robot-matrix.yml once green. Never add push/pull
+# triggers here: each run costs a full Qt + vcpkg OpenSSL + lmc build.
+name: E2E spike Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spike-windows:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      PKG_VERSION: 0.0.0
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Install OpenSSL
+        run: vcpkg install openssl:x64-windows
+
+      # Same recipe as ci.yml build-windows.
+      - name: Prepare OpenSSL paths
+        shell: pwsh
+        run: |
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
+          Copy-Item -Recurse $root/installed/x64-windows/include/openssl openssl/include/
+          Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
+          Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
+          Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+
+      - name: Configure
+        shell: bash
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
+
+      - name: Build release layout
+        run: cmake --build build --config Release --target package-local --parallel
+
+      # Both exes share lmc/release/, so the DLLs deployed for lmc.exe are
+      # found by lan-messenger-test.exe with no extra windeployqt pass.
+      - name: Deploy Qt runtime
+        shell: cmd
+        run: |
+          set QTDIR=%QT_ROOT_DIR%
+          windeployqt --release lmc\release\lmc.exe
+
+      - name: Ensure TLS plugins
+        shell: pwsh
+        run: |
+          $dst = "lmc/release/tls"
+          if (-not (Test-Path $dst)) {
+            Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
+          }
+
+      - name: Build test binary and mock daemon
+        run: |
+          cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+          Copy-Item build/tools/lmc-agent/Release/lan-messenger-test.exe lmc/release/
+          if (-not (Test-Path lmc/release/lan-messenger-test.exe)) { throw "test binary missing" }
+          if (-not (Test-Path build/tools/lmm/Release/lmmd.exe)) { throw "lmmd missing" }
+
+      - name: Set up Python and Robot Framework
+        shell: pwsh
+        run: |
+          py -3 -m venv .venv-robot-ci
+          .venv-robot-ci/Scripts/pip install -r tests/robot/requirements.txt
+
+      # Probe 1: native QSettings(IniFormat, UserScope, org, app) seed.
+      # On _WIN32 org/app are "LAN Messenger" (lmc/src/core/definitions.h).
+      - name: Seed lmc settings (native path)
+        shell: pwsh
+        run: |
+          $dir = "$env:APPDATA\LAN Messenger"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          @'
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=0.0.0
+
+          [User]
+          Name=E2E Tester
+          '@ | Set-Content "$dir\LAN Messenger.ini" -Encoding ASCII
+          Get-Content "$dir\LAN Messenger.ini"
+
+      - name: Run smoke (native seed)
+        id: smoke_native
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $env:PATH = "$PWD\lmc\release;$env:PATH"
+          .venv-robot-ci/Scripts/robot `
+            --outputdir robot-results-native `
+            -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\Release\lmmd.exe" `
+            -v HOLD_OPEN:0s `
+            tests/robot/smoke.robot
+
+      # Probe 2, only if the native path failed: explicit config file via
+      # /config= (lmc/src/app/lmc.cpp), OS-independent. APP_ARGS is a plain
+      # Robot variable (tests/robot/common.resource), so override with -v.
+      - name: Run smoke (/config fallback)
+        id: smoke_config
+        if: steps.smoke_native.outcome != 'success'
+        shell: pwsh
+        run: |
+          @'
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=0.0.0
+
+          [User]
+          Name=E2E Tester
+          '@ | Set-Content "$env:RUNNER_TEMP\lmc-seed.ini" -Encoding ASCII
+          $env:PATH = "$PWD\lmc\release;$env:PATH"
+          .venv-robot-ci/Scripts/robot `
+            --outputdir robot-results-config `
+            -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
+            -v APP_ARGS:"/silent /loopback /config=$env:RUNNER_TEMP\lmc-seed.ini" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\Release\lmmd.exe" `
+            -v HOLD_OPEN:0s `
+            tests/robot/smoke.robot
+
+      - name: Report which seed worked
+        if: always()
+        shell: pwsh
+        run: |
+          "native=${{ steps.smoke_native.outcome }} config=${{ steps.smoke_config.outcome }}"
+
+      - name: Upload robot results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: spike-windows-results
+          path: robot-results-*
+          if-no-files-found: warn
+          retention-days: 3
