@@ -39,3 +39,8 @@ option(LMC_BUILD_LMM "Build the lmm test daemon (tools/lmm)" ON)
 if(LMC_BUILD_LMM)
     add_subdirectory(tools/lmm)
 endif()
+
+# In-process GUI test agent (phase A preload .so + phase B test binary).
+# Test tooling lives in tools/ next to the lmm mock daemon; tests/ holds
+# only the suites themselves. See tools/lmc-agent/PROTOCOL.md.
+add_subdirectory(tools/lmc-agent)

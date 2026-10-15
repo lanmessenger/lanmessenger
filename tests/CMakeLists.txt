@@ -1,9 +1,5 @@
 find_package(Qt6 6.2 REQUIRED COMPONENTS Test)
 
-# In-process GUI test agent (phase A preload .so + phase B test binary).
-# See lmc-agent/PROTOCOL.md and todo/lmc-test-adapter.md.
-add_subdirectory(lmc-agent)
-
 # resource.qrc repeats here (same as the lmc executable): the Qt resource
 # initializers must live in an object that is always linked, and a static lib
 # would drop an unreferenced qrc object.

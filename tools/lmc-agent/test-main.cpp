@@ -1,7 +1,7 @@
 // Phase B entry point (test binary lan-messenger-test): same startup as
 // lmc/src/app/main.cpp, plus the in-process test agent linked in directly
 // (no LD_PRELOAD). Guarded by LMC_TEST_AGENT ("0" disables the server);
-// port from LMC_AGENT_PORT (default 9999, see tests/lmc-agent/PROTOCOL.md).
+// port from LMC_AGENT_PORT (default 9999, see PROTOCOL.md).
 //
 // Production binary stays clean: this file is only compiled into the
 // lan-messenger-test target behind LMC_WITH_TEST_AGENT.
