@@ -105,8 +105,12 @@ void setupApp(QCoreApplication* app) {
 
 int runWorker(int argc, char** argv, const QString& peer, const QString& homeDir,
               const QString& status) {
-  // Identity: userId = MAC + $USER, so the worker owns its $USER.
+  // Identity: userId = MAC + logon name, so the worker owns its name.
+  // USER covers Unix (Helper::getLogonName reads getenv there);
+  // LMC_LOGON_NAME covers Windows, where GetUserName reads the process
+  // token and ignores the environment (else all workers collide).
   qputenv("USER", peer.toLatin1());
+  qputenv("LMC_LOGON_NAME", peer.toLatin1());
   QString home;
   if(!setupHome(homeDir, &home)) {
     qCritical("lmmd worker: cannot create --home dir");

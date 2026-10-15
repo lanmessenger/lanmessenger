@@ -256,6 +256,10 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
+          # HOME is unset on Windows runners, but the suites anchor their
+          # seeded lmc.ini at %{HOME}/.config (the app itself reads the
+          # %APPDATA% seed above; this dir is the suites' scratch space).
+          $env:HOME = "$env:RUNNER_TEMP\e2e-home"
           $env:PATH = "$PWD\lmc\release;$env:PATH"
           .venv-robot-ci/Scripts/robot `
             --outputdir robot-results-full `
@@ -305,6 +309,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
+          $env:HOME = "$env:RUNNER_TEMP\e2e-home"
           $env:PATH = "$PWD\lmc\release;$env:PATH"
           .venv-robot-ci/Scripts/robot `
             --rerunfailed robot-results-full/output.xml `

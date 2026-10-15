@@ -71,6 +71,13 @@ QString Helper::getUuid(void) {
 }
 
 QString Helper::getLogonName(void) {
+  // Test hook for the mock stand (tools/lmm): per-process identity on
+  // platforms where the logon name cannot be overridden per process
+  // (Windows GetUserName reads the token, not the environment, so all
+  // workers would share one userId). Unset in production, no behavior change.
+  const QString forced = QString::fromLocal8Bit(qgetenv("LMC_LOGON_NAME"));
+  if(!forced.isEmpty())
+    return forced;
 #if defined Q_OS_WIN //	if platform is Windows
   TCHAR szUserName[UNLEN + 1];
   DWORD nSize = sizeof(szUserName);

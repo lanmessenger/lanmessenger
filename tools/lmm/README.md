@@ -36,9 +36,12 @@ Binary lands in `build/tools/lmm/lmmd`.
 ```
 
 `--home` is the base dir; each peer gets `<home>/peers/<name>/` as its
-own `HOME` (config, groups, avatar, history, logs). `peer.remove`
-deletes its dir; an unexpected worker death exits the daemon non-zero
-(fail-fast — see `PROTOCOL.md`, no silent masking).
+own `HOME` (config, groups, avatar, history, logs). Worker identity
+(`userId = MAC + logon name`) comes from the peer name: `USER` on Unix,
+`LMC_LOGON_NAME` on Windows (where `GetUserName` reads the process token
+and ignores the environment — without the hook all workers collide).
+`peer.remove` deletes its dir; an unexpected worker death exits the daemon
+non-zero (fail-fast — see `PROTOCOL.md`, no silent masking).
 
 ## Probe without CLI (raw TCP)
 
