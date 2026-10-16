@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Style gate for lmc/src, tests and the GUI test agent. Version pinned
+  # to match tools/format.sh and .clang-format.
+  format-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format-18
+
+      - name: Check formatting
+        run: |
+          find lmc/src tests tools/lmc-agent -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
+            | xargs -0 clang-format-18 --dry-run -Werror
