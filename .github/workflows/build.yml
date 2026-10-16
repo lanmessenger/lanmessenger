@@ -1,12 +1,65 @@
 name: Build
 
+# Compilation lives here and ONLY here: e2e.yml never compiles, it downloads
+# the test-layout tarballs produced below (artifact contract documented in
+# both headers: test-layout-<leg>, same run).
+#
+# artifacts=release (default) — package-local + crypto + smoke, then the
+#   platform packages (deb/rpm, NSIS exe, dmg) + upload packages-*. Release
+#   legs always use vcpkg/brew/apt OpenSSL: what ships is always the honest
+#   build. Manual dispatch and release/nightly packaging.
+# artifacts=test — package-local + crypto + smoke, then lan-messenger-test +
+#   lmmd (+ windeployqt/plugins staging), tarred as test-layout-<leg> for
+#   e2e. No packaging. Windows OpenSSL follows windows-ssl (choco on commits
+#   for speed, vcpkg on releases, default vcpkg); Linux/macOS always use
+#   system/brew. choco is allowed only with artifacts=test — enforced by
+#   the Validate inputs step in build-windows, the steps below check only
+#   windows-ssl.
+# artifacts=release+test — both on one runner (release path): the test layout
+#   is assembled by COPYING lmc/release into $RUNNER_TEMP/teststage and
+#   adding the test files to the copy. The original tree is never modified,
+#   so the packages cannot contain test binaries by construction (the leak
+#   that setup-e2e's hand-copy avoids).
+#   A shared configure means one OpenSSL for both halves, hence vcpkg.
+#
+# No push/PR triggers: every push/PR goes through e2e.yml, which orders its
+# own test build here. Direct runs via workflow_call and workflow_dispatch.
+
 on:
-  push:
-    branches: [master, dev]
-  pull_request:
   workflow_dispatch:
+    inputs:
+      artifacts:
+        description: Which artifacts to produce
+        type: choice
+        options: [release, test, release+test]
+        default: release
+      windows-ssl:
+        description: Windows OpenSSL source for the test layout (packaging always uses vcpkg)
+        type: choice
+        options: [choco, vcpkg]
+        default: vcpkg
+      version:
+        description: Version string used in package names
+        type: string
+        default: ''
+      installer_version:
+        description: Four-part version for the Windows installer
+        type: string
+        default: ''
+      ref:
+        description: Git ref to build (defaults to the triggering commit)
+        type: string
+        default: ''
   workflow_call:
     inputs:
+      artifacts:
+        description: Which artifacts to produce
+        type: string
+        default: release
+      windows-ssl:
+        description: Windows OpenSSL source for the test layout (packaging always uses vcpkg)
+        type: string
+        default: vcpkg
       version:
         description: Version string used in package names
         type: string
@@ -69,7 +122,39 @@ jobs:
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
+      - name: Build test binaries
+        if: inputs.artifacts != 'release'
+        run: |
+          cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+          test -x build/tools/lmc-agent/lan-messenger-test
+          test -x build/tools/lmm/lmmd
+
+      # The test layout is a COPY of the release tree in $RUNNER_TEMP: the
+      # original lmc/release is only read, never modified, so packaging
+      # below always sees the pristine tree.
+      - name: Pack test layout
+        if: inputs.artifacts != 'release'
+        run: |
+          STAGE="$RUNNER_TEMP/teststage"
+          rm -rf "$STAGE"; mkdir -p "$STAGE/lmc" "$STAGE/build/tools/lmm"
+          cp -r lmc/release "$STAGE/lmc/release"
+          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/lmc/release/"
+          test -x "$STAGE/lmc/release/lan-messenger-test"
+          cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
+          test -x "$STAGE/build/tools/lmm/lmmd"
+          tar -C "$STAGE" -czf test-layout-linux-x64.tar.gz lmc build
+
+      - name: Upload test layout
+        if: inputs.artifacts != 'release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-layout-linux-x64
+          path: test-layout-linux-x64.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Build packages
+        if: inputs.artifacts != 'test'
         env:
           PACKAGE_MODE: _min
         run: |
@@ -80,6 +165,7 @@ jobs:
           sh ./rpm_setup "$PKG_VERSION"
 
       - name: Upload packages
+        if: inputs.artifacts != 'test'
         uses: actions/upload-artifact@v7
         with:
           name: packages-linux
@@ -99,6 +185,19 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
+      # Explicit prohibition instead of compound conditions below: choco
+      # OpenSSL exists only for fast test builds. Whatever ships links vcpkg
+      # OpenSSL. Fails here, before any toolchain download burns minutes.
+      - name: Validate inputs
+        shell: pwsh
+        run: |
+          $artifacts = '${{ inputs.artifacts }}'
+          $ssl = '${{ inputs.windows-ssl }}'
+          if ($artifacts -ne 'test' -and $ssl -ne 'vcpkg') {
+            Write-Error "::error::windows-ssl=choco is allowed only with artifacts=test. Release packaging always links vcpkg OpenSSL — that is what ships."
+            exit 1
+          }
+
       - uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
@@ -110,9 +209,11 @@ jobs:
           cache: true
 
       - name: Install OpenSSL
+        if: inputs.windows-ssl == 'vcpkg'
         run: vcpkg install openssl:x64-windows
 
       - name: Prepare OpenSSL paths
+        if: inputs.windows-ssl == 'vcpkg'
         shell: pwsh
         run: |
           $root = $env:VCPKG_INSTALLATION_ROOT
@@ -121,6 +222,27 @@ jobs:
           Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
           Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
           Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+
+      # Fast path (default): prebuilt Shining Light OpenSSL instead of
+      # compiling the vcpkg port. Staged into the same ./openssl layout, so
+      # Configure below is untouched. Floats on latest by design (speed over
+      # pinning); the honest path is vcpkg, pinned by its baseline. The
+      # import libs live in lib/VC/x64/MD, but FindOpenSSL looks in lib/ —
+      # hence the copy-up (known Shining Light + CMake gotcha).
+      - name: Install OpenSSL via Chocolatey
+        if: inputs.windows-ssl != 'vcpkg'
+        shell: pwsh
+        run: |
+          choco install openssl -y --no-progress
+          & "$env:ProgramFiles\OpenSSL-Win64\bin\openssl.exe" version
+          $ssl = "$env:ProgramFiles\OpenSSL-Win64"
+          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
+          Copy-Item -Recurse "$ssl\include\openssl" openssl/include/
+          $md = Get-ChildItem "$ssl\lib" -Recurse -Filter libcrypto.lib | Select-Object -First 1
+          Copy-Item "$($md.DirectoryName)\*.lib" openssl/lib/
+          Copy-Item "$ssl\bin\libcrypto-*.dll" openssl/bin/
+          Copy-Item "$ssl\bin\libssl-*.dll" openssl/bin/
+          Get-ChildItem openssl/lib, openssl/bin | Format-Table Name, Length
 
       - name: Configure
         shell: bash
@@ -156,7 +278,41 @@ jobs:
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
+      - name: Build test binaries
+        if: inputs.artifacts != 'release'
+        run: cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+
+      # The test layout is a COPY of the release tree in $RUNNER_TEMP: the
+      # original lmc/release is only read, never modified, so the installer
+      # step always sees the pristine tree. The OpenSSL DLLs ride along into
+      # the test layout (never into the installer: this step only runs
+      # off-release).
+      - name: Pack test layout
+        if: inputs.artifacts != 'release'
+        shell: pwsh
+        run: |
+          $stage = "$env:RUNNER_TEMP\teststage"
+          if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+          New-Item -ItemType Directory -Force "$stage\lmc", "$stage\build\tools\lmm" | Out-Null
+          Copy-Item -Recurse lmc/release "$stage\lmc\release"
+          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe "$stage\lmc\release\"
+          Copy-Item openssl/bin/*.dll "$stage\lmc\release\"
+          Copy-Item build/tools/lmm/lmmd.exe "$stage\build\tools\lmm\"
+          if (-not (Test-Path "$stage\lmc\release\lan-messenger-test.exe")) { throw "test binary missing" }
+          if (-not (Test-Path "$stage\build\tools\lmm\lmmd.exe")) { throw "lmmd missing" }
+          tar -C $stage -czf test-layout-windows-x64.tar.gz lmc build
+
+      - name: Upload test layout
+        if: inputs.artifacts != 'release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-layout-windows-x64
+          path: test-layout-windows-x64.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Build installer
+        if: inputs.artifacts != 'test'
         shell: cmd
         run: |
           choco install nsis -y --no-progress
@@ -164,6 +320,7 @@ jobs:
           call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
 
       - name: Upload packages
+        if: inputs.artifacts != 'test'
         uses: actions/upload-artifact@v7
         with:
           name: packages-windows
@@ -177,8 +334,10 @@ jobs:
       matrix:
         include:
           - arch: x86_64
+            leg: macos-x64
             runs-on: macos-15-intel
           - arch: arm64
+            leg: macos-arm64
             runs-on: macos-14
     runs-on: ${{ matrix.runs-on }}
     env:
@@ -220,6 +379,7 @@ jobs:
           lipo -archs lmc/release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
 
       - name: Build disk image
+        if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
@@ -238,7 +398,7 @@ jobs:
           rm -rf LAN-Messenger.app
 
       - name: List disk image artifacts
-        if: always()
+        if: always() && inputs.artifacts != 'test'
         run: |
           ls -lh lmc/setup/*.dmg || true
 
@@ -248,7 +408,41 @@ jobs:
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
 
+      - name: Build test binaries
+        if: inputs.artifacts != 'release'
+        run: cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+
+      # The test layout is a COPY of the .app in $RUNNER_TEMP: the original
+      # tree is only read, never modified, so the dmg staging sees the
+      # pristine tree. The Plugins copy mirrors what e2e used to do inline:
+      # apprunner REPLACES the Qt plugin paths with Contents/Plugins, so
+      # without it the test binary blocks on the missing-openssl dialog.
+      - name: Pack test layout
+        if: inputs.artifacts != 'release'
+        shell: bash
+        run: |
+          STAGE="$RUNNER_TEMP/teststage"
+          rm -rf "$STAGE"; mkdir -p "$STAGE/lmc/release" "$STAGE/build/tools/lmm"
+          cp -R lmc/release/LAN-Messenger.app "$STAGE/lmc/release/"
+          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/lmc/release/LAN-Messenger.app/Contents/MacOS/"
+          test -x "$STAGE/lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test"
+          cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
+          test -x "$STAGE/build/tools/lmm/lmmd"
+          mkdir -p "$STAGE/lmc/release/LAN-Messenger.app/Contents/Plugins"
+          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/lmc/release/LAN-Messenger.app/Contents/Plugins/"
+          tar -C "$STAGE" -czf "test-layout-${{ matrix.leg }}.tar.gz" lmc build
+
+      - name: Upload test layout
+        if: inputs.artifacts != 'release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-layout-${{ matrix.leg }}
+          path: test-layout-${{ matrix.leg }}.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Upload packages
+        if: inputs.artifacts != 'test'
         uses: actions/upload-artifact@v7
         with:
           name: packages-macos-${{ matrix.arch }}

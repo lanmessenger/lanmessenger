@@ -61,8 +61,20 @@ jobs:
     needs: [version, check-branch]
     uses: ./.github/workflows/build.yml
     with:
+      artifacts: release+test
+      windows-ssl: vcpkg
       version: ${{ needs.version.outputs.version }}
       installer_version: ${{ needs.version.outputs.installer_version }}
+
+  # Honest behavioral gate: full Robot suite against the vcpkg-linked test
+  # layout built above (skip-build: same run, same artifact names).
+  e2e:
+    needs: [version, check-branch, build]
+    uses: ./.github/workflows/e2e.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      windows-ssl: vcpkg
+      skip-build: true
 
   smoke-windows-installer:
     needs: [version, check-branch, build]
@@ -87,7 +99,7 @@ jobs:
       runs-on: macos-14
 
   publish:
-    needs: [version, check-branch, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
+    needs: [version, check-branch, build, e2e, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
     if: needs.check-branch.outputs.on_master == 'true' && (github.ref_type == 'tag' || inputs.publish == true)
     runs-on: ubuntu-24.04
     permissions:

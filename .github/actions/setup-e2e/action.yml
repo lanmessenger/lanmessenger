@@ -1,9 +1,8 @@
-# Shared setup for the E2E workflows (gate and demo video).
-#
-# Installs system deps, Qt, builds the lmc release layout, builds the
-# lan-messenger-test binary that carries the in-process lmc-agent, and
-# creates the Robot venv. Used via `uses: ./.github/actions/setup-e2e`.
-# Keeps e2e.yml and demo-video.yml from drifting apart.
+# Setup for demo-video.yml: installs system deps, Qt, builds the lmc release
+# layout, the lan-messenger-test binary that carries the in-process lmc-agent,
+# and creates the Robot venv. (e2e.yml no longer uses this: since the Build
+# split it downloads the test layout from build.yml instead of compiling.)
+# Used via `uses: ./.github/actions/setup-e2e` from demo-video.yml.
 name: Set up E2E dependencies
 description: Qt + lmc release build + lan-messenger-test agent binary + Robot venv
 

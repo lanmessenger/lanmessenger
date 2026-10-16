@@ -1,4 +1,7 @@
-# E2E: full tests/robot/ on 4 OS legs as a SOFT gate.
+# E2E: full tests/robot/ on 4 OS legs as a SOFT gate. This workflow never
+# compiles: the binaries under test come from build.yml (job build-test
+# below; artifacts test-layout-<leg>, same run — contract documented in both
+# headers). Skipped only when the caller already built them (skip-build).
 #
 # Legs: linux-x64, windows-x64, macos-arm64, macos-x64. Every leg runs the
 # same full suite (lmc scenarios plus the lmm/ self-checks) with HOLD_OPEN:0s.
@@ -10,8 +13,6 @@
 #
 # Soft gate: this workflow reports per-leg checks but is NOT in branch
 # protection yet. Promote to required after a series of green runs.
-# Follow-ups (not this file): workflow_call(version) + stamped release gate
-# in release.yml/nightly.yml (needs setup-e2e version parametrization).
 name: E2E
 
 on:
@@ -20,16 +21,66 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      windows-ssl:
+        description: Windows OpenSSL source for the test build
+        type: choice
+        options: [choco, vcpkg]
+        default: choco
+      version:
+        description: Version string to build and seed (default 0.0.0)
+        type: string
+        default: ''
+      ref:
+        description: Git ref to test (defaults to the triggering commit)
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      windows-ssl:
+        description: Windows OpenSSL source for the test build
+        type: string
+        default: choco
+      version:
+        description: Version string to build and seed
+        type: string
+        default: ''
+      ref:
+        description: Git ref to test (defaults to the triggering commit)
+        type: string
+        default: ''
+      skip-build:
+        description: Download a test layout built by another job in the same run instead of building
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Compilation lives in build.yml; this job orders the test layout for the
+  # legs below. Skipped only when the caller (release/nightly) already built
+  # it in the same run via skip-build=true: same artifact names either way.
+  build-test:
+    if: ${{ !inputs.skip-build }}
+    uses: ./.github/workflows/build.yml
+    with:
+      artifacts: test
+      windows-ssl: ${{ inputs.windows-ssl || 'choco' }}
+      version: ${{ inputs.version || '0.0.0' }}
+      ref: ${{ inputs.ref }}
+
   e2e:
+    needs: [build-test]
+    # needs + skipped: without always() a skipped build-test (skip-build
+    # path) would skip the legs too. Run on success (own build) or skipped
+    # (caller built); never on failure/cancel (no binaries to test).
+    if: always() && (needs.build-test.result == 'success' || needs.build-test.result == 'skipped')
     name: e2e (${{ matrix.leg }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
@@ -51,42 +102,71 @@ jobs:
             os: macos-15-intel
             timeout: 120
     env:
-      PKG_VERSION: 0.0.0
+      PKG_VERSION: ${{ inputs.version || '0.0.0' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
-      # ---- Linux setup (shared action) ----
-      - uses: ./.github/actions/setup-e2e
+      # ---- Linux runtime (no compilation: binaries come from build-test) ----
+      # System Qt 6.2, like the test layout was built against (oldest
+      # baseline); no install-qt-action here on purpose. Runtime subset of
+      # the build env: no compilers, no cmake.
+      - name: Install runtime dependencies (Linux)
         if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            qt6-base-dev qt6-base-dev-tools \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+            qt6-translations-l10n \
+            qt6-multimedia-dev \
+            libssl-dev \
+            xvfb xauth x11-utils \
+            python3-pip python3-venv
 
-      # ---- Windows setup (spike-proven recipe) ----
-      - uses: TheMrMilchmann/setup-msvc-dev@v4
-        if: runner.os == 'Windows'
+      - name: Download test layout (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/download-artifact@v7
         with:
-          arch: x64
+          name: test-layout-linux-x64
+          path: _test-layout
 
-      - uses: jurplel/install-qt-action@v4
-        if: runner.os != 'Linux'
-        with:
-          version: '6.8.3'
-          arch: ${{ runner.os == 'Windows' && 'win64_msvc2022_64' || 'clang_64' }}
-          modules: ${{ runner.os == 'Windows' && '' || 'qtmultimedia qtshadertools qtimageformats' }}
-          cache: true
+      - name: Extract test layout (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          tar -xzf _test-layout/test-layout-linux-x64.tar.gz
+          test -x lmc/release/lan-messenger-test
+          test -x build/tools/lmm/lmmd
 
-      - name: Install OpenSSL (Windows)
+      # ---- Windows runtime (no compilation: binaries come from build-test) ----
+      # No MSVC, no vcpkg, no Qt install: the test layout already contains
+      # the windeployqt output + OpenSSL DLLs. The image's VC++ redist
+      # covers running (no linking happens here).
+      - name: Download test layout (Windows)
         if: runner.os == 'Windows'
-        run: vcpkg install openssl:x64-windows
+        uses: actions/download-artifact@v7
+        with:
+          name: test-layout-windows-x64
+          path: _test-layout
 
-      - name: Prepare OpenSSL paths (Windows)
+      - name: Extract test layout (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $root = $env:VCPKG_INSTALLATION_ROOT
-          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
-          Copy-Item -Recurse $root/installed/x64-windows/include/openssl openssl/include/
-          Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
-          Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
-          Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+          tar -xzf _test-layout/test-layout-windows-x64.tar.gz
+          if (-not (Test-Path lmc/release/lan-messenger-test.exe)) { throw "test binary missing" }
+          if (-not (Test-Path build/tools/lmm/lmmd.exe)) { throw "lmmd missing" }
+
+      # macOS still installs Qt: the test layout's .app links the Qt libs
+      # from QT_ROOT_DIR (only Plugins ride inside the bundle).
+      - uses: jurplel/install-qt-action@v4
+        if: runner.os == 'macOS'
+        with:
+          version: '6.8.3'
+          arch: clang_64
+          modules: 'qtmultimedia qtshadertools qtimageformats'
+          cache: true
 
       - name: Install OpenSSL (macOS)
         if: runner.os == 'macOS'
@@ -96,67 +176,24 @@ jobs:
           ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
           ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
 
-      - name: Configure (Windows/macOS)
-        if: runner.os != 'Linux'
-        shell: bash
-        run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
-          if [ -d openssl ]; then
-            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
-          fi
-          cmake "${args[@]}"
+      # ---- macOS runtime (no compilation: binaries come from build-test) ----
+      # The Plugins copy lives in the tarball now (apprunner.cpp REPLACES
+      # the default Qt plugin paths with Contents/Plugins, so without it
+      # the app blocks in the "missing openssl" box before the agent starts).
+      - name: Download test layout (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/download-artifact@v7
+        with:
+          name: test-layout-${{ matrix.leg }}
+          path: _test-layout
 
-      - name: Build release layout (Windows/macOS)
-        if: runner.os != 'Linux'
-        run: cmake --build build --config Release --target package-local --parallel
-
-      - name: Deploy Qt runtime (Windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-          set QTDIR=%QT_ROOT_DIR%
-          windeployqt --release lmc\release\lmc.exe
-
-      - name: Ensure TLS plugins (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $dst = "lmc/release/tls"
-          if (-not (Test-Path $dst)) {
-            Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
-          }
-
-      - name: Build test binary and mock daemon (Windows/macOS)
-        if: runner.os != 'Linux'
-        run: cmake --build build --config Release --target lan-messenger-test lmmd --parallel
-
-      - name: Stage test binary (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe lmc/release/
-          if (-not (Test-Path lmc/release/lan-messenger-test.exe)) { throw "test binary missing" }
-          if (-not (Test-Path build/tools/lmm/lmmd.exe)) { throw "lmmd missing" }
-
-      - name: Stage test binary (macOS)
+      - name: Extract test layout (macOS)
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          cp build/tools/lmc-agent/lan-messenger-test lmc/release/LAN-Messenger.app/Contents/MacOS/
+          tar -xzf "_test-layout/test-layout-${{ matrix.leg }}.tar.gz"
           test -x lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test
           test -x build/tools/lmm/lmmd
-
-      # Ship-like plugin set inside the bundle. On macOS apprunner.cpp
-      # REPLACES the default Qt plugin paths with Contents/Plugins, so
-      # without this QSslSocket::supportsSsl() is false and the app blocks
-      # in the "missing openssl" QMessageBox before the test agent starts.
-      - name: Deploy Qt plugins into the bundle (macOS)
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          mkdir -p lmc/release/LAN-Messenger.app/Contents/Plugins
-          cp -R "$QT_ROOT_DIR/plugins/"* lmc/release/LAN-Messenger.app/Contents/Plugins/
-          ls lmc/release/LAN-Messenger.app/Contents/Plugins
 
       - name: Set up Python and Robot Framework (Windows)
         if: runner.os == 'Windows'
@@ -237,7 +274,7 @@ jobs:
         run: |
           export USER=ci
           export QT_QPA_PLATFORM=xcb
-          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          export LD_LIBRARY_PATH="$PWD/lmc/release"
           .venv-robot-ci/bin/robot \
             --outputdir robot-results-full \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
@@ -293,7 +330,7 @@ jobs:
         run: |
           export USER=ci
           export QT_QPA_PLATFORM=xcb
-          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          export LD_LIBRARY_PATH="$PWD/lmc/release"
           .venv-robot-ci/bin/robot \
             --rerunfailed robot-results-full/output.xml \
             --outputdir robot-results-rerun \

@@ -91,6 +91,8 @@ jobs:
     if: needs.plan.outputs.should_build == 'true'
     uses: ./.github/workflows/build.yml
     with:
+      artifacts: release+test
+      windows-ssl: vcpkg
       version: ${{ needs.plan.outputs.version }}
       installer_version: ${{ needs.plan.outputs.installer_version }}
       ref: ${{ needs.plan.outputs.sha }}
@@ -121,9 +123,19 @@ jobs:
       arch-suffix: arm64
       runs-on: macos-14
 
+  e2e:
+    needs: [plan, build]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    uses: ./.github/workflows/e2e.yml
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      windows-ssl: vcpkg
+      ref: ${{ needs.plan.outputs.sha }}
+      skip-build: true
+
   publish:
-    needs: [plan, build, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
-    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
+    needs: [plan, build, e2e, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.e2e.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
