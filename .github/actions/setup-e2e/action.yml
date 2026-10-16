@@ -1,10 +1,10 @@
-# Shared setup for the E2E Robot workflows (gate and demo video).
+# Shared setup for the E2E workflows (gate and demo video).
 #
 # Installs system deps, Qt, builds the lmc release layout, builds the
 # lan-messenger-test binary that carries the in-process lmc-agent, and
 # creates the Robot venv. Used via `uses: ./.github/actions/setup-e2e`.
-# Keeps e2e-robot.yml and e2e-robot-demo.yml from drifting apart.
-name: Set up E2E Robot dependencies
+# Keeps e2e.yml and demo-video.yml from drifting apart.
+name: Set up E2E dependencies
 description: Qt + lmc release build + lan-messenger-test agent binary + Robot venv
 
 runs:
@@ -40,7 +40,7 @@ runs:
     # The E2E agent is linked into the test binary (see
     # tools/lmc-agent/PROTOCOL.md): test-main.cpp starts the agent server
     # from LMC_AGENT_PORT (default 9999). The binary is copied into the
-    # release layout by hand, like tst_lmc_gui in ci.yml: an install(TARGETS) rule would leak it
+    # release layout by hand, like tst_lmc_gui in build.yml: an install(TARGETS) rule would leak it
     # into the packages built from that directory.
     - name: Build the test agent binary
       shell: bash

@@ -3,7 +3,7 @@
 # Runs the lan-messenger-test binary driven by the in-process lmc-agent
 # (tools/lmc-agent, PROTOCOL.md). The agent acts on Qt objects directly, so
 # neither an injected agent library nor synthetic X key events are needed.
-# For a watchable recording of the same suite see e2e-robot-demo.yml.
+# For a watchable recording of the same suite see demo-video.yml.
 name: E2E Robot gate
 
 on:

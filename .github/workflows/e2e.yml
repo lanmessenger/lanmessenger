@@ -1,11 +1,7 @@
-# E2E Robot matrix: full tests/robot/ on 4 OS legs as a SOFT gate.
+# E2E: full tests/robot/ on 4 OS legs as a SOFT gate.
 #
 # Legs: linux-x64, windows-x64, macos-arm64, macos-x64. Every leg runs the
 # same full suite (lmc scenarios plus the lmm/ self-checks) with HOLD_OPEN:0s.
-# Each leg replicates its spike-proven recipe (native settings seed, per-OS
-# runtime env); see e2e-spike-windows.yml / e2e-spike-macos.yml for the
-# archaeology. The spikes stay dispatch-only until this matrix is green on
-# master, then they are deleted.
 #
 # Flake policy: every leg runs the suite once, then --rerunfailed exactly
 # once, then rebot --merge. A real breakage stays red after the retry; a
@@ -15,9 +11,8 @@
 # Soft gate: this workflow reports per-leg checks but is NOT in branch
 # protection yet. Promote to required after a series of green runs.
 # Follow-ups (not this file): workflow_call(version) + stamped release gate
-# in release.yml/nightly.yml (needs setup-e2e version parametrization),
-# deletion of e2e-robot.yml and the spike files.
-name: E2E Robot matrix
+# in release.yml/nightly.yml (needs setup-e2e version parametrization).
+name: E2E
 
 on:
   push:
@@ -30,7 +25,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: e2e-matrix-${{ github.ref }}
+  group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
