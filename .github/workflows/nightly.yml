@@ -89,7 +89,7 @@ jobs:
   build:
     needs: [plan]
     if: needs.plan.outputs.should_build == 'true'
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/build.yml
     with:
       version: ${{ needs.plan.outputs.version }}
       installer_version: ${{ needs.plan.outputs.installer_version }}

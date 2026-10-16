@@ -59,7 +59,7 @@ jobs:
 
   build:
     needs: [version, check-branch]
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/build.yml
     with:
       version: ${{ needs.version.outputs.version }}
       installer_version: ${{ needs.version.outputs.installer_version }}

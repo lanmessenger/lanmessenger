@@ -1,10 +1,10 @@
 # Watchable recording of the Robot E2E suite (manual runs only).
 #
-# Same tests as the E2E Robot gate, but each dialog is held open
+# Same tests as the E2E gate, but each dialog is held open
 # (${HOLD_OPEN}, input `hold_open`) while ffmpeg records the Xvfb display
 # in real time (30 fps capture and encode, +faststart for progressive
 # preview). Trigger from the Actions tab when a demo video is needed.
-name: E2E Robot demo video
+name: Demo video
 
 on:
   workflow_dispatch:
@@ -18,11 +18,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: e2e-robot-demo-${{ github.ref }}
+  group: demo-video-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  e2e-robot-demo-linux:
+  demo-video-linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -56,7 +56,7 @@ jobs:
             robot-video.mp4 &
           echo $! > /tmp/ffmpeg.pid
 
-      # Same seed recipe as the gate (see e2e-robot.yml for why).
+      # Same seed recipe as the gate (see e2e.yml for why).
       - name: Seed lmc settings
         run: |
           mkdir -p "$HOME/.config/lmc"
@@ -64,7 +64,7 @@ jobs:
           [General]
           AutoShow=true
 
-          # Same seed recipe as the gate (see e2e-robot.yml for why 0.0.0).
+          # Same seed recipe as the gate (see e2e.yml for why 0.0.0).
           [Application]
           Version=0.0.0
 
