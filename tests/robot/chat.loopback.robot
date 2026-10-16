@@ -4,25 +4,25 @@ Documentation     Message send/receive over the loopback self-peer, single
 ...               its own announces, so the seeded user lists itself under
 ...               General and a conversation with it round-trips through the
 ...               real UDP+TCP stack (proven by the two-user P0 spike: typing
-...               notification, send, echo). Opening is keyboard-only (see
-...               Open Self Chat): an agent click that opens an exec-modal
-...               dialog blocks the agent connection, and toolbar buttons
-...               cannot be triggered any other way. Log asserts read the
+...               notification, send, echo). Opening and typing go through the
+...               in-process lmc-agent (Open Chat With Peer for the self-peer
+...               ${SELF_PEER}, Type Text into txtMessage with Return — see
+...               todo/lmc-test-adapter.md). Log asserts read the
 ...               lmcMessageLog view via plainText, not history files (custom
 ...               binary format).
 Resource          common.resource
+Library           OperatingSystem
 Suite Setup       Launch LMC
-Suite Teardown    Close Application
-Test Setup        Focus Main Window
-Test Teardown     Close Chat
+Suite Teardown    Close LMC
+Test Teardown     Close All Chats
 
 
 *** Test Cases ***
 Self Chat Opens
     [Documentation]    Functional presence: the self-peer row exists and
     ...    opens a conversation. The title carries the seeded user name,
-    ...    which varies (CI seeds E2E Tester, local runs use the dev config)
-    ...    and the main-window label fills in late, so assert the shape
+    ...    which varies (CI seeds E2E Tester via ${SELF_PEER}, local runs
+    ...    use the dev config) and the main-window label fills in late, so assert the shape
     ...    "<peer> - Conversation" with a non-empty peer part instead of an
     ...    exact name (P1).
     Open Self Chat

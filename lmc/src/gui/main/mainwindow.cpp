@@ -28,7 +28,7 @@
 #include <QUrl>
 #include "mainwindow.h"
 #include "gui/widgets/actionhelper.h"
-#include "messaging/messagelog.h"
+#include "gui/chat/messagelog.h"
 #include "messaging/history.h"
 
 lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)

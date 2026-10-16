@@ -1,11 +1,11 @@
 # Shared setup for the E2E Robot workflows (gate and demo video).
 #
-# Installs system deps, Qt, builds the lmc release layout and the qtexpert
-# LD_PRELOAD agent, and creates the Robot venv. Used via
-# `uses: ./.github/actions/setup-e2e`. Keeps e2e-robot.yml and
-# e2e-robot-demo.yml from drifting apart.
+# Installs system deps, Qt, builds the lmc release layout, builds the
+# lan-messenger-test binary that carries the in-process lmc-agent, and
+# creates the Robot venv. Used via `uses: ./.github/actions/setup-e2e`.
+# Keeps e2e-robot.yml and e2e-robot-demo.yml from drifting apart.
 name: Set up E2E Robot dependencies
-description: Qt + lmc release build + pinned qtexpert agent + Robot venv
+description: Qt + lmc release build + lan-messenger-test agent binary + Robot venv
 
 runs:
   using: composite
@@ -17,7 +17,7 @@ runs:
         sudo apt-get install -y \
           build-essential cmake git \
           libssl-dev libgl1-mesa-dev \
-          xvfb xauth x11-utils xdotool \
+          xvfb xauth x11-utils \
           python3-pip python3-venv
 
     - uses: jurplel/install-qt-action@v4
@@ -37,45 +37,25 @@ runs:
       shell: bash
       run: cmake --build build --config Release --target package-local --parallel
 
-    # The PyPI release of robotframework-qtexpert has no preload mode;
-    # build the LD_PRELOAD agent (Qt6) from a pinned git ref instead.
-    # The ref is derived from tests/robot/requirements.txt (single source
-    # of truth): bump the pin there and both pip and this build follow.
-    # Upstream cpp_agent still targets Qt5, so convert it with our patch
-    # (tests/robot/qtexpert-qt6.patch). The patch is applied only when the
-    # pinned checkout still references Qt5; the guards below fail loudly
-    # instead of silently building the wrong Qt version.
-    - name: Build qtexpert agent
+    # The E2E agent is linked into the test binary (see
+    # tools/lmc-agent/PROTOCOL.md): test-main.cpp starts the agent server
+    # from LMC_AGENT_PORT (default 9999). The binary is copied into the
+    # release layout by hand, like tst_lmc_gui in ci.yml: an install(TARGETS) rule would leak it
+    # into the packages built from that directory.
+    - name: Build the test agent binary
       shell: bash
       run: |
-        QTEXPERT_REF="$(grep -oE 'robotframework-qtexpert\.git@[0-9a-f]+' tests/robot/requirements.txt | cut -d@ -f2)"
-        test -n "$QTEXPERT_REF" || { echo "::error::qtexpert pin not found in tests/robot/requirements.txt"; exit 1; }
-        echo "qtexpert ref: $QTEXPERT_REF"
-        git init /tmp/qtexpert
-        git -C /tmp/qtexpert remote add origin https://github.com/tulasirm6/robotframework-qtexpert.git
-        git -C /tmp/qtexpert fetch --depth 1 origin "$QTEXPERT_REF"
-        git -C /tmp/qtexpert checkout FETCH_HEAD
-        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
-          echo "Upstream still on Qt5, applying qtexpert-qt6.patch"
-          patch -p1 --directory=/tmp/qtexpert < "$GITHUB_WORKSPACE/tests/robot/qtexpert-qt6.patch" || {
-            echo "::error::qtexpert-qt6.patch did not apply; regenerate it against the new pin"
-            exit 1
-          }
-        else
-          echo "Upstream already Qt6, patch skipped"
-        fi
-        if grep -vE '^\s*#' /tmp/qtexpert/cpp_agent/CMakeLists.txt | grep -q 'Qt5'; then
-          echo "::error::qtexpert cpp_agent still references Qt5 after patch; check the pin"
-          exit 1
-        fi
-        grep -q 'find_package(Qt6' /tmp/qtexpert/cpp_agent/CMakeLists.txt || {
-          echo "::error::qtexpert cpp_agent has no find_package(Qt6); check the pin"
-          exit 1
-        }
-        cmake -S /tmp/qtexpert/cpp_agent -B build/qtexpert-agent \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
-        cmake --build build/qtexpert-agent --config Release
+        cmake --build build --config Release --target lan-messenger-test --parallel
+        cp build/tools/lmc-agent/lan-messenger-test lmc/release/
+        test -x lmc/release/lan-messenger-test
+
+    # The mock-peer daemon for chat.robot and the lmm/ self-checks: not a
+    # dependency of package-local, so it needs its own build step.
+    - name: Build the mock daemon
+      shell: bash
+      run: |
+        cmake --build build --config Release --target lmmd --parallel
+        test -x build/tools/lmm/lmmd
 
     - name: Set up Python and Robot Framework
       shell: bash

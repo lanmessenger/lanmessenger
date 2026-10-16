@@ -65,6 +65,11 @@ jobs:
           app=/Applications/LAN-Messenger-smoke.app
           test -x "$app/Contents/MacOS/LAN-Messenger"
           test -d "$app/Contents/Frameworks"
+          # The app blocks in the "missing openssl" modal when QSslSocket
+          # finds no TLS backend (apprunner.cpp supportsSsl check), so the
+          # bundle must carry PlugIns/tls (macdeployqt stages it; an E2E
+          # spike env without it hung before the test agent started).
+          test -d "$app/Contents/PlugIns/tls"
           for f in "$app/Contents/MacOS/lmc.rcc" "$app/Contents/Info.plist" \
                    "$app/Contents/MacOS/lang/de_DE.qm" \
                    "$app/Contents/MacOS/lang/system/qtbase_de.qm"; do

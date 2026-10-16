@@ -1,12 +1,9 @@
 # Robot Framework E2E (Linux only).
 #
-# NOTE: robotframework-qtexpert on PyPI (0.1.2) has no preload mode, which is
-# what a compiled C++ Qt6 binary needs. Install from git instead, where
-# the LD_PRELOAD agent (cpp_agent, Qt6) and the `preload` mode live.
-# Pinned to the commit validated locally and in CI. The CI agent-build step
-# derives the same ref from the line below (single source of truth): bump
-# the pin here and both pip and the C++ build follow. Upstream cpp_agent
-# still targets Qt5, so CI converts it with tests/robot/qtexpert-qt6.patch
-# (guarded: loud failure instead of a silent wrong-Qt build).
+# No third-party UI driver: the suites talk to the in-process lmc-agent
+# (tools/lmc-agent, PROTOCOL.md) that is linked into the lan-messenger-test
+# binary, so the only dependency is robotframework itself. The agent emits
+# no X events, so xdotool is gone from the suites as well (see
+# tests/robot/common.resource).
+
 robotframework
-git+https://github.com/tulasirm6/robotframework-qtexpert.git@cc3cba21ee033e5bad68f3fcb87ca666dacb8492

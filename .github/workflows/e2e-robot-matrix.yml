@@ -1,0 +1,420 @@
+# E2E Robot matrix: full tests/robot/ on 4 OS legs as a SOFT gate.
+#
+# Legs: linux-x64, windows-x64, macos-arm64, macos-x64. Every leg runs the
+# same full suite (lmc scenarios plus the lmm/ self-checks) with HOLD_OPEN:0s.
+# Each leg replicates its spike-proven recipe (native settings seed, per-OS
+# runtime env); see e2e-spike-windows.yml / e2e-spike-macos.yml for the
+# archaeology. The spikes stay dispatch-only until this matrix is green on
+# master, then they are deleted.
+#
+# Flake policy: every leg runs the suite once, then --rerunfailed exactly
+# once, then rebot --merge. A real breakage stays red after the retry; a
+# one-off runner/network flake goes green. Do NOT add more retries here:
+# repeated retries mask real instability.
+#
+# Soft gate: this workflow reports per-leg checks but is NOT in branch
+# protection yet. Promote to required after a series of green runs.
+# Follow-ups (not this file): workflow_call(version) + stamped release gate
+# in release.yml/nightly.yml (needs setup-e2e version parametrization),
+# deletion of e2e-robot.yml and the spike files.
+name: E2E Robot matrix
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: e2e (${{ matrix.leg }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      # One red leg must not kill the other three: every report is evidence.
+      fail-fast: false
+      matrix:
+        include:
+          - leg: linux-x64
+            os: ubuntu-24.04
+            timeout: 45
+          - leg: windows-x64
+            os: windows-2022
+            timeout: 120
+          - leg: macos-arm64
+            os: macos-14
+            timeout: 120
+          - leg: macos-x64
+            os: macos-15-intel
+            timeout: 120
+    env:
+      PKG_VERSION: 0.0.0
+    steps:
+      - uses: actions/checkout@v7
+
+      # ---- Linux setup (shared action) ----
+      - uses: ./.github/actions/setup-e2e
+        if: runner.os == 'Linux'
+
+      # ---- Windows setup (spike-proven recipe) ----
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+
+      - uses: jurplel/install-qt-action@v4
+        if: runner.os != 'Linux'
+        with:
+          version: '6.8.3'
+          arch: ${{ runner.os == 'Windows' && 'win64_msvc2022_64' || 'clang_64' }}
+          modules: ${{ runner.os == 'Windows' && '' || 'qtmultimedia qtshadertools qtimageformats' }}
+          cache: true
+
+      - name: Install OpenSSL (Windows)
+        if: runner.os == 'Windows'
+        run: vcpkg install openssl:x64-windows
+
+      - name: Prepare OpenSSL paths (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
+          Copy-Item -Recurse $root/installed/x64-windows/include/openssl openssl/include/
+          Copy-Item $root/installed/x64-windows/lib/libcrypto.lib openssl/lib/
+          Copy-Item $root/installed/x64-windows/bin/libcrypto-*.dll openssl/bin/
+          Copy-Item $root/installed/x64-windows/bin/libssl-*.dll openssl/bin/
+
+      - name: Install OpenSSL (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install openssl@3
+          mkdir -p openssl
+          ln -sfn "$(brew --prefix openssl@3)/include" openssl/include
+          ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
+
+      - name: Configure (Windows/macOS)
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
+          if [ -d openssl ]; then
+            args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
+          fi
+          cmake "${args[@]}"
+
+      - name: Build release layout (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: cmake --build build --config Release --target package-local --parallel
+
+      - name: Deploy Qt runtime (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          set QTDIR=%QT_ROOT_DIR%
+          windeployqt --release lmc\release\lmc.exe
+
+      - name: Ensure TLS plugins (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dst = "lmc/release/tls"
+          if (-not (Test-Path $dst)) {
+            Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
+          }
+
+      - name: Build test binary and mock daemon (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: cmake --build build --config Release --target lan-messenger-test lmmd --parallel
+
+      - name: Stage test binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe lmc/release/
+          if (-not (Test-Path lmc/release/lan-messenger-test.exe)) { throw "test binary missing" }
+          if (-not (Test-Path build/tools/lmm/lmmd.exe)) { throw "lmmd missing" }
+
+      - name: Stage test binary (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          cp build/tools/lmc-agent/lan-messenger-test lmc/release/LAN-Messenger.app/Contents/MacOS/
+          test -x lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test
+          test -x build/tools/lmm/lmmd
+
+      # Ship-like plugin set inside the bundle. On macOS apprunner.cpp
+      # REPLACES the default Qt plugin paths with Contents/Plugins, so
+      # without this QSslSocket::supportsSsl() is false and the app blocks
+      # in the "missing openssl" QMessageBox before the test agent starts.
+      - name: Deploy Qt plugins into the bundle (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p lmc/release/LAN-Messenger.app/Contents/Plugins
+          cp -R "$QT_ROOT_DIR/plugins/"* lmc/release/LAN-Messenger.app/Contents/Plugins/
+          ls lmc/release/LAN-Messenger.app/Contents/Plugins
+
+      - name: Set up Python and Robot Framework (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          py -3 -m venv .venv-robot-ci
+          .venv-robot-ci/Scripts/pip install -r tests/robot/requirements.txt
+
+      - name: Set up Python and Robot Framework (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          python3 -m venv .venv-robot-ci
+          .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
+
+      # ---- Native settings seed (spike-proven per OS) ----
+      # The main window shows at startup only with AutoShow=true.
+      # Version must match the tested binary (built with $PKG_VERSION):
+      # a newer Version resets the config and blocks startup modally.
+      - name: Seed lmc settings (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          cat > "$HOME/.config/lmc/lmc.ini" <<EOF
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=$PKG_VERSION
+
+          [User]
+          Name=E2E Tester
+          EOF
+
+      - name: Seed lmc settings (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:APPDATA\LAN Messenger"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          @"
+          [General]
+          AutoShow=true
+
+          [Application]
+          Version=$env:PKG_VERSION
+
+          [User]
+          Name=E2E Tester
+          "@ | Set-Content "$dir\LAN Messenger.ini" -Encoding ASCII
+          Get-Content "$dir\LAN Messenger.ini"
+
+      - name: Seed lmc settings (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.config/lmc"
+          printf '[General]\nAutoShow=true\n\n[Application]\nVersion=%s\n\n[User]\nName=E2E Tester\n' \
+            "$PKG_VERSION" > "$HOME/.config/lmc/lmc.ini"
+          cat "$HOME/.config/lmc/lmc.ini"
+
+      - name: Start virtual display (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 &
+          for i in $(seq 1 30); do
+            xdpyinfo -display :99 >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :99 >/dev/null
+
+      # ---- Full suite + one flake-absorbing retry + merge ----
+      - name: Run full suite (Linux)
+        id: full_linux
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        env:
+          DISPLAY: :99
+        run: |
+          export USER=ci
+          export QT_QPA_PLATFORM=xcb
+          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          .venv-robot-ci/bin/robot \
+            --outputdir robot-results-full \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
+            -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            tests/robot/
+
+      - name: Run full suite (Windows)
+        id: full_windows
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # HOME is unset on Windows runners, but the suites anchor their
+          # seeded lmc.ini at %{HOME}/.config (the app itself reads the
+          # %APPDATA% seed above; this dir is the suites' scratch space).
+          $env:HOME = "$env:RUNNER_TEMP\e2e-home"
+          $env:PATH = "$PWD\lmc\release;$env:PATH"
+          # Qt static file dialogs are native (IFileDialog) unless told
+          # otherwise: without this the agent cannot see fileNameEdit
+          # (same reason LMC_NON_NATIVE_DIALOGS exists on macOS).
+          $env:LMC_NON_NATIVE_DIALOGS = "1"
+          .venv-robot-ci/Scripts/robot `
+            --outputdir robot-results-full `
+            -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
+            -v HOLD_OPEN:0s `
+            tests/robot/
+
+      - name: Run full suite (macOS)
+        id: full_macos
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        shell: bash
+        run: |
+          cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-full" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/"
+
+      - name: Rerun failed tests once (Linux)
+        id: rerun_linux
+        if: runner.os == 'Linux' && steps.full_linux.outcome == 'failure'
+        continue-on-error: true
+        env:
+          DISPLAY: :99
+        run: |
+          export USER=ci
+          export QT_QPA_PLATFORM=xcb
+          export LD_LIBRARY_PATH="$PWD/lmc/release:$QT_ROOT_DIR/lib"
+          .venv-robot-ci/bin/robot \
+            --rerunfailed robot-results-full/output.xml \
+            --outputdir robot-results-rerun \
+            -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
+            -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            tests/robot/
+
+      - name: Rerun failed tests once (Windows)
+        id: rerun_windows
+        if: runner.os == 'Windows' && steps.full_windows.outcome == 'failure'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $env:HOME = "$env:RUNNER_TEMP\e2e-home"
+          $env:PATH = "$PWD\lmc\release;$env:PATH"
+          $env:LMC_NON_NATIVE_DIALOGS = "1"
+          .venv-robot-ci/Scripts/robot `
+            --rerunfailed robot-results-full/output.xml `
+            --outputdir robot-results-rerun `
+            -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
+            -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
+            -v HOLD_OPEN:0s `
+            tests/robot/
+
+      - name: Rerun failed tests once (macOS)
+        id: rerun_macos
+        if: runner.os == 'macOS' && steps.full_macos.outcome == 'failure'
+        continue-on-error: true
+        shell: bash
+        run: |
+          cd lmc/release
+          export LMC_NON_NATIVE_DIALOGS=1
+          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
+            --rerunfailed "$GITHUB_WORKSPACE/robot-results-full/output.xml" \
+            --outputdir "$GITHUB_WORKSPACE/robot-results-rerun" \
+            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
+            -v HOLD_OPEN:0s \
+            "$GITHUB_WORKSPACE/tests/robot/"
+
+      - name: Merge reports (Linux/macOS)
+        if: always() && runner.os != 'Windows'
+        shell: bash
+        run: |
+          inputs="robot-results-full/output.xml"
+          if [ -f robot-results-rerun/output.xml ]; then
+            inputs="$inputs robot-results-rerun/output.xml"
+          fi
+          if [ ! -f robot-results-full/output.xml ]; then
+            echo "NO ROBOT OUTPUT: full run produced no output.xml (see Run full suite above)" >&2
+            exit 1
+          fi
+          rc=0
+          # NOTE: --output is explicit because `rebot --merge` in RF 7.5
+          # writes only log+report by default, no output.xml (the Check
+          # step below parses the merged XML).
+          .venv-robot-ci/bin/rebot --merge -d robot-results --output output.xml $inputs || rc=$?
+          if [ "$rc" -gt 250 ]; then
+            echo "rebot execution error (rc=$rc), not test failures" >&2
+            exit 1
+          fi
+          # rc 0-250 is the failed-test count in the merged output; the
+          # verdict belongs to the Check step below, not to the merge.
+          exit 0
+
+      - name: Merge reports (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $inputs = @("robot-results-full/output.xml")
+          if (Test-Path "robot-results-rerun/output.xml") { $inputs += "robot-results-rerun/output.xml" }
+          if (-not (Test-Path "robot-results-full/output.xml")) { throw "NO ROBOT OUTPUT: full run produced no output.xml (see Run full suite above)" }
+          # NOTE: --output is explicit because `rebot --merge` in RF 7.5
+          # writes only log+report by default, no output.xml (the Check
+          # step below parses the merged XML).
+          .venv-robot-ci/Scripts/rebot --merge -d robot-results --output output.xml @inputs
+          $rc = $LASTEXITCODE
+          if ($rc -gt 250) { throw "rebot execution error (rc=$rc), not test failures" }
+          # rc 0-250 is the failed-test count in the merged output; the
+          # verdict belongs to the Check step below, not to the merge.
+          exit 0
+
+      - name: Check merged result (Linux/macOS)
+        if: always() && runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ ! -f robot-results/output.xml ]; then
+            echo "NO MERGED OUTPUT: merge produced nothing (see Merge reports above)" >&2
+            exit 1
+          fi
+          python3 -c "
+          import sys, xml.etree.ElementTree as ET
+          root = ET.parse('robot-results/output.xml').getroot()
+          tests = list(root.iter('test'))
+          failed = [t.get('name') for t in tests if t.find('status').get('status') != 'PASS']
+          print(f'{len(tests)} tests, {len(failed)} failed')
+          for n in failed:
+              print('FAILED:', n)
+          sys.exit(1 if failed else 0)
+          "
+
+      - name: Check merged result (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "robot-results/output.xml")) { throw "NO MERGED OUTPUT: merge produced nothing (see Merge reports above)" }
+          py -3 -c "import sys, xml.etree.ElementTree as ET; root = ET.parse('robot-results/output.xml').getroot(); tests = list(root.iter('test')); failed = [t.get('name') for t in tests if t.find('status').get('status') != 'PASS']; print(str(len(tests)) + ' tests, ' + str(len(failed)) + ' failed'); [print('FAILED: ' + n) for n in failed]; sys.exit(1 if failed else 0)"
+
+      - name: Upload robot results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: robot-results-${{ matrix.leg }}
+          path: robot-results-*
+          if-no-files-found: warn
+          retention-days: 3

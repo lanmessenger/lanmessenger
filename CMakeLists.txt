@@ -32,3 +32,15 @@ add_subdirectory(lmc)
 
 enable_testing()
 add_subdirectory(tests)
+
+# lmm test daemon. OFF on weak VMs to keep the default build small
+# (cmake --build build --target lmmd still works when OFF).
+option(LMC_BUILD_LMM "Build the lmm test daemon (tools/lmm)" ON)
+if(LMC_BUILD_LMM)
+    add_subdirectory(tools/lmm)
+endif()
+
+# In-process GUI test agent (the lan-messenger-test binary).
+# Test tooling lives in tools/ next to the lmm mock daemon; tests/ holds
+# only the suites themselves. See tools/lmc-agent/PROTOCOL.md.
+add_subdirectory(tools/lmc-agent)

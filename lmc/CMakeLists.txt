@@ -24,11 +24,12 @@ add_library(lmc_core STATIC
     src/gui/history/historywindow.cpp
     src/gui/widgets/imagepicker.cpp
     src/gui/widgets/imagepickeraction.cpp
+    src/app/apprunner.cpp
     src/app/lmc.cpp
     src/core/lmcstrings.cpp
     src/gui/main/mainwindow.cpp
     src/messaging/message.cpp
-    src/messaging/messagelog.cpp
+    src/gui/chat/messagelog.cpp
     src/messaging/messaging.cpp
     src/messaging/messagingproc.cpp
     src/network/netstreamer.cpp
@@ -68,11 +69,12 @@ add_library(lmc_core STATIC
     src/gui/history/historywindow.h
     src/gui/widgets/imagepicker.h
     src/gui/widgets/imagepickeraction.h
+    src/app/apprunner.h
     src/app/lmc.h
     src/core/lmcstrings.h
     src/gui/main/mainwindow.h
     src/messaging/message.h
-    src/messaging/messagelog.h
+    src/gui/chat/messagelog.h
     src/messaging/messaging.h
     src/network/netstreamer.h
     src/network/network.h

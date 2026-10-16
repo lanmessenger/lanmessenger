@@ -33,7 +33,7 @@
 #include "core/settings.h"
 #include "messaging/history.h"
 #include "historytreewidget.h"
-#include "messaging/messagelog.h"
+#include "gui/chat/messagelog.h"
 
 class lmcHistoryWindow : public QWidget {
   Q_OBJECT
