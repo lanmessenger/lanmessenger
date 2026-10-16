@@ -58,10 +58,19 @@ Launch LMC
     # Per-suite log name: OUTPUT_DIR is per run, and every suite launches
     # its own app — one shared lmc-app.log would be overwritten by the
     # next suite, destroying the post-mortem of a flaky one.
+    # Trace name is per-suite too, see Collect App Trace.
     @{app_args}=    Split Command Line    ${APP_ARGS}
+    # /trace everywhere (auto-enabled only on Windows/macOS).
+    @{app_args}=    Evaluate
+    ...    $app_args + ([] if any(a.lower() == '/trace' for a in $app_args) else ['/trace'])
     Start Process    ${APP_PATH}    @{app_args}    alias=app
     ...    stdout=${OUTPUT_DIR}${/}lmc-app-${SUITE NAME}.log    stderr=STDOUT
     Connect To Test Agent    ${AGENT_PORT}    timeout=30s
+    ${log_info}=    Get App Log Info
+    Set Suite Variable    ${APP_LOG_PATH}    ${log_info}[path]
+    IF    '${log_info}[path]' == ''
+        Log    App trace file unknown (tracing off?) — Collect App Trace will skip    WARN
+    END
     Wait For Object    name=MainWindow    timeout=30
     ${visible}=      Get Object Property    name=MainWindow    visible
     Should Be True    ${visible}
@@ -83,7 +92,24 @@ Close LMC
         Run Keyword And Ignore Error    Log    APP EXIT: still running after Close Application, will terminate    WARN
     END
     Run Keyword And Ignore Error    Terminate Process    app
+    Run Keyword And Ignore Error    Collect App Trace
     Run Keyword And Ignore Error    Disconnect From Test Agent
+
+Collect App Trace
+    [Documentation]    Copy the stashed trace file (${APP_LOG_PATH}) into
+    ...    OUTPUT_DIR and log its tail. Reads from disk (works with a deaf
+    ...    agent). Never fails.
+    Run Keyword And Ignore Error    Collect App Trace Inner
+
+Collect App Trace Inner
+    [Documentation]    Worker, see above.
+    ${path}=    Get Variable Value    ${APP_LOG_PATH}    ${EMPTY}
+    IF    '${path}' == ''    RETURN
+    ${dest}=    Set Variable    ${OUTPUT_DIR}${/}lmc-trace-${SUITE NAME}.log
+    Copy File    ${path}    ${dest}
+    ${tail}=    Evaluate
+    ...    "\\n".join(open(r'''${dest}''', encoding="utf-8", errors="replace").read().splitlines()[-40:])
+    Log    APP TRACE TAIL (last 40 lines of ${dest}):\n${tail}
 
 Log App Liveness On Failure
     [Documentation]    Post-mortem probe for a deaf agent (the Windows
@@ -108,6 +134,7 @@ Probe And Log App Liveness
     ELSE
         Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN
     END
+    Collect App Trace
 
 Seed App Config
     [Documentation]    Fresh lmc.ini under $HOME (caller isolates HOME per

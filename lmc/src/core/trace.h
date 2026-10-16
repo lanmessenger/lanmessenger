@@ -39,10 +39,12 @@ public:
 
   static void init(XmlMessage* pInitParams);
   static void write(const QString& string, bool verbose = true);
+  // Trace file from init(); empty when tracing is off.
+  static QString fileName();
 
 private:
   static bool traceMode;
-  static QString fileName;
+  static QString m_fileName;
 };
 
 #endif // TRACE_H

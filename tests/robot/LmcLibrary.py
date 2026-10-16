@@ -91,6 +91,13 @@ class LmcLibrary:
                 self._sock.close()
                 self._sock = None
 
+    @keyword("Get App Log Info")
+    def get_app_log_info(self):
+        """Trace file path (``get_log``): dict with ``path`` (""
+        when tracing is off).
+        """
+        return self._request("get_log")
+
     # -- transport ----------------------------------------------------
 
     def _request(self, cmd, params=None):

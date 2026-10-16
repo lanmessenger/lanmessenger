@@ -10,6 +10,7 @@
 // pipelines, so this is a reentrancy guard, not a limit).
 
 #include <QObject>
+#include <QString>
 #include <QTcpServer>
 
 namespace lmc_agent {
@@ -18,7 +19,8 @@ class AgentServer : public QTcpServer {
   Q_OBJECT
 
 public:
-  explicit AgentServer(quint16 port, QObject* parent = nullptr);
+  explicit AgentServer(quint16 port, const QString& appLogPath,
+                       QObject* parent = nullptr);
 
   quint16 port() const {
     return serverPort();
@@ -31,11 +33,17 @@ public:
     busy_ = busy;
   }
 
+  // Own trace file, served by get_log.
+  const QString& appLogPath() const {
+    return appLogPath_;
+  }
+
 private slots:
   void onNewConnection();
 
 private:
   bool busy_ = false;
+  QString appLogPath_;
 };
 
 } // namespace lmc_agent

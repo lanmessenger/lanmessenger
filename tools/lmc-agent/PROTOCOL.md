@@ -77,6 +77,7 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `click` | `{locator}` | `{clicked: true}` (async post; for `QAction` — async `trigger()`) |
 | `trigger_action` | `{locator}` | `{triggered: "<action text>"}` — `QAction` only (menus/toolbars, matched by `text=` with `&` stripped, e.g. `text=History`); async `trigger()` via `singleShot(0)`, so an `exec()` modal opened by the slot cannot swallow the reply. Leaf commands win over same-named submenu titles (e.g. the `Help` item over the `Help` menu itself, whose trigger would only pop the dropdown): `topLevelWidgets()` order is not stable, so first-match would be a coin flip |
 | `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
+| `get_log` | `{}` | `{path}` — this instance's trace file; empty when tracing is off (launch with `/trace`) |
 | `list_windows` | `{}` | `{windows: [{objectName, class, title, visible}]}` |
 | `grab_screenshot` | `{locator?, file}` | `{file}` — rendered app-side via `QWidget::grab` |
 | `open_chat` | `{peer, timeout?}` | `{title}` — resolve `peer` by name or userId in the main-window contact tree, fire the same `tvUserList_itemActivated → chatStarting → startChat` path as keyboard Return (idempotent: reopens/shows the existing window), wait for a visible `ChatWindow`, return its title |
@@ -84,11 +85,17 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `type_text` | `{locator, text, send?}` | `{typed: true}` — set text on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` directly; with `send=true` (default) a `Return` press is posted right after, so the widget's own Enter handling runs (e.g. `ChatWindow::eventFilter → sendMessage`, honoring the `SendKeyMod` setting) |
 | `send_key` | `{locator?, key, modifiers?}` | `{sent: "<key>"}` — post press+release to the widget (or the focus widget / active window when `locator` is omitted). `key`: `Return Enter Tab Backtab Escape(Esc) Space Backspace Delete Home End Left Right Up Down` (case-insensitive). `modifiers`: array of `ctrl/control shift alt meta`. No printable characters — text entry goes through `type_text` |
 | `close_window` | `{locator}` | `{objectName, class, title}` — `QWidget::close()` on the top-level window matching `locator` (a child locator resolves to `QWidget::window()`), async `singleShot(0)`. Deterministic counterpart of Escape: every lmc window that rejects on Escape installs its filter on **children** and the handler is only `close()` (`chatwindow.cpp`, `historywindow.cpp`, `helpwindow.cpp`, `transferwindow.cpp`), so an X-delivered Escape depends on the focus widget while this does not. Modeless reuse windows (Transfers, Chat Room) only hide; `WA_DeleteOnClose` windows are deleted |
-| `get_log` | — | stub: `not implemented (phase 2)` |
 | `open_window` | — | stub: `not implemented (phase 2)` |
 | `type_path` | — | stub: `not implemented (phase 2)` |
 
 `timeout` is seconds (number or `"10s"` string, Robot-style).
+
+## Post-mortem flow
+
+On GUI-subsystem OSes stdout is detached, so the trace file is the only
+app-side record. Query `get_log` while the agent is healthy; in teardown
+read the file from disk (a wedged agent answers nothing, the file stays
+readable).
 
 ## Notes / v1 limits
 

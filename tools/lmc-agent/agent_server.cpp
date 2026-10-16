@@ -256,6 +256,11 @@ private:
       result[QStringLiteral("tree")] = dumpTree();
       return okReply(id, result);
     }
+    if(cmd == QStringLiteral("get_log")) {
+      QJsonObject result;
+      result[QStringLiteral("path")] = server_->appLogPath();
+      return okReply(id, result);
+    }
     if(cmd == QStringLiteral("list_windows")) {
       QJsonObject result;
       result[QStringLiteral("windows")] = listWindows();
@@ -305,8 +310,7 @@ private:
       result[QStringLiteral("closing")] = true;
       return okReply(id, result);
     }
-    if(cmd == QStringLiteral("get_log") ||
-       cmd == QStringLiteral("open_window") || cmd == QStringLiteral("close_dialog") ||
+    if(cmd == QStringLiteral("open_window") || cmd == QStringLiteral("close_dialog") ||
        cmd == QStringLiteral("type_path")) {
       return errorReply(id, QStringLiteral("%1: not implemented (phase 2)").arg(cmd));
     }
@@ -320,8 +324,9 @@ private:
 
 } // namespace
 
-AgentServer::AgentServer(quint16 port, QObject* parent)
-    : QTcpServer(parent) {
+AgentServer::AgentServer(quint16 port, const QString& appLogPath,
+                         QObject* parent)
+    : QTcpServer(parent), appLogPath_(appLogPath) {
   if(!listen(QHostAddress::LocalHost, port)) {
     qWarning("lmc-agent: cannot listen on 127.0.0.1:%d: %s", port,
              qPrintable(errorString()));
