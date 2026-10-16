@@ -34,6 +34,17 @@ class LmcLibrary:
     DEFAULT_HOST = "127.0.0.1"
     DEFAULT_PORT = 9999
     POLL_INTERVAL = 0.5
+    # Socket timeout for commands without their own `timeout` param: the
+    # agent answers those immediately (no nested-loop polling).
+    DEFAULT_SOCK_TIMEOUT = 5.0
+    SOCK_TIMEOUT_MARGIN = 10.0
+    # Margin on top of a command's own `timeout`: the agent may legitimately
+    # take the full timeout to answer (wait_for_object/wait_for_gone/open_chat
+    # poll in a nested loop and reply with an error only afterwards). The
+    # socket must outlive that, otherwise the client times out first, the
+    # stream is left mid-line ("cannot read from timed out object") and every
+    # later keyword in the suite fails as a cascade (seen in Dialogs on
+    # Windows: 5s socket vs 10s agent turned one stuck close into 6 reds).
 
     def __init__(self):
         self._sock = None
@@ -87,7 +98,16 @@ class LmcLibrary:
             raise AssertionError("not connected; Connect To Test Agent first")
         self._req_id += 1
         rid = self._req_id
-        line = json.dumps({"id": rid, "cmd": cmd, "params": params or {}}) + "\n"
+        params = params or {}
+        try:
+            cmd_timeout = timestr_to_secs(params.get("timeout", "0s"))
+        except (ValueError, TypeError):
+            cmd_timeout = 0
+        if cmd_timeout > 0:
+            self._sock.settimeout(cmd_timeout + self.SOCK_TIMEOUT_MARGIN)
+        else:
+            self._sock.settimeout(self.DEFAULT_SOCK_TIMEOUT)
+        line = json.dumps({"id": rid, "cmd": cmd, "params": params}) + "\n"
         try:
             self._sock.sendall(line.encode("utf-8"))
         except OSError as e:

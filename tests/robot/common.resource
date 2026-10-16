@@ -76,7 +76,12 @@ Close LMC
     ...    showing a window. Fully guarded: teardown must not mask test
     ...    results. The agent stops last, only after the process is gone.
     Run Keyword And Ignore Error    Close Application
-    Run Keyword And Ignore Error    Wait For Process    app    timeout=15s
+    ${close_status}    ${close_result}=    Run Keyword And Ignore Error    Wait For Process    app    timeout=15s
+    IF    '${close_status}' == 'PASS' and $close_result is not None
+        Run Keyword And Ignore Error    Log    APP EXIT: finished with rc=${close_result.rc} after Close Application
+    ELSE
+        Run Keyword And Ignore Error    Log    APP EXIT: still running after Close Application, will terminate    WARN
+    END
     Run Keyword And Ignore Error    Terminate Process    app
     Run Keyword And Ignore Error    Disconnect From Test Agent
 
@@ -87,16 +92,19 @@ Log App Liveness On Failure
     ...    still alive: APP DEAD means a probable crash, APP ALIVE with a
     ...    dead agent means a blocked event loop (e.g. a modal). Never
     ...    fails: teardown must not mask test results. The probe is Wait
-    ...    For Process with 1s: finished means dead, timeout means alive.
+    ...    For Process with 1s, judged by its return value (result object
+    ...    with rc means dead, None means alive) — not by keyword status:
+    ...    since RF 7 the keyword no longer fails on timeout, so a status
+    ...    check reports every wedge as APP DEAD.
     IF    '${TEST STATUS}' == 'FAIL'    Probe And Log App Liveness
 
 Probe And Log App Liveness
     [Documentation]    One-shot liveness probe, see Log App Liveness On
     ...    Failure. Only called from there.
-    ${finished}=    Run Keyword And Return Status
+    ${wait_status}    ${wait_result}=    Run Keyword And Ignore Error
     ...    Wait For Process    app    timeout=1s
-    IF    ${finished}
-        Log    APP DEAD: app process finished (probable crash)    WARN
+    IF    '${wait_status}' == 'PASS' and $wait_result is not None
+        Log    APP DEAD: app process finished (probable crash), rc=${wait_result.rc}    WARN
     ELSE
         Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN
     END

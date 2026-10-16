@@ -380,6 +380,31 @@ jobs:
             -v HOLD_OPEN:0s \
             "$GITHUB_WORKSPACE/tests/robot/"
 
+      # ---- Windows post-mortem (diagnose the next red, not this one) ----
+      # A deaf-agent wedge (e.g. Dialogs after the History close) leaves no
+      # app log on Windows (GUI-subsystem stdout is detached, lmc-app-*.log
+      # are 0 bytes), so collect what the OS kept: live process state, the
+      # Application error log and WER/CrashDumps listings. Written under
+      # robot-results-postmortem/ so the Upload step below picks it up.
+      - name: Post-mortem (Windows)
+        if: always() && runner.os == 'Windows' && (steps.full_windows.outcome == 'failure' || steps.rerun_windows.outcome == 'failure')
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force robot-results-postmortem | Out-Null
+          tasklist /FI "IMAGENAME eq lan-messenger-test.exe" | Out-File robot-results-postmortem/tasklist-lmc.txt
+          try {
+            Get-WinEvent -LogName Application -MaxEvents 200 | Where-Object { $_.LevelDisplayName -eq 'Error' } | Select-Object TimeCreated, ProviderName, Id, Message | Out-File robot-results-postmortem/eventlog-application-errors.txt
+          } catch {
+            "eventlog unavailable: $_" | Out-File robot-results-postmortem/eventlog-application-errors.txt
+          }
+          "--- ReportQueue ---" | Out-File robot-results-postmortem/wer.txt
+          $rq = "$env:ProgramData\Microsoft\Windows\WER\ReportQueue"
+          if (Test-Path $rq) { Get-ChildItem $rq | Select-Object Name, LastWriteTime | Out-File robot-results-postmortem/wer.txt -Append } else { "no ReportQueue" | Out-File robot-results-postmortem/wer.txt -Append }
+          "--- Local CrashDumps ---" | Out-File robot-results-postmortem/wer.txt -Append
+          $cd = "$env:LOCALAPPDATA\CrashDumps"
+          if (Test-Path $cd) { Get-ChildItem $cd | Select-Object Name, Length, LastWriteTime | Out-File robot-results-postmortem/wer.txt -Append } else { "no CrashDumps dir" | Out-File robot-results-postmortem/wer.txt -Append }
+
       - name: Merge reports (Linux/macOS)
         if: always() && runner.os != 'Windows'
         shell: bash
