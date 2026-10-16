@@ -139,6 +139,12 @@ jobs:
           test -x lmc/release/lan-messenger-test
           test -x build/tools/lmm/lmmd
 
+      - name: Set up Python and Robot Framework (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          python3 -m venv .venv-robot-ci
+          .venv-robot-ci/bin/pip install -r tests/robot/requirements.txt
+
       # ---- Windows runtime (no compilation: binaries come from build-test) ----
       # No MSVC, no vcpkg, no Qt install: the test layout already contains
       # the windeployqt output + OpenSSL DLLs. The image's VC++ redist
