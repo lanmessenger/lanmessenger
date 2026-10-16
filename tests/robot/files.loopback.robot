@@ -29,6 +29,7 @@ Documentation     File send/receive over the loopback self-peer, single
 ...               ~/Documents/Received Files is XDG-fragile in CI).
 Resource          common.resource
 Library           OperatingSystem
+Library           String
 Suite Setup       Launch LMC With File Storage
 Suite Teardown    Close LMC
 Test Teardown     Close File Test
