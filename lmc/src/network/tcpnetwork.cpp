@@ -86,7 +86,7 @@ void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int
     return;
   }
 
-  int peerPort = nPort > 0 ? nPort : tcpPort;
+  int peerPort = nPort > 0 ? nPort : IDS_TCPPORT_LEGACY_VAL;
   lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress + ":" + QString::number(peerPort));
 
   MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, peerPort);
@@ -135,7 +135,7 @@ void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, 
   XmlMessage xmlMessage(*lpszData);
   int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
-  int peerPort = nPort > 0 ? nPort : tcpPort;
+  int peerPort = nPort > 0 ? nPort : IDS_TCPPORT_LEGACY_VAL;
   lmcTrace::write("Sending file " + xmlMessage.data(XN_FILEID) + " to user " + *lpszReceiverId + " at " +
                   *lpszAddress + ":" + QString::number(peerPort));
 
