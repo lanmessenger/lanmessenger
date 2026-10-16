@@ -98,17 +98,17 @@ jobs:
   smoke-windows-installer:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
-    uses: ./.github/workflows/smoke-windows-installer.yml
+    uses: ./.github/workflows/verify-nsis.yml
 
   smoke-linux-deb:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
-    uses: ./.github/workflows/smoke-linux-deb.yml
+    uses: ./.github/workflows/verify-deb.yml
 
   smoke-macos-x86_64-dmg:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
-    uses: ./.github/workflows/smoke-macos-dmg.yml
+    uses: ./.github/workflows/verify-dmg.yml
     with:
       arch-suffix: x86_64
       runs-on: macos-15-intel
@@ -116,7 +116,7 @@ jobs:
   smoke-macos-arm64-dmg:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
-    uses: ./.github/workflows/smoke-macos-dmg.yml
+    uses: ./.github/workflows/verify-dmg.yml
     with:
       arch-suffix: arm64
       runs-on: macos-14
