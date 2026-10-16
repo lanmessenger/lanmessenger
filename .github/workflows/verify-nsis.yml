@@ -1,12 +1,12 @@
 # Smoke test for the Windows NSIS installer: silent-installs the exact
-# packages-windows artifact built by ci.yml on a fresh runner, asserts the
+# packages-windows artifact built by build.yml on a fresh runner, asserts the
 # Defender Firewall rules, starts the installed app, then uninstalls and
 # asserts the rules are gone. Shared by release.yml and nightly.yml so the
 # two publish gates cannot drift apart.
 #
 # No inputs needed: the artifact name (packages-windows) and the isolated
 # install dir (C:\lmc-smoke) are fixed. No rebuild here by design.
-name: Smoke Windows installer
+name: Verify NSIS
 
 on:
   workflow_call:

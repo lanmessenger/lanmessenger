@@ -1,5 +1,5 @@
 # Smoke test for the Linux .deb package: installs the exact
-# packages-linux artifact built by ci.yml on fresh runners at both ends of
+# packages-linux artifact built by build.yml on fresh runners at both ends of
 # the supported range (22.04/24.04) and starts
 # the installed app. Shared by release.yml and nightly.yml so the two
 # publish gates cannot drift apart.
@@ -9,7 +9,7 @@
 # ephemeral. No rebuild here by design. The .rpm is not installed: an
 # ubuntu runner cannot meaningfully test it; it is converted from the
 # same .deb by alien and shares its payload.
-name: Smoke Linux deb
+name: Verify deb
 
 on:
   workflow_call:
@@ -57,7 +57,7 @@ jobs:
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
 
-      # Same flags as the Linux smoke in ci.yml: /quit exits after core
+      # Same flags as the Linux smoke in build.yml: /quit exits after core
       # init without entering the event loop. Runs through the real user
       # entry point: lmc -> /usr/bin/lmc symlink -> lmc.sh, which also
       # covers the LD_LIBRARY_PATH launcher.
