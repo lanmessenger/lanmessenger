@@ -227,18 +227,25 @@ jobs:
       # compiling the vcpkg port. Staged into the same ./openssl layout, so
       # Configure below is untouched. Floats on latest by design (speed over
       # pinning); the honest path is vcpkg, pinned by its baseline. The
-      # import libs live in lib/VC/x64/MD, but FindOpenSSL looks in lib/ —
-      # hence the copy-up (known Shining Light + CMake gotcha).
+      # install dir moved across majors (OpenSSL-Win64 up to 3.x, OpenSSL
+      # since 4.x) and the import libs live under lib/VC/..., but
+      # FindOpenSSL looks in lib/ — hence the search + copy-up below
+      # (known Shining Light + CMake gotchas).
       - name: Install OpenSSL via Chocolatey
         if: inputs.windows-ssl != 'vcpkg'
         shell: pwsh
         run: |
           choco install openssl -y --no-progress
-          & "$env:ProgramFiles\OpenSSL-Win64\bin\openssl.exe" version
-          $ssl = "$env:ProgramFiles\OpenSSL-Win64"
+          $ssl = @("$env:ProgramFiles\OpenSSL", "$env:ProgramFiles\OpenSSL-Win64") `
+            | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $ssl) { throw "OpenSSL install dir not found under $env:ProgramFiles" }
+          $exe = "$ssl\bin\openssl.exe"
+          if (-not (Test-Path $exe)) { throw "openssl.exe not found in $ssl\bin" }
+          & $exe version
           New-Item -ItemType Directory -Force openssl/include, openssl/lib, openssl/bin | Out-Null
           Copy-Item -Recurse "$ssl\include\openssl" openssl/include/
           $md = Get-ChildItem "$ssl\lib" -Recurse -Filter libcrypto.lib | Select-Object -First 1
+          if (-not $md) { throw "libcrypto.lib not found under $ssl\lib" }
           Copy-Item "$($md.DirectoryName)\*.lib" openssl/lib/
           Copy-Item "$ssl\bin\libcrypto-*.dll" openssl/bin/
           Copy-Item "$ssl\bin\libssl-*.dll" openssl/bin/
