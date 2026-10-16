@@ -109,9 +109,15 @@ Seed File Storage
 Seed Storage Path In
     [Documentation]    Patch FileTransfer/StoragePath into one ini file in
     ...    place, preserving whatever identity the CI seed put there.
+    ...    The path goes in with forward slashes: QSettings IniFormat
+    ...    treats backslash as an escape on read (C:\Users\... comes back
+    ...    as C:sers... and the receiver mkpaths the garbage — Completed
+    ...    in the log, no file where expected), while Qt, Python and RF
+    ...    all accept forward slashes on Windows.
     [Arguments]    ${ini}
+    ${posix}=    Replace String    ${RECV_DIR}    \\    /
     ${code}=    Set Variable    import configparser,sys; p=sys.argv[1]; d=sys.argv[2]; c=configparser.ConfigParser(); c.optionxform=str; c.read(p); s='FileTransfer'; c.add_section(s) if not c.has_section(s) else 0; c.set(s,'StoragePath',d); f=open(p,'w'); c.write(f); f.close()
-    ${res}=    Run Process    python3    -c    ${code}    ${ini}    ${RECV_DIR}
+    ${res}=    Run Process    python3    -c    ${code}    ${ini}    ${posix}
     Should Be Equal As Integers    ${res.rc}    0
 
 Send File
