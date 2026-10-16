@@ -126,6 +126,9 @@ jobs:
   e2e:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
+    permissions:
+      contents: read
+      actions: read
     uses: ./.github/workflows/e2e.yml
     with:
       version: ${{ needs.plan.outputs.version }}

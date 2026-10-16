@@ -70,6 +70,9 @@ jobs:
   # layout built above (skip-build: same run, same artifact names).
   e2e:
     needs: [version, check-branch, build]
+    permissions:
+      contents: read
+      actions: read
     uses: ./.github/workflows/e2e.yml
     with:
       version: ${{ needs.version.outputs.version }}
