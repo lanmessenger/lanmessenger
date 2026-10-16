@@ -30,7 +30,7 @@ set_target_properties(lmc_agent_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 option(LMC_WITH_TEST_AGENT "Build the lan-messenger-test binary" ON)
 if(LMC_WITH_TEST_AGENT)
-    # resource.qrc repeats here (same as the lmc executable and tst_lmc_gui):
+    # resource.qrc repeats here (same as the lmc executable):
     # the Qt resource initializers must live in an object that is always
     # linked, and a static lib would drop an unreferenced qrc object.
     add_executable(lan-messenger-test

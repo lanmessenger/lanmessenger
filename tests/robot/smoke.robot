@@ -27,3 +27,4 @@ Main Window Appears
     # the window a moment so the dump and the CI video show real content.
     Sleep             3s
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}ui-tree.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}01-main-window.png

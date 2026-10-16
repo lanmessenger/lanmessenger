@@ -25,6 +25,7 @@ History Opens And Closes
     Object Should Exist    name=tvMsgList
     Object Should Exist    name=btnClearHistory
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-history.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}03-message-history.png    locator=name=HistoryWindow
     Hold For Video
     Close Window    name=HistoryWindow
     Wait For Object To Disappear    name=HistoryWindow    timeout=10
@@ -39,6 +40,7 @@ File Transfers Opens And Closes
     Object Should Exist    name=lvTransferList
     Object Should Exist    name=btnClear
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-transfers.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}02-file-transfers.png    locator=name=TransferWindow
     Hold For Video
     Close Window    name=TransferWindow
     Window Should Be Hidden    TransferWindow
@@ -53,6 +55,7 @@ Help Opens And Closes
     ${length}=        Evaluate    len("""${text}""")
     Should Be True    ${length} > 0    Help text is empty
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-help.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}05-help.png    locator=name=HelpWindow
     Hold For Video
     Close Window    name=HelpWindow
     Wait For Object To Disappear    name=HelpWindow    timeout=10
@@ -85,6 +88,7 @@ Preferences Navigates And Cancels
     ${idx}=           Get Object Property    name=stackedWidget    currentIndex
     Should Be Equal As Integers    ${idx}    8
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-preferences.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}06-preferences.png    locator=name=SettingsDialog
     Hold For Video
     Close Dialog      SettingsDialog    btnCancel
 
@@ -96,6 +100,7 @@ About Opens And Closes
     Object Should Exist    name=lblTitle
     Object Should Exist    name=tabWidget
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-about.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}04-about-dialog.png    locator=name=AboutDialog
     Hold For Video
     Close Window    name=AboutDialog
     Wait For Object To Disappear    name=AboutDialog    timeout=10

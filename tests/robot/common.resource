@@ -23,7 +23,7 @@ ${APP_PATH}       ${CURDIR}/../../lmc/release/lan-messenger-test
 # The main window is shown at startup only with AutoShow=true in
 # $HOME/.config/lmc/lmc.ini (lmcMainWindow::start checks it, default false).
 # CI pre-seeds that file in the Seed step; never pass /noconfig here, it
-# deletes the settings file. Mirrors tests/e2e/tst_lmc_gui.cpp.
+# deletes the settings file.
 ${APP_ARGS}       /silent /loopback
 ${AGENT_PORT}     9999
 # Seeded user name (CI seeds E2E Tester, local runs use the dev config):

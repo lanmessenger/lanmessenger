@@ -40,7 +40,7 @@ runs:
     # The E2E agent is linked into the test binary (see
     # tools/lmc-agent/PROTOCOL.md): test-main.cpp starts the agent server
     # from LMC_AGENT_PORT (default 9999). The binary is copied into the
-    # release layout by hand, like tst_lmc_gui in build.yml: an install(TARGETS) rule would leak it
+    # release layout by hand: an install(TARGETS) rule would leak it
     # into the packages built from that directory.
     - name: Build the test agent binary
       shell: bash

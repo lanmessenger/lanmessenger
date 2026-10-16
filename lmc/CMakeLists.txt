@@ -121,7 +121,7 @@ target_compile_definitions(lmc_core PUBLIC
 # AUTOUIC puts ui_*.h in <AUTOGEN_BUILD_DIR>/include with single-config
 # generators and in <AUTOGEN_BUILD_DIR>/include_<CONFIG> with multi-config
 # generators (e.g. Visual Studio); expose both so consumers of lmc_core
-# (lmc, tst_lmc_gui) find them regardless of the generator.
+# (lmc) find them regardless of the generator.
 target_include_directories(lmc_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_BINARY_DIR}/lmc_core_autogen/include

@@ -81,33 +81,11 @@ jobs:
           export LD_LIBRARY_PATH="$PWD"
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
 
-      - name: Build e2e test
-        run: cmake --build build --config Release --target tst_lmc_gui --parallel
-
-      - name: E2E GUI test
-        timeout-minutes: 5
-        run: |
-          export USER=ci
-          cp build/tests/tst_lmc_gui lmc/release/
-          cd lmc/release
-          export LD_LIBRARY_PATH="$PWD"
-          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
-          xvfb-run -a ./tst_lmc_gui
-
       - name: Build crypto unit test
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
-
-      - name: Upload e2e screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-screenshots-linux
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 3
 
       - name: Build packages
         env:
@@ -191,32 +169,11 @@ jobs:
             Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
           }
 
-      - name: Build e2e test
-        run: cmake --build build --config Release --target tst_lmc_gui --parallel
-
-      - name: E2E GUI test
-        timeout-minutes: 5
-        shell: pwsh
-        run: |
-          Copy-Item build/tests/tst_lmc_gui.exe lmc/release/
-          Set-Location lmc/release
-          $env:LMC_E2E_ARTIFACTS_DIR = "$env:GITHUB_WORKSPACE/e2e-artifacts"
-          .\tst_lmc_gui.exe
-
       - name: Build crypto unit test
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
-
-      - name: Upload e2e screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-screenshots-windows
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 3
 
       - name: Build installer
         shell: cmd
@@ -305,37 +262,11 @@ jobs:
         run: |
           ls -lh lmc/setup/*.dmg || true
 
-      # After stage-mac-app: it copies lmc/release/LAN-Messenger.app into
-      # lmc/setup/mac/ for the DMG, so the test binary added here never ships.
-      # It goes next to the app binary (@executable_path install name) and
-      # lmc.rcc (LMC_APP_DIR defaults to applicationDirPath).
-      - name: Build e2e test
-        run: cmake --build build --config Release --target tst_lmc_gui --parallel
-
-      - name: E2E GUI test
-        timeout-minutes: 5
-        run: |
-          cp build/tests/tst_lmc_gui lmc/release/LAN-Messenger.app/Contents/MacOS/
-          cd lmc/release
-          export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
-          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
-          export LMC_E2E_ARTIFACTS_DIR="$GITHUB_WORKSPACE/e2e-artifacts"
-          ./LAN-Messenger.app/Contents/MacOS/tst_lmc_gui
-
       - name: Build crypto unit test
         run: cmake --build build --config Release --target tst_crypto --parallel
 
       - name: Crypto unit test
         run: ctest --test-dir build -C Release -R crypto --output-on-failure
-
-      - name: Upload e2e screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-screenshots-macos-${{ matrix.arch }}
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 3
 
       - name: Upload packages
         uses: actions/upload-artifact@v7
