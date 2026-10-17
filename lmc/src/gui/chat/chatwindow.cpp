@@ -55,6 +55,8 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   ui.lblInfo->setVisible(false);
   pMessageLog->installEventFilter(this);
   ui.txtMessage->installEventFilter(this);
+  ui.btnSend->installEventFilter(this);
+  connect(ui.btnSend, &QAbstractButton::clicked, this, &lmcChatWindow::btnSend_clicked);
   infoFlag = IT_Ok;
 
   localId = QString();
@@ -130,6 +132,8 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   clearOnClose = pSettings->value(IDS_CLEARONCLOSE, IDS_CLEARONCLOSE_VAL).toBool();
+  showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
+  ui.btnSend->setVisible(showSendButton);
 
   setUIText();
 
@@ -254,6 +258,8 @@ void lmcChatWindow::settingsChanged(void) {
   pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   clearOnClose = pSettings->value(IDS_CLEARONCLOSE, IDS_CLEARONCLOSE_VAL).toBool();
+  showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
+  ui.btnSend->setVisible(showSendButton);
   pSoundPlayer->settingsChanged();
   if(localName.compare(pLocalUser->name) != 0) {
     localName = pLocalUser->name;
@@ -445,6 +451,11 @@ void lmcChatWindow::btnTransfers_clicked(void) {
   emit showTransfers();
 }
 
+void lmcChatWindow::btnSend_clicked(void) {
+  sendMessage();
+  setChatState(CS_Active);
+}
+
 void lmcChatWindow::smileyAction_triggered(void) {
   //	nSmiley contains index of smiley
   if(showSmiley) {
@@ -557,6 +568,8 @@ void lmcChatWindow::setUIText(void) {
   pSaveAction->setToolTip(tr("Save this conversation"));
   pHistoryAction->setToolTip(tr("View History"));
   pTransferAction->setToolTip(tr("View File Transfers"));
+  ui.btnSend->setText(tr("Send"));
+  ui.btnSend->setToolTip(tr("Send message"));
   pFontAction->setText(tr("Change Font..."));
   pFontAction->setToolTip(tr("Change message font"));
   pFontColorAction->setText(tr("Change Color..."));

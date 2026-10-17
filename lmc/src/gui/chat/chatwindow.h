@@ -88,6 +88,7 @@ private slots:
   void btnSave_clicked(void);
   void btnHistory_clicked(void);
   void btnTransfers_clicked(void);
+  void btnSend_clicked(void);
   void smileyAction_triggered(void);
   void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void checkChatState(void);
@@ -137,6 +138,7 @@ private:
   bool showSmiley;
   bool sendKeyMod;
   bool clearOnClose;
+  bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
   ChatState chatState;

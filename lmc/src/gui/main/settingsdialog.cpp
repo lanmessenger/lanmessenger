@@ -528,6 +528,7 @@ void lmcSettingsDialog::loadSettings(void) {
   ui.chkPathToLink->setChecked(pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool());
   ui.chkTrimMessage->setChecked(pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool());
   ui.chkClearOnClose->setChecked(pSettings->value(IDS_CLEARONCLOSE, IDS_CLEARONCLOSE_VAL).toBool());
+  ui.chkShowSendButton->setChecked(pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool());
   font.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
   color.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
   fontSize = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
@@ -623,6 +624,7 @@ void lmcSettingsDialog::saveSettings(void) {
   pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked(), IDS_PATHTOLINK_VAL);
   pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked(), IDS_TRIMMESSAGE_VAL);
   pSettings->setValue(IDS_CLEARONCLOSE, ui.chkClearOnClose->isChecked(), IDS_CLEARONCLOSE_VAL);
+  pSettings->setValue(IDS_SHOWSENDBUTTON, ui.chkShowSendButton->isChecked(), IDS_SHOWSENDBUTTON_VAL);
   pSettings->setValue(IDS_FONT, font.toString(), IDS_FONT_VAL);
   pSettings->setValue(IDS_COLOR, color.name(), IDS_COLOR_VAL);
   pSettings->setValue(IDS_FONTSIZE, ui.cboFontSize->currentIndex(), IDS_FONTSIZE_VAL);

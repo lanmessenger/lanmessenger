@@ -84,6 +84,8 @@
 #define IDS_TRIMMESSAGE_VAL true
 #define IDS_CLEARONCLOSE "Messages/ClearOnClose"
 #define IDS_CLEARONCLOSE_VAL true
+#define IDS_SHOWSENDBUTTON "Messages/ShowSendButton"
+#define IDS_SHOWSENDBUTTON_VAL false
 #define IDS_MESSAGETOP "Messages/MessageTop"
 #define IDS_MESSAGETOP_VAL false
 #define IDS_PUBMESSAGEPOP "Messages/PubMessagePop"

@@ -60,6 +60,8 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
   pMessageLog->installEventFilter(this);
   ui.tvUserList->installEventFilter(this);
   ui.txtMessage->installEventFilter(this);
+  ui.btnSend->installEventFilter(this);
+  connect(ui.btnSend, &QAbstractButton::clicked, this, &lmcChatRoomWindow::btnSend_clicked);
   infoFlag = IT_Ok;
   dataSaved = false;
   windowLoaded = false;
@@ -123,6 +125,8 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   messageColor = QApplication::palette().text().color();
   messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
+  showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
+  ui.btnSend->setVisible(showSendButton);
 
   if(!groupMode) {
     restoreGeometry(pSettings->value(IDS_WINDOWPUBLICCHAT).toByteArray());
@@ -217,6 +221,7 @@ void lmcChatRoomWindow::addUser(User* pUser) {
   if(!groupMode && pUser->id.compare(localId) == 0) {
     bool offline = (statusType[Helper::statusIndexFromCode(pUser->status)] == StatusTypeOffline);
     ui.txtMessage->setEnabled(!offline);
+    ui.btnSend->setEnabled(!offline);
     ui.txtMessage->setFocus();
   }
 }
@@ -242,6 +247,7 @@ void lmcChatRoomWindow::updateUser(User* pUser) {
   if(!groupMode && pUser->id.compare(localId) == 0) {
     bool offline = (statusType[Helper::statusIndexFromCode(pUser->status)] == StatusTypeOffline);
     ui.txtMessage->setEnabled(!offline);
+    ui.btnSend->setEnabled(!offline);
     ui.txtMessage->setFocus();
   }
 }
@@ -270,8 +276,10 @@ void lmcChatRoomWindow::removeUser(QString* lpszUserId) {
   }
 
   // If the local user is removed for some reason, prevent sending any further messages
-  if(userId.compare(localId) == 0)
+  if(userId.compare(localId) == 0) {
     ui.txtMessage->setEnabled(false);
+    ui.btnSend->setEnabled(false);
+  }
 }
 
 void lmcChatRoomWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage) {
@@ -327,6 +335,8 @@ void lmcChatRoomWindow::settingsChanged(void) {
   pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
   pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
+  showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
+  ui.btnSend->setVisible(showSendButton);
   pSoundPlayer->settingsChanged();
   if(localName.compare(pLocalUser->name) != 0) {
     localName = pLocalUser->name;
@@ -490,6 +500,10 @@ void lmcChatRoomWindow::btnSave_clicked(void) {
   }
 }
 
+void lmcChatRoomWindow::btnSend_clicked(void) {
+  sendMessage();
+}
+
 void lmcChatRoomWindow::smileyAction_triggered(void) {
   //	nSmiley contains index of smiley
   if(showSmiley) {
@@ -623,6 +637,8 @@ void lmcChatRoomWindow::setUIText(void) {
   pbtnSmiley->setToolTip(tr("Insert Smiley"));
   pSaveAction->setText(tr("&Save As..."));
   pSaveAction->setToolTip(tr("Save this conversation"));
+  ui.btnSend->setText(tr("Send"));
+  ui.btnSend->setToolTip(tr("Send message"));
   pFontAction->setText(tr("Change Font..."));
   pFontAction->setToolTip(tr("Change message font"));
   pFontColorAction->setText(tr("Change Color..."));

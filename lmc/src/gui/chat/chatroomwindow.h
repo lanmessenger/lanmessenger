@@ -88,6 +88,7 @@ private slots:
   void btnFont_clicked(void);
   void btnFontColor_clicked(void);
   void btnSave_clicked(void);
+  void btnSend_clicked(void);
   void smileyAction_triggered(void);
   void addContactAction_triggered(void);
   void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
@@ -136,6 +137,7 @@ private:
   int infoFlag;
   bool showSmiley;
   bool sendKeyMod;
+  bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
   bool dataSaved;
