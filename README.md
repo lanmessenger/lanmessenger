@@ -2,24 +2,23 @@
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 
-An open-source instant messaging application for local networks.
+**A free, open-source instant messaging application for local networks.**
 
-## Description
-
-LAN Messenger is a free and open-source instant messaging application available for Windows, Mac, and Linux. Through a local network, this application fosters instant communication, eliminating the need for having a server and internet connection.
+LAN Messenger lets you exchange messages and files with other users on your
+local network. No dedicated messaging server or internet connection required.
 
 ## Features
 
-- **Instant Messaging**: Instantly connect with other users on the network and start conversations
-- **Private Network**: AES-256 encryption with RSA-2048 for message privacy
-- **Broadcast Messages**: Notify all users within the network or choose specific users
-- **Transfer Files**: Easy and hassle-free file transfers to other users within the network
-- **Group Contacts**: Organize people in your contact list for easy finding when needed
-- **Log Messages**: Archive previous conversations accessible at any time
-- **Works without Server**: No server required, making it less complicated
-- **Works without Internet Connection**: Utilizes a local network for messaging even without internet
-- **Supports Multiple Languages**: Choose from different languages for the user interface
-- **Multi-platform Support**: Works on Mac, Windows, or Linux
+- **Instant Messaging**: chat with other users on your local network.
+- **Encrypted Messaging**: protect message privacy with AES-256 encryption and RSA-2048.
+- **Broadcast Messages**: send messages to everyone on the network or select specific recipients.
+- **File Transfer**: send files directly to other users on your local network.
+- **Contact Groups**: organize your contacts into groups for easier navigation.
+- **Message History**: access your previous conversations.
+- **Serverless Operation**: communicate over your local network without setting up a dedicated messaging server.
+- **Offline Network Operation**: keep communicating over your local network when internet access is unavailable.
+- **Multiple Languages**: use the interface in any of the 20 supported languages.
+- **Cross-platform Support**: available for Windows, macOS, and Linux.
 
 ## Screenshots
 
@@ -27,19 +26,31 @@ LAN Messenger is a free and open-source instant messaging application available 
 |---------|-------|-------------|
 | [![Windows](https://lanmessenger.github.io/images/lmc_1225_win7.jpg)](https://lanmessenger.github.io/images/lmc_1225_win7.jpg) | [![macOS](https://lanmessenger.github.io/images/lmc_1225_osx.jpg)](https://lanmessenger.github.io/images/lmc_1225_osx.jpg) | [![KDE](https://lanmessenger.github.io/images/lmc_1225_kde.jpg)](https://lanmessenger.github.io/images/lmc_1225_kde.jpg) |
 
-## Downloads
+## Quick Start
 
-- **Latest Releases**: [View all releases on GitHub](https://github.com/lanmessenger/lanmessenger/releases)
-- **Documentation**: [Visit our website](https://lanmessenger.github.io)
+1. Download the package for your operating system (`.exe` for Windows, `.dmg` for macOS, or `.deb`/`.rpm` for Linux) from the [releases page](https://github.com/lanmessenger/lanmessenger/releases).
+2. Install and run LAN Messenger on two or more machines connected to the same local network. Other users should appear automatically.
+3. If other users don't appear, check that the machines can communicate over the network and that the local firewall allows LAN Messenger traffic. VPN configurations or network separation may prevent peer discovery.
+
+## Downloads and Documentation
+
+- **Downloads:** [Browse the latest releases](https://github.com/lanmessenger/lanmessenger/releases).
+- **Documentation:** [Visit the LAN Messenger website](https://lanmessenger.github.io).
 
 ## Building from Source
 
-See [docs/build.md](docs/build.md) for complete build instructions.
+See [docs/build.md](docs/build.md) for prerequisites and platform-specific build instructions.
 
-## Support
+## Support and Bug Reports
 
-Use [GitHub Issues](https://github.com/lanmessenger/lanmessenger/issues) for bug reports and general discussion.
+Found a bug or have a question? Visit [GitHub Issues](https://github.com/lanmessenger/lanmessenger/issues).
+
+When reporting a bug, include your operating system, LAN Messenger version, and steps to reproduce the issue.
+
+## Contributing
+
+Pull requests are welcome. LAN Messenger is written in C++ and uses Qt. See [docs/build.md](docs/build.md) for build instructions.
 
 ## License
 
-Licensed under [GPL-3.0](LICENSE)
+LAN Messenger is distributed under the [GNU General Public License v3.0](LICENSE).
