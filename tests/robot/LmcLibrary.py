@@ -24,6 +24,7 @@ import socket
 import time
 
 from robot.api.deco import keyword, library
+from robot.api import logger
 from robot.utils import timestr_to_secs
 
 
@@ -187,8 +188,13 @@ class LmcLibrary:
         ``close()``, so this runs the same path without depending on which
         widget holds the X focus. Modeless reuse windows (Transfers, Chat
         Room) hide; windows with WA_DeleteOnClose are deleted.
+        The agent's post snapshot (visible/isWindow/ptr) is logged, so a
+        later wait_for_gone verdict can be correlated to this exact object.
         """
-        return self._request("close_window", {"locator": locator})
+        res = self._request("close_window", {"locator": locator})
+        logger.info("close_window %s -> %s"
+                    % (locator, json.dumps(res, ensure_ascii=False)))
+        return res
 
     @keyword("Type Text")
     def type_text(self, locator, text, send=True):

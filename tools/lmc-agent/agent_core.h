@@ -80,11 +80,16 @@ bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
 // handler is just close() (chatwindow.cpp, historywindow.cpp,
 // helpwindow.cpp, transferwindow.cpp), so this runs the same close path
 // without depending on the focus widget. Modeless reuse windows only
-// hide, WA_DeleteOnClose windows are deleted.
+// hide, WA_DeleteOnClose windows are deleted. The result carries a post
+// snapshot (visible/isWindow/ptr): the close itself is async, so a later
+// wait_for_gone verdict is correlated to this exact object via ptr.
 bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
                  QString* error);
 
 // Blocking wait helpers (bounded local event loop, GUI thread).
+// wait_for_gone reports the stuck object on timeout (class/title/visible
+// plus sameWindow vs the object seen at entry), so a flaky close can be
+// told apart from a recreated window.
 bool waitForObject(const QJsonObject& criteria, double timeoutSecs,
                    QJsonObject* found, QString* error);
 bool waitForGone(const QJsonObject& criteria, double timeoutSecs,

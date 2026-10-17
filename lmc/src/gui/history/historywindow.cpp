@@ -25,6 +25,7 @@
 #include <QGuiApplication>
 #include <QLocale>
 #include <QScreen>
+#include "core/trace.h"
 #include "historywindow.h"
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
@@ -56,6 +57,7 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
 }
 
 lmcHistoryWindow::~lmcHistoryWindow() {
+  lmcTrace::write("History window destroyed");
 }
 
 void lmcHistoryWindow::init(void) {

@@ -413,6 +413,9 @@ void lmcCore::showHistory(void) {
   if(!pHistoryWindow) {
     pHistoryWindow = new lmcHistoryWindow();
     pHistoryWindow->init();
+    lmcTrace::write("History window created");
+  } else {
+    lmcTrace::write("History window reshown");
   }
 
   //	if window is minimized it, restore it to previous state

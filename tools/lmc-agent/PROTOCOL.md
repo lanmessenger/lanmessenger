@@ -70,7 +70,7 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | cmd | params | result |
 |---|---|---|
 | `wait_for_object` | `{locator, timeout?}` | `{found: true, class, objectName, visible}` or error `not found within Ns` |
-| `wait_for_gone` | `{locator, timeout?}` | `{gone: true}` or error |
+| `wait_for_gone` | `{locator, timeout?}` | `{gone: true}` or error `still present after Ns (class=... title="..." visible=... sameWindow=...)` — `sameWindow=false` means the object seen at entry is gone but a new one matches now (recreated); `visible=false` means close hid it but deletion never landed |
 | `object_exists` | `{locator}` | `{exists: bool}` |
 | `get_property` | `{locator, property}` | `{value: ...}`. `text`/`plainText` on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` reads its content (qtexpert parity: Qt has no `text` dynamic property on a `QTextEdit`, and the chat log is a `QTextEdit` subclass); otherwise a plain Qt dynamic property |
 | `set_property` | `{locator, property, value}` | `{set: true}` |
@@ -84,7 +84,7 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `close_app` | `{}` | `{closing: true}` — async `QCoreApplication::quit`, reply first |
 | `type_text` | `{locator, text, send?}` | `{typed: true}` — set text on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` directly; with `send=true` (default) a `Return` press is posted right after, so the widget's own Enter handling runs (e.g. `ChatWindow::eventFilter → sendMessage`, honoring the `SendKeyMod` setting) |
 | `send_key` | `{locator?, key, modifiers?}` | `{sent: "<key>"}` — post press+release to the widget (or the focus widget / active window when `locator` is omitted). `key`: `Return Enter Tab Backtab Escape(Esc) Space Backspace Delete Home End Left Right Up Down` (case-insensitive). `modifiers`: array of `ctrl/control shift alt meta`. No printable characters — text entry goes through `type_text` |
-| `close_window` | `{locator}` | `{objectName, class, title}` — `QWidget::close()` on the top-level window matching `locator` (a child locator resolves to `QWidget::window()`), async `singleShot(0)`. Deterministic counterpart of Escape: every lmc window that rejects on Escape installs its filter on **children** and the handler is only `close()` (`chatwindow.cpp`, `historywindow.cpp`, `helpwindow.cpp`, `transferwindow.cpp`), so an X-delivered Escape depends on the focus widget while this does not. Modeless reuse windows (Transfers, Chat Room) only hide; `WA_DeleteOnClose` windows are deleted |
+| `close_window` | `{locator}` | `{objectName, class, title, visible, isWindow, ptr}` — `QWidget::close()` on the top-level window matching `locator` (a child locator resolves to `QWidget::window()`), async `singleShot(0)`. The close itself is async, so `visible`/`isWindow`/`ptr` describe the post snapshot: `ptr` correlates this exact object with a later `wait_for_gone sameWindow` verdict. Deterministic counterpart of Escape: every lmc window that rejects on Escape installs its filter on **children** and the handler is only `close()` (`chatwindow.cpp`, `historywindow.cpp`, `helpwindow.cpp`, `transferwindow.cpp`), so an X-delivered Escape depends on the focus widget while this does not. Modeless reuse windows (Transfers, Chat Room) only hide; `WA_DeleteOnClose` windows are deleted |
 | `open_window` | — | stub: `not implemented (phase 2)` |
 | `type_path` | — | stub: `not implemented (phase 2)` |
 

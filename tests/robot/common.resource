@@ -112,16 +112,18 @@ Collect App Trace Inner
     Log    APP TRACE TAIL (last 40 lines of ${dest}):\n${tail}
 
 Log App Liveness On Failure
-    [Documentation]    Post-mortem probe for a deaf agent (the Windows
-    ...    dialogs wedge: commands time out mid-suite after a healthy
+    [Documentation]    Post-mortem probe for a wedged suite (the Windows
+    ...    dialogs flakes: a command fails mid-suite after a healthy
     ...    start). If the test failed, report whether the app process is
     ...    still alive: APP DEAD means a probable crash, APP ALIVE with a
-    ...    dead agent means a blocked event loop (e.g. a modal). Never
-    ...    fails: teardown must not mask test results. The probe is Wait
-    ...    For Process with 1s, judged by its return value (result object
-    ...    with rc means dead, None means alive) — not by keyword status:
-    ...    since RF 7 the keyword no longer fails on timeout, so a status
-    ...    check reports every wedge as APP DEAD.
+    ...    responsive agent means the command's effect never landed (e.g.
+    ...    wait_for_gone "still present": close posted, window stuck),
+    ...    APP ALIVE with a deaf agent means a blocked event loop (e.g.
+    ...    a modal). Never fails: teardown must not mask test results.
+    ...    The probe is Wait For Process with 1s, judged by its return
+    ...    value (result object with rc means dead, None means alive) —
+    ...    not by keyword status: since RF 7 the keyword no longer fails
+    ...    on timeout, so a status check reports every wedge as APP DEAD.
     IF    $TEST_STATUS == 'FAIL'    Probe And Log App Liveness
 
 Probe And Log App Liveness
@@ -132,9 +134,34 @@ Probe And Log App Liveness
     IF    $wait_status == 'PASS' and $wait_result is not None
         Log    APP DEAD: app process finished (probable crash), rc=${wait_result.rc}    WARN
     ELSE
-        Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN
+        ${msg}=    Get Variable Value    ${TEST MESSAGE}    ${EMPTY}
+        ${responsive}=    Run Keyword And Return Status
+        ...    Should Contain    ${msg}    still present
+        IF    ${responsive}
+            Log    APP ALIVE, agent responsive: the window outlived its close (see error above)    WARN
+        ELSE
+            Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN
+        END
     END
+    Run Keyword And Ignore Error    Capture Failure UI State
     Collect App Trace
+
+Capture Failure UI State
+    [Documentation]    Best-effort UI snapshot after a test failure: flat
+    ...    window list to the log, full tree + main-window screenshot to
+    ...    OUTPUT_DIR. Uses distinct postmortem-* names — the pre-close
+    ...    dialogs-*.json / 0*.png describe the healthy state, this one
+    ...    describes the stuck state. Needs a responsive agent; with a deaf
+    ...    one every step fails and is ignored (the trace still lands via
+    ...    Collect App Trace). Never fails.
+    Run Keyword And Ignore Error    Capture Failure UI State Inner
+
+Capture Failure UI State Inner
+    [Documentation]    Worker, see above.
+    ${windows}=    List Windows
+    Log    POSTMORTEM WINDOWS: ${windows}
+    Dump Object Tree    output_file=${OUTPUT_DIR}${/}postmortem-${SUITE NAME}-${TEST NAME}.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}postmortem-${SUITE NAME}-${TEST NAME}.png
 
 Seed App Config
     [Documentation]    Fresh lmc.ini under $HOME (caller isolates HOME per

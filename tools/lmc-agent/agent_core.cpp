@@ -446,6 +446,14 @@ bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
     (*closed)[QStringLiteral("class")] =
       QString::fromLatin1(window->metaObject()->className());
     (*closed)[QStringLiteral("title")] = window->windowTitle();
+    // Snapshot at post time (the close itself is async, see above):
+    // visible tells whether there was anything to hide, isWindow whether
+    // the locator hit the top level directly, ptr lets a later
+    // wait_for_gone verdict be correlated to this exact object.
+    (*closed)[QStringLiteral("visible")] = window->isVisible();
+    (*closed)[QStringLiteral("isWindow")] = match->isWindow();
+    (*closed)[QStringLiteral("ptr")] =
+      QString::number(reinterpret_cast<quintptr>(window));
   }
   return true;
 }
@@ -599,6 +607,10 @@ bool waitForGone(const QJsonObject& criteria, double timeoutSecs,
                  QString* error) {
   if(!findWidget(criteria) && !findAction(criteria))
     return true;
+  // Identity at entry: distinguishes "close never ran" (the same object is
+  // still there) from "recreated" (a new object matches now).
+  QWidget* first = findWidget(criteria);
+  const quintptr firstPtr = first ? reinterpret_cast<quintptr>(first) : 0;
   QEventLoop loop;
   bool gone = false;
   QTimer poll;
@@ -614,9 +626,27 @@ bool waitForGone(const QJsonObject& criteria, double timeoutSecs,
   loop.exec();
   if(gone)
     return true;
-  if(error)
-    *error = QStringLiteral("still present after %1s").arg(timeoutSecs);
-  return false;
+  if(!error)
+    return false;
+  // Recheck after the timeout: the window may have vanished in between.
+  if(QWidget* stuck = findWidget(criteria)) {
+    const bool same = reinterpret_cast<quintptr>(stuck) == firstPtr;
+    *error = QStringLiteral("still present after %1s (class=%2 title=\"%3\" visible=%4 sameWindow=%5)")
+               .arg(timeoutSecs)
+               .arg(QString::fromLatin1(stuck->metaObject()->className()))
+               .arg(stuck->windowTitle())
+               .arg(stuck->isVisible() ? QStringLiteral("true") : QStringLiteral("false"))
+               .arg(same ? QStringLiteral("true") : QStringLiteral("false"));
+    return false;
+  }
+  if(QAction* action = findAction(criteria)) {
+    *error = QStringLiteral("still present after %1s (action text=\"%2\")")
+               .arg(timeoutSecs)
+               .arg(strippedActionText(action->text()));
+    return false;
+  }
+  // Vanished between the timeout firing and this recheck: the contract holds.
+  return true;
 }
 
 bool openChat(const QString& peer, double timeoutSecs, QString* title,
