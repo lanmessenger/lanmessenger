@@ -68,7 +68,7 @@ Launch LMC
     Connect To Test Agent    ${AGENT_PORT}    timeout=30s
     ${log_info}=    Get App Log Info
     Set Suite Variable    ${APP_LOG_PATH}    ${log_info}[path]
-    IF    '${log_info}[path]' == ''
+    IF    $APP_LOG_PATH == ''
         Log    App trace file unknown (tracing off?) — Collect App Trace will skip    WARN
     END
     Wait For Object    name=MainWindow    timeout=30
@@ -86,7 +86,7 @@ Close LMC
     ...    results. The agent stops last, only after the process is gone.
     Run Keyword And Ignore Error    Close Application
     ${close_status}    ${close_result}=    Run Keyword And Ignore Error    Wait For Process    app    timeout=15s
-    IF    '${close_status}' == 'PASS' and $close_result is not None
+    IF    $close_status == 'PASS' and $close_result is not None
         Run Keyword And Ignore Error    Log    APP EXIT: finished with rc=${close_result.rc} after Close Application
     ELSE
         Run Keyword And Ignore Error    Log    APP EXIT: still running after Close Application, will terminate    WARN
@@ -104,7 +104,7 @@ Collect App Trace
 Collect App Trace Inner
     [Documentation]    Worker, see above.
     ${path}=    Get Variable Value    ${APP_LOG_PATH}    ${EMPTY}
-    IF    '${path}' == ''    RETURN
+    IF    $path == ''    RETURN
     ${dest}=    Set Variable    ${OUTPUT_DIR}${/}lmc-trace-${SUITE NAME}.log
     Copy File    ${path}    ${dest}
     ${tail}=    Evaluate
@@ -122,14 +122,14 @@ Log App Liveness On Failure
     ...    with rc means dead, None means alive) — not by keyword status:
     ...    since RF 7 the keyword no longer fails on timeout, so a status
     ...    check reports every wedge as APP DEAD.
-    IF    '${TEST STATUS}' == 'FAIL'    Probe And Log App Liveness
+    IF    $TEST_STATUS == 'FAIL'    Probe And Log App Liveness
 
 Probe And Log App Liveness
     [Documentation]    One-shot liveness probe, see Log App Liveness On
     ...    Failure. Only called from there.
     ${wait_status}    ${wait_result}=    Run Keyword And Ignore Error
     ...    Wait For Process    app    timeout=1s
-    IF    '${wait_status}' == 'PASS' and $wait_result is not None
+    IF    $wait_status == 'PASS' and $wait_result is not None
         Log    APP DEAD: app process finished (probable crash), rc=${wait_result.rc}    WARN
     ELSE
         Log    APP ALIVE: process runs but agent is deaf (blocked loop?)    WARN

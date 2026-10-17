@@ -40,7 +40,7 @@ Worker Process Should Be An Lmmd Worker
     ...    Windows `tasklist /FI "PID eq N"` — `eq`, never `=` (see above).
     [Arguments]    ${pid}
     ${sys}=    Evaluate    platform.system()    modules=platform
-    IF    '${sys}' == 'Windows'
+    IF    $sys == 'Windows'
         ${ps}=    Run Process    tasklist    /FI    PID eq ${pid}
         ...    stdout=${OUTPUT_DIR}/tasklist-${pid}.txt
     ELSE
@@ -56,7 +56,7 @@ Kill Worker Process
     ...    unexpected death as fatal regardless of the exit code shape.
     [Arguments]    ${pid}
     ${sys}=    Evaluate    platform.system()    modules=platform
-    IF    '${sys}' == 'Windows'
+    IF    $sys == 'Windows'
         ${kill}=    Run Process    taskkill    /F    /PID    ${pid}
     ELSE
         ${kill}=    Run Process    kill    -9    ${pid}
