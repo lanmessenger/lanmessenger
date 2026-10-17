@@ -72,7 +72,9 @@ New Chat Room Asks For Contacts
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}dialogs-select-contacts.json
     Hold For Video
     Click Object    name=btnCancel
-    Wait For Object To Disappear    name=UserSelectDialog    timeout=10
+    # Split wait, see Wait For UserSelectDialog Hidden.
+    Wait For UserSelectDialog Hidden    timeout=5s
+    Wait For Object To Disappear    name=UserSelectDialog    timeout=30
     Window Should Be Hidden    ChatRoomWindow
     Object Should Exist    name=MainWindow
 
@@ -104,3 +106,32 @@ About Opens And Closes
     Hold For Video
     Close Window    name=AboutDialog
     Wait For Object To Disappear    name=AboutDialog    timeout=10
+
+
+*** Keywords ***
+Wait For UserSelectDialog Hidden
+    [Documentation]    Poll until the Select Contacts dialog reports
+    ...    visible=false (or is already gone). Local to this suite: the
+    ...    only exec-modal cleaned via deleteLater, hence the only one
+    ...    whose hide and deletion are seconds apart on macOS.
+    ...    Rationale for the split wait at the call site: Cancel hides
+    ...    synchronously (fast signal the click landed), but the object
+    ...    outlives it — exec-modal plus deleteLater plus the macOS sheet
+    ...    teardown deleted ~11s after Cancel on one slow leg. One 10s
+    ...    budget for both stages flakes; 5s for the hide plus 30s for the
+    ...    deletion does not. The deletion wait stays strict: a lingering
+    ...    hidden dialog owns a btnCancel that later Close Dialog steps
+    ...    could hit instead of the live one (no parent scoping in the
+    ...    agent).
+    [Arguments]    ${timeout}=5s
+    Wait Until Keyword Succeeds    ${timeout}    200ms
+    ...    UserSelectDialog Hidden Or Gone
+
+UserSelectDialog Hidden Or Gone
+    [Documentation]    Single probe, see above. Passes when hidden or
+    ...    deleted, fails while visible; the caller retries.
+    ${exists}=    Run Keyword And Return Status
+    ...    Object Should Exist    name=UserSelectDialog
+    IF    not ${exists}    RETURN
+    ${visible}=    Get Object Property    name=UserSelectDialog    visible
+    Should Not Be True    ${visible}    Select Contacts dialog still visible
