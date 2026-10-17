@@ -29,6 +29,7 @@ Self Chat Opens
     ${title}=        Get Object Property    name=ChatWindow    windowTitle
     Should Be True    $title.endswith(' - Conversation') and len($title) > 15    bad chat title: '${title}'
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}messages-chat.json
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}07-chat-loopback.png    locator=name=ChatWindow visible=true
     Hold For Video
 
 Message Round Trip
@@ -38,6 +39,8 @@ Message Round Trip
     Open Self Chat
     Wait Until Keyword Succeeds    30s    3s
     ...    Send Chat Message And Expect Echo    e2e-self-001
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}08-chat-loopback-with-text.png    locator=name=ChatWindow visible=true
+    Hold For Video
 
 Second Message Appends In Order
     [Documentation]    A later message lands after the earlier one in the
