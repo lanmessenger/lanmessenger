@@ -45,6 +45,7 @@ int showSwitches(void) {
                 "/term - Closes an instance which is already running.\n"
                 "/inst - Returns a value indicating whether an instance is already running.\n"
                 "/quit - Closes once the command line parameters are processed.\n"
+                "/trace - Enables debug logging to logs/lmc_*.log (disabled by default).\n"
                 "/? - Display this help.\n"
                 "\n"
                 "Example:\n"
@@ -93,11 +94,6 @@ int lmcRunApplication(int argc, char* argv[],
   application.loadTranslations(StdLocation::resLangDir());
   application.loadTranslations(StdLocation::sysLangDir());
   application.loadTranslations(StdLocation::userLangDir());
-
-  //	Enable tracing for Windows and Mac
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-  messageList += "/trace\n";
-#endif
 
   lmcCore core;
   //	handle command line args if this is first instance

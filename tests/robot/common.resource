@@ -60,7 +60,7 @@ Launch LMC
     # next suite, destroying the post-mortem of a flaky one.
     # Trace name is per-suite too, see Collect App Trace.
     @{app_args}=    Split Command Line    ${APP_ARGS}
-    # /trace everywhere (auto-enabled only on Windows/macOS).
+    # /trace explicitly: prod default is off on all OS, tests opt in.
     @{app_args}=    Evaluate
     ...    $app_args + ([] if any(a.lower() == '/trace' for a in $app_args) else ['/trace'])
     Start Process    ${APP_PATH}    @{app_args}    alias=app
