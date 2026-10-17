@@ -11,7 +11,7 @@ LAN Messenger is a free and open-source instant messaging application available 
 ## Features
 
 - **Instant Messaging**: Instantly connect with other users on the network and start conversations
-- **Private Network**: AES-256 encryption with RSA-2048 offers industry-leading security
+- **Private Network**: AES-256 encryption with RSA-2048 for message privacy
 - **Broadcast Messages**: Notify all users within the network or choose specific users
 - **Transfer Files**: Easy and hassle-free file transfers to other users within the network
 - **Group Contacts**: Organize people in your contact list for easy finding when needed
@@ -34,7 +34,7 @@ LAN Messenger is a free and open-source instant messaging application available 
 
 ## Building from Source
 
-See [docs/README.md](docs/README.md) for complete build instructions.
+See [docs/build.md](docs/build.md) for complete build instructions.
 
 ## Support
 
