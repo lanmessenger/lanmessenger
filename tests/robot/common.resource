@@ -66,16 +66,32 @@ Launch LMC
     Start Process    ${APP_PATH}    @{app_args}    alias=app
     ...    stdout=${OUTPUT_DIR}${/}lmc-app-${SUITE NAME}.log    stderr=STDOUT
     Connect To Test Agent    ${AGENT_PORT}    timeout=30s
-    ${log_info}=    Get App Log Info
-    Set Suite Variable    ${APP_LOG_PATH}    ${log_info}[path]
-    IF    $APP_LOG_PATH == ''
-        Log    App trace file unknown (tracing off?) — Collect App Trace will skip    WARN
-    END
     Wait For Object    name=MainWindow    timeout=30
     ${visible}=      Get Object Property    name=MainWindow    visible
     Should Be True    ${visible}
     ...    MainWindow exists but is not visible (AutoShow not seeded?)
     Sleep             2s
+    Stash App Trace Path
+
+Stash App Trace Path
+    [Documentation]    Best-effort get_log probe: stash the trace path for
+    ...    Collect App Trace. Runs after MainWindow is up (the GUI loop has
+    ...    settled past the cold-start stall), with a generous socket
+    ...    timeout anyway — and never fails: a timed-out probe only skips
+    ...    the trace tail, the suite still runs. A strict probe before the
+    ...    MainWindow wait once turned one slow start on macos-x64 into
+    ...    4 reds (get_log has no retry; its 5s default socket does not
+    ...    survive a cold first paint).
+    ${status}    ${log_info}=    Run Keyword And Ignore Error
+    ...    Get App Log Info    timeout=15s
+    IF    $status == 'PASS' and $log_info is not None
+        Set Suite Variable    ${APP_LOG_PATH}    ${log_info}[path]
+    ELSE
+        Set Suite Variable    ${APP_LOG_PATH}    ${EMPTY}
+    END
+    IF    $APP_LOG_PATH == ''
+        Log    App trace file unknown (tracing off or probe timed out?) — Collect App Trace will skip    WARN
+    END
 
 Close LMC
     [Documentation]    Quit the app through the agent and wait for the

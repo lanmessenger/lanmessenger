@@ -93,11 +93,16 @@ class LmcLibrary:
                 self._sock = None
 
     @keyword("Get App Log Info")
-    def get_app_log_info(self):
+    def get_app_log_info(self, timeout="15s"):
         """Trace file path (``get_log``): dict with ``path`` (""
-        when tracing is off).
+        when tracing is off). ``timeout`` only sizes the client socket:
+        the agent answers immediately when its GUI thread pumps, but a
+        cold start (first paint on a slow leg) can stall the loop for
+        seconds, so callers in Suite Setup keep this generous and
+        best-effort — a strict probe here once turned one slow start
+        into a whole red suite.
         """
-        return self._request("get_log")
+        return self._request("get_log", {"timeout": timeout})
 
     # -- transport ----------------------------------------------------
 
