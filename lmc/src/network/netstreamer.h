@@ -74,8 +74,8 @@ private:
   QTcpSocket* socket;
   QFile* file;
   char* buffer;
-  bool active;
-  bool finishing;
+  bool active = false;
+  bool finishing = false;
   qint64 milestone;
   qint64 mile;
   QTimer* timer;
@@ -121,7 +121,7 @@ private:
   QTcpSocket* socket;
   QFile* file;
   char* buffer;
-  bool active;
+  bool active = false;
   qint64 milestone;
   qint64 mile;
   QTimer* timer;

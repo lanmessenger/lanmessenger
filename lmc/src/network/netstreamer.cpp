@@ -95,7 +95,15 @@ void FileSender::connected(void) {
 void FileSender::disconnected(void) {
   if(finishing) {
     finishing = false;
-    emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &filePath);
+    //  Graceful close hands every byte to the OS in order, but it cannot
+    //  prove delivery to the peer app (that is the receiver's FO_Complete).
+    //  A break during the drain must not report success.
+    if(socket->error() == QAbstractSocket::UnknownSocketError) {
+      emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &filePath);
+    } else {
+      QString data;
+      emit progressUpdated(FM_Send, FO_Error, type, &id, &peerId, &data);
+    }
     return;
   }
 
@@ -126,7 +134,7 @@ void FileSender::bytesWritten(qint64 bytes) {
 
   qint64 unsentBytes = fileSize - file->pos();
 
-  if(unsentBytes == 0) {
+  if(unsentBytes <= 0) {
     //  Whole file is read from disk, but bytes may still sit in socket
     //  buffers. Close gracefully and report completion on disconnect.
     active = false;
@@ -247,10 +255,18 @@ void FileReceiver::readyRead(void) {
     qint64 bytesReceived = socket->read(buffer, bufferSize);
     if(bytesReceived <= 0)
       break;
-    file->write(buffer, bytesReceived);
+    if(file->write(buffer, bytesReceived) < 0) {
+      active = false;
+      file->close();
+      QFile::remove(filePath); // as in stop(): no partial file left
+      socket->close();
+      QString data;
+      emit progressUpdated(FM_Receive, FO_Error, type, &id, &peerId, &data);
+      return;
+    }
 
     qint64 unreceivedBytes = fileSize - file->pos();
-    if(unreceivedBytes == 0) {
+    if(unreceivedBytes <= 0) {
       active = false;
       file->close();
       socket->close();
