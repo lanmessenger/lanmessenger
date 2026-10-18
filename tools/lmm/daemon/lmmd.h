@@ -50,10 +50,14 @@ private:
   QJsonObject cmdPeerAnnounce(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerRemove(const QJsonObject& p, QString* error);
   QJsonObject cmdMsgSend(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileSend(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileAccept(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileDecline(const QJsonObject& p, QString* error);
   QJsonObject cmdEventsPoll(const QJsonObject& p);
 
   void pushEvent(const QString& type, const QJsonObject& fields);
   void onPeerMessage(LmmPeer* peer, MessageType type, QString* from, XmlMessage* msg);
+  void onPeerFile(LmmPeer* peer, QString* from, XmlMessage* msg);
   void pollContacts(); // 1s timer: diff userList -> contact.added/removed
 
   LmmPeer* findPeer(const QString& name) const;
@@ -72,6 +76,9 @@ private:
   QList<QJsonObject> events_;     // ring, each has "seq"
   qint64 nextSeq_ = 1;
   QElapsedTimer uptime_;
+  // Pending incoming file requests: fileId -> {peer, from, fileName, fileSize}.
+  // Filled on MT_File FO_Request (mode receive), consumed by file.accept/decline.
+  QMap<QString, QJsonObject> incomingFiles_;
 };
 
 #endif // LMMD_H

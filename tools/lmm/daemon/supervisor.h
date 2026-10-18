@@ -55,6 +55,9 @@ private:
   QJsonObject cmdPeerAnnounce(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerRemove(const QJsonObject& p, QString* error);
   QJsonObject cmdMsgSend(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileSend(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileAccept(const QJsonObject& p, QString* error);
+  QJsonObject cmdFileDecline(const QJsonObject& p, QString* error);
   QJsonObject cmdEventsPoll(const QJsonObject& p);
 
   void pushEvent(const QString& type, const QJsonObject& fields);

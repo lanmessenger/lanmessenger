@@ -13,7 +13,7 @@ exchange — no X server, no `xdotool`.
 - Robot Framework keywords — `tests/robot/` (`lmm/LmmLibrary.py` speaks
   the protocol; `lmm/smoke.robot` self-check, `lmm/isolation.robot`
   per-peer state, `lmm/crash.robot` fail-fast, top-level `chat.robot`
-  real app vs mock).
+  real app vs mock, `files.robot` large-file regression for issue #3).
 
 Protocol: [PROTOCOL.md](PROTOCOL.md).
 

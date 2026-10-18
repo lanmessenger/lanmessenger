@@ -177,6 +177,27 @@ class LmmLibrary:
             % (text, peer_from, to, attempts, last_error)
         )
 
+    @keyword("Send File")
+    def send_file(self, peer_from, to, path):
+        """Send a file from mock ``peer_from``. ``to`` is a peer handle
+        or a visible userId, ``path`` an absolute file path readable by
+        the daemon. Returns the result dict (fileName, fileSize).
+        Delivery is async: watch ``events.poll`` for ``file.request`` on
+        the receiver, then ``Accept File``, then ``file.completed``."""
+        return self._request("file.send", {"from": peer_from, "to": to, "path": path})
+
+    @keyword("Accept File")
+    def accept_file(self, peer, file_id):
+        """Accept a pending incoming file on mock ``peer`` (fileId from a
+        ``file.request`` event). The worker stores into its own Received
+        Files dir; the storage path lands in the ``file.completed`` event."""
+        return self._request("file.accept", {"peer": peer, "fileId": file_id})
+
+    @keyword("Decline File")
+    def decline_file(self, peer, file_id):
+        """Decline a pending incoming file on mock ``peer``."""
+        return self._request("file.decline", {"peer": peer, "fileId": file_id})
+
     @keyword("Shutdown Daemon")
     def shutdown_daemon(self):
         """Ask lmmd to exit (peers send Depart). Connection stays open

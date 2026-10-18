@@ -175,6 +175,12 @@ QJsonObject Supervisor::handleRequest(const QJsonObject& req) {
     result = cmdPeerRemove(params, &error);
   else if(cmd == "msg.send")
     result = cmdMsgSend(params, &error);
+  else if(cmd == "file.send")
+    result = cmdFileSend(params, &error);
+  else if(cmd == "file.accept")
+    result = cmdFileAccept(params, &error);
+  else if(cmd == "file.decline")
+    result = cmdFileDecline(params, &error);
   else if(cmd == "events.poll")
     result = cmdEventsPoll(params);
   else if(cmd == "shutdown")
@@ -554,6 +560,52 @@ QJsonObject Supervisor::cmdMsgSend(const QJsonObject& p, QString* error) {
     to = named->userId;
   QJsonObject fwd{{"from", from->name}, {"to", to}, {"text", text}};
   return workerCall(from, "msg.send", fwd, error);
+}
+
+QJsonObject Supervisor::cmdFileSend(const QJsonObject& p, QString* error) {
+  SupervisorWorker* from = findWorker(p.value("from").toString());
+  if(!from) {
+    *error = "unknown sender peer";
+    return {};
+  }
+  const QString path = p.value("path").toString();
+  if(path.isEmpty()) {
+    *error = "empty path";
+    return {};
+  }
+  QString to = p.value("to").toString();
+  if(SupervisorWorker* named = findWorker(to))
+    to = named->userId;
+  QJsonObject fwd{{"from", from->name}, {"to", to}, {"path", path}};
+  return workerCall(from, "file.send", fwd, error);
+}
+
+QJsonObject Supervisor::cmdFileAccept(const QJsonObject& p, QString* error) {
+  SupervisorWorker* w = findWorker(p.value("peer").toString());
+  if(!w) {
+    *error = "unknown peer";
+    return {};
+  }
+  const QString fileId = p.value("fileId").toString();
+  if(fileId.isEmpty()) {
+    *error = "empty fileId";
+    return {};
+  }
+  return workerCall(w, "file.accept", QJsonObject{{"peer", w->name}, {"fileId", fileId}}, error);
+}
+
+QJsonObject Supervisor::cmdFileDecline(const QJsonObject& p, QString* error) {
+  SupervisorWorker* w = findWorker(p.value("peer").toString());
+  if(!w) {
+    *error = "unknown peer";
+    return {};
+  }
+  const QString fileId = p.value("fileId").toString();
+  if(fileId.isEmpty()) {
+    *error = "empty fileId";
+    return {};
+  }
+  return workerCall(w, "file.decline", QJsonObject{{"peer", w->name}, {"fileId", fileId}}, error);
 }
 
 QJsonObject Supervisor::cmdEventsPoll(const QJsonObject& p) {

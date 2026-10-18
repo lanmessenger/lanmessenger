@@ -5,6 +5,8 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QFile>
+#include <QFileInfo>
 #include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -20,6 +22,10 @@
 namespace {
 const int kMaxEvents = 10000;
 const int kMaxText = 8192;
+// Upper bound for file.send payloads: comfortably above the 8MB regression
+// file, far below memory pressure. The transfer itself streams in 64K
+// chunks, so this only bounds the test fixture size.
+const qint64 kMaxFileBytes = 256 * 1024 * 1024;
 
 QJsonObject contactJson(const User& u) {
   return QJsonObject{
@@ -130,6 +136,12 @@ QJsonObject Lmmd::handleRequest(const QJsonObject& req) {
     result = cmdPeerRemove(params, &error);
   else if(cmd == "msg.send")
     result = cmdMsgSend(params, &error);
+  else if(cmd == "file.send")
+    result = cmdFileSend(params, &error);
+  else if(cmd == "file.accept")
+    result = cmdFileAccept(params, &error);
+  else if(cmd == "file.decline")
+    result = cmdFileDecline(params, &error);
   else if(cmd == "events.poll")
     result = cmdEventsPoll(params);
   else if(cmd == "shutdown")
@@ -328,6 +340,124 @@ QJsonObject Lmmd::cmdMsgSend(const QJsonObject& p, QString* error) {
   return QJsonObject{{"from", from->name}, {"to", userId}, {"sent", true}};
 }
 
+QJsonObject Lmmd::cmdFileSend(const QJsonObject& p, QString* error) {
+  LmmPeer* from = findPeer(p.value("from").toString());
+  if(!from) {
+    *error = "unknown sender peer";
+    return {};
+  }
+  const QString path = p.value("path").toString();
+  if(path.isEmpty()) {
+    *error = "empty path";
+    return {};
+  }
+  const QFileInfo info(path);
+  if(!info.exists() || !info.isFile()) {
+    *error = "path is not a readable file: " + path;
+    return {};
+  }
+  if(info.size() <= 0) {
+    *error = "empty file: " + path;
+    return {};
+  }
+  if(info.size() > kMaxFileBytes) {
+    *error = "file too large (max 256MB)";
+    return {};
+  }
+  const QString userId = resolveUserId(from, p.value("to").toString());
+  if(userId.isEmpty()) {
+    *error = "unknown recipient (peer name or visible userId)";
+    return {};
+  }
+  XmlMessage msg;
+  msg.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+  msg.addData(XN_FILEOP, FileOpNames[FO_Request]);
+  msg.addData(XN_FILEPATH, path);
+  QString dest = userId;
+  from->messaging->sendMessage(MT_File, &dest, &msg);
+  return QJsonObject{
+    {"from", from->name},
+    {"to", userId},
+    {"fileName", info.fileName()},
+    {"fileSize", double(info.size())},
+    {"sent", true},
+  };
+}
+
+QJsonObject Lmmd::cmdFileAccept(const QJsonObject& p, QString* error) {
+  const QString fileId = p.value("fileId").toString();
+  if(fileId.isEmpty()) {
+    *error = "empty fileId";
+    return {};
+  }
+  if(!incomingFiles_.contains(fileId)) {
+    *error = "unknown fileId (no pending request)";
+    return {};
+  }
+  const QJsonObject pending = incomingFiles_.value(fileId);
+  LmmPeer* peer = nullptr;
+  const QString peerName = p.value("peer").toString();
+  if(!peerName.isEmpty()) {
+    peer = findPeer(peerName);
+    if(!peer) {
+      *error = "unknown peer";
+      return {};
+    }
+    if(pending.value("peer").toString() != peer->name) {
+      *error = "fileId belongs to another peer";
+      return {};
+    }
+  } else {
+    peer = findPeer(pending.value("peer").toString());
+    if(!peer) {
+      *error = "unknown peer";
+      return {};
+    }
+  }
+  QString senderId = pending.value("from").toString();
+  XmlMessage msg;
+  msg.addData(XN_MODE, FileModeNames[FM_Receive]);
+  msg.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+  msg.addData(XN_FILEOP, FileOpNames[FO_Accept]);
+  msg.addData(XN_FILEID, fileId);
+  // Mirror the GUI accept (messagelog.cpp): the stack overwrites FILEPATH
+  // with the storage path, but FILESIZE is never set downstream — it must
+  // ride in the message or both ends run with size 0 and no byte flows.
+  msg.addData(XN_FILENAME, pending.value("fileName").toString());
+  msg.addData(XN_FILESIZE, QString::number(pending.value("fileSize").toDouble(), 'f', 0));
+  msg.addData(XN_FILEPATH, pending.value("filePath").toString());
+  peer->messaging->sendMessage(MT_File, &senderId, &msg);
+  incomingFiles_.remove(fileId);
+  return QJsonObject{{"peer", peer->name}, {"fileId", fileId}, {"accepted", true}};
+}
+
+QJsonObject Lmmd::cmdFileDecline(const QJsonObject& p, QString* error) {
+  const QString fileId = p.value("fileId").toString();
+  if(fileId.isEmpty()) {
+    *error = "empty fileId";
+    return {};
+  }
+  if(!incomingFiles_.contains(fileId)) {
+    *error = "unknown fileId (no pending request)";
+    return {};
+  }
+  const QJsonObject pending = incomingFiles_.value(fileId);
+  LmmPeer* peer = findPeer(pending.value("peer").toString());
+  if(!peer) {
+    *error = "unknown peer";
+    return {};
+  }
+  QString senderId = pending.value("from").toString();
+  XmlMessage msg;
+  msg.addData(XN_MODE, FileModeNames[FM_Receive]);
+  msg.addData(XN_FILETYPE, FileTypeNames[FT_Normal]);
+  msg.addData(XN_FILEOP, FileOpNames[FO_Decline]);
+  msg.addData(XN_FILEID, fileId);
+  peer->messaging->sendMessage(MT_File, &senderId, &msg);
+  incomingFiles_.remove(fileId);
+  return QJsonObject{{"peer", peer->name}, {"fileId", fileId}, {"declined", true}};
+}
+
 QJsonObject Lmmd::cmdEventsPoll(const QJsonObject& p) {
   const qint64 since = p.value("since").toVariant().toLongLong();
   const QString onlyPeer = p.value("peer").toString();
@@ -364,8 +494,11 @@ void Lmmd::onPeerMessage(LmmPeer* peer, MessageType type, QString* from, XmlMess
                                 });
     return;
   }
-  if(type != MT_Message || !msg)
+  if(type != MT_Message || !msg) {
+    if((type == MT_File || type == MT_Avatar) && msg)
+      onPeerFile(peer, from, msg);
     return;
+  }
   QString fromName;
   for(const User& u : peer->messaging->userList)
     if(u.id == *from) {
@@ -378,6 +511,100 @@ void Lmmd::onPeerMessage(LmmPeer* peer, MessageType type, QString* from, XmlMess
                                   {"fromName", fromName},
                                   {"text", msg->data(XN_MESSAGE)},
                                 });
+}
+
+void Lmmd::onPeerFile(LmmPeer* peer, QString* from, XmlMessage* msg) {
+  // Only real file payloads: avatars/folders take their own paths and must
+  // not pollute the file suite (avatars auto-accept inside the stack).
+  if(msg->data(XN_FILETYPE) != FileTypeNames[FT_Normal])
+    return;
+  const int fileOp = Helper::indexOf(FileOpNames, FO_Max, msg->data(XN_FILEOP));
+  const int fileMode = Helper::indexOf(FileModeNames, FM_Max, msg->data(XN_MODE));
+  const QString fileId = msg->data(XN_FILEID);
+  if(fileId.isEmpty())
+    return;
+  const QString modeName =
+      (fileMode > FM_Blank && fileMode < FM_Max) ? FileModeNames[fileMode] : QString();
+  const QString opName = (fileOp > FO_Blank && fileOp < FO_Max) ? FileOpNames[fileOp] : QString();
+
+  switch(fileOp) {
+  case FO_Request:
+    // Incoming only: the sender's own local echo (mode send) is UI noise.
+    if(fileMode != FM_Receive)
+      return;
+    {
+      QString fromName;
+      for(const User& u : peer->messaging->userList)
+        if(u.id == *from) {
+          fromName = u.name;
+          break;
+        }
+      incomingFiles_[fileId] = QJsonObject{
+        {"peer", peer->name},
+        {"from", *from},
+        {"fileName", msg->data(XN_FILENAME)},
+        {"fileSize", double(msg->data(XN_FILESIZE).toLongLong())},
+        {"filePath", msg->data(XN_FILEPATH)},
+      };
+      pushEvent("file.request", QJsonObject{
+                                  {"peer", peer->name},
+                                  {"from", *from},
+                                  {"fromName", fromName},
+                                  {"fileId", fileId},
+                                  {"fileName", msg->data(XN_FILENAME)},
+                                  {"fileSize", double(msg->data(XN_FILESIZE).toLongLong())},
+                                });
+    }
+    return;
+  case FO_Accept:
+  case FO_Decline:
+  case FO_Cancel:
+    pushEvent(fileOp == FO_Accept ? "file.accepted"
+              : fileOp == FO_Decline             ? "file.declined"
+                                                 : "file.cancelled",
+              QJsonObject{
+                {"peer", peer->name},
+                {"from", *from},
+                {"fileId", fileId},
+                {"mode", modeName},
+                {"op", opName},
+              });
+    return;
+  case FO_Complete:
+  case FO_Error:
+  case FO_Abort: {
+    // path rides in XN_FILEPATH for complete/error (tcpnetwork::update);
+    // derive name/size from disk when present so tests need no guessing.
+    const QString path = msg->data(XN_FILEPATH);
+    QString fileName = msg->data(XN_FILENAME);
+    double fileSize = double(msg->data(XN_FILESIZE).toLongLong());
+    if(!path.isEmpty()) {
+      const QFileInfo info(path);
+      if(fileName.isEmpty())
+        fileName = info.fileName();
+      if(fileSize <= 0 && info.exists())
+        fileSize = double(info.size());
+    }
+    // A completed receive is no longer pending (accept already removed it,
+    // but keep this idempotent for races).
+    if(fileOp == FO_Complete || fileOp == FO_Error || fileOp == FO_Abort)
+      incomingFiles_.remove(fileId);
+    pushEvent(fileOp == FO_Complete ? "file.completed" : "file.failed",
+              QJsonObject{
+                {"peer", peer->name},
+                {"from", *from},
+                {"fileId", fileId},
+                {"mode", modeName},
+                {"op", opName},
+                {"path", path},
+                {"fileName", fileName},
+                {"fileSize", fileSize},
+              });
+    return;
+  }
+  default:
+    return; // progress/init/next: too noisy for the event log
+  }
 }
 
 void Lmmd::pollContacts() {

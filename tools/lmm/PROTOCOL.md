@@ -73,6 +73,9 @@ Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
 | `peer.announce` | `{peer}` | `{peer, announced: true}` (force re-announce) |
 | `peer.remove` | `{peer}` | `{removed: true}` (sends Depart first) |
 | `msg.send` | `{from, to, text}` | `{from, to, sent: true}`. `to` = peer handle or visible `userId`. `text`: 1–8192 chars. `sent: true` means accepted for delivery, NOT delivered — watch `events.poll` for `message.received` / `message.failed`. |
+| `file.send` | `{from, to, path}` | `{from, to, fileName, fileSize, sent: true}`. `to` = peer handle or visible `userId`. `path`: absolute readable file (max 256MB). Only `normal` files; folders/avatars are out of scope. `sent: true` = request accepted, NOT delivered — watch for `file.request` on the receiver, then `file.accept`, then `file.completed` on both sides. |
+| `file.accept` | `{peer, fileId}` | `{peer, fileId, accepted: true}`. `peer` = receiving worker, `fileId` from its `file.request`. Stores into the worker's own Received Files dir; the storage `path` lands in `file.completed`. |
+| `file.decline` | `{peer, fileId}` | `{peer, fileId, declined: true}`. |
 | `events.poll` | `{since?, peer?}` | `{events: [...], next}` — events with `seq > since` (default 0). Pass `next` back as `since`; `next` is the highest returned `seq` (0 when empty), so no event is ever skipped between polls. |
 | `shutdown` | — | `{stopping: true}`, daemon exits after reply flush (≈200ms), peers send Depart. |
 
@@ -88,6 +91,10 @@ Every event: `{seq, t, event, ...}`. `seq` starts at 1, `t` = epoch ms.
 | `contact.removed` | `{peer, userId}` |
 | `message.received` | `{peer, from, fromName, text}` — `MT_Message` arrived at `peer` |
 | `message.failed` | `{peer, to, text}` — stack gave up (10s timeout, 1 retry); re-issue `msg.send` |
+| `file.request` | `{peer, from, fromName, fileId, fileName, fileSize}` — `FO_Request` arrived at `peer` (receiver). Accept with `file.accept`, decline with `file.decline`. |
+| `file.accepted` / `file.declined` / `file.cancelled` | `{peer, from, fileId, mode, op}` — transfer handshake steps on each side (`mode`: `send`/`receive`). Mostly diagnostic; the delivery proof is `file.completed`. |
+| `file.completed` | `{peer, from, fileId, mode, op, path, fileName, fileSize}` — `FO_Complete` on that side. Both sides emit (sender `mode: send`, receiver `mode: receive`); the receiver's `path` is the stored file — byte-compare it against the source for the receipt proof. |
+| `file.failed` | `{peer, from, fileId, mode, op, path?, fileName?, fileSize?}` — `FO_Error`/`FO_Abort` on that side (e.g. the issue #3 truncation: sender `file.completed`, receiver `file.failed` with a short file). |
 
 ## Recommended flows
 
@@ -108,12 +115,19 @@ events.poll until message.received on Bob;
 - All peers share one UDP discovery port (50000) and one box, like the
   two-instance setup in `howto/runbook.md`. TCP ports are auto-assigned;
   announces carry the real port, so dial always works.
+- File transfers (`file.send`/`file.accept` + `file.*` events) run the real
+  `lmcMessaging`/`FileSender`/`FileReceiver` stack between workers, with
+  real 64K-chunk TCP streaming — the regression net for issue #3
+  (sender `file.completed` + receiver `file.failed` with a short file).
+  Folders, avatars, statuses and broadcast messages are still out of scope
+  (status is set once at `peer.add`; no late mutation command by design).
 - Peer identity = MAC + handle. Handles must differ per daemon.
 - Each peer owns its `HOME` (`<home>/peers/<name>/`): `lmc.ini`,
   groups, avatar, history and logs are per-peer. Since v2 the old
   shared-`HOME` caveats are gone: no `ini` cross-pollution between
   peers, and `XN_LOGON` is correct per peer (own `$USER` per worker).
-- Files, statuses, groups, broadcast messages: not in v1 (status is
+- Files: only `normal` single files (no folders/avatars). Group messages,
+  statuses and broadcasts are still out of scope (status is
   set once at `peer.add`; no late mutation command by design).
 - `peer.add`/`peer.remove` cycles spawn/reap an OS process per peer;
   the old in-process `~lmcMessaging` leak note no longer applies —
