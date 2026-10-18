@@ -48,6 +48,7 @@ FileSender::FileSender(QString szId, QString szLocalId, QString szPeerId, QStrin
   address = szAddress;
   port = nPort;
   active = false;
+  finishing = false;
   mile = fileSize / 36;
   milestone = mile;
   file = NULL;
@@ -72,6 +73,7 @@ void FileSender::init(void) {
 
 void FileSender::stop(void) {
   active = false;
+  finishing = false;
 
   if(timer)
     timer->stop();
@@ -91,6 +93,12 @@ void FileSender::connected(void) {
 }
 
 void FileSender::disconnected(void) {
+  if(finishing) {
+    finishing = false;
+    emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &filePath);
+    return;
+  }
+
   if(active) {
     QString data;
     emit progressUpdated(FM_Send, FO_Error, type, &id, &peerId, &data);
@@ -119,10 +127,12 @@ void FileSender::bytesWritten(qint64 bytes) {
   qint64 unsentBytes = fileSize - file->pos();
 
   if(unsentBytes == 0) {
+    //  Whole file is read from disk, but bytes may still sit in socket
+    //  buffers. Close gracefully and report completion on disconnect.
     active = false;
+    finishing = true;
     file->close();
-    socket->close();
-    emit progressUpdated(FM_Send, FO_Complete, type, &id, &peerId, &filePath);
+    socket->disconnectFromHost();
     return;
   }
 
@@ -229,16 +239,24 @@ void FileReceiver::readyRead(void) {
   if(!active)
     return;
 
-  qint64 bytesReceived = socket->read(buffer, bufferSize);
-  file->write(buffer, bytesReceived);
+  //	Drain everything available: several chunks may arrive between event
+  //	loop turns, but Qt emits readyRead only once for them. Reading a
+  //	single chunk per signal leaves the tail buffered with no new signal
+  //	to wake us, stalling the transfer short of fileSize.
+  while(socket->bytesAvailable() > 0) {
+    qint64 bytesReceived = socket->read(buffer, bufferSize);
+    if(bytesReceived <= 0)
+      break;
+    file->write(buffer, bytesReceived);
 
-  qint64 unreceivedBytes = fileSize - file->pos();
-  if(unreceivedBytes == 0) {
-    active = false;
-    file->close();
-    socket->close();
-    emit progressUpdated(FM_Receive, FO_Complete, type, &id, &peerId, &filePath);
-    return;
+    qint64 unreceivedBytes = fileSize - file->pos();
+    if(unreceivedBytes == 0) {
+      active = false;
+      file->close();
+      socket->close();
+      emit progressUpdated(FM_Receive, FO_Complete, type, &id, &peerId, &filePath);
+      return;
+    }
   }
 
   //	if(file->pos() > milestone) {

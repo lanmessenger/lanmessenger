@@ -75,6 +75,7 @@ private:
   QFile* file;
   char* buffer;
   bool active;
+  bool finishing;
   qint64 milestone;
   qint64 mile;
   QTimer* timer;
