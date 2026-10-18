@@ -89,7 +89,6 @@ Mock Sends Real Receives
     Wait Until Keyword Succeeds    45s    3s
     ...    Send From Mock And Expect In Log    ${c}[userId]    e2e-hyb-001
     Grab Screenshot    output_file=${OUTPUT_DIR}${/}07-chat-mock.png    locator=name=ChatWindow visible=true
-    Hold For Video
 
 Real Sends Mock Receives
     [Documentation]    Text typed in the GUI arrives at the mock as
@@ -98,4 +97,3 @@ Real Sends Mock Receives
     Wait Until Keyword Succeeds    45s    5s
     ...    Send From Real And Expect Event    e2e-hyb-002
     Grab Screenshot    output_file=${OUTPUT_DIR}${/}08-chat-mock-with-text.png    locator=name=ChatWindow visible=true
-    Hold For Video

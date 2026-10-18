@@ -30,14 +30,8 @@ ${AGENT_PORT}     9999
 # with /loopback the app lists itself under General under this name, which
 # is the self-peer addresses used by the loopback suites.
 ${SELF_PEER}      E2E Tester
-# Showcase pause: how long an opened window stays on screen before the
-# test closes it, so a demo video (x11grab of the Xvfb display) shows
-# each dialog instead of a millisecond flash. Default is 0s: the gate
-# runs with no showcase tax, `Hold For Video` is a no-op. The demo
-# workflow overrides from the command line, e.g. `-v HOLD_OPEN:3s`.
-${HOLD_OPEN}      0s
-# Settle delay (NOT showcase): close() on a reused modeless window hides
-# it synchronously, but the X unmap and the video capture lag behind, so
+# Settle delay: close() on a reused modeless window hides
+# it synchronously, but the X unmap lags behind, so
 # give the display a moment before the hidden assert. Stability, keep in
 # gate mode.
 ${HIDE_SETTLE}    1s
@@ -47,7 +41,7 @@ ${HIDE_SETTLE}    1s
 Launch LMC
     [Documentation]    Start the app under the in-process agent, connect and
     ...    wait until the main window is mapped. Gives the window a moment
-    ...    for first paint so dumps and the CI video show real content (the
+    ...    for first paint so dumps and screenshots show real content (the
     ...    visible flag is set synchronously by show(), X mapping is async;
     ...    QTest uses qWaitForWindowExposed for the same reason).
     ...    Assumes Display/SslFixture/UserScope and LD_LIBRARY_PATH arrive
@@ -233,13 +227,6 @@ Close Dialog
     [Arguments]    ${window}    ${button}
     Click Object    name=${button}
     Wait For Object To Disappear    name=${window}    timeout=10
-
-Hold For Video
-    [Documentation]    Showcase pause for the CI video: sleep ${HOLD_OPEN}
-    ...    while the window under test is open, so the recording shows it
-    ...    instead of a millisecond flash. Call after the asserts, right
-    ...    before closing the window. Length is controlled by ${HOLD_OPEN}.
-    Sleep             ${HOLD_OPEN}
 
 Close All Chats
     [Documentation]    Close every conversation window: chatwindow.cpp, like

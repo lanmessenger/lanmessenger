@@ -18,8 +18,7 @@ name: Build
 # artifacts=release+test — both on one runner (release path): the test layout
 #   is assembled by COPYING lmc/release into $RUNNER_TEMP/teststage and
 #   adding the test files to the copy. The original tree is never modified,
-#   so the packages cannot contain test binaries by construction (the leak
-#   that setup-e2e's hand-copy avoids).
+#   so the packages cannot contain test binaries by construction.
 #   A shared configure means one OpenSSL for both halves, hence vcpkg.
 #
 # No push/PR triggers: every push/PR goes through e2e.yml, which orders its

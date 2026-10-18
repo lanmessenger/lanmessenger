@@ -60,7 +60,6 @@ File Round Trip
     ${recv}=          Get Binary File    ${RECV_DIR}${/}e2e-file-a.bin
     Should Be Equal   ${sent}    ${recv}
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}files-roundtrip.json
-    Hold For Video
 
 File Decline
     [Documentation]    Send then decline: the log flips to Declined and no
@@ -72,7 +71,6 @@ File Decline
     ...    File Decline Should Appear
     File Should Not Exist    ${RECV_DIR}${/}e2e-file-b.bin
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}files-decline.json
-    Hold For Video
 
 
 *** Keywords ***

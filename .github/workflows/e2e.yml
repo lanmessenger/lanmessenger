@@ -4,7 +4,7 @@
 # headers). Skipped only when the caller already built them (skip-build).
 #
 # Legs: linux-x64, windows-x64, macos-arm64, macos-x64. Every leg runs the
-# same full suite (lmc scenarios plus the lmm/ self-checks) with HOLD_OPEN:0s.
+# same full suite (lmc scenarios plus the lmm/ self-checks).
 #
 # Flake policy: every leg runs the suite once, then --rerunfailed exactly
 # once, then rebot --merge. A real breakage stays red after the retry; a
@@ -285,7 +285,6 @@ jobs:
             --outputdir robot-results-full \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
             -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
-            -v HOLD_OPEN:0s \
             tests/robot/
 
       - name: Run full suite (Windows)
@@ -307,7 +306,6 @@ jobs:
             --outputdir robot-results-full `
             -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
             -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
-            -v HOLD_OPEN:0s `
             tests/robot/
 
       - name: Run full suite (macOS)
@@ -324,7 +322,6 @@ jobs:
             --outputdir "$GITHUB_WORKSPACE/robot-results-full" \
             -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
             -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
-            -v HOLD_OPEN:0s \
             "$GITHUB_WORKSPACE/tests/robot/"
 
       - name: Rerun failed tests once (Linux)
@@ -342,7 +339,6 @@ jobs:
             --outputdir robot-results-rerun \
             -v APP_PATH:"$PWD/lmc/release/lan-messenger-test" \
             -v LMMD_BIN:"$PWD/build/tools/lmm/lmmd" \
-            -v HOLD_OPEN:0s \
             tests/robot/
 
       - name: Rerun failed tests once (Windows)
@@ -359,7 +355,6 @@ jobs:
             --outputdir robot-results-rerun `
             -v APP_PATH:"$PWD\lmc\release\lan-messenger-test.exe" `
             -v LMMD_BIN:"$PWD\build\tools\lmm\lmmd.exe" `
-            -v HOLD_OPEN:0s `
             tests/robot/
 
       - name: Rerun failed tests once (macOS)
@@ -377,7 +372,6 @@ jobs:
             --outputdir "$GITHUB_WORKSPACE/robot-results-rerun" \
             -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
             -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
-            -v HOLD_OPEN:0s \
             "$GITHUB_WORKSPACE/tests/robot/"
 
       # ---- Windows post-mortem (diagnose the next red, not this one) ----
