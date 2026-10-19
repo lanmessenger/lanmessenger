@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.lanmessenger.lmc</id>
+  <name>LAN Messenger</name>
+  <summary>Send and receive instant messages over a local network</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>
+      LAN Messenger is an instant messaging application for communication
+      over a local network.
+    </p>
+  </description>
+  <launchable type="desktop-id">lmc.desktop</launchable>
+  <url type="homepage">https://lanmessenger.github.io/</url>
+  <developer id="io.github.lanmessenger">
+    <name>LAN Messenger</name>
+  </developer>
+  <categories>
+    <category>Network</category>
+    <category>InstantMessaging</category>
+  </categories>
+  <provides>
+    <binary>lmc</binary>
+  </provides>
+</component>
