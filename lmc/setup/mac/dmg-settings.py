@@ -36,7 +36,11 @@ default_view = 'icon-view'
 # Old Finder bounds were {400, 100, 950, 470} in top-left origin;
 # dmgbuild takes ((x, y), (w, h)) with y running bottom-up, and the
 # Finder clamps the window onto the display anyway.
-window_rect = ((400, 300), (550, 370))
+# Height is the OUTER frame: 350 pt content (matches background.jpg)
+# plus ~28 pt Finder title bar (toolbar hidden). With 370 the bottom
+# ~8 pt of the background was clipped by the window edge, so the bottom
+# margin looked smaller than the other sides.
+window_rect = ((400, 300), (550, 378))
 show_status_bar = False
 show_tab_view = False
 show_toolbar = False
