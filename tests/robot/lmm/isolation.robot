@@ -11,7 +11,7 @@ Suite Teardown    Stop Mock Stand
 
 
 *** Variables ***
-${LMM_PORT}       17772
+${LMM_PORT}       17775
 ${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-isolation
 
 
@@ -56,8 +56,9 @@ Peer List Carries Per-Peer Identity
 
 Mixed Statuses Still Deliver
     [Documentation]    Distinct statuses do not break discovery or delivery.
-    ...    The delivery wait resends (GH mac runners occasionally lose a
-    ...    single delivery); a dead path still fails after 3 attempts.
+    ...    The delivery wait resends and re-establishes visibility (GH mac
+    ...    runners occasionally lose a single delivery or drop a contact
+    ...    mid-test); a dead path still fails after 3 attempts.
     ${ev}=    Send Message And Wait    IsoAlice    IsoBob    e2e-iso-001
     Should Be Equal    ${ev}[fromName]    IsoAlice
 

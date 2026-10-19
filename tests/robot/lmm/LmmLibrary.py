@@ -154,28 +154,63 @@ class LmmLibrary:
     @keyword("Send Message And Wait")
     def send_message_and_wait(self, peer_from, to, text, timeout="15s", attempts="3"):
         """Send a chat message and wait for the ``message.received`` event
-        (matched by peer and text). On timeout re-announce the sender and
-        resend, up to ``attempts`` times: GH mac runners occasionally lose
-        a single delivery while discovery stays instant. A dead delivery
-        path still fails after the last attempt — retries absorb one-off
-        packet loss, not breakage."""
+        (matched by peer and text). On a delivery timeout both sides are
+        re-announced and the send is retried, up to ``attempts`` times: GH
+        mac runners occasionally lose a single delivery while discovery
+        stays instant. A send-time ``unknown recipient`` (the sender's
+        worker lost visibility of the target mid-test) consumes one attempt
+        too: both peers are re-announced and the sender waits, bounded by
+        ``timeout``, until the target is ready again. A dead delivery path
+        still fails after the last attempt — retries absorb one-off loss,
+        not breakage.
+
+        Every attempt is printed to the log, so a rising retry rate stays
+        visible instead of silently passing."""
+        total = int(attempts)
         last_error = None
-        for _ in range(int(attempts)):
-            self.send_message(peer_from, to, text)
+        for attempt in range(1, total + 1):
+            try:
+                self.send_message(peer_from, to, text)
+            except AssertionError as e:
+                last_error = e
+                print(
+                    "Send Message And Wait: attempt %d/%d not sent (%s); "
+                    "re-announcing and waiting for ready" % (attempt, total, e)
+                )
+                self._repair_delivery_path(peer_from, to, timeout)
+                continue
             try:
                 return self.wait_for_event(
                     "message.received", peer=to, timeout=timeout, text=text
                 )
             except AssertionError as e:
                 last_error = e
-                try:
-                    self.announce_peer(peer_from)
-                except AssertionError:
-                    pass
+                print(
+                    "Send Message And Wait: attempt %d/%d sent but not "
+                    "delivered (%s); re-announcing and resending"
+                    % (attempt, total, e)
+                )
+                self._repair_delivery_path(peer_from, to, timeout)
         raise AssertionError(
-            "message '%s' from '%s' to '%s' not delivered after %s attempts: %s"
-            % (text, peer_from, to, attempts, last_error)
+            "message '%s' from '%s' to '%s' not delivered after %d attempts: %s"
+            % (text, peer_from, to, total, last_error)
         )
+
+    def _repair_delivery_path(self, peer_from, to, timeout):
+        """Best-effort repair between send attempts: re-announce both sides
+        (a raw userId is not announceable — ignored), then wait, bounded by
+        ``timeout``, until the sender sees the target again. Returns
+        immediately when already ready; an expired wait is only logged —
+        the attempts budget and the final error keep the failure signal."""
+        for name in (peer_from, to):
+            try:
+                self.announce_peer(name)
+            except AssertionError:
+                pass
+        try:
+            self.wait_for_contact_ready(peer_from, to, timeout=timeout)
+        except AssertionError as e:
+            print("Send Message And Wait: still not ready (%s)" % e)
 
     @keyword("Send File")
     def send_file(self, peer_from, to, path):
