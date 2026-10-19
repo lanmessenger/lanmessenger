@@ -150,8 +150,41 @@ class LmcLibrary:
         return self._request("wait_for_object", {"locator": locator, "timeout": timeout})
 
     @keyword("Wait For Object To Disappear")
-    def wait_for_object_to_disappear(self, locator, timeout="10s"):
-        self._request("wait_for_gone", {"locator": locator, "timeout": timeout})
+    def wait_for_object_to_disappear(self, locator, timeout="10s", poll="0.2s"):
+        """Poll ``object_exists`` until nothing matches ``locator``.
+
+        Test-side polling instead of the agent's ``wait_for_gone``: that
+        command blocks the GUI thread in a nested ``QEventLoop`` for the
+        whole timeout, which on Windows can starve the very deletion
+        (``close()`` + ``deleteLater()``) it waits for — the window then
+        lands exactly on the timeout boundary (``visible=false
+        sameWindow=true``). Each poll here is a fast agent command, so
+        the main loop stays free to deliver close/delete at any moment.
+
+        NOTE: the starvation/race above is a hypothesis, not proven —
+        seen as 3 boundary-exact misses (History full/rerun, Help full)
+        vs normally millisecond deletion (e.g. Help PASS in 0.059s on
+        rerun). If polling still hits the exact boundary, the hypothesis
+        is wrong and the deletion itself is slow — investigate app side.
+        """
+        try:
+            budget = timestr_to_secs(timeout)
+        except (ValueError, TypeError):
+            budget = 10.0
+        try:
+            interval = timestr_to_secs(poll)
+        except (ValueError, TypeError):
+            interval = 0.2
+        deadline = time.monotonic() + budget
+        while True:
+            res = self._request("object_exists", {"locator": locator})
+            if not res.get("exists"):
+                return
+            if time.monotonic() >= deadline:
+                raise AssertionError(
+                    "object '%s' still present after %s "
+                    "(test-side poll, no agent nesting)" % (locator, timeout))
+            time.sleep(interval)
 
     @keyword("Object Should Exist")
     def object_should_exist(self, locator):
