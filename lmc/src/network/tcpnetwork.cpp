@@ -131,6 +131,17 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
   lmcTrace::write("Warning: Socket not found. Message sending failed");
 }
 
+//	Point-in-time: a dead connection flips this back via removeUser.
+bool lmcTcpNetwork::canSendTo(QString* lpszUserId) {
+  if(!isRunning)
+    return false;
+  if(lpszUserId->compare(localId) == 0)
+    return locMsgStream != NULL && crypto && crypto->hasSession(lpszUserId);
+  if(!messageMap.contains(*lpszUserId))
+    return false;
+  return crypto && crypto->hasSession(lpszUserId);
+}
+
 void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData, int nPort) {
   XmlMessage xmlMessage(*lpszData);
   int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));

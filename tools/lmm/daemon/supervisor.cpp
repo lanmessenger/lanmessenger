@@ -171,6 +171,8 @@ QJsonObject Supervisor::handleRequest(const QJsonObject& req) {
     result = cmdPeerContacts(params, &error);
   else if(cmd == "peer.announce")
     result = cmdPeerAnnounce(params, &error);
+  else if(cmd == "peer.ready")
+    result = cmdPeerReady(params, &error);
   else if(cmd == "peer.remove")
     result = cmdPeerRemove(params, &error);
   else if(cmd == "msg.send")
@@ -522,6 +524,18 @@ QJsonObject Supervisor::cmdPeerAnnounce(const QJsonObject& p, QString* error) {
     return {};
   }
   return workerCall(w, "peer.announce", QJsonObject{{"peer", w->name}}, error);
+}
+
+QJsonObject Supervisor::cmdPeerReady(const QJsonObject& p, QString* error) {
+  SupervisorWorker* w = findWorker(p.value("peer").toString());
+  if(!w) {
+    *error = "unknown peer";
+    return {};
+  }
+  QString user = p.value("user").toString();
+  if(SupervisorWorker* named = findWorker(user))
+    user = named->userId;
+  return workerCall(w, "peer.ready", QJsonObject{{"peer", w->name}, {"user", user}}, error);
 }
 
 QJsonObject Supervisor::cmdPeerRemove(const QJsonObject& p, QString* error) {

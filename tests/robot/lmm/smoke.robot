@@ -20,8 +20,8 @@ Start Smoke Stand
     Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
     Add Peer    SmokeAlice
     Add Peer    SmokeBob
-    Wait For Contact    SmokeAlice    SmokeBob    timeout=30s
-    Wait For Contact    SmokeBob    SmokeAlice    timeout=30s
+    Wait For Contact Ready    SmokeAlice    SmokeBob    timeout=30s
+    Wait For Contact Ready    SmokeBob    SmokeAlice    timeout=30s
     Reset Event Cursor
 
 

@@ -52,6 +52,7 @@ public:
   void addConnection(QString* lpszUserId, QString* lpszAddress, int nPort = 0);
   int tcpServerPort(void) const;
   void sendMessage(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData);
+  bool canSendTo(QString* lpszReceiverId);
   void initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData, int nPort = 0);
   void initReceiveFile(QString* lpszSenderId, QString* lpszAddress, QString* lpszData);
   void fileOperation(FileMode mode, QString* lpszUserId, QString* lpszData);

@@ -35,7 +35,7 @@ Start Chat Stand
     Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
     Launch LMC
     Add Peer    ${MOCK}
-    Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=30s
+    Wait For Contact Ready    ${MOCK}    ${APP_NAME}    timeout=30s
     Reset Event Cursor
 
 Stop Chat Stand
@@ -85,7 +85,7 @@ Mock Sends Real Receives
     [Documentation]    The mock sends to the app's userId; the text lands
     ...    in the open GUI conversation.
     Open Chat With Mock
-    ${c}=    Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=15s
+    ${c}=    Wait For Contact Ready    ${MOCK}    ${APP_NAME}    timeout=15s
     Wait Until Keyword Succeeds    45s    3s
     ...    Send From Mock And Expect In Log    ${c}[userId]    e2e-hyb-001
     Grab Screenshot    output_file=${OUTPUT_DIR}${/}07-chat-mock.png    locator=name=ChatWindow visible=true

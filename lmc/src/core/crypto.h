@@ -86,6 +86,7 @@ public:
   QByteArray generateRSA(void);
   QByteArray generateAES(QString* lpszUserId, QByteArray& pubKey);
   void retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv);
+  bool hasSession(QString* lpszUserId);
   QByteArray encrypt(QString* lpszUserId, QByteArray& clearData);
   QByteArray decrypt(QString* lpszUserId, QByteArray& cipherData);
 

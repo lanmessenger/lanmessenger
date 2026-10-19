@@ -232,28 +232,43 @@ class LmmLibrary:
         restricted to ``peer`` and to ``field=value`` matchers, compared
         as strings). Advances the cursor. Returns the event dict."""
         deadline = time.monotonic() + timestr_to_secs(timeout)
+        tail = []
+        failed = []
         while True:
             events, nxt = self._poll(self._cursor)
             self._cursor = nxt
             for ev in events:
                 if ev.get("event") != event:
+                    if len(tail) < 10:
+                        tail.append("%s/%s" % (ev.get("event"), ev.get("peer")))
+                    if (
+                        ev.get("event") == "message.failed"
+                        and "text" in matchers
+                        and str(ev.get("text")) == str(matchers["text"])
+                    ):
+                        failed.append(ev)
                     continue
                 if peer is not None and ev.get("peer") != peer:
                     continue
                 if all(str(ev.get(k)) == str(v) for k, v in matchers.items()):
                     return ev
             if time.monotonic() >= deadline:
+                detail = ""
+                if failed:
+                    detail += "; message.failed x%d" % len(failed)
+                if tail:
+                    detail += "; other events: %s" % ", ".join(tail)
                 raise AssertionError(
-                    "event '%s'%s not seen within %s"
-                    % (event, " for peer '%s'" % peer if peer else "", timeout)
+                    "event '%s'%s not seen within %s%s"
+                    % (event, " for peer '%s'" % peer if peer else "", timeout, detail)
                 )
             time.sleep(self.POLL_INTERVAL)
 
-    @keyword("Wait For Contact")
-    def wait_for_contact(self, observer, name, timeout="20s"):
-        """Wait until mock ``observer`` sees ``name`` (display name or
-        userId) in its contacts, re-announcing per the recommended flow
-        in PROTOCOL.md. Returns the contact dict."""
+    @keyword("Wait For Contact Announce")
+    def wait_for_contact_announce(self, observer, name, timeout="20s"):
+        """Wait until mock ``observer`` sees ``name`` in its contacts.
+        Announce-level only, not send-ready; use ``Wait For Contact Ready``
+        before sending. Returns the contact dict."""
         deadline = time.monotonic() + timestr_to_secs(timeout)
         last_announce = 0.0
         while True:
@@ -266,5 +281,44 @@ class LmmLibrary:
                 )
             if time.monotonic() - last_announce >= self.ANNOUNCE_INTERVAL:
                 self.announce_peer(observer)
+                last_announce = time.monotonic()
+            time.sleep(self.POLL_INTERVAL)
+
+    @keyword("Wait For Contact Ready")
+    def wait_for_contact_ready(self, observer, name, timeout="30s"):
+        """Wait until ``observer`` can send to ``name``: contact visible
+        and the message plane up (TCP stream + crypto session,
+        ``peer.ready``). Re-announces while waiting. Returns the contact dict."""
+        deadline = time.monotonic() + timestr_to_secs(timeout)
+        last_announce = 0.0
+        contacts = []
+        while True:
+            try:
+                res = self._request("peer.ready", {"peer": observer, "user": name})
+            except AssertionError:
+                res = {}
+            try:
+                contacts = self.peer_contacts(observer)
+            except AssertionError:
+                contacts = []
+            if res.get("ready"):
+                for contact in contacts:
+                    if contact.get("name") == name or contact.get("userId") == name:
+                        return contact
+            if time.monotonic() >= deadline:
+                raise AssertionError(
+                    "peer '%s' never ready for '%s' within %s (contacts: %s)"
+                    % (
+                        observer,
+                        name,
+                        timeout,
+                        [c.get("name") for c in contacts],
+                    )
+                )
+            if time.monotonic() - last_announce >= self.ANNOUNCE_INTERVAL:
+                try:
+                    self.announce_peer(observer)
+                except AssertionError:
+                    pass
                 last_announce = time.monotonic()
             time.sleep(self.POLL_INTERVAL)

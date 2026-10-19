@@ -41,7 +41,7 @@ Start File Stand
     Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
     Launch LMC
     Add Peer    ${MOCK}
-    Wait For Contact    ${MOCK}    ${APP_NAME}    timeout=30s
+    Wait For Contact Ready    ${MOCK}    ${APP_NAME}    timeout=30s
     Reset Event Cursor
 
 Stop File Stand

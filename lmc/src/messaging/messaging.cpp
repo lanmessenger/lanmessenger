@@ -135,6 +135,14 @@ User* lmcMessaging::getUser(QString* id) {
   return NULL;
 }
 
+//	A visible contact alone is not send-ready (first send on a fresh
+//	connection can vanish silently); the message plane must be up too.
+bool lmcMessaging::isPeerReady(QString* id) {
+  if(!getUser(id))
+    return false;
+  return pNetwork->canSendTo(id);
+}
+
 void lmcMessaging::settingsChanged(void) {
   nTimeout = pSettings->value(IDS_TIMEOUT, IDS_TIMEOUT_VAL).toInt() * 1000;
   nMaxRetry = pSettings->value(IDS_MAXRETRIES, IDS_MAXRETRIES_VAL).toInt();

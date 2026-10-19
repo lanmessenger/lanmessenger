@@ -21,8 +21,8 @@ Start Isolation Stand
     Start Mock Stand    ${LMM_PORT}    ${PEER_HOME}
     Add Peer    IsoAlice    chat
     Add Peer    IsoBob    busy
-    Wait For Contact    IsoAlice    IsoBob    timeout=30s
-    Wait For Contact    IsoBob    IsoAlice    timeout=30s
+    Wait For Contact Ready    IsoAlice    IsoBob    timeout=30s
+    Wait For Contact Ready    IsoBob    IsoAlice    timeout=30s
     Reset Event Cursor
 
 

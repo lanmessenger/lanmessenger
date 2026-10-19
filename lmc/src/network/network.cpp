@@ -132,6 +132,10 @@ void lmcNetwork::sendMessage(QString* lpszReceiverId, QString* lpszAddress, QStr
   pTcpNetwork->sendMessage(lpszReceiverId, lpszData);
 }
 
+bool lmcNetwork::canSendTo(QString* lpszReceiverId) {
+  return pTcpNetwork->canSendTo(lpszReceiverId);
+}
+
 void lmcNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, QString* lpszData, int nPort) {
   pTcpNetwork->initSendFile(lpszReceiverId, lpszAddress, lpszData, nPort);
 }

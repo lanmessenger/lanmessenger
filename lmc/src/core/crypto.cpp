@@ -111,6 +111,10 @@ void lmcCrypto::retreiveAES(QString* lpszUserId, QByteArray& aesKeyIv) {
   free(keyIv);
 }
 
+bool lmcCrypto::hasSession(QString* lpszUserId) {
+  return encryptMap.contains(*lpszUserId);
+}
+
 QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
   int outLen = clearData.length() + AES_BLOCK_SIZE;
   unsigned char* outBuffer = (unsigned char*)malloc(outLen);

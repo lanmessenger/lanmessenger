@@ -71,6 +71,7 @@ Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
 | `peer.list` | — | `{peers: [{peer, userId, displayName, contacts}]}` |
 | `peer.contacts` | `{peer}` | `{peer, contacts: [{userId, name, address, status}]}` |
 | `peer.announce` | `{peer}` | `{peer, announced: true}` (force re-announce) |
+| `peer.ready` | `{peer, user}` | `{peer, user, ready}` — `user` = peer handle or visible `userId`. `ready` is true only when the contact is known AND the message plane is up (TCP stream + crypto session). A visible contact alone is not send-ready: the first send on a fresh connection can vanish silently. |
 | `peer.remove` | `{peer}` | `{removed: true}` (sends Depart first) |
 | `msg.send` | `{from, to, text}` | `{from, to, sent: true}`. `to` = peer handle or visible `userId`. `text`: 1–8192 chars. `sent: true` means accepted for delivery, NOT delivered — watch `events.poll` for `message.received` / `message.failed`. |
 | `file.send` | `{from, to, path}` | `{from, to, fileName, fileSize, sent: true}`. `to` = peer handle or visible `userId`. `path`: absolute readable file (max 256MB). Only `normal` files; folders/avatars are out of scope. `sent: true` = request accepted, NOT delivered — watch for `file.request` on the receiver, then `file.accept`, then `file.completed` on both sides. |
@@ -105,6 +106,7 @@ not-yet-discovered recipient fails fast with `message.failed`:
 peer.add Alice, peer.add Bob
 events.poll / peer.contacts until Alice sees Bob and Bob sees Alice
   (if nothing shows up in a few seconds, peer.announce both and keep polling)
+peer.ready until both directions report ready (contact + TCP + crypto)
 msg.send {from: Alice, to: "Bob", text}
 events.poll until message.received on Bob;
   on message.failed (or ~12s silence) re-issue msg.send

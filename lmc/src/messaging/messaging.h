@@ -146,6 +146,7 @@ public:
   bool canReceive(void);
   void setLoopback(bool on);
   User* getUser(QString* lpszUserId);
+  bool isPeerReady(QString* lpszUserId);
   void sendBroadcast(MessageType type, XmlMessage* pMessage);
   void sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void sendWebMessage(MessageType type, XmlMessage* pMessage);

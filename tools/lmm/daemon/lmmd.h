@@ -48,6 +48,7 @@ private:
   QJsonObject cmdPeerList();
   QJsonObject cmdPeerContacts(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerAnnounce(const QJsonObject& p, QString* error);
+  QJsonObject cmdPeerReady(const QJsonObject& p, QString* error);
   QJsonObject cmdPeerRemove(const QJsonObject& p, QString* error);
   QJsonObject cmdMsgSend(const QJsonObject& p, QString* error);
   QJsonObject cmdFileSend(const QJsonObject& p, QString* error);

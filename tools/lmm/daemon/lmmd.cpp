@@ -132,6 +132,8 @@ QJsonObject Lmmd::handleRequest(const QJsonObject& req) {
     result = cmdPeerContacts(params, &error);
   else if(cmd == "peer.announce")
     result = cmdPeerAnnounce(params, &error);
+  else if(cmd == "peer.ready")
+    result = cmdPeerReady(params, &error);
   else if(cmd == "peer.remove")
     result = cmdPeerRemove(params, &error);
   else if(cmd == "msg.send")
@@ -283,6 +285,25 @@ QJsonObject Lmmd::cmdPeerAnnounce(const QJsonObject& p, QString* error) {
   }
   peer->messaging->update();
   return QJsonObject{{"peer", peer->name}, {"announced", true}};
+}
+
+QJsonObject Lmmd::cmdPeerReady(const QJsonObject& p, QString* error) {
+  LmmPeer* peer = findPeer(p.value("peer").toString());
+  if(!peer) {
+    *error = "unknown peer";
+    return {};
+  }
+  // Unknown target polls as not ready, not an error.
+  const QString target = p.value("user").toString();
+  QString userId;
+  for(const User& u : peer->messaging->userList) {
+    if(u.name == target || u.id == target) {
+      userId = u.id;
+      break;
+    }
+  }
+  const bool ready = !userId.isEmpty() && peer->messaging->isPeerReady(&userId);
+  return QJsonObject{{"peer", peer->name}, {"user", userId}, {"ready", ready}};
 }
 
 QJsonObject Lmmd::cmdPeerRemove(const QJsonObject& p, QString* error) {
