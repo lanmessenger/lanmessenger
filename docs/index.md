@@ -3,6 +3,10 @@ title: Documentation
 description: Guides and references for LAN Messenger.
 ---
 
+## Installing
+
+- [Installing on macOS](install-macos.md): first launch, the Gatekeeper warning, and why it appears.
+
 ## Building
 
 - [Building LAN Messenger](build.md): requirements, project layout, and the reference build.
