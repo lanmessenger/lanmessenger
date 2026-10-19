@@ -167,11 +167,44 @@ elseif(APPLE)
     set_source_files_properties(src/app/lmc.icns PROPERTIES
         MACOSX_PACKAGE_LOCATION Resources
     )
+    set(LMC_MACOS_SHORT_VERSION "${LMC_VERSION}")
+    string(REGEX REPLACE "[~+-].*$" "" LMC_MACOS_SHORT_VERSION
+        "${LMC_MACOS_SHORT_VERSION}")
+    string(REPLACE "." ";" LMC_MACOS_VERSION_PARTS "${LMC_MACOS_SHORT_VERSION}")
+    list(LENGTH LMC_MACOS_VERSION_PARTS LMC_MACOS_VERSION_COUNT)
+    if(LMC_MACOS_VERSION_COUNT GREATER 3)
+        list(SUBLIST LMC_MACOS_VERSION_PARTS 0 3 LMC_MACOS_VERSION_PARTS)
+        list(JOIN LMC_MACOS_VERSION_PARTS "." LMC_MACOS_SHORT_VERSION)
+    elseif(LMC_MACOS_VERSION_COUNT LESS 3)
+        # Manual versions like 1.2 or 1 must still yield X.Y.Z for Apple.
+        while(LMC_MACOS_VERSION_COUNT LESS 3)
+            list(APPEND LMC_MACOS_VERSION_PARTS "0")
+            list(LENGTH LMC_MACOS_VERSION_PARTS LMC_MACOS_VERSION_COUNT)
+        endwhile()
+        list(JOIN LMC_MACOS_VERSION_PARTS "." LMC_MACOS_SHORT_VERSION)
+    endif()
+    # NOTE: CMake MATCHES does not support the {2} repetition quantifier,
+    # so spell the three numeric components out explicitly (grep -E in
+    # build.yml / verify-dmg.yml keeps the compact {2} form).
+    if(NOT LMC_MACOS_SHORT_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+        message(FATAL_ERROR
+            "LMC_VERSION '${LMC_VERSION}' does not map to X.Y.Z "
+            "(got '${LMC_MACOS_SHORT_VERSION}')")
+    endif()
+    set(LMC_MACOS_BUNDLE_VERSION "${LMC_VERSION}")
+    string(REPLACE "~nightly." "." LMC_MACOS_BUNDLE_VERSION
+        "${LMC_MACOS_BUNDLE_VERSION}")
+    if(NOT LMC_MACOS_BUNDLE_VERSION MATCHES "^[0-9]+(\\.[0-9]+)*$")
+        set(LMC_MACOS_BUNDLE_VERSION "${LMC_MACOS_SHORT_VERSION}")
+    endif()
     set_target_properties(lmc PROPERTIES
         OUTPUT_NAME "LAN-Messenger"
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE lmc.icns
         MACOSX_BUNDLE_BUNDLE_NAME "LAN-Messenger"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.lanmessenger.lmc"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${LMC_MACOS_BUNDLE_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${LMC_MACOS_SHORT_VERSION}"
     )
 else()
     set_target_properties(lmc PROPERTIES OUTPUT_NAME lan-messenger)

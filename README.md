@@ -32,6 +32,13 @@ local network. No dedicated messaging server or internet connection required.
 2. Install and run LAN Messenger on two or more machines connected to the same local network. Other users should appear automatically.
 3. If other users don't appear, check that the machines can communicate over the network and that the local firewall allows LAN Messenger traffic. VPN configurations or network separation may prevent peer discovery.
 
+On macOS the DMG is ad-hoc signed and not notarized. If Gatekeeper blocks the first launch, clear the quarantine attribute once:
+
+```bash
+sudo xattr -dr com.apple.quarantine "/Applications/LAN-Messenger.app"
+open "/Applications/LAN-Messenger.app"
+```
+
 ## Downloads and Documentation
 
 - **Downloads:** [Browse the latest releases](https://github.com/lanmessenger/lanmessenger/releases).

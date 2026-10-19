@@ -55,14 +55,17 @@ jobs:
           echo Y | hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
           ls -la /Volumes/lmc-smoke
           test -L /Volumes/lmc-smoke/Applications
+          codesign --verify --deep --strict --verbose=2 /Volumes/lmc-smoke/LAN-Messenger.app
           rm -rf /Applications/LAN-Messenger-smoke.app
           cp -R /Volumes/lmc-smoke/LAN-Messenger.app /Applications/LAN-Messenger-smoke.app
           xattr -dr com.apple.quarantine /Applications/LAN-Messenger-smoke.app || true
+          codesign --verify --deep --strict --verbose=2 /Applications/LAN-Messenger-smoke.app
 
       - name: Verify bundle layout
         run: |
           set -euo pipefail
           app=/Applications/LAN-Messenger-smoke.app
+          info="$app/Contents/Info.plist"
           test -x "$app/Contents/MacOS/LAN-Messenger"
           test -d "$app/Contents/Frameworks"
           # The app blocks in the "missing openssl" modal when QSslSocket
@@ -80,6 +83,25 @@ jobs:
           # into the bundled Frameworks or dyld aborts at launch.
           otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -q '@executable_path/../Frameworks' \
             || { echo 'missing Frameworks LC_RPATH in main binary' >&2; exit 1; }
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
+          exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")"
+          test "$exe" = "LAN-Messenger"
+          test -x "$app/Contents/MacOS/$exe"
+          short="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")"
+          build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")"
+          printf '%s' "$short" | grep -Eq '^[0-9]+(\.[0-9]+){2}$'
+          printf '%s' "$build" | grep -Eq '^[0-9]+(\.[0-9]+)*$'
+          codesign -dv --verbose=4 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign-installed.txt"
+          grep -q 'Signature=adhoc' "$RUNNER_TEMP/codesign-installed.txt"
+          if grep -q 'linker-signed' "$RUNNER_TEMP/codesign-installed.txt"; then
+            echo 'installed app is still linker-signed' >&2
+            exit 1
+          fi
+          # Diagnostic only: ad-hoc without notarization always fails
+          # Gatekeeper assessment, so never gate on it. Remove `|| true`
+          # once we ship Developer ID + notarization.
+          spctl --assess --type execute --verbose=4 "$app" || true
 
       # /quit exits after lmcCore::init without entering the event loop —
       # same coverage as the Linux smoke. macOS ships no timeout(1), so
@@ -106,6 +128,41 @@ jobs:
           EOF
           "$bin" /inst
 
+      - name: Smoke launch via LaunchServices
+        run: |
+          set -euo pipefail
+          app=/Applications/LAN-Messenger-smoke.app
+          bin="$app/Contents/MacOS/LAN-Messenger"
+          python3 - "$app" "$bin" <<'EOF'
+          import subprocess, sys
+          app, bin = sys.argv[1], sys.argv[2]
+          try:
+            p = subprocess.run(
+              ['open', '-W', '-n', app, '--args',
+               '/silent', '/loopback', '/noconfig', '/quit'],
+              timeout=60)
+          except subprocess.TimeoutExpired:
+            print('LaunchServices launch timed out after 60s', file=sys.stderr)
+            sys.exit(1)
+          if p.returncode != 0:
+            print(f'LaunchServices launch failed: {p.returncode}', file=sys.stderr)
+            sys.exit(1)
+          # open reports launch, not the app exit code (the direct-binary
+          # smoke above already checks it). Here ensure the LS instance
+          # really processed --args /quit: no lingering process and no
+          # single-instance lock left behind.
+          lingering = subprocess.run(
+            ['pgrep', '-x', 'LAN-Messenger'],
+            capture_output=True, text=True)
+          if lingering.returncode == 0:
+            print(f'LS instance still running: {lingering.stdout.strip()}', file=sys.stderr)
+            sys.exit(1)
+          q = subprocess.run([bin, '/inst'])
+          if q.returncode != 0:
+            print(f'smoke app still registered after LS /quit: {q.returncode}', file=sys.stderr)
+            sys.exit(1)
+          EOF
+
       # Diagnostics for dyld failures: shows whether the bundle carries
       # its Frameworks and whether the main binary has an LC_RPATH
       # pointing at them. Must run before the uninstall below.
@@ -117,9 +174,12 @@ jobs:
           ls "$app/Contents/PlugIns" || true
           otool -L "$app/Contents/MacOS/LAN-Messenger" || true
           otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -A2 LC_RPATH || echo 'no LC_RPATH found'
+          codesign --verify --deep --strict --verbose=4 "$app" || true
+          /usr/libexec/PlistBuddy -c 'Print' "$app/Contents/Info.plist" || true
 
       - name: Uninstall test app
         if: always()
         run: |
+          pkill -f '/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger' || true
           rm -rf /Applications/LAN-Messenger-smoke.app
           hdiutil detach /Volumes/lmc-smoke -force || true

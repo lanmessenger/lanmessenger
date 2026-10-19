@@ -344,7 +344,7 @@ jobs:
             runs-on: macos-15-intel
           - arch: arm64
             leg: macos-arm64
-            runs-on: macos-14
+            runs-on: macos-15
     runs-on: ${{ matrix.runs-on }}
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
@@ -384,14 +384,43 @@ jobs:
         run: |
           lipo -archs lmc/release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
 
-      - name: Build disk image
+      - name: Stage macOS app
         if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
           cd lmc/setup/mac
           chmod +x stage-mac-app
-          sh ./stage-mac-app
+          bash ./stage-mac-app
+
+      - name: Verify macOS signature and metadata
+        if: inputs.artifacts != 'test'
+        run: |
+          set -euo pipefail
+          app=lmc/setup/mac/LAN-Messenger.app
+          info="$app/Contents/Info.plist"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -dv --verbose=4 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
+          grep -q 'Signature=adhoc' "$RUNNER_TEMP/codesign.txt"
+          if grep -q 'linker-signed' "$RUNNER_TEMP/codesign.txt"; then
+            echo 'macOS app is still linker-signed' >&2
+            exit 1
+          fi
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
+          exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")"
+          test "$exe" = "LAN-Messenger"
+          test -x "$app/Contents/MacOS/$exe"
+          short="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")"
+          build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")"
+          printf '%s' "$short" | grep -Eq '^[0-9]+(\.[0-9]+){2}$'
+          printf '%s' "$build" | grep -Eq '^[0-9]+(\.[0-9]+)*$'
+
+      - name: Build disk image
+        if: inputs.artifacts != 'test'
+        run: |
+          set -euo pipefail
+          cd lmc/setup/mac
           # Hermetic venv: works with any python3 (system/Homebrew/toolcache),
           # immune to PEP 668, no --break-system-packages, no new actions.
           python3 -m venv "$RUNNER_TEMP/dmgbuild-venv"

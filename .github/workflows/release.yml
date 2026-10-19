@@ -99,7 +99,7 @@ jobs:
     uses: ./.github/workflows/verify-dmg.yml
     with:
       arch-suffix: arm64
-      runs-on: macos-14
+      runs-on: macos-15
 
   publish:
     needs: [version, check-branch, build, e2e, smoke-windows-installer, smoke-linux-deb, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]

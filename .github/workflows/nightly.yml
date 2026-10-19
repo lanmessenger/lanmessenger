@@ -121,7 +121,7 @@ jobs:
     uses: ./.github/workflows/verify-dmg.yml
     with:
       arch-suffix: arm64
-      runs-on: macos-14
+      runs-on: macos-15
 
   e2e:
     needs: [plan, build]

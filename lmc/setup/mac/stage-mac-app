@@ -1,33 +1,55 @@
-#!/bin/sh
+#!/bin/bash
 # Prepare LAN-Messenger.app for DMG packaging: copy the release bundle,
 # deploy the Qt frameworks and fix library lookup paths.
 # No mounting, no Finder scripting; the image itself is built by dmgbuild
 # (see dmg-settings.py).
-set -e
+set -euo pipefail
 
 : "${QTDIR:?QTDIR must point at the Qt installation}"
 
+APP="LAN-Messenger.app"
+EXECUTABLE="LAN-Messenger"
+
 # Drop leftovers from a previous run so reruns are idempotent.
-rm -rf LAN-Messenger.app
+rm -rf "$APP"
 
 # Copy the app bundle to the setup folder
-cp -r ../../release/LAN-Messenger.app LAN-Messenger.app
+cp -r "../../release/$APP" "$APP"
 
 # Remove plugins that were copied into the app bundle while building
 echo "Deleting old plugins..."
-rm -rf LAN-Messenger.app/Contents/Plugins
+rm -rf "$APP/Contents/Plugins"
 echo "Done."
 
 # Copy all the required dependencies into the app bundle, and set correct lookup paths
-"$QTDIR/bin/macdeployqt" LAN-Messenger.app -verbose=2
+"$QTDIR/bin/macdeployqt" "$APP" -verbose=2
 
 # macdeployqt stages the frameworks but leaves the main binary's @rpath
 # refs without an LC_RPATH, so the shipped app aborts at launch with
 # "Library not loaded ... no LC_RPATH's found". Add the frameworks dir
 # explicitly (libcrypto above already points there via @executable_path).
+# Delete first so reruns against an already-patched binary stay idempotent
+# (install_name_tool errors if the LC_RPATH already exists).
+install_name_tool -delete_rpath @executable_path/../Frameworks \
+  "$APP/Contents/MacOS/$EXECUTABLE" 2>/dev/null || true
 install_name_tool -add_rpath @executable_path/../Frameworks \
-  LAN-Messenger.app/Contents/MacOS/LAN-Messenger
+  "$APP/Contents/MacOS/$EXECUTABLE"
 
-test -d LAN-Messenger.app || { echo "staging failed: LAN-Messenger.app missing" >&2; exit 1; }
+test -d "$APP" || { echo "staging failed: $APP missing" >&2; exit 1; }
+
+codesign --force --deep --sign - "$APP"
+codesign --verify --deep --strict --verbose=2 "$APP"
+# Capture instead of `codesign ... | grep -q` in an `if`: with `set -e`
+# the pipeline status masks a codesign crash (grep sees empty input,
+# returns 1, branch not taken, script exits 0). Assignment fails the
+# script if codesign itself errors; greps below only classify the output.
+codesign_out="$(codesign -dv --verbose=4 "$APP" 2>&1)"
+printf '%s\n' "$codesign_out"
+printf '%s\n' "$codesign_out" | grep -q 'Signature=adhoc' \
+  || { echo "staging failed: $APP has no adhoc signature" >&2; exit 1; }
+if printf '%s\n' "$codesign_out" | grep -q 'linker-signed'; then
+  echo "staging failed: $APP is still linker-signed" >&2
+  exit 1
+fi
 
 exit 0
