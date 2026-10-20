@@ -1,0 +1,143 @@
+# Smoke test for the Linux .rpm package: installs the exact
+# packages-linux artifact built by build.yml in a Fedora container and starts
+# the installed app. Shared by release.yml and nightly.yml so the two
+# publish gates cannot drift apart.
+#
+# No inputs needed: the artifact name (packages-linux) is fixed, and the
+# install goes to the real system paths (/usr/...) — the container is
+# ephemeral. No rebuild here by design. The .rpm is converted from the
+# same .deb by alien and shares its payload (see rpm_setup); the deb-side
+# smoke lives in verify-deb.yml.
+#
+# Known alien limitations (documented, not gated strictly):
+# - rpm Requires carry only /bin/sh: the Debian Depends alternatives are
+#   dropped, so the workflow installs the Fedora Qt set explicitly
+#   (qt6-qtbase/qt6-qtbase-gui/qt6-qtmultimedia/openssl) and records
+#   `rpm -qpR` for visibility.
+# - alien -c copies DEBIAN scriptlets verbatim: postinstall checks
+#   `$1 = configure` (deb convention; rpm passes 1/2), so the scriptlets
+#   are present but no-ops on rpm. Recorded via `rpm -qp --scripts`.
+name: Verify rpm
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    container:
+      image: fedora:42
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-linux
+          path: dist
+          merge-multiple: true
+
+      - name: List package artifact
+        run: ls -la dist
+
+      # alien drops the Debian Depends (alternatives) into bare /bin/sh
+      # Requires, so dnf cannot resolve system Qt from the rpm itself.
+      # Install the Fedora Qt equivalents explicitly; the rpm payload
+      # itself is installed from the exact artifact built by build.yml.
+      - name: Install package
+        run: |
+          set -euo pipefail
+          rpm=(dist/lmc-*_min.rpm)
+          if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
+          dnf -y install "./${rpm[0]}" \
+            qt6-qtbase qt6-qtbase-gui qt6-qtmultimedia \
+            openssl-libs \
+            xorg-x11-server-Xvfb xorg-x11-utils appstream
+          rpm -qi lmc
+          rpm -ql lmc
+
+      - name: Record rpm metadata (Requires, scriptlets)
+        run: |
+          set -euo pipefail
+          rpm=(dist/lmc-*_min.rpm)
+          if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
+          echo '--- Requires ---'
+          rpm -qpR "./${rpm[0]}"
+          echo '--- scriptlets ---'
+          rpm -qp --scripts "./${rpm[0]}"
+          echo '--- verify ---'
+          rpm -V lmc
+
+      - name: Verify installed layout
+        run: |
+          set -euo pipefail
+          command -v lmc
+          test -L /usr/bin/lmc
+          for f in /usr/lib/lmc/lan-messenger /usr/lib/lmc/lmc.sh /usr/lib/lmc/lmc.rcc \
+                   /usr/share/applications/lmc.desktop \
+                   /usr/share/metainfo/lmc.metainfo.xml \
+                   /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
+            test -e "$f" || { echo "missing $f" >&2; exit 1; }
+          done
+
+      - name: Validate AppStream metadata
+        run: |
+          set -euo pipefail
+          appstreamcli validate --no-net /usr/share/metainfo/lmc.metainfo.xml
+
+      # One shared X server for the smoke steps below: steps of a job share
+      # the container, so Xvfb started here outlives this step. DISPLAY/USER/
+      # QT_QPA_PLATFORM go to $GITHUB_ENV for the smoke steps. No trap/kill
+      # needed — the ephemeral container is discarded with the job.
+      #
+      # Explicit Xvfb with an xdpyinfo wait instead of xvfb-run -a: xvfb-run
+      # does not wait for the X server to be ready, so Qt occasionally
+      # connects too early ("could not connect to display" flake). A live
+      # xdpyinfo round-trip proves more than the socket showing up.
+      - name: Start Xvfb
+        run: |
+          set -euo pipefail
+          disp=""
+          for n in 99 100 101 102; do
+            if [ ! -e /tmp/.X$n-lock ] && [ ! -S /tmp/.X11-unix/X$n ]; then disp=$n; break; fi
+          done
+          if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
+          Xvfb :$disp -screen 0 1280x1024x24 &
+          for _ in $(seq 1 30); do
+            xdpyinfo -display :$disp >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :$disp >/dev/null || { echo 'Xvfb did not start' >&2; exit 1; }
+          echo "DISPLAY=:$disp" >> "$GITHUB_ENV"
+          echo "USER=ci" >> "$GITHUB_ENV"
+          echo "QT_QPA_PLATFORM=xcb" >> "$GITHUB_ENV"
+
+      # Package gate: /quit exits after core init (see apprunner.cpp:
+      # QApplication, lmc.rcc, translations, settings/messaging/mainwindow
+      # init) without entering the event loop. That covers the packaging
+      # risks — missing .so libs, xcb platform plugin, lmc.rcc, lang/*.qm —
+      # same coverage as the Linux smoke in build.yml. The full lifecycle
+      # (exec/IPC/SSL-backend dialog) is gated by verify-deb.yml and e2e on
+      # the identical payload (the .rpm is converted from the same .deb).
+      # Runs through the real installed entry point (lmc -> lmc.sh), which
+      # also covers the LD_LIBRARY_PATH launcher.
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          timeout 60 lmc /loopback /noconfig /quit
+          lmc /inst
+
+      - name: Uninstall package
+        run: |
+          set -euo pipefail
+          dnf -y remove lmc
+          if rpm -q lmc >/dev/null 2>&1; then echo 'lmc still installed' >&2; exit 1; fi
+          test ! -e /usr/lib/lmc/lan-messenger
+
+      - name: Dump package state on failure
+        if: failure()
+        run: |
+          echo "DISPLAY=${DISPLAY:-<unset>}"
+          ls -la /tmp/.X11-unix/ || true
+          rpm -qa | grep -i lmc || true
+          rpm -ql lmc || true

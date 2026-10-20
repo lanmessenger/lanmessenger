@@ -6,9 +6,9 @@
 #
 # No inputs needed: the artifact name (packages-linux) is fixed, and the
 # install goes to the real system paths (/usr/...) — the runner is
-# ephemeral. No rebuild here by design. The .rpm is not installed: an
-# ubuntu runner cannot meaningfully test it; it is converted from the
-# same .deb by alien and shares its payload.
+# ephemeral. No rebuild here by design. The .rpm side is covered by
+# verify-rpm.yml; the .rpm is converted from the same .deb by alien and
+# shares its payload.
 name: Verify deb
 
 on:
