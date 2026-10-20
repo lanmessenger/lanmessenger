@@ -52,7 +52,7 @@ void lmcTrace::write(const QString& string, bool verbose) {
 
   QDir logDir(StdLocation::logDir());
   if(!logDir.exists())
-    logDir.mkdir(logDir.absolutePath());
+    QDir().mkpath(logDir.absolutePath());
   QFile file(m_fileName);
   if(!file.open(QIODevice::Text | QIODevice::Append))
     return;
