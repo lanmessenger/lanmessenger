@@ -89,11 +89,12 @@ jobs:
           echo "USER=ci" >> "$GITHUB_ENV"
           echo "QT_QPA_PLATFORM=xcb" >> "$GITHUB_ENV"
 
-      # Two-stage smoke: a plain launch goes through exec() (event loop,
-      # main window, single-instance IPC), then a second invocation closes
-      # it. A lone /quit exits before exec() (see apprunner.cpp) and would
-      # miss all of that. Note: /quit sent to a *running* instance is a
-      # no-op — the closer must be /term (see lmcCore::receiveAppMessage).
+      # Two-stage smoke (experimental): a plain launch goes through exec()
+      # (event loop, main window, single-instance IPC), then a second
+      # invocation closes it. A lone /quit exits before exec()
+      # (see apprunner.cpp) and would miss all of that. Note: /quit sent
+      # to a *running* instance is a no-op — the closer must be /term
+      # (see lmcCore::receiveAppMessage).
       - name: Smoke start installed app
         run: |
           set -euo pipefail

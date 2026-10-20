@@ -45,6 +45,8 @@ jobs:
       # Requires, so dnf cannot resolve system Qt from the rpm itself.
       # Install the Fedora Qt equivalents explicitly; the rpm payload
       # itself is installed from the exact artifact built by build.yml.
+      # xdpyinfo is a standalone package on Fedora (xorg-x11-utils was
+      # retired after F34); it backs the xdpyinfo X-readiness wait below.
       - name: Install package
         run: |
           set -euo pipefail
@@ -53,7 +55,7 @@ jobs:
           dnf -y install "./${rpm[0]}" \
             qt6-qtbase qt6-qtbase-gui qt6-qtmultimedia \
             openssl-libs \
-            xorg-x11-server-Xvfb xorg-x11-utils appstream
+            xorg-x11-server-Xvfb xdpyinfo appstream
           rpm -qi lmc
           rpm -ql lmc
 
