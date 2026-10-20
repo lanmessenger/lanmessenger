@@ -30,14 +30,13 @@
 #include <QDateTime>
 #include <QDir>
 #include "stdlocation.h"
-#include "messaging/xmlmessage.h"
 
 class lmcTrace {
 public:
   lmcTrace(void);
   ~lmcTrace(void);
 
-  static void init(XmlMessage* pInitParams);
+  static void init(bool enabled, const QString& logFile);
   static void write(const QString& string, bool verbose = true);
   // Trace file from init(); empty when tracing is off.
   static QString fileName();

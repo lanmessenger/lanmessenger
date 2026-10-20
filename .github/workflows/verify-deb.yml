@@ -95,10 +95,12 @@ jobs:
       # (see apprunner.cpp) and would miss all of that. Note: /quit sent
       # to a *running* instance is a no-op — the closer must be /term
       # (see lmcCore::receiveAppMessage).
+      #
+      # First instance runs with /trace; log path must match the Dump step below.
       - name: Smoke start installed app
         run: |
           set -euo pipefail
-          lmc /loopback /noconfig &
+          lmc /trace /loopback /noconfig &
           app_pid=$!
           rc=0
           iter=0
@@ -154,3 +156,6 @@ jobs:
           ls -la /tmp/.X11-unix/ || true
           dpkg -l | grep -i lmc || true
           dpkg -L lmc || true
+          echo '--- app trace ---'
+          trace=$(ls -t ~/.local/share/lmc/lmc/logs/lmc_*.log 2>/dev/null | head -1 || true)
+          if [ -n "${trace:-}" ]; then echo "== $trace"; cat "$trace"; else echo 'no trace file'; ls -la ~/.local/share/lmc/lmc/logs/ 2>/dev/null || true; fi

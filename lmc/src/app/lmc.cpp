@@ -77,10 +77,6 @@ void lmcCore::init(const QString& szCommandArgs) {
   pInitParams = new XmlMessage();
   if(arguments.contains("/silent", Qt::CaseInsensitive))
     pInitParams->addData(XN_ARGSILENTMODE, LMC_TRUE);
-  if(arguments.contains("/trace", Qt::CaseInsensitive)) {
-    pInitParams->addData(XN_ARGTRACEMODE, LMC_TRUE);
-    pInitParams->addData(XN_ARGLOGFILE, StdLocation::freeLogFile());
-  }
   for(int index = 0; index < arguments.count(); index++) {
     if(arguments.at(index).startsWith("/udpport=", Qt::CaseInsensitive)) {
       QString port = arguments.at(index).mid(QString("/udpport=").length());
@@ -94,7 +90,6 @@ void lmcCore::init(const QString& szCommandArgs) {
     }
   }
 
-  lmcTrace::init(pInitParams);
   lmcTrace::write("Application initialized");
 
   loadSettings();
@@ -949,6 +944,7 @@ QStringList lmcCore::showSelectContacts(QWidget* parent, uint caps, QStringList*
 }
 
 void lmcCore::showPortConflictMessage(void) {
+  lmcTrace::write("Startup: port conflict detected, showing message and stopping");
   //	show message box
   QMessageBox msgBox;
   msgBox.setWindowTitle(lmcStrings::appName());
