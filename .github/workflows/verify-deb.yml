@@ -43,7 +43,7 @@ jobs:
           deb=(dist/lmc_*_min.deb)
           if [ ! -f "${deb[0]}" ]; then echo 'deb not found in dist/' >&2; exit 1; fi
           sudo apt-get update
-          sudo apt-get install -y "./${deb[0]}" xvfb appstream
+          sudo apt-get install -y "./${deb[0]}" xvfb x11-utils appstream
           dpkg -L lmc
 
       - name: Verify installed layout
@@ -64,13 +64,14 @@ jobs:
           appstreamcli validate --no-net /usr/share/metainfo/lmc.metainfo.xml
 
       # One shared X server for the smoke steps below: steps of a job share
-      # the runner, so Xvfb started here outlives this step. DISPLAY/USER
-      # go to $GITHUB_ENV for the smoke steps. No trap/kill needed — the
-      # ephemeral runner is discarded with the job.
+      # the runner, so Xvfb started here outlives this step. DISPLAY/USER/
+      # QT_QPA_PLATFORM go to $GITHUB_ENV for the smoke steps. No trap/kill
+      # needed — the ephemeral runner is discarded with the job.
       #
-      # Explicit Xvfb with a socket wait instead of xvfb-run -a: xvfb-run
+      # Explicit Xvfb with an xdpyinfo wait instead of xvfb-run -a: xvfb-run
       # does not wait for the X server to be ready, so Qt occasionally
-      # connects too early ("could not connect to display" flake).
+      # connects too early ("could not connect to display" flake). A live
+      # xdpyinfo round-trip proves more than the socket showing up.
       - name: Start Xvfb
         run: |
           set -euo pipefail
@@ -80,14 +81,13 @@ jobs:
           done
           if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
           Xvfb :$disp -screen 0 1280x1024x24 &
-          for _ in $(seq 1 50); do
-            if [ -S /tmp/.X11-unix/X$disp ]; then break; fi
-            sleep 0.2
+          for _ in $(seq 1 30); do
+            xdpyinfo -display :$disp >/dev/null 2>&1 && break || sleep 1
           done
-          if [ ! -S /tmp/.X11-unix/X$disp ]; then echo 'Xvfb did not start' >&2; exit 1; fi
-          sleep 1
+          xdpyinfo -display :$disp >/dev/null || { echo 'Xvfb did not start' >&2; exit 1; }
           echo "DISPLAY=:$disp" >> "$GITHUB_ENV"
           echo "USER=ci" >> "$GITHUB_ENV"
+          echo "QT_QPA_PLATFORM=xcb" >> "$GITHUB_ENV"
 
       # Two-stage smoke: a plain launch goes through exec() (event loop,
       # main window, single-instance IPC), then a second invocation closes
@@ -100,13 +100,25 @@ jobs:
           lmc /loopback /noconfig &
           app_pid=$!
           rc=0
-          for _ in $(seq 1 60); do
-            lmc /inst >/dev/null 2>&1 || rc=$?
-            if [ "$rc" -eq 1 ]; then break; fi
+          iter=0
+          for _ in $(seq 1 120); do
+            iter=$((iter + 1))
             rc=0
+            lmc /inst >/dev/null 2>&1 || rc=$?
+            if [ "$rc" -eq 1 ]; then echo "app visible via /inst after ~$((iter / 2))s"; break; fi
+            if ! kill -0 $app_pid 2>/dev/null; then echo "first instance died during poll #$iter" >&2; break; fi
             sleep 0.5
           done
-          if [ "$rc" -ne 1 ]; then echo 'app did not start' >&2; kill -9 $app_pid 2>/dev/null || true; exit 1; fi
+          if [ "$rc" -ne 1 ]; then
+            echo 'app did not start' >&2
+            if kill -0 $app_pid 2>/dev/null; then kill -9 $app_pid 2>/dev/null || true; else wait $app_pid || echo "first exit=$?" >&2; fi
+            exit 1
+          fi
+          if ! kill -0 $app_pid 2>/dev/null; then
+            echo 'first instance died after taking the lock' >&2
+            wait $app_pid || echo "first exit=$?" >&2
+            exit 1
+          fi
           timeout 60 lmc /term
           for _ in $(seq 1 60); do
             kill -0 $app_pid 2>/dev/null || break
