@@ -63,15 +63,15 @@ jobs:
           set -euo pipefail
           appstreamcli validate --no-net /usr/share/metainfo/lmc.metainfo.xml
 
-      # Same flags as the Linux smoke in build.yml: /quit exits after core
-      # init without entering the event loop. Runs through the real user
-      # entry point: lmc -> /usr/bin/lmc symlink -> lmc.sh, which also
-      # covers the LD_LIBRARY_PATH launcher.
+      # One shared X server for the smoke steps below: steps of a job share
+      # the runner, so Xvfb started here outlives this step. DISPLAY/USER
+      # go to $GITHUB_ENV for the smoke steps. No trap/kill needed — the
+      # ephemeral runner is discarded with the job.
       #
       # Explicit Xvfb with a socket wait instead of xvfb-run -a: xvfb-run
       # does not wait for the X server to be ready, so Qt occasionally
       # connects too early ("could not connect to display" flake).
-      - name: Smoke start installed app
+      - name: Start Xvfb
         run: |
           set -euo pipefail
           disp=""
@@ -80,17 +80,59 @@ jobs:
           done
           if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
           Xvfb :$disp -screen 0 1280x1024x24 &
-          xvfb_pid=$!
-          trap 'kill $xvfb_pid' EXIT
           for _ in $(seq 1 50); do
             if [ -S /tmp/.X11-unix/X$disp ]; then break; fi
             sleep 0.2
           done
           if [ ! -S /tmp/.X11-unix/X$disp ]; then echo 'Xvfb did not start' >&2; exit 1; fi
           sleep 1
-          export DISPLAY=:$disp USER=ci
-          timeout 60 lmc /loopback /noconfig /quit
+          echo "DISPLAY=:$disp" >> "$GITHUB_ENV"
+          echo "USER=ci" >> "$GITHUB_ENV"
+
+      # Two-stage smoke: a plain launch goes through exec() (event loop,
+      # main window, single-instance IPC), then a second invocation closes
+      # it. A lone /quit exits before exec() (see apprunner.cpp) and would
+      # miss all of that. Note: /quit sent to a *running* instance is a
+      # no-op — the closer must be /term (see lmcCore::receiveAppMessage).
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          lmc /loopback /noconfig &
+          app_pid=$!
+          rc=0
+          for _ in $(seq 1 60); do
+            lmc /inst >/dev/null 2>&1 || rc=$?
+            if [ "$rc" -eq 1 ]; then break; fi
+            rc=0
+            sleep 0.5
+          done
+          if [ "$rc" -ne 1 ]; then echo 'app did not start' >&2; kill -9 $app_pid 2>/dev/null || true; exit 1; fi
+          timeout 60 lmc /term
+          for _ in $(seq 1 60); do
+            kill -0 $app_pid 2>/dev/null || break
+            sleep 0.5
+          done
+          if kill -0 $app_pid 2>/dev/null; then echo 'app did not exit on /term' >&2; kill -9 $app_pid; exit 1; fi
+          wait $app_pid
           lmc /inst
+
+      # Relocatable launch: lmc.sh must resolve the app dir from its own
+      # location, not from a hardcoded /usr/lib/lmc. Runs the launcher
+      # from an extracted (never installed) payload tree. Full lifecycle
+      # (exec/IPC/graceful exit) is covered by the installed smoke above —
+      # here a single /quit start is enough to prove the extracted tree
+      # launches through lmc.sh.
+      - name: Smoke start extracted payload via lmc.sh
+        run: |
+          set -euo pipefail
+          trap 'rm -rf /tmp/reloc' EXIT
+          rm -rf /tmp/reloc
+          mkdir -p /tmp/reloc
+          deb=(dist/lmc_*_min.deb)
+          if [ ! -f "${deb[0]}" ]; then echo 'deb not found in dist/' >&2; exit 1; fi
+          dpkg-deb -x "./${deb[0]}" /tmp/reloc
+          test -x /tmp/reloc/usr/lib/lmc/lmc.sh
+          timeout 60 /tmp/reloc/usr/lib/lmc/lmc.sh /loopback /noconfig /quit
 
       - name: Dump package state on failure
         if: failure()
