@@ -102,6 +102,10 @@ jobs:
           set -euo pipefail
           lmc /trace /loopback /noconfig &
           app_pid=$!
+          # Grace: let the first instance take the single-instance lock before
+          # probing. A probe racing ahead on a slow VM wins the lock and exits,
+          # leaving the first instance lockless and invisible to /inst.
+          sleep 5
           rc=0
           iter=0
           for _ in $(seq 1 120); do
