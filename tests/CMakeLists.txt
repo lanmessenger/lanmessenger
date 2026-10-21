@@ -24,3 +24,42 @@ add_test(NAME crypto COMMAND tst_crypto)
 # tst links Qt Widgets (via lmc_core) so QTest instantiates QApplication:
 # no X server needed for headless crypto checks.
 set_tests_properties(crypto PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# Single-instance election: QLockFile + QLocalServer, no GUI. The binary
+# re-executes itself as a helper child (QProcess), so crash-takeover and
+# transient-holder races are covered without POSIX-only primitives.
+# QCoreApplication only: no display needed at all.
+add_executable(tst_singleinstance
+    unit/tst_singleinstance.cpp
+)
+
+target_link_libraries(tst_singleinstance PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_singleinstance PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME singleinstance COMMAND tst_singleinstance)
+
+# Second-instance argv mapping: /term -> "term", everything else -> "raise".
+# Links lmc_core for remoteCommandFor (apprunner.cpp), offscreen for QWidget.
+add_executable(tst_apprunner
+    unit/tst_apprunner.cpp
+)
+
+target_link_libraries(tst_apprunner PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_apprunner PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME apprunner COMMAND tst_apprunner)
+set_tests_properties(apprunner PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

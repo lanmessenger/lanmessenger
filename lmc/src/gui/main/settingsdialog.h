@@ -38,7 +38,7 @@
 #include "core/settings.h"
 #include "messaging/history.h"
 #include "core/stdlocation.h"
-#include "application.h"
+#include "app/application.h"
 #include "gui/chat/messagelog.h"
 #include "core/theme.h"
 #include "core/soundplayer.h"

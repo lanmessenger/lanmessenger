@@ -1,27 +1,6 @@
-/****************************************************************************
-**
-** This file is part of LAN Messenger.
-** 
-** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
-** 
-** Contact:  qualiatech@gmail.com
-** 
-** LAN Messenger is free software: you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
-** (at your option) any later version.
-**
-** LAN Messenger is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with LAN Messenger.  If not, see <http://www.gnu.org/licenses/>.
-**
-****************************************************************************/
-
-
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2010 - 2012 Qualia Digital Solutions.
+// Copyright (c) 2026 LAN Messenger.
 #include <QMessageBox>
 #include <QSet>
 #include <QTranslator>
@@ -330,22 +309,16 @@ void lmcCore::receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* 
   processMessage(type, lpszUserId, pMessage);
 }
 
-bool lmcCore::receiveAppMessage(const QString& szMessage) {
+bool lmcCore::processStartupSwitches(const QString& szMessage) {
   bool doNotExit = true;
-
-  if(szMessage.isEmpty()) {
-    pMainWindow->restore();
-    return doNotExit;
-  }
 
   QStringList messageList = szMessage.split("\n", Qt::SkipEmptyParts);
   //	remove duplicates
   messageList = QSet<QString>(messageList.begin(), messageList.end()).values();
 
-  if(messageList.contains("/new", Qt::CaseInsensitive)) {
-    if(messageList.contains("/loopback", Qt::CaseInsensitive))
-      pMessaging->setLoopback(true);
-  }
+  // Startup-only switches; remote commands arrive via receiveRemoteMessage.
+  if(messageList.contains("/loopback", Qt::CaseInsensitive))
+    pMessaging->setLoopback(true);
   if(messageList.contains("/nohistory", Qt::CaseInsensitive)) {
     QFile::remove(History::historyFile());
     if(pHistoryWindow)
@@ -378,6 +351,14 @@ bool lmcCore::receiveAppMessage(const QString& szMessage) {
   }
 
   return doNotExit;
+}
+
+void lmcCore::receiveRemoteMessage(const QString& message) {
+  // Only "term" exits; anything else raises.
+  if(message.compare("term", Qt::CaseInsensitive) == 0)
+    exitApp();
+  else
+    pMainWindow->restore();
 }
 
 void lmcCore::connectionStateChanged(void) {

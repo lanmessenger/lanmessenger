@@ -24,8 +24,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/relea
 cmake --build build --config Release --target package-local --parallel
 ```
 
-The application binary is `lmc.exe`, with the `lmcapp` sources linked
-into it (no separate DLL), so no renaming step is needed. The
+The application binary is `lmc.exe` (no separate DLL), so no renaming step is needed. The
 `package-local` target copies the OpenSSL runtime DLLs
 (`libcrypto*.dll`, `libssl*.dll`) from `openssl\bin` into the output
 folder.

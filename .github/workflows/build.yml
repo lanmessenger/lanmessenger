@@ -4,11 +4,11 @@ name: Build
 # the test-layout tarballs produced below (artifact contract documented in
 # both headers: test-layout-<leg>, same run).
 #
-# artifacts=release (default) — package-local + crypto + smoke, then the
+# artifacts=release (default) — package-local + unit tests + smoke, then the
 #   platform packages (deb/rpm, NSIS exe, dmg) + upload packages-*. Release
 #   legs always use vcpkg/brew/apt OpenSSL: what ships is always the honest
 #   build. Manual dispatch and release/nightly packaging.
-# artifacts=test — package-local + crypto + smoke, then lan-messenger-test +
+# artifacts=test — package-local + unit tests + smoke, then lan-messenger-test +
 #   lmmd (+ windeployqt/plugins staging), tarred as test-layout-<leg> for
 #   e2e. No packaging. Windows OpenSSL follows windows-ssl (choco on commits
 #   for speed, vcpkg on releases, default vcpkg); Linux/macOS always use
@@ -115,11 +115,11 @@ jobs:
           export LD_LIBRARY_PATH="$PWD"
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
 
-      - name: Build crypto unit test
-        run: cmake --build build --config Release --target tst_crypto --parallel
+      - name: Build unit tests
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
 
-      - name: Crypto unit test
-        run: ctest --test-dir build -C Release -R crypto --output-on-failure
+      - name: Unit tests
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -278,11 +278,11 @@ jobs:
             Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
           }
 
-      - name: Build crypto unit test
-        run: cmake --build build --config Release --target tst_crypto --parallel
+      - name: Build unit tests
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
 
-      - name: Crypto unit test
-        run: ctest --test-dir build -C Release -R crypto --output-on-failure
+      - name: Unit tests
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -437,11 +437,11 @@ jobs:
         run: |
           ls -lh lmc/setup/*.dmg || true
 
-      - name: Build crypto unit test
-        run: cmake --build build --config Release --target tst_crypto --parallel
+      - name: Build unit tests
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
 
-      - name: Crypto unit test
-        run: ctest --test-dir build -C Release -R crypto --output-on-failure
+      - name: Unit tests
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'

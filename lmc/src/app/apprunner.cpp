@@ -1,27 +1,6 @@
-/****************************************************************************
-**
-** This file is part of LAN Messenger.
-**
-** Copyright (c) 2010 - 2012 Qualia Digital Solutions.
-**
-** Contact:  qualiatech@gmail.com
-**
-** LAN Messenger is free software: you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
-** (at your option) any later version.
-**
-** LAN Messenger is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with LAN Messenger.  If not, see <http://www.gnu.org/licenses/>.
-**
-****************************************************************************/
-
-
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2010 - 2012 Qualia Digital Solutions.
+// Copyright (c) 2026 LAN Messenger.
 #include "apprunner.h"
 #include "application.h"
 #include "lmc.h"
@@ -29,6 +8,7 @@
 #include "core/trace.h"
 #include <QResource>
 #include <QMessageBox>
+#include <cstdio>
 
 //	Define a unique application id. This is a combination of two GUIDs
 const QString appId = "93fab548-2cf5-4a1e-8758-a416a5ec2120-6fc5009f-84e8-4489-a444-7f934bcf9166";
@@ -49,6 +29,9 @@ int showSwitches(void) {
                 "/trace - Enables debug logging to logs/lmc_*.log (disabled by default).\n"
                 "/? - Display this help.\n"
                 "\n"
+                "If an instance is already running, a second launch only brings its window\n"
+                "to the front (or closes it with /term); other switches apply at startup only.\n"
+                "\n"
                 "Example:\n"
                 "Start in loopback mode with default settings: lmc /loopback /noconfig\n"
                 "\n"
@@ -64,6 +47,16 @@ static void initTrace(const QStringList& arguments) {
     lmcTrace::init(true, StdLocation::freeLogFile());
   else
     lmcTrace::init(false, QString());
+}
+
+// IPC is two commands: "raise" (default, brings the first instance forward)
+// and "term" (closes it; sent by the NSIS uninstaller and the deb smoke).
+// Other switches are startup-only and never leave this process: a second
+// launch never applies them to the running instance.
+QString remoteCommandFor(const QStringList& arguments) {
+  if(arguments.contains("/term", Qt::CaseInsensitive))
+    return QStringLiteral("term");
+  return QStringLiteral("raise");
 }
 
 int lmcRunApplication(int argc, char* argv[],
@@ -91,16 +84,26 @@ int lmcRunApplication(int argc, char* argv[],
     if(arguments.at(index).compare("/?", Qt::CaseInsensitive) == 0)
       return showSwitches();
     else if(arguments.at(index).compare("/inst", Qt::CaseInsensitive) == 0)
+      // 1 iff the single-instance lock is held. Pathology never holds it.
       return application.isRunning() ? 1 : 0;
     else
       messageList += arguments.at(index) + "\n";
   }
 
-  if(application.sendMessage(messageList))
+  // Probe once, then branch: second delivers and exits, first serves,
+  // pathology degrades.
+  const SingleInstance::StartupOutcome outcome =
+    application.resolveStartup(remoteCommandFor(arguments), 10, 200);
+  if(outcome == SingleInstance::StartupOutcome::SecondDelivered)
     return 0;
 
   initTrace(arguments);
-  lmcTrace::write("Startup: first instance, lock acquired");
+  if(outcome == SingleInstance::StartupOutcome::Pathology) {
+    fprintf(stderr, "lmc: warning: single-instance server unavailable, continuing without it\n");
+    lmcTrace::write("Startup: single-instance pathology, continuing degraded");
+  } else {
+    lmcTrace::write("Startup: first instance, lock acquired");
+  }
 
   application.loadTranslations(StdLocation::resLangDir());
   application.loadTranslations(StdLocation::sysLangDir());
@@ -110,9 +113,8 @@ int lmcRunApplication(int argc, char* argv[],
   //	handle command line args if this is first instance
   //	some args are handled when the application is initializing
   core.init(messageList);
-  messageList += "/new\n"; //	indicates this is a new instance
   //	the remaining args are handled after initializing all the layers
-  if(!core.receiveAppMessage(messageList)) {
+  if(!core.processStartupSwitches(messageList)) {
     lmcTrace::write("Startup: exiting before event loop (/quit)");
     return 0;
   }
@@ -133,12 +135,11 @@ int lmcRunApplication(int argc, char* argv[],
   }
 #endif
 
-  // Optional pre-exec hook, in the GUI thread before exec(). Production
-  // passes an empty hook; the test binary starts its agent server here.
+  // Test hook: the test binary starts its agent server here.
   if(preExecHook)
     preExecHook(application);
 
-  QObject::connect(&application, &QtSingleApplication::messageReceived, &core, &lmcCore::receiveAppMessage);
+  QObject::connect(&application, &Application::messageReceived, &core, &lmcCore::receiveRemoteMessage);
   QObject::connect(&application, &QCoreApplication::aboutToQuit, &core, &lmcCore::aboutToExit);
 
   lmcTrace::write("Startup: entering event loop");

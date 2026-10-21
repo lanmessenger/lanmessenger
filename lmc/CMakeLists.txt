@@ -25,7 +25,9 @@ add_library(lmc_core STATIC
     src/gui/widgets/imagepicker.cpp
     src/gui/widgets/imagepickeraction.cpp
     src/app/apprunner.cpp
+    src/app/application.cpp
     src/app/lmc.cpp
+    src/app/singleinstance.cpp
     src/core/lmcstrings.cpp
     src/gui/main/mainwindow.cpp
     src/messaging/message.cpp
@@ -70,7 +72,9 @@ add_library(lmc_core STATIC
     src/gui/widgets/imagepicker.h
     src/gui/widgets/imagepickeraction.h
     src/app/apprunner.h
+    src/app/application.h
     src/app/lmc.h
+    src/app/singleinstance.h
     src/core/lmcstrings.h
     src/gui/main/mainwindow.h
     src/messaging/message.h
@@ -131,7 +135,6 @@ target_include_directories(lmc_core PUBLIC
 # Qt6::Sql is not linked (unused; see qt6-migration-plan.md).
 target_link_libraries(lmc_core
     PUBLIC
-        lmcapp
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
@@ -254,7 +257,7 @@ endforeach()
 # like): taken from the Qt used for the build and placed into lang/system next
 # to the app's own lang/*.qm. The files keep Qt's qtbase_<lang>[_<COUNTRY>].qm
 # naming (no renaming, nothing stored in the sources) and are matched to lmc's
-# xx_YY locales at runtime (lmcapp/src/application.cpp).
+# xx_YY locales at runtime (lmc/src/app/application.cpp).
 # Override with -DLMC_QT_TRANSLATIONS_DIR=<abs path> for Qt builds whose
 # translations live elsewhere.
 if(NOT DEFINED LMC_QT_TRANSLATIONS_DIR)

@@ -93,8 +93,8 @@ jobs:
       # (event loop, main window, single-instance IPC), then a second
       # invocation closes it. A lone /quit exits before exec()
       # (see apprunner.cpp) and would miss all of that. Note: /quit sent
-      # to a *running* instance is a no-op — the closer must be /term
-      # (see lmcCore::receiveAppMessage).
+      # to a *running* instance is a raise, not a quit — the closer must be /term
+      # (see lmcCore::processStartupSwitches).
       #
       # First instance runs with /trace; log path must match the Dump step below.
       - name: Smoke start installed app
@@ -102,10 +102,10 @@ jobs:
           set -euo pipefail
           lmc /trace /loopback /noconfig &
           app_pid=$!
-          # Grace: let the first instance take the single-instance lock before
-          # probing. A probe racing ahead on a slow VM wins the lock and exits,
-          # leaving the first instance lockless and invisible to /inst.
-          sleep 5
+          # No grace sleep: the SingleInstance guard heals a transient lock
+          # winner via resolveStartup() (see apprunner.cpp), so a probe that
+          # raced ahead can no longer leave the first instance invisible —
+          # the poll below converges instead of timing out.
           rc=0
           iter=0
           for _ in $(seq 1 120); do

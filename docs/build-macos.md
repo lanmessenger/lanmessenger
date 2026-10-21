@@ -19,8 +19,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/relea
 cmake --build build --config Release --target package-local --parallel
 ```
 
-The `lmcapp` sources are linked into the app binary, so no helper library
-ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt image format plugins
+No helper library ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt image format plugins
 go to `Contents/Plugins` (see `setLibraryPaths` in `main.cpp`).
 
 ## Installer (DMG)

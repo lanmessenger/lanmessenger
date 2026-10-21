@@ -28,13 +28,10 @@ a BAD idea.
 
 ## Project layout
 
-The application consists of two projects: `lmc` and `lmcapp`. `lmcapp`
-is an extension of the `qtsingleapplication` project released by the Qt
-people, with a few added functions to support multilanguage UI. The main
-project is `lmc`, which contains the entire application. The `lmcapp`
-sources are linked into the application binary (no separate DLL or
-helper library ships). Both projects are built together by the top-level
-CMake project (`CMakeLists.txt` in the repository root).
+The application is a single project: `lmc`, which contains the entire
+application, including the single-instance guard (`lmc/src/app/`,
+`QLockFile` + `QLocalServer`, no vendored code). The project is built
+by the top-level CMake project (`CMakeLists.txt` in the repository root).
 
 The code is identical for all platforms; only the way the application
 is built, deployed and packaged differs per platform (see the guides

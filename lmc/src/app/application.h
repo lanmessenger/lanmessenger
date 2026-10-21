@@ -1,44 +1,28 @@
-/****************************************************************************
-**
-** This file is part of LAN Messenger.
-** 
-** Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
-** 
-** Contact:  dilipvrk@gmail.com
-** 
-** LAN Messenger is free software: you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation, either version 3 of the License, or
-** (at your option) any later version.
-**
-** LAN Messenger is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with LAN Messenger.  If not, see <http://www.gnu.org/licenses/>.
-**
-****************************************************************************/
-
-
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+// Copyright (c) 2026 LAN Messenger.
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <qtsingleapplication.h>
+#include <QApplication>
 #include <QHash>
 #include <QStringList>
+#include "singleinstance.h"
 class QDir;
 class QTranslator;
 
 typedef QHash<QString, QTranslator*> Translators;
 
-class QT_QTSINGLEAPPLICATION_EXPORT Application : public QtSingleApplication {
+class Application : public QApplication {
   Q_OBJECT
 
 public:
   explicit Application(const QString& id, int& argc, char** argv);
-  ~Application();
+  ~Application() override;
+
+  bool isRunning();
+  SingleInstance::StartupOutcome resolveStartup(const QString& remoteCommand, int retries,
+                                                int sleepMs, int timeout = 5000);
 
   static void loadTranslations(const QString& dir);
   static void loadTranslations(const QDir& dir);
@@ -47,7 +31,12 @@ public:
 public slots:
   static void setLanguage(const QString& locale);
 
+Q_SIGNALS:
+  void messageReceived(const QString& message);
+
 private:
+  SingleInstance* single_ = nullptr;
+
   static QTranslator* current;
   static QTranslator* sysCurrent;
   static Translators translators;
