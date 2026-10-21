@@ -3,7 +3,6 @@
 // Copyright (c) 2026 LAN Messenger.
 #include <QDataStream>
 #include <QString>
-#include "core/trace.h"
 #include "core/shared.h"
 #include "datagram.h"
 

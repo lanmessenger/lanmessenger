@@ -1,8 +1,15 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#include <QtGui>
+#include <QPainter>
+#include <QStyleOptionViewItem>
+#include <QStyle>
+#include <QPalette>
+#include <QFont>
+#include <QBrush>
+#include <QPen>
 #include <QPixmap>
+#include <QDir>
 #include <QFileInfo>
 #include <math.h>
 

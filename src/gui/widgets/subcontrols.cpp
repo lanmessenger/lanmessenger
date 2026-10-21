@@ -2,7 +2,6 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include <QApplication>
-#include "core/lmcstrings.h"
 #include "subcontrols.h"
 
 lmcToolButton::lmcToolButton(QWidget* parent)
