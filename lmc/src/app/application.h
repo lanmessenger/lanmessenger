@@ -34,24 +34,24 @@ class QTranslator;
 typedef QHash<QString, QTranslator*> Translators;
 
 class QT_QTSINGLEAPPLICATION_EXPORT Application : public QtSingleApplication {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	explicit Application(const QString& id, int& argc, char** argv);
-	~Application();
+  explicit Application(const QString& id, int& argc, char** argv);
+  ~Application();
 
-	static void loadTranslations(const QString& dir);
-	static void loadTranslations(const QDir& dir);
-	static const QStringList availableLanguages();
+  static void loadTranslations(const QString& dir);
+  static void loadTranslations(const QDir& dir);
+  static const QStringList availableLanguages();
 
 public slots:
-	static void setLanguage(const QString& locale);
+  static void setLanguage(const QString& locale);
 
 private:
-	static QTranslator* current;
-	static QTranslator* sysCurrent;
-	static Translators translators;
-	static Translators sysTranslators;
+  static QTranslator* current;
+  static QTranslator* sysCurrent;
+  static Translators translators;
+  static Translators sysTranslators;
 };
 
 #endif // APPLICATION_H
