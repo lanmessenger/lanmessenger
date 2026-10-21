@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "historywindow.h"
+#include "historytreewidget.h"
 #include <QGuiApplication>
 #include <QLocale>
 #include <QScreen>
+#include <QTreeWidgetItem>
+#include <QKeyEvent>
+#include <QFile>
 #include "core/trace.h"
-#include "historywindow.h"
+#include "core/settings.h"
+#include "gui/chat/messagelog.h"
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {

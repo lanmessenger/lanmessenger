@@ -1,12 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "settingsdialog.h"
 #include <QUrl>
 #include <QSystemTrayIcon>
 #include <QLocale>
 #include <QMessageBox>
-#include "settingsdialog.h"
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QColorDialog>
+#include <QFileInfo>
+#include <QDesktopServices>
+#include <QListWidget>
+#include <QApplication>
+#include <QPalette>
+#include <QIcon>
+#include <QPixmap>
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "core/theme.h"
 #include "core/soundplayer.h"
+#include "app/application.h"
+#include "messaging/history.h"
+#include "gui/chat/messagelog.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
     : QDialog(parent, flags) {

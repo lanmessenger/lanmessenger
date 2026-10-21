@@ -4,12 +4,18 @@
 #pragma once
 
 #include <QObject>
-#include <QTimer>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
+#include <QDateTime>
+#include <QMap>
+#include <QList>
 #include "core/shared.h"
-#include "message.h"
-#include "network/network.h"
-#include "core/settings.h"
 #include "xmlmessage.h"
+
+class lmcNetwork;
+class lmcSettings;
+class QTimer;
 
 
 struct PendingMsg {

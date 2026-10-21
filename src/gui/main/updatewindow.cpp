@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "updatewindow.h"
 #include <QGuiApplication>
 #include <QScreen>
-#include "updatewindow.h"
+#include <QKeyEvent>
 #include "ui_updatewindow.h"
 #include "core/shared.h"
+#include "messaging/xmlmessage.h"
 
 lmcUpdateWindow::lmcUpdateWindow(QRect* pRect, QWidget* parent)
     : QWidget(parent), ui(new Ui::UpdateWindow) {

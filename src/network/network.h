@@ -4,15 +4,20 @@
 #pragma once
 
 #include <QObject>
-#include <QNetworkAddressEntry>
-#include <QHostAddress>
-#include <QTimer>
-#include "udpnetwork.h"
-#include "tcpnetwork.h"
-#include "webnetwork.h"
-#include "core/crypto.h"
-#include "core/settings.h"
-#include "messaging/xmlmessage.h"
+#include <QString>
+#include <QNetworkInterface>
+#include "core/definitions.h"
+
+struct DatagramHeader;
+class XmlMessage;
+class lmcSettings;
+class lmcUdpNetwork;
+class lmcTcpNetwork;
+class lmcWebNetwork;
+class lmcCrypto;
+class QTimer;
+class QNetworkAddressEntry;
+class QHostAddress;
 
 class lmcNetwork : public QObject {
   Q_OBJECT

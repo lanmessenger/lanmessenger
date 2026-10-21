@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "helpwindow.h"
 #include <QGuiApplication>
 #include <QScreen>
-#include "helpwindow.h"
+#include <QKeyEvent>
+#include "core/settings.h"
 
 lmcHelpWindow::lmcHelpWindow(QRect* pRect, QWidget* parent)
     : QWidget(parent) {

@@ -1,12 +1,34 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "mainwindow.h"
 #include <QDesktopServices>
 #include <QTimer>
 #include <QRandomGenerator>
 #include <QUrl>
-#include "mainwindow.h"
+#include <QMenuBar>
+#include <QMenu>
+#include <QToolBar>
+#include <QToolButton>
+#include <QAction>
+#include <QActionGroup>
+#include <QIcon>
+#include <QPixmap>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
+#include <QKeyEvent>
+#include <QCloseEvent>
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "core/soundplayer.h"
+#include "messaging/xmlmessage.h"
 #include "gui/widgets/actionhelper.h"
+#include "gui/widgets/imagepickeraction.h"
 #include "gui/chat/messagelog.h"
 #include "messaging/history.h"
 

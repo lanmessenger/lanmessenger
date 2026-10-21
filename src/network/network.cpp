@@ -1,8 +1,18 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#include "core/trace.h"
 #include "network.h"
+#include <QTimer>
+#include <QNetworkAddressEntry>
+#include <QHostAddress>
+#include "core/trace.h"
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/crypto.h"
+#include "messaging/xmlmessage.h"
+#include "udpnetwork.h"
+#include "tcpnetwork.h"
+#include "webnetwork.h"
 
 lmcNetwork::lmcNetwork(void) {
   pUdpNetwork = new lmcUdpNetwork();

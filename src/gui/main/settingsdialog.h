@@ -4,22 +4,19 @@
 #pragma once
 
 #include <QDialog>
+#include <QString>
+#include <QFont>
+#include <QColor>
 #include <QRegularExpression>
-#include <QRegularExpressionValidator>
-#include <QListWidget>
-#include <QFileDialog>
-#include <QFontDialog>
-#include <QColorDialog>
-#include <QDesktopServices>
 #include "ui_settingsdialog.h"
-#include "core/shared.h"
-#include "core/settings.h"
-#include "messaging/history.h"
-#include "core/stdlocation.h"
-#include "app/application.h"
-#include "gui/chat/messagelog.h"
-#include "core/theme.h"
-#include "core/soundplayer.h"
+
+class lmcSettings;
+class lmcMessageLog;
+class QLabel;
+class QIntValidator;
+class QRegularExpressionValidator;
+class QEvent;
+class QTimerEvent;
 
 class lmcSettingsDialog : public QDialog {
   Q_OBJECT

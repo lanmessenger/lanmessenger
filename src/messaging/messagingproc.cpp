@@ -3,6 +3,8 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "core/trace.h"
 #include "messaging.h"
+#include "message.h"
+#include "network/network.h"
 
 //	A broadcast is to be sent
 void lmcMessaging::sendBroadcast(MessageType type, XmlMessage* pMessage) {

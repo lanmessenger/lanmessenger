@@ -1,11 +1,14 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "history.h"
+#include <QFile>
 #include <QFileInfo>
+#include <QDataStream>
 #include <QDir>
 #include <QDesktopServices>
 #include <QStandardPaths>
-#include "history.h"
+#include "core/settings.h"
 
 QString History::historyFile(void) {
   lmcSettings settings;

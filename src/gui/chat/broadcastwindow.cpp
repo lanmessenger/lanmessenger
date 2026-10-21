@@ -1,9 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#include <QMessageBox>
-#include <QActionGroup>
 #include "broadcastwindow.h"
+#include <QToolBar>
+#include <QToolButton>
+#include <QMenu>
+#include <QAction>
+#include <QActionGroup>
+#include <QMessageBox>
+#include <QTreeWidgetItem>
+#include <QKeyEvent>
+#include <QCloseEvent>
+#include <QIcon>
+#include <QPixmap>
+#include "core/settings.h"
+#include "core/uidefinitions.h"
+#include "messaging/xmlmessage.h"
+#include "gui/chat/chatdefinitions.h"
+#include "gui/chat/chathelper.h"
+#include "gui/widgets/subcontrols.h"
+#include "gui/widgets/imagepickeraction.h"
 
 //	constructor
 lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)

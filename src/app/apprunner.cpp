@@ -5,9 +5,12 @@
 #include "application.h"
 #include "lmc.h"
 #include "core/stdlocation.h"
+#include "core/uidefinitions.h"
 #include "core/trace.h"
 #include <QResource>
 #include <QMessageBox>
+#include <QIcon>
+#include <QSslSocket>
 #include <cstdio>
 
 //	Define a unique application id. This is a combination of two GUIDs

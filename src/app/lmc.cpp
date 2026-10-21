@@ -1,11 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "lmc.h"
+#include "application.h"
+#include "core/uidefinitions.h"
 #include <QMessageBox>
 #include <QSet>
 #include <QTranslator>
+#include <QTimer>
+#include <QSysInfo>
 #include "core/trace.h"
-#include "lmc.h"
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "messaging/messaging.h"
+#include "messaging/history.h"
+#include "messaging/xmlmessage.h"
+#include "gui/main/mainwindow.h"
+#include "gui/chat/chatwindow.h"
+#include "gui/chat/chatroomwindow.h"
+#include "gui/chat/broadcastwindow.h"
+#include "gui/files/transferwindow.h"
+#include "gui/history/historywindow.h"
+#include "gui/main/settingsdialog.h"
+#include "gui/contacts/userinfowindow.h"
+#include "gui/contacts/userselectdialog.h"
+#include "gui/main/helpwindow.h"
+#include "gui/main/updatewindow.h"
+#include "gui/main/aboutdialog.h"
 
 lmcCore::lmcCore(void) {
   pMessaging = new lmcMessaging();

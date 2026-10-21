@@ -3,12 +3,27 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-#include "core/shared.h"
+#include <QString>
+#include <QHash>
+#include <QMap>
+#include <QList>
+#include "core/definitions.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chathelper.h"
 #include "messaging/xmlmessage.h"
 #include "core/theme.h"
 #include "gui/widgets/qmessagebrowser.h"
+
+class QMenu;
+class QAction;
+class QEvent;
+class QResizeEvent;
+class QTextCursor;
+class QFont;
+class QColor;
+class QDateTime;
+class QUrl;
+class QPoint;
 
 enum OutputFormat {
   HtmlFormat,

@@ -4,11 +4,10 @@
 #pragma once
 
 #include <QString>
-#include <QFile>
-#include <QDataStream>
 #include <QDateTime>
 #include <QList>
-#include "core/settings.h"
+
+class QDataStream;
 
 #define HC_FILENAME "messenger.db"
 #define HC_HDRSIZE 28

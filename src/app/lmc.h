@@ -4,26 +4,31 @@
 #pragma once
 
 #include <QObject>
-#include <QTimer>
-#include <QSysInfo>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QVariant>
 #include <QPointer>
-#include "core/shared.h"
-#include "core/settings.h"
-#include "messaging/messaging.h"
-#include "gui/main/mainwindow.h"
-#include "gui/chat/chatwindow.h"
-#include "messaging/history.h"
-#include "core/stdlocation.h"
-#include "gui/files/transferwindow.h"
-#include "gui/history/historywindow.h"
-#include "gui/main/settingsdialog.h"
-#include "gui/contacts/userinfowindow.h"
-#include "gui/main/helpwindow.h"
-#include "gui/main/updatewindow.h"
-#include "gui/chat/chatroomwindow.h"
-#include "gui/contacts/userselectdialog.h"
-#include "gui/main/aboutdialog.h"
-#include "gui/chat/broadcastwindow.h"
+#include "core/definitions.h"
+
+class lmcSettings;
+class lmcMessaging;
+class lmcMainWindow;
+class lmcChatWindow;
+class lmcChatRoomWindow;
+class lmcTransferWindow;
+class lmcHistoryWindow;
+class lmcSettingsDialog;
+class lmcUserInfoWindow;
+class lmcHelpWindow;
+class lmcUpdateWindow;
+class lmcUserSelectDialog;
+class lmcAboutDialog;
+class lmcBroadcastWindow;
+class XmlMessage;
+class QTimer;
+class QRect;
+class QWidget;
 
 class lmcCore : public QObject {
   Q_OBJECT

@@ -4,14 +4,18 @@
 #pragma once
 
 #include <QObject>
-#include <QUdpSocket>
-#include <QNetworkAddressEntry>
-#include <QHostAddress>
+#include <QString>
+#include <QByteArray>
 #include <QList>
-#include "core/shared.h"
-#include "datagram.h"
-#include "core/settings.h"
-#include "core/crypto.h"
+#include <QHostAddress>
+#include <QNetworkInterface>
+#include "core/definitions.h"
+
+struct DatagramHeader;
+class lmcSettings;
+class lmcCrypto;
+class QUdpSocket;
+class QNetworkAddressEntry;
 
 class lmcUdpNetwork : public QObject {
   Q_OBJECT

@@ -4,7 +4,8 @@
 #pragma once
 
 #include "uidefinitions.h"
-#include "settings.h"
+
+class lmcSettings;
 
 class lmcSoundPlayer {
 public:

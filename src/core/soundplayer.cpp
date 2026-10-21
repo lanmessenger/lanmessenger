@@ -12,6 +12,7 @@
 #include <QUrl>
 #endif
 #include "soundplayer.h"
+#include "settings.h"
 
 #ifdef Q_OS_WIN
 typedef BOOL(WINAPI* sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);

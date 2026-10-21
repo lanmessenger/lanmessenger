@@ -1,11 +1,43 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "chatwindow.h"
+#include <QToolBar>
+#include <QToolButton>
+#include <QMenu>
+#include <QAction>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QColorDialog>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QTextDocument>
+#include <QKeyEvent>
+#include <QCloseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QDesktopServices>
 #include <QTimer>
 #include <QMimeData>
-#include "chatwindow.h"
+#include <QDir>
+#include <QApplication>
+#include <QPalette>
+#include <QPixmap>
+#include <QIcon>
+#include <QDateTime>
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "core/uidefinitions.h"
+#include "messaging/history.h"
+#include "messaging/xmlmessage.h"
+#include "gui/chat/messagelog.h"
+#include "gui/chat/chathelper.h"
+#include "gui/widgets/subcontrols.h"
+#include "gui/widgets/imagepickeraction.h"
 #include "gui/widgets/actionhelper.h"
+#include "core/soundplayer.h"
 
 const qint64 pauseTime = 5000;
 

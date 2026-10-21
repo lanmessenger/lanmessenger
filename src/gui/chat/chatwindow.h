@@ -4,28 +4,28 @@
 #pragma once
 
 #include <QWidget>
-#include <QToolBar>
-#include <QToolButton>
-#include <QMenu>
-#include <QFileDialog>
-#include <QFontDialog>
-#include <QColorDialog>
-#include <QFile>
-#include <QTextStream>
-#include <qevent.h>
+#include <QString>
+#include <QHash>
+#include <QColor>
 #include "ui_chatwindow.h"
-#include "core/shared.h"
-#include "core/settings.h"
-#include "messaging/history.h"
-#include "gui/chat/messagelog.h"
-#include "gui/widgets/subcontrols.h"
-#include "gui/widgets/imagepickeraction.h"
-#include "core/soundplayer.h"
+#include "core/definitions.h"
 #include "chatdefinitions.h"
-#include "chathelper.h"
-#include "core/stdlocation.h"
-#include "messaging/xmlmessage.h"
-#include "core/theme.h"
+
+struct User;
+class XmlMessage;
+class lmcSettings;
+class lmcMessageLog;
+class lmcSoundPlayer;
+class lmcToolButton;
+class lmcImagePickerAction;
+class QMenu;
+class QAction;
+class QToolBar;
+class QFont;
+class QEvent;
+class QCloseEvent;
+class QDragEnterEvent;
+class QDropEvent;
 
 class lmcChatWindow : public QWidget {
   Q_OBJECT

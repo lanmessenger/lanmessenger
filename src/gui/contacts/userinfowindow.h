@@ -5,10 +5,10 @@
 
 #include <QDialog>
 #include "ui_userinfowindow.h"
-#include "core/shared.h"
-#include "core/settings.h"
-#include "core/stdlocation.h"
 #include "messaging/xmlmessage.h"
+
+class lmcSettings;
+class QEvent;
 
 class lmcUserInfoWindow : public QDialog {
   Q_OBJECT

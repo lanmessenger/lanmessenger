@@ -4,18 +4,19 @@
 #pragma once
 
 #include <QWidget>
-#include <QFileInfo>
-#include <QFileIconProvider>
-#include <QDir>
-#include <QToolBar>
-#include <QToolButton>
-#include <qevent.h>
+#include <QString>
+#include <QList>
+#include <QPixmap>
 #include "ui_transferwindow.h"
-#include "core/shared.h"
-#include "core/settings.h"
-#include "core/stdlocation.h"
-#include "core/soundplayer.h"
-#include "messaging/xmlmessage.h"
+#include "core/definitions.h"
+#include "gui/files/filemodelview.h"
+
+class lmcSettings;
+class lmcSoundPlayer;
+class XmlMessage;
+class QAction;
+class QModelIndex;
+class QEvent;
 
 class lmcTransferWindow : public QWidget {
   Q_OBJECT

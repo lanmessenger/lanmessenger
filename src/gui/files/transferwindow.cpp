@@ -1,11 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "transferwindow.h"
 #include <QDesktopServices>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QUrl>
-#include "transferwindow.h"
+#include <QDir>
+#include <QFileInfo>
+#include <QFileIconProvider>
+#include <QToolBar>
+#include <QFile>
+#include <QKeyEvent>
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/stdlocation.h"
+#include "core/soundplayer.h"
+#include "messaging/xmlmessage.h"
 #include "gui/widgets/actionhelper.h"
 
 lmcTransferWindow::lmcTransferWindow(QWidget* parent)

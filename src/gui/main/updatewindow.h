@@ -4,8 +4,12 @@
 #pragma once
 
 #include <QWidget>
-#include <qevent.h>
-#include "messaging/xmlmessage.h"
+#include <QString>
+#include "core/definitions.h"
+
+class XmlMessage;
+class QRect;
+class QEvent;
 
 namespace Ui {
 class UpdateWindow;

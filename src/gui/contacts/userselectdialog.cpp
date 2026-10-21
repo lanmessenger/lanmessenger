@@ -2,6 +2,10 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "userselectdialog.h"
+#include <QTreeWidgetItem>
+#include <QAbstractButton>
+#include "core/settings.h"
+#include "core/uidefinitions.h"
 
 lmcUserSelectDialog::lmcUserSelectDialog(QWidget* parent)
     : QDialog(parent) {

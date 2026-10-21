@@ -2,6 +2,12 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "userinfowindow.h"
+#include <QFile>
+#include <QPixmap>
+#include <QIcon>
+#include "core/shared.h"
+#include "core/settings.h"
+#include "core/uidefinitions.h"
 
 lmcUserInfoWindow::lmcUserInfoWindow(QWidget* parent)
     : QDialog(parent) {

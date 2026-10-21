@@ -4,26 +4,27 @@
 #pragma once
 
 #include <QWidget>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QVariant>
 #include <QSystemTrayIcon>
-#include <QMenuBar>
-#include <QMenu>
-#include <QToolBar>
-#include <QAction>
-#include <QActionGroup>
-#include <QIcon>
-#include <qevent.h>
-#include <QTreeWidget>
-#include <QWidgetAction>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QFileDialog>
 #include "ui_mainwindow.h"
 #include "core/shared.h"
-#include "core/settings.h"
-#include "gui/widgets/imagepickeraction.h"
-#include "core/soundplayer.h"
-#include "core/stdlocation.h"
-#include "messaging/xmlmessage.h"
+
+class XmlMessage;
+class lmcSettings;
+class lmcSoundPlayer;
+class QMenuBar;
+class QMenu;
+class QAction;
+class QActionGroup;
+class QToolButton;
+class QTreeWidgetItem;
+class QPoint;
+class QRect;
+class QEvent;
+class QCloseEvent;
 
 class lmcMainWindow : public QWidget {
   Q_OBJECT

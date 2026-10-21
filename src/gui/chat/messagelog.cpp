@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include "messagelog.h"
 #include <stdexcept>
 #include <QLocale>
 #include <QMenu>
@@ -8,7 +9,9 @@
 #include <QAction>
 #include <QScrollBar>
 #include <QTextBlock>
-#include "messagelog.h"
+#include <QEvent>
+#include <QResizeEvent>
+#include "core/shared.h"
 #include "gui/widgets/actionhelper.h"
 
 const QString acceptOp("accept");

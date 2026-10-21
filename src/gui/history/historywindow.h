@@ -5,13 +5,13 @@
 
 #include <QWidget>
 #include <QList>
-#include <QTreeWidget>
-#include <qevent.h>
 #include "ui_historywindow.h"
-#include "core/settings.h"
 #include "messaging/history.h"
-#include "historytreewidget.h"
-#include "gui/chat/messagelog.h"
+
+class lmcSettings;
+class lmcMessageLog;
+class QTreeWidgetItem;
+class QEvent;
 
 class lmcHistoryWindow : public QWidget {
   Q_OBJECT

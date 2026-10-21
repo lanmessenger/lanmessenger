@@ -3,6 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "core/trace.h"
 #include "messaging.h"
+#include "network/network.h"
 #include <QDirIterator>
 
 void lmcMessaging::receiveProgress(QString* lpszUserId, QString* lpszData) {

@@ -4,9 +4,13 @@
 #pragma once
 
 #include <QDialog>
+#include <QStringList>
+#include <QList>
 #include "ui_userselectdialog.h"
-#include "core/shared.h"
-#include "core/settings.h"
+
+class lmcSettings;
+class QTreeWidgetItem;
+class QEvent;
 
 class lmcUserSelectDialog : public QDialog {
   Q_OBJECT

@@ -4,6 +4,13 @@
 #pragma once
 
 #include <QTableWidget>
+#include <QString>
+#include <QList>
+
+class QModelIndex;
+class QMouseEvent;
+class QPaintEvent;
+class QEvent;
 
 class lmcImagePicker : public QTableWidget {
   Q_OBJECT

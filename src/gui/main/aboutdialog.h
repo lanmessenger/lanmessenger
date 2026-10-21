@@ -4,10 +4,10 @@
 #pragma once
 
 #include <QDialog>
-#include <QPicture>
 #include "ui_aboutdialog.h"
-#include "core/shared.h"
-#include "core/settings.h"
+
+class lmcSettings;
+class QEvent;
 
 class lmcAboutDialog : public QDialog {
   Q_OBJECT

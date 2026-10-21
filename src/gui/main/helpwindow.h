@@ -4,10 +4,12 @@
 #pragma once
 
 #include <QWidget>
-#include <qevent.h>
+#include <QString>
 #include "ui_helpwindow.h"
-#include "core/shared.h"
-#include "core/settings.h"
+
+class lmcSettings;
+class QRect;
+class QEvent;
 
 class lmcHelpWindow : public QWidget {
   Q_OBJECT

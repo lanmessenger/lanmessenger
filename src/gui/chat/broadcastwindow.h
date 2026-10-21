@@ -4,18 +4,21 @@
 #pragma once
 
 #include <QWidget>
-#include <QToolBar>
-#include <QMenu>
-#include <QActionGroup>
-#include <qevent.h>
+#include <QString>
+#include <QList>
 #include "ui_broadcastwindow.h"
-#include "core/shared.h"
-#include "core/settings.h"
-#include "gui/widgets/imagepickeraction.h"
-#include "gui/widgets/subcontrols.h"
-#include "chatdefinitions.h"
-#include "chathelper.h"
-#include "messaging/xmlmessage.h"
+#include "core/definitions.h"
+
+class lmcSettings;
+class XmlMessage;
+class QToolBar;
+class QToolButton;
+class lmcToolButton;
+class QAction;
+class QActionGroup;
+class QTreeWidgetItem;
+class QEvent;
+class QCloseEvent;
 
 class lmcBroadcastWindow : public QWidget {
   Q_OBJECT
