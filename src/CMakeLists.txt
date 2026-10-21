@@ -45,6 +45,7 @@ add_library(lmc_core STATIC
     network/tcpnetwork.cpp
     core/theme.cpp
     core/trace.cpp
+    core/lmclogging.cpp
     gui/files/transferlistview.cpp
     gui/files/transferwindow.cpp
     network/udpnetwork.cpp
@@ -93,6 +94,8 @@ add_library(lmc_core STATIC
     network/tcpnetwork.h
     core/theme.h
     core/trace.h
+    core/lmccategories.h
+    core/lmclogging.h
     gui/files/transferlistview.h
     gui/files/transferwindow.h
     core/uidefinitions.h

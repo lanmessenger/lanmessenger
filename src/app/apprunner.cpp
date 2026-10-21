@@ -7,6 +7,7 @@
 #include "core/stdlocation.h"
 #include "core/uidefinitions.h"
 #include "core/trace.h"
+#include "core/lmclogging.h"
 #include <QResource>
 #include <QMessageBox>
 #include <QIcon>
@@ -47,10 +48,16 @@ int showSwitches(void) {
 }
 
 static void initTrace(const QStringList& arguments) {
-  if(arguments.contains("/trace", Qt::CaseInsensitive))
-    lmcTrace::init(true, StdLocation::freeLogFile());
-  else
+  if(!arguments.contains("/trace", Qt::CaseInsensitive)) {
     lmcTrace::init(false, QString());
+    LmcLogging::disable();
+    return;
+  }
+  // freeLogFile() returns a new name on every call (epoch-msec):
+  // share one path between both sinks or they diverge into separate files.
+  const QString logFile = StdLocation::freeLogFile();
+  lmcTrace::init(true, logFile);
+  LmcLogging::enable(logFile);
 }
 
 // IPC is two commands: "raise" (default, brings the first instance forward)
