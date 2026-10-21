@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <QFile>
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/settings.h"
 #include "gui/chat/messagelog.h"
 
@@ -42,7 +43,7 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
 }
 
 lmcHistoryWindow::~lmcHistoryWindow() {
-  lmcTrace::write("History window destroyed");
+  qCDebug(lmcUi(), "History window destroyed");
 }
 
 void lmcHistoryWindow::init(void) {

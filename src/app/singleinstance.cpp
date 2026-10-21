@@ -2,6 +2,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "singleinstance.h"
 
+#include "core/lmccategories.h"
 #include <QDeadlineTimer>
 #include <QDir>
 #include <QCryptographicHash>
@@ -39,7 +40,7 @@ QString messageForOpcode(char opcode) {
 QString userTag() {
   DWORD sessionId = 0;
   if(!ProcessIdToSessionId(GetCurrentProcessId(), &sessionId))
-    qWarning("SingleInstance: ProcessIdToSessionId failed: %lu", GetLastError());
+    qCWarning(lmcApp(), "SingleInstance: ProcessIdToSessionId failed: %lu", GetLastError());
   return QString::number(sessionId, 16);
 }
 #else
@@ -160,9 +161,9 @@ SingleInstance::Election SingleInstance::tryBecomeServer(bool warn) {
   }
   // Pathology: lock ours, socket unlistenable. Release it, warn, degrade.
   if(warn)
-    qWarning("SingleInstance: lock acquired but cannot listen on '%s': %s",
-             qPrintable(socketName_),
-             qPrintable(server_ ? server_->errorString() : QString()));
+    qCWarning(lmcApp(), "SingleInstance: lock acquired but cannot listen on '%s': %s",
+              qPrintable(socketName_),
+              qPrintable(server_ ? server_->errorString() : QString()));
   lockFile_.unlock();
   return Election::ListenFailed;
 }
@@ -187,7 +188,7 @@ void SingleInstance::receiveConnection() {
     // Failures drop the peer without ack.
     QDeadlineTimer deadline(kOpcodeTimeoutMs);
     const auto drop = [socket](const QString& why) {
-      qWarning() << "SingleInstance: dropping peer message:" << why;
+      qCWarning(lmcApp(), "SingleInstance: dropping peer message: %s", qPrintable(why));
       delete socket;
     };
     while(socket->bytesAvailable() < 1) {
