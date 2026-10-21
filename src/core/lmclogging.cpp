@@ -10,7 +10,9 @@
 #include <QLoggingCategory>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QSet>
 #include <QTextStream>
+#include <algorithm>
 #include <cstdio>
 
 Q_LOGGING_CATEGORY(lmcApp, "lmc.app")
@@ -52,6 +54,36 @@ void lmcMessageHandler(QtMsgType type, const QMessageLogContext& context, const 
   std::fprintf(stderr, "%s\n", formatted.toLocal8Bit().constData());
   std::fflush(stderr);
 }
+
+// Log rotation: keep the newest kMaxLogFiles files, drop files older
+// than kMaxLogAgeDays; the stricter of the two wins (union of both
+// removal sets). Returns the number of deleted files.
+int pruneOldLogs() {
+  constexpr int kMaxLogFiles = 10;
+  constexpr int kMaxLogAgeDays = 30;
+  QDir dir(StdLocation::logDir());
+  QFileInfoList infos = dir.entryInfoList(QStringList() << QStringLiteral("lmc_*.log"),
+                                          QDir::Files | QDir::NoSymLinks);
+  if(infos.isEmpty())
+    return 0;
+  std::sort(infos.begin(), infos.end(), [](const QFileInfo& a, const QFileInfo& b) {
+    return a.lastModified() < b.lastModified();
+  });
+  const QDateTime cutoff = QDateTime::currentDateTime().addDays(-kMaxLogAgeDays);
+  QSet<QString> doomed;
+  for(const QFileInfo& info : infos) {
+    if(info.lastModified() < cutoff)
+      doomed.insert(info.absoluteFilePath());
+  }
+  for(int i = 0; i + kMaxLogFiles < static_cast<int>(infos.size()); ++i)
+    doomed.insert(infos.at(i).absoluteFilePath());
+  int removed = 0;
+  for(const QString& path : doomed) {
+    if(QFile::remove(path))
+      ++removed;
+  }
+  return removed;
+}
 } // namespace
 
 void LmcLogging::enable(const QString& logFile) {
@@ -64,6 +96,7 @@ void LmcLogging::enable(const QString& logFile) {
     qSetMessagePattern(QStringLiteral("[%{time yyyy.MM.dd hh:mm:ss.zzz} %{threadid} %{category}] %{message}"));
 
   QDir().mkpath(StdLocation::logDir());
+  const int pruned = pruneOldLogs();
   {
     QMutexLocker locker(&g_mutex);
     if(g_file.isOpen())
@@ -82,7 +115,8 @@ void LmcLogging::enable(const QString& logFile) {
     QTextStream stream(&g_file);
     stream << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
            << timeStamp << "         " IDA_TITLE " " IDA_VERSION " application log\n"
-           << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
+           << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
+           << timeStamp << "Log rotation: removed " << pruned << " file(s)\n";
   }
   if(!g_installed) {
     g_previous = qInstallMessageHandler(lmcMessageHandler);
