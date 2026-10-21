@@ -95,7 +95,10 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 On GUI-subsystem OSes stdout is detached, so the trace file is the only
 app-side record. Query `get_log` while the agent is healthy; in teardown
 read the file from disk (a wedged agent answers nothing, the file stays
-readable).
+readable). File lines follow the Qt message pattern
+`[yyyy.MM.dd hh:mm:ss.zzz threadid category] message` under the legacy
+3-line header; debug lines are present only when launched with `/trace`
+(silenced by default).
 
 ## Notes / v1 limits
 
