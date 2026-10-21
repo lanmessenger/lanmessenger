@@ -29,7 +29,7 @@ a BAD idea.
 ## Project layout
 
 The application is a single project: `lmc`, which contains the entire
-application, including the single-instance guard (`lmc/src/app/`,
+application, including the single-instance guard (`src/app/`,
 `QLockFile` + `QLocalServer`, no vendored code). The project is built
 by the top-level CMake project (`CMakeLists.txt` in the repository root).
 

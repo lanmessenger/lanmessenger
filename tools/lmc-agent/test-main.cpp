@@ -1,5 +1,5 @@
 // Test binary entry point (lan-messenger-test): thin wrapper over
-// lmcRunApplication (lmc/src/app/apprunner.h, same lmc_core as production),
+// lmcRunApplication (src/app/apprunner.h, same lmc_core as production),
 // plus the in-process test agent linked in directly.
 // Guarded by LMC_TEST_AGENT ("0" disables the server); port from
 // LMC_AGENT_PORT (default 9999, see PROTOCOL.md).

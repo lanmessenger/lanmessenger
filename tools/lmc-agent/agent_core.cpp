@@ -1,6 +1,6 @@
 #include "agent_core.h"
 
-// Item data roles mirror lmc/src/core/uidefinitions.h:84-92
+// Item data roles mirror src/core/uidefinitions.h:84-92
 // (IdRole = Qt::UserRole + 1, TypeRole next). Kept as literals on purpose:
 // the agent links no lmc headers, so it cannot include the enum, and a
 // wrong literal here fails loudly (peer never resolves) instead of silently.

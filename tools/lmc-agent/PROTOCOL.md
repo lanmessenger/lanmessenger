@@ -102,7 +102,7 @@ readable).
 - `open_chat` matches contacts by userId first, then by display name
   (same precedence as the app's own lookups). The contact tree lives in
   `tvUserList` (`mainwindow.ui`); item roles follow
-  `lmc/src/core/uidefinitions.h` (`IdRole = UserRole+1`,
+  `src/core/uidefinitions.h` (`IdRole = UserRole+1`,
   `TypeRole = UserRole+2`, `"User"` marks a contact row).
 - Addressing is by peer name/userId, never by X window id — two open
   chats stay distinguishable by title.

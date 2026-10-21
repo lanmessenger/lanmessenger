@@ -13,7 +13,7 @@ Suite Teardown    Close LMC
 Main Window Appears
     [Documentation]    App starts under the in-process agent and shows
     ...    MainWindow. objectName "MainWindow" comes from
-    ...    lmc/src/mainwindow.ui.
+    ...    src/gui/main/mainwindow.ui.
     Launch LMC
     Window Should Be Visible    MainWindow
     # Existence in the object tree is not enough: hidden windows are listed

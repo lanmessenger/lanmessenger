@@ -5,7 +5,7 @@
 #define LMC_APPRUNNER_H
 
 // Single application entry point shared by the production binary
-// (lmc/src/app/main.cpp) and the GUI test binary
+// (src/app/main.cpp) and the GUI test binary
 // (tools/lmc-agent/test-main.cpp): same startup, no behavior drift
 // between the binary under test and production.
 //
