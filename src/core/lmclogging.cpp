@@ -86,6 +86,11 @@ void LmcLogging::disable() {
       g_file.close();
     g_fileName.clear();
   }
+  // Debug is opt-in at runtime: silence it unless the user overrides
+  // via QT_LOGGING_RULES (same env-wins rule as enable(); /trace
+  // re-enables debug through its own rules there).
+  if(qgetenv("QT_LOGGING_RULES").isEmpty())
+    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
   if(g_installed) {
     qInstallMessageHandler(g_previous);
     g_previous = nullptr;
