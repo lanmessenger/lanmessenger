@@ -35,7 +35,7 @@ if(LMC_WITH_TEST_AGENT)
     # linked, and a static lib would drop an unreferenced qrc object.
     add_executable(lan-messenger-test
         test-main.cpp
-        ${CMAKE_SOURCE_DIR}/lmc/src/resource.qrc
+        ${CMAKE_SOURCE_DIR}/src/resource.qrc
     )
 
     target_link_libraries(lan-messenger-test PRIVATE lmc_core lmc_agent_core)
