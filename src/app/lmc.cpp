@@ -11,6 +11,7 @@
 #include <QSysInfo>
 #include <QFile>
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
@@ -92,11 +93,11 @@ void lmcCore::init(const QString& szCommandArgs) {
     }
   }
 
-  lmcTrace::write("Application initialized");
+  qCInfo(lmcApp(), "Application initialized");
 
   loadSettings();
 
-  lmcTrace::write("Settings loaded");
+  qCInfo(lmcApp(), "Settings loaded");
 
   pMessaging->init(pInitParams);
   pMainWindow->init(pMessaging->localUser, &pMessaging->groupList, pMessaging->isConnected());
@@ -104,7 +105,7 @@ void lmcCore::init(const QString& szCommandArgs) {
 }
 
 bool lmcCore::start(void) {
-  lmcTrace::write("Application started");
+  qCInfo(lmcApp(), "Application started");
   pMessaging->start();
 
   if(pMessaging->isConnected() && !pMessaging->canReceive()) {
@@ -243,7 +244,7 @@ void lmcCore::stop(void) {
   pMessaging->stop();
   pMainWindow->stop();
 
-  lmcTrace::write("Application stopped");
+  qCInfo(lmcApp(), "Application stopped");
 }
 
 //	This slot handles the exit signal emitted by main window when the user
@@ -258,7 +259,7 @@ void lmcCore::aboutToExit(void) {
   stop();
   pSettings->setValue(IDS_VERSION, IDA_VERSION);
 
-  lmcTrace::write("Application exit");
+  qCInfo(lmcApp(), "Application exit");
 
   pSettings->sync();
 }
@@ -412,9 +413,9 @@ void lmcCore::showHistory(void) {
   if(!pHistoryWindow) {
     pHistoryWindow = new lmcHistoryWindow();
     pHistoryWindow->init();
-    lmcTrace::write("History window created");
+    qCInfo(lmcApp(), "History window created");
   } else {
-    lmcTrace::write("History window reshown");
+    qCInfo(lmcApp(), "History window reshown");
   }
 
   //	if window is minimized it, restore it to previous state
@@ -948,7 +949,7 @@ QStringList lmcCore::showSelectContacts(QWidget* parent, uint caps, QStringList*
 }
 
 void lmcCore::showPortConflictMessage(void) {
-  lmcTrace::write("Startup: port conflict detected, showing message and stopping");
+  qCInfo(lmcApp(), "Startup: port conflict detected, showing message and stopping");
   //	show message box
   QMessageBox msgBox;
   msgBox.setWindowTitle(lmcStrings::appName());

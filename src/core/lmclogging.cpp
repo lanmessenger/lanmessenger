@@ -17,7 +17,7 @@ Q_LOGGING_CATEGORY(lmcNetTcp, "lmc.net.tcp")
 Q_LOGGING_CATEGORY(lmcNetUdp, "lmc.net.udp")
 Q_LOGGING_CATEGORY(lmcMsg, "lmc.msg")
 Q_LOGGING_CATEGORY(lmcFile, "lmc.file")
-Q_LOGGING_CATEGORY(lmcCore, "lmc.core")
+Q_LOGGING_CATEGORY(lmcCoreLog, "lmc.core")
 Q_LOGGING_CATEGORY(lmcUi, "lmc.ui")
 
 namespace {

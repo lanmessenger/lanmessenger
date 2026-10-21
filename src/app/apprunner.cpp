@@ -7,6 +7,7 @@
 #include "core/stdlocation.h"
 #include "core/uidefinitions.h"
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/lmclogging.h"
 #include <QResource>
 #include <QMessageBox>
@@ -111,9 +112,9 @@ int lmcRunApplication(int argc, char* argv[],
   initTrace(arguments);
   if(outcome == SingleInstance::StartupOutcome::Pathology) {
     fprintf(stderr, "lmc: warning: single-instance server unavailable, continuing without it\n");
-    lmcTrace::write("Startup: single-instance pathology, continuing degraded");
+    qCWarning(lmcApp(), "Startup: single-instance pathology, continuing degraded");
   } else {
-    lmcTrace::write("Startup: first instance, lock acquired");
+    qCInfo(lmcApp(), "Startup: first instance, lock acquired");
   }
 
   application.loadTranslations(StdLocation::resLangDir());
@@ -126,21 +127,21 @@ int lmcRunApplication(int argc, char* argv[],
   core.init(messageList);
   //	the remaining args are handled after initializing all the layers
   if(!core.processStartupSwitches(messageList)) {
-    lmcTrace::write("Startup: exiting before event loop (/quit)");
+    qCInfo(lmcApp(), "Startup: exiting before event loop (/quit)");
     return 0;
   }
   if(!core.start()) {
-    lmcTrace::write("Startup: core start failed, exiting");
+    qCInfo(lmcApp(), "Startup: core start failed, exiting");
     return 1;
   }
 
 #ifdef QT_NO_SSL
-  lmcTrace::write("Startup: Qt compiled with QT_NO_SSL, prompting to quit");
+  qCCritical(lmcApp(), "Startup: Qt compiled with QT_NO_SSL, prompting to quit");
   if(QMessageBox::critical(nullptr, IDA_TITLE, "Qt is compiled with QT_NO_SSL. Some functions will not work correctly. Quit application?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     return 2;
 #else
   if(!QSslSocket::supportsSsl()) {
-    lmcTrace::write("Startup: SSL backend missing, prompting to quit");
+    qCCritical(lmcApp(), "Startup: SSL backend missing, prompting to quit");
     if(QMessageBox::critical(nullptr, IDA_TITLE, "Messenger does not find ssl at startup. Probably missing openssl dll. Some functions will not work correctly. Quit application?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
       return 3;
   }
@@ -153,9 +154,9 @@ int lmcRunApplication(int argc, char* argv[],
   QObject::connect(&application, &Application::messageReceived, &core, &lmcCore::receiveRemoteMessage);
   QObject::connect(&application, &QCoreApplication::aboutToQuit, &core, &lmcCore::aboutToExit);
 
-  lmcTrace::write("Startup: entering event loop");
+  qCInfo(lmcApp(), "Startup: entering event loop");
   int result = application.exec();
-  lmcTrace::write("Shutdown: event loop exited with code " + QString::number(result));
+  qCInfo(lmcApp(), "Shutdown: event loop exited with code %d", result);
 
   return result;
 }

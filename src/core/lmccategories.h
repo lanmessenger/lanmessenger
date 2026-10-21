@@ -12,5 +12,6 @@ Q_DECLARE_LOGGING_CATEGORY(lmcNetTcp)
 Q_DECLARE_LOGGING_CATEGORY(lmcNetUdp)
 Q_DECLARE_LOGGING_CATEGORY(lmcMsg)
 Q_DECLARE_LOGGING_CATEGORY(lmcFile)
-Q_DECLARE_LOGGING_CATEGORY(lmcCore)
+// Named lmcCoreLog: a global lmcCore() accessor would clash with class lmcCore (app/lmc.h).
+Q_DECLARE_LOGGING_CATEGORY(lmcCoreLog)
 Q_DECLARE_LOGGING_CATEGORY(lmcUi)
