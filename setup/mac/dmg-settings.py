@@ -9,14 +9,14 @@ dmgbuild synthesizes the .DS_Store itself and never scripts the
 Finder, so the detach/convert flake class of the old
 createdisk+addlicense scripts cannot occur here.
 
-Usage (from lmc/setup/mac, after stage-mac-app prepared the bundle):
+Usage (from setup/mac, after stage-mac-app prepared the bundle):
     dmgbuild -s dmg-settings.py "LAN-Messenger" "../lmc_<ver>_<arch>.dmg"
 """
 import os
 
 # dmgbuild exec()s this file without providing __file__
 # (core.py load_settings), so resolve everything from the cwd.
-# Must be run from lmc/setup/mac, as documented above and in CI.
+# Must be run from setup/mac, as documented above and in CI.
 MACDIR = os.getcwd()
 
 volume_name = 'LAN-Messenger'

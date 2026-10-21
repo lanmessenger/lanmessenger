@@ -94,8 +94,8 @@ The `package-local` target stages the complete runtime bundle (the
 application binary, translations, the resource bundle, themes, sounds
 and the Qt image/platform/TLS plugins) into the `LMC_RELEASE_DIR`
 directory, which defaults to `<build-dir>/release`. The packaging scripts
-under `lmc/setup` expect the layout in `lmc/release`, so pass
-`-DLMC_RELEASE_DIR="$PWD/lmc/release"` when you plan to build the
+under `setup` expect the layout in `release`, so pass
+`-DLMC_RELEASE_DIR="$PWD/release"` when you plan to build the
 install packages (this is what the CI build does).
 
 If OpenSSL is laid out in the `openssl` folder described above, pass

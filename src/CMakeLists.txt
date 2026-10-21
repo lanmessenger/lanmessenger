@@ -333,8 +333,7 @@ add_dependencies(lmc lmc_runtime_files)
 
 # ---------------------------------------------------------------------------
 # Release layout (step 1.3): the install() rules below stage the flat runtime
-# tree that lmc/setup/** packages (from lmc/release in CI via LMC_RELEASE_DIR).
-# TODO(stage2): update paths when setup/release move to the repo root.
+# tree that setup/** packages (from release in CI via LMC_RELEASE_DIR).
 # Local staging: cmake --build <build-dir> --target package-local
 # ---------------------------------------------------------------------------
 if(APPLE)
@@ -445,9 +444,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # package-local: stage the complete layout in one command. LMC_RELEASE_DIR
-# defaults to <build>/release; CI points it at lmc/release where lmc/setup/**
+# defaults to <build>/release; CI points it at release where setup/**
 # expects the layout.
-# TODO(stage2): update paths when setup/release move to the repo root.
 set(LMC_RELEASE_DIR "${CMAKE_BINARY_DIR}/release" CACHE PATH
     "Release layout staging directory for the package-local target")
 add_custom_target(package-local

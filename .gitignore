@@ -38,6 +38,6 @@ __pycache__/
 
 /openssl
 /lmc/debug
-/lmc/release*
-/lmc/setup/lmc*.exe
-/lmc/setup/lmc*.zip
+/release*
+/setup/lmc*.exe
+/setup/lmc*.zip

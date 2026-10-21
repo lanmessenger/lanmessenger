@@ -12,10 +12,10 @@ configuring.
 
 The build is driven by CMake. The `package-local` target stages
 `LAN-Messenger.app` into the `LMC_RELEASE_DIR` directory (defaults to
-`<build-dir>/release`; use `lmc/release` for the packaging scripts):
+`<build-dir>/release`; use `release` for the packaging scripts):
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
 cmake --build build --config Release --target package-local --parallel
 ```
 
@@ -25,7 +25,7 @@ go to `Contents/Plugins` (see `setLibraryPaths` in `main.cpp`).
 ## Installer (DMG)
 
 For building the installer, first run the bash script `stage-mac-app` in
-the `lmc/setup/mac` folder. This copies the app bundle and runs
+the `setup/mac` folder. This copies the app bundle and runs
 `macdeployqt` on it to collect the Qt frameworks. The script finds
 `macdeployqt` through the `QTDIR` environment variable, so make sure it
 points at your Qt installation (the parent folder of the `bin` and `lib`
@@ -46,7 +46,7 @@ dmgbuild -s dmg-settings.py "LAN-Messenger" "../lmc_<version>_<arch>.dmg"
 `rm -f "../lmc_<version>_<arch>.dmg"` if you rebuild. The dmg file will
 have the name `lmc_<version>_x86_64.dmg` (Intel Macs, CI job
 `build-macos`) or `lmc_<version>_arm64.dmg` (Apple Silicon, CI job
-`build-macos`) and will be saved to the `lmc/setup` folder.
+`build-macos`) and will be saved to the `setup` folder.
 
 The DMG is ad-hoc signed and not notarized. After dragging the app to
 `/Applications`, macOS may block the first launch. Clear the quarantine

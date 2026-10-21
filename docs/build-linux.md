@@ -16,11 +16,11 @@ imageformats/platforms/tls plugins) into the `LMC_RELEASE_DIR` directory
 (defaults to `<build-dir>/release`):
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
 cmake --build build --config Release --target package-local --parallel
 ```
 
-The packaging scripts read the layout from `lmc/release`, so pass that
+The packaging scripts read the layout from `release`, so pass that
 value for `LMC_RELEASE_DIR` when building packages (this is what the CI
 build does).
 
@@ -47,7 +47,7 @@ after a log out or restart.
 ## Installer (deb)
 
 For building the installer, run the bash script `setup` in the
-`lmc/setup/x11` folder. Make sure the scripts named `postinst`, `postrm`
+`setup/x11` folder. Make sure the scripts named `postinst`, `postrm`
 and `prerm` in the folder `package/DEBIAN` have executable permission.
 The setup script substitutes the version and architecture placeholders
 (`VERSION`, `ARCH`) in the file `control` in the same folder from its
@@ -57,7 +57,7 @@ the application. The scripts `lmc.sh` and `whitelist` in
 folders inside the `package` folder must be owned by the root user.
 
 The setup script generates the deb installation package which will be
-saved to the `lmc/setup` folder. The package will have the name
+saved to the `setup` folder. The package will have the name
 `lmc_<version>_<arch>.deb` (e.g. `lmc_1.2.39_x86_64.deb`). Set the
 environment variable `PACKAGE_MODE=_min` to build a minimal package that
 does not bundle the Qt libraries (this is what the CI build produces);
@@ -73,7 +73,7 @@ install `alien`, run:
 sudo apt-get install alien
 ```
 
-Execute the `rpm_setup` script in `lmc/setup/x11` to generate an rpm
+Execute the `rpm_setup` script in `setup/x11` to generate an rpm
 package from the deb package (the deb package must be created first).
 This package will have the name `lmc-<version>.<arch>.rpm` and will be
-saved to the `lmc/setup` folder.
+saved to the `setup` folder.

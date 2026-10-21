@@ -16,11 +16,11 @@ uses CMake with the MSVC tool chain.
 The build is driven by CMake; the binaries are written to the build
 directory. The `package-local` target stages the complete runtime bundle
 into the `LMC_RELEASE_DIR` directory (defaults to `<build-dir>/release`).
-The CI build stages it into `lmc\release` where the packaging scripts
+The CI build stages it into `release` where the packaging scripts
 expect it. Run from Git Bash (comes with Git for Windows):
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release"
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
 cmake --build build --config Release --target package-local --parallel
 ```
 
@@ -40,7 +40,7 @@ this as a separate step).
 
 ## Installer
 
-To build the installer, run `setup.bat` in the `lmc\setup\win32` folder.
+To build the installer, run `setup.bat` in the `setup\win32` folder.
 NSIS must be installed first. Usage:
 
 ```cmd
@@ -58,5 +58,5 @@ whole `ExeFolder` and generates the installer. `ProductVersion` and
 `InstallerVersion` are passed to `makensis` as command line defines; when
 omitted, the defaults in `setup.nsi` are used and must be set whenever
 the application version changes. The installer generated will have the
-name `lmc-<version>-win64.exe` and it will be saved to the `lmc\setup`
+name `lmc-<version>-win64.exe` and it will be saved to the `setup`
 folder.

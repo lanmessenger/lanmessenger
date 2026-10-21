@@ -19,7 +19,7 @@ Library           OperatingSystem
 # Default points at the local dev-VM release layout. The binary must run
 # with the agent active (lan-messenger-test unless LMC_TEST_AGENT=0);
 # Launch LMC fails loudly when no agent answers.
-${APP_PATH}       ${CURDIR}/../../lmc/release/lan-messenger-test
+${APP_PATH}       ${CURDIR}/../../release/lan-messenger-test
 # The main window is shown at startup only with AutoShow=true in
 # $HOME/.config/lmc/lmc.ini (lmcMainWindow::start checks it, default false).
 # CI pre-seeds that file in the Seed step; never pass /noconfig here, it

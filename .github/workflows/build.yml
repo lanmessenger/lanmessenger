@@ -16,7 +16,7 @@ name: Build
 #   the Validate inputs step in build-windows, the steps below check only
 #   windows-ssl.
 # artifacts=release+test — both on one runner (release path): the test layout
-#   is assembled by COPYING lmc/release into $RUNNER_TEMP/teststage and
+#   is assembled by COPYING release into $RUNNER_TEMP/teststage and
 #   adding the test files to the copy. The original tree is never modified,
 #   so the packages cannot contain test binaries by construction.
 #   A shared configure means one OpenSSL for both halves, hence vcpkg.
@@ -103,7 +103,7 @@ jobs:
             xvfb xauth
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/lmc/release" -DLMC_VERSION="$PKG_VERSION"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release" -DLMC_VERSION="$PKG_VERSION"
 
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
@@ -111,7 +111,7 @@ jobs:
       - name: Smoke test
         run: |
           export USER=ci
-          cd lmc/release
+          cd release
           export LD_LIBRARY_PATH="$PWD"
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
 
@@ -129,19 +129,19 @@ jobs:
           test -x build/tools/lmm/lmmd
 
       # The test layout is a COPY of the release tree in $RUNNER_TEMP: the
-      # original lmc/release is only read, never modified, so packaging
+      # original release is only read, never modified, so packaging
       # below always sees the pristine tree.
       - name: Pack test layout
         if: inputs.artifacts != 'release'
         run: |
           STAGE="$RUNNER_TEMP/teststage"
-          rm -rf "$STAGE"; mkdir -p "$STAGE/lmc" "$STAGE/build/tools/lmm"
-          cp -r lmc/release "$STAGE/lmc/release"
-          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/lmc/release/"
-          test -x "$STAGE/lmc/release/lan-messenger-test"
+          rm -rf "$STAGE"; mkdir -p "$STAGE/release" "$STAGE/build/tools/lmm"
+          cp -r release "$STAGE/release"
+          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/release/"
+          test -x "$STAGE/release/lan-messenger-test"
           cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
           test -x "$STAGE/build/tools/lmm/lmmd"
-          tar -C "$STAGE" -czf test-layout-linux-x64.tar.gz lmc build
+          tar -C "$STAGE" -czf test-layout-linux-x64.tar.gz release build
 
       - name: Upload test layout
         if: inputs.artifacts != 'release'
@@ -158,7 +158,7 @@ jobs:
           PACKAGE_MODE: _min
         run: |
           sudo apt-get install -y alien rpm
-          cd lmc/setup/x11
+          cd setup/x11
           chmod +x setup rpm_setup
           sh ./setup "$PKG_VERSION"
           sh ./rpm_setup "$PKG_VERSION"
@@ -169,8 +169,8 @@ jobs:
         with:
           name: packages-linux
           path: |
-            lmc/setup/lmc_*_min.deb
-            lmc/setup/lmc-*_min.rpm
+            setup/lmc_*_min.deb
+            setup/lmc-*_min.rpm
           if-no-files-found: error
           retention-days: 3
 
@@ -253,7 +253,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION")
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi
@@ -266,14 +266,14 @@ jobs:
         shell: cmd
         run: |
           set QTDIR=%QT_ROOT_DIR%
-          windeployqt --release lmc\release\lmc.exe
+          windeployqt --release release\lmc.exe
 
       # QSslSocket needs the Qt 6 TLS backend plugins; deploy them explicitly
       # in case windeployqt skipped them.
       - name: Ensure TLS plugins
         shell: pwsh
         run: |
-          $dst = "lmc/release/tls"
+          $dst = "release/tls"
           if (-not (Test-Path $dst)) {
             Copy-Item -Recurse "$env:QT_ROOT_DIR/plugins/tls" $dst
           }
@@ -289,7 +289,7 @@ jobs:
         run: cmake --build build --config Release --target lan-messenger-test lmmd --parallel
 
       # The test layout is a COPY of the release tree in $RUNNER_TEMP: the
-      # original lmc/release is only read, never modified, so the installer
+      # original release is only read, never modified, so the installer
       # step always sees the pristine tree. The OpenSSL DLLs ride along into
       # the test layout (never into the installer: this step only runs
       # off-release).
@@ -299,14 +299,14 @@ jobs:
         run: |
           $stage = "$env:RUNNER_TEMP\teststage"
           if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
-          New-Item -ItemType Directory -Force "$stage\lmc", "$stage\build\tools\lmm" | Out-Null
-          Copy-Item -Recurse lmc/release "$stage\lmc\release"
-          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe "$stage\lmc\release\"
-          Copy-Item openssl/bin/*.dll "$stage\lmc\release\"
+          New-Item -ItemType Directory -Force "$stage\release", "$stage\build\tools\lmm" | Out-Null
+          Copy-Item -Recurse release "$stage\release"
+          Copy-Item build/tools/lmc-agent/lan-messenger-test.exe "$stage\release\"
+          Copy-Item openssl/bin/*.dll "$stage\release\"
           Copy-Item build/tools/lmm/lmmd.exe "$stage\build\tools\lmm\"
-          if (-not (Test-Path "$stage\lmc\release\lan-messenger-test.exe")) { throw "test binary missing" }
+          if (-not (Test-Path "$stage\release\lan-messenger-test.exe")) { throw "test binary missing" }
           if (-not (Test-Path "$stage\build\tools\lmm\lmmd.exe")) { throw "lmmd missing" }
-          tar -C $stage -czf test-layout-windows-x64.tar.gz lmc build
+          tar -C $stage -czf test-layout-windows-x64.tar.gz release build
 
       - name: Upload test layout
         if: inputs.artifacts != 'release'
@@ -322,7 +322,7 @@ jobs:
         shell: cmd
         run: |
           choco install nsis -y --no-progress
-          cd lmc\setup\win32
+          cd setup\win32
           call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
 
       - name: Upload packages
@@ -330,7 +330,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: packages-windows
-          path: lmc/setup/lmc-*-win64.exe
+          path: setup/lmc-*-win64.exe
           if-no-files-found: error
           retention-days: 3
 
@@ -371,7 +371,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/lmc/release" "-DLMC_VERSION=$PKG_VERSION")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION")
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi
@@ -382,14 +382,14 @@ jobs:
 
       - name: Verify native binary arch
         run: |
-          lipo -archs lmc/release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
+          lipo -archs release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
 
       - name: Stage macOS app
         if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
           export QTDIR="$QT_ROOT_DIR"
-          cd lmc/setup/mac
+          cd setup/mac
           chmod +x stage-mac-app
           bash ./stage-mac-app
 
@@ -397,7 +397,7 @@ jobs:
         if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
-          app=lmc/setup/mac/LAN-Messenger.app
+          app=setup/mac/LAN-Messenger.app
           info="$app/Contents/Info.plist"
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -dv --verbose=4 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
@@ -420,7 +420,7 @@ jobs:
         if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
-          cd lmc/setup/mac
+          cd setup/mac
           # Hermetic venv: works with any python3 (system/Homebrew/toolcache),
           # immune to PEP 668, no --break-system-packages, no new actions.
           python3 -m venv "$RUNNER_TEMP/dmgbuild-venv"
@@ -435,7 +435,7 @@ jobs:
       - name: List disk image artifacts
         if: always() && inputs.artifacts != 'test'
         run: |
-          ls -lh lmc/setup/*.dmg || true
+          ls -lh setup/*.dmg || true
 
       - name: Build unit tests
         run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
@@ -457,15 +457,15 @@ jobs:
         shell: bash
         run: |
           STAGE="$RUNNER_TEMP/teststage"
-          rm -rf "$STAGE"; mkdir -p "$STAGE/lmc/release" "$STAGE/build/tools/lmm"
-          cp -R lmc/release/LAN-Messenger.app "$STAGE/lmc/release/"
-          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/lmc/release/LAN-Messenger.app/Contents/MacOS/"
-          test -x "$STAGE/lmc/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test"
+          rm -rf "$STAGE"; mkdir -p "$STAGE/release" "$STAGE/build/tools/lmm"
+          cp -R release/LAN-Messenger.app "$STAGE/release/"
+          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/release/LAN-Messenger.app/Contents/MacOS/"
+          test -x "$STAGE/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test"
           cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
           test -x "$STAGE/build/tools/lmm/lmmd"
-          mkdir -p "$STAGE/lmc/release/LAN-Messenger.app/Contents/Plugins"
-          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/lmc/release/LAN-Messenger.app/Contents/Plugins/"
-          tar -C "$STAGE" -czf "test-layout-${{ matrix.leg }}.tar.gz" lmc build
+          mkdir -p "$STAGE/release/LAN-Messenger.app/Contents/Plugins"
+          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/release/LAN-Messenger.app/Contents/Plugins/"
+          tar -C "$STAGE" -czf "test-layout-${{ matrix.leg }}.tar.gz" release build
 
       - name: Upload test layout
         if: inputs.artifacts != 'release'
@@ -481,6 +481,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: packages-macos-${{ matrix.arch }}
-          path: lmc/setup/lmc_*_${{ matrix.arch }}.dmg
+          path: setup/lmc_*_${{ matrix.arch }}.dmg
           if-no-files-found: error
           retention-days: 3
