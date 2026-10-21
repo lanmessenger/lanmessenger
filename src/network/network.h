@@ -66,7 +66,7 @@ private slots:
   void web_receiveMessage(QString* lpszData);
 
 private:
-  bool getIPAddress(bool verbose = true);
+  bool getIPAddress();
   bool getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddressEntry* pAddressEntry);
   bool getNetworkInterface(QNetworkInterface* pNetworkInterface);
   bool getNetworkInterface(QNetworkInterface* pNetworkInterface, QString* lpszPreferred);

@@ -149,7 +149,7 @@ void lmcNetwork::settingsChanged(void) {
 
 void lmcNetwork::timer_timeout(void) {
   bool prev = isConnected;
-  isConnected = getIPAddress(false);
+  isConnected = getIPAddress();
 
   if(prev != isConnected) {
     qCInfo(lmcNet(), "%s",
@@ -197,7 +197,7 @@ void lmcNetwork::web_receiveMessage(QString* lpszData) {
   emit webMessageReceived(lpszData);
 }
 
-bool lmcNetwork::getIPAddress(bool verbose) {
+bool lmcNetwork::getIPAddress() {
   // If an interface is already being used, get it. Ignore all others
   networkInterface = QNetworkInterface::interfaceFromName(interfaceName);
   if(networkInterface.isValid()) {
@@ -221,9 +221,7 @@ bool lmcNetwork::getIPAddress(bool verbose) {
   //bool usePreferred = (szInterfaceName.compare(IDS_CONNECTION_VAL, Qt::CaseInsensitive) != 0);
   bool usePreferred = false;
 
-  if(verbose) {
-    qCDebug(lmcNet(), "Checking for active network interface...");
-  }
+  qCDebug(lmcNet(), "Checking for active network interface...");
 
   //	get a list of all network interfaces available in the system
   QList<QNetworkInterface> allInterfaces = QNetworkInterface::allInterfaces();
@@ -239,10 +237,8 @@ bool lmcNetwork::getIPAddress(bool verbose) {
 
     if(isInterfaceUp(&allInterfaces[index])) {
       activeFound = true;
-      if(verbose) {
-        qCInfo(lmcNet(), "%s",
-               qPrintable("Active network interface found: " + allInterfaces[index].humanReadableName()));
-      }
+      qCDebug(lmcNet(), "%s",
+              qPrintable("Active network interface found: " + allInterfaces[index].humanReadableName()));
       QNetworkAddressEntry addressEntry;
       if(getIPAddress(&allInterfaces[index], &addressEntry)) {
         ipAddress = addressEntry.ip().toString();
@@ -255,10 +251,8 @@ bool lmcNetwork::getIPAddress(bool verbose) {
     }
   }
 
-  if(verbose) {
-    qCWarning(lmcNet(), "%s",
-              qPrintable(activeFound ? "No IP address found" : "No active network interface found"));
-  }
+  qCDebug(lmcNet(), "%s",
+          qPrintable(activeFound ? "No IP address found" : "No active network interface found"));
   ipAddress = QString();
   subnetMask = QString();
   return false;
