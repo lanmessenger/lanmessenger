@@ -136,7 +136,10 @@ jobs:
         run: |
           STAGE="$RUNNER_TEMP/teststage"
           rm -rf "$STAGE"; mkdir -p "$STAGE/release" "$STAGE/build/tools/lmm"
-          cp -r release "$STAGE/release"
+          # Trailing /. copies CONTENTS (dest exists); without it cp would
+          # nest release inside release and the layout would silently break.
+          cp -r release/. "$STAGE/release/"
+          test ! -e "$STAGE/release/release"
           cp build/tools/lmc-agent/lan-messenger-test "$STAGE/release/"
           test -x "$STAGE/release/lan-messenger-test"
           cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
@@ -300,7 +303,15 @@ jobs:
           $stage = "$env:RUNNER_TEMP\teststage"
           if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
           New-Item -ItemType Directory -Force "$stage\release", "$stage\build\tools\lmm" | Out-Null
-          Copy-Item -Recurse release "$stage\release"
+          # release\* copies CONTENTS (dest exists); without the wildcard
+          # Copy-Item would nest release inside release.
+          Copy-Item -Recurse release\* "$stage\release"
+          # e2e.yml runs Windows with no Qt install: the layout must carry
+          # the windeployqt output beside the test binary. Assert that, not
+          # just the absence of nesting (a broken windeployqt staging fails
+          # the same silent way: exe present, agent never listens).
+          if (-not (Test-Path "$stage\release\Qt6Core.dll")) { throw "Qt runtime missing beside test binary" }
+          if (-not (Test-Path "$stage\release\platforms\qwindows.dll")) { throw "Qt platform plugin missing" }
           Copy-Item build/tools/lmc-agent/lan-messenger-test.exe "$stage\release\"
           Copy-Item openssl/bin/*.dll "$stage\release\"
           Copy-Item build/tools/lmm/lmmd.exe "$stage\build\tools\lmm\"
