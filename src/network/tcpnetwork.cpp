@@ -4,6 +4,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/crypto.h"
 #include "tcpnetwork.h"
@@ -29,16 +30,16 @@ void lmcTcpNetwork::init(int nPort) {
 }
 
 void lmcTcpNetwork::start(void) {
-  lmcTrace::write("Starting TCP server");
+  qCInfo(lmcNetTcp(), "Starting TCP server");
   isRunning = server->listen(QHostAddress::Any, tcpPort > 0 ? tcpPort : IDS_TCPPORT_LEGACY_VAL);
   if(!isRunning && tcpPort == 0 && server->serverError() == QAbstractSocket::AddressInUseError) {
     isRunning = server->listen(QHostAddress::Any, 0);
   }
   if(isRunning) {
     int actualPort = server->serverPort();
-    lmcTrace::write("TCP server listening on port " + QString::number(actualPort));
+    qCInfo(lmcNetTcp(), "%s", qPrintable("TCP server listening on port " + QString::number(actualPort)));
   } else {
-    lmcTrace::write("TCP server listening failed " + server->errorString());
+    qCCritical(lmcNetTcp(), "%s", qPrintable("TCP server listening failed " + server->errorString()));
   }
 }
 
@@ -67,12 +68,13 @@ void lmcTcpNetwork::setCrypto(lmcCrypto* pCrypto) {
 
 void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int nPort) {
   if(!isRunning) {
-    lmcTrace::write("Warning: TCP server not running. Unable to connect");
+    qCWarning(lmcNetTcp(), "TCP server not running. Unable to connect");
     return;
   }
 
   int peerPort = nPort > 0 ? nPort : IDS_TCPPORT_LEGACY_VAL;
-  lmcTrace::write("Connecting to user " + *lpszUserId + " at " + *lpszAddress + ":" + QString::number(peerPort));
+  qCInfo(lmcNetTcp(), "%s",
+         qPrintable("Connecting to user " + *lpszUserId + " at " + *lpszAddress + ":" + QString::number(peerPort)));
 
   MsgStream* msgStream = new MsgStream(localId, *lpszUserId, *lpszAddress, peerPort);
   connect(msgStream, &MsgStream::connectionLost, this, &lmcTcpNetwork::msgStream_connectionLost);
@@ -88,7 +90,7 @@ void lmcTcpNetwork::addConnection(QString* lpszUserId, QString* lpszAddress, int
 
 void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
   if(!isRunning) {
-    lmcTrace::write("Warning: TCP server not running. Message not sent");
+    qCWarning(lmcNetTcp(), "TCP server not running. Message not sent");
     return;
   }
 
@@ -100,11 +102,11 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
     msgStream = messageMap.value(*lpszReceiverId, NULL);
 
   if(msgStream) {
-    lmcTrace::write("Sending TCP data stream to user " + *lpszReceiverId);
+    qCInfo(lmcNetTcp(), "%s", qPrintable("Sending TCP data stream to user " + *lpszReceiverId));
     QByteArray clearData = lpszData->toUtf8();
     QByteArray cipherData = crypto->encrypt(lpszReceiverId, clearData);
     if(cipherData.isEmpty()) {
-      lmcTrace::write("Warning: Message could not be sent");
+      qCWarning(lmcNetTcp(), "Message could not be sent");
       return;
     }
     //	cipherData should now contain encrypted content
@@ -113,7 +115,7 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
     return;
   }
 
-  lmcTrace::write("Warning: Socket not found. Message sending failed");
+  qCWarning(lmcNetTcp(), "Socket not found. Message sending failed");
 }
 
 //	Point-in-time: a dead connection flips this back via removeUser.
@@ -132,8 +134,9 @@ void lmcTcpNetwork::initSendFile(QString* lpszReceiverId, QString* lpszAddress, 
   int type = Helper::indexOf(FileTypeNames, FT_Max, xmlMessage.data(XN_FILETYPE));
 
   int peerPort = nPort > 0 ? nPort : IDS_TCPPORT_LEGACY_VAL;
-  lmcTrace::write("Sending file " + xmlMessage.data(XN_FILEID) + " to user " + *lpszReceiverId + " at " +
-                  *lpszAddress + ":" + QString::number(peerPort));
+  qCInfo(lmcNetTcp(), "%s",
+         qPrintable("Sending file " + xmlMessage.data(XN_FILEID) + " to user " + *lpszReceiverId + " at " +
+                    *lpszAddress + ":" + QString::number(peerPort)));
 
   FileSender* sender = new FileSender(xmlMessage.data(XN_FILEID), localId, *lpszReceiverId, xmlMessage.data(XN_FILEPATH),
                                       xmlMessage.data(XN_FILENAME), xmlMessage.data(XN_FILESIZE).toLongLong(), *lpszAddress, peerPort, (FileType)type);
@@ -202,7 +205,7 @@ int lmcTcpNetwork::serverPort(void) const {
 }
 
 void lmcTcpNetwork::server_newConnection(void) {
-  lmcTrace::write("New connection received");
+  qCInfo(lmcNetTcp(), "New connection received");
   QTcpSocket* socket = server->nextPendingConnection();
   connect(socket, &QIODevice::readyRead, this, &lmcTcpNetwork::socket_readyRead);
 }
@@ -268,8 +271,9 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
   QByteArray clearData;
   QString szMessage;
 
-  lmcTrace::write("TCP stream type " + QString::number(pHeader->type) +
-                  " received from user " + *lpszUserId + " at " + *lpszAddress);
+  qCDebug(lmcNetTcp(), "%s",
+          qPrintable("TCP stream type " + QString::number(pHeader->type) +
+                     " received from user " + *lpszUserId + " at " + *lpszAddress));
 
   switch(pHeader->type) {
   case DT_PublicKey:
@@ -285,7 +289,7 @@ void lmcTcpNetwork::receiveMessage(QString* lpszUserId, QString* lpszAddress, QB
     // decrypt message with aes
     clearData = crypto->decrypt(&pHeader->userId, cipherData);
     if(clearData.isEmpty()) {
-      lmcTrace::write("Warning: Message could not be retrieved");
+      qCWarning(lmcNetTcp(), "Message could not be retrieved");
       break;
     }
     szMessage = QString::fromUtf8(clearData.data(), clearData.length());
@@ -303,7 +307,7 @@ void lmcTcpNetwork::addFileSocket(QString* lpszId, QString* lpszUserId, QTcpSock
 }
 
 void lmcTcpNetwork::addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket) {
-  lmcTrace::write("Accepted connection from user " + *lpszUserId);
+  qCInfo(lmcNetTcp(), "%s", qPrintable("Accepted connection from user " + *lpszUserId));
   QString address = pSocket->peerAddress().toString();
   MsgStream* msgStream = new MsgStream(localId, *lpszUserId, address, tcpPort);
   connect(msgStream, &MsgStream::connectionLost, this, &lmcTcpNetwork::msgStream_connectionLost);
@@ -316,7 +320,7 @@ void lmcTcpNetwork::addMsgSocket(QString* lpszUserId, QTcpSocket* pSocket) {
 
 //	Once a new incoming connection is established, the server sends a public key to client
 void lmcTcpNetwork::sendPublicKey(QString* lpszUserId) {
-  lmcTrace::write("Sending public key to user " + *lpszUserId);
+  qCInfo(lmcNetTcp(), "%s", qPrintable("Sending public key to user " + *lpszUserId));
   MsgStream* msgStream = messageMap.value(*lpszUserId);
   if(msgStream) {
     QByteArray publicKey = crypto->publicKey;
@@ -337,7 +341,7 @@ void lmcTcpNetwork::sendSessionKey(QString* lpszUserId, QByteArray& publicKey) {
     msgStream = messageMap.value(*lpszUserId);
 
   if(msgStream) {
-    lmcTrace::write("Sending session key to user " + *lpszUserId);
+    qCInfo(lmcNetTcp(), "%s", qPrintable("Sending session key to user " + *lpszUserId));
     QByteArray sessionKey = crypto->generateAES(lpszUserId, publicKey);
     Datagram::addHeader(DT_Handshake, sessionKey);
     msgStream->sendMessage(sessionKey);

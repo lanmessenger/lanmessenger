@@ -5,6 +5,7 @@
 #include <QUdpSocket>
 #include <QNetworkAddressEntry>
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/crypto.h"
@@ -48,11 +49,12 @@ void lmcUdpNetwork::start(void) {
 void lmcUdpNetwork::stop(void) {
   disconnect(pUdpReceiver, &QIODevice::readyRead, this, &lmcUdpNetwork::processPendingDatagrams);
   if(pUdpReceiver->state() == QAbstractSocket::BoundState) {
-    lmcTrace::write("Leaving multicast group " + multicastAddress.toString() + " on interface " +
-                    multicastInterface.humanReadableName());
+    qCInfo(lmcNetUdp(), "%s",
+           qPrintable("Leaving multicast group " + multicastAddress.toString() + " on interface " +
+                      multicastInterface.humanReadableName()));
     bool left = pUdpReceiver->leaveMulticastGroup(multicastAddress, multicastInterface);
     pUdpReceiver->close();
-    lmcTrace::write((left ? "Success" : "Failed"));
+    qCInfo(lmcNetUdp(), "%s", (left ? "Success" : "Failed"));
   }
   isRunning = false;
 }
@@ -67,7 +69,7 @@ void lmcUdpNetwork::setCrypto(lmcCrypto* pCrypto) {
 
 void lmcUdpNetwork::sendBroadcast(QString* lpszData) {
   if(!isRunning) {
-    lmcTrace::write("Warning: UDP server not running. Broadcast not sent");
+    qCWarning(lmcNetUdp(), "UDP server not running. Broadcast not sent");
     return;
   }
 
@@ -82,16 +84,18 @@ void lmcUdpNetwork::settingsChanged(void) {
   QHostAddress address = QHostAddress(pSettings->value(IDS_MULTICAST, IDS_MULTICAST_VAL).toString());
   if(multicastAddress != address) {
     if(pUdpReceiver->state() == QAbstractSocket::BoundState) {
-      lmcTrace::write("Leaving multicast group " + multicastAddress.toString() + " on interface " +
-                      multicastInterface.humanReadableName());
+      qCInfo(lmcNetUdp(), "%s",
+             qPrintable("Leaving multicast group " + multicastAddress.toString() + " on interface " +
+                        multicastInterface.humanReadableName()));
       bool left = pUdpReceiver->leaveMulticastGroup(multicastAddress, multicastInterface);
-      lmcTrace::write((left ? "Success" : "Failed"));
+      qCInfo(lmcNetUdp(), "%s", (left ? "Success" : "Failed"));
     }
     multicastAddress = address;
-    lmcTrace::write("Joining multicast group " + multicastAddress.toString() + " on interface " +
-                    multicastInterface.humanReadableName());
+    qCInfo(lmcNetUdp(), "%s",
+           qPrintable("Joining multicast group " + multicastAddress.toString() + " on interface " +
+                      multicastInterface.humanReadableName()));
     bool joined = pUdpReceiver->joinMulticastGroup(multicastAddress, multicastInterface);
-    lmcTrace::write((joined ? "Success" : "Failed"));
+    qCInfo(lmcNetUdp(), "%s", (joined ? "Success" : "Failed"));
   }
   broadcastList.clear();
   broadcastList.append(defBroadcast);
@@ -132,29 +136,31 @@ void lmcUdpNetwork::sendDatagram(QHostAddress remoteAddress, QByteArray& datagra
   if(!isRunning)
     return;
 
-  lmcTrace::write("Sending UDP datagram to " + remoteAddress.toString() + ":" + QString::number(nUdpPort));
+  qCDebug(lmcNetUdp(), "%s",
+          qPrintable("Sending UDP datagram to " + remoteAddress.toString() + ":" + QString::number(nUdpPort)));
   pUdpSender->writeDatagram(datagram.data(), datagram.size(), remoteAddress, nUdpPort);
 }
 
 bool lmcUdpNetwork::startReceiving(void) {
-  lmcTrace::write("Binding UDP listener to port " + QString::number(nUdpPort));
+  qCInfo(lmcNetUdp(), "%s", qPrintable("Binding UDP listener to port " + QString::number(nUdpPort)));
 
   if(pUdpReceiver->bind(QHostAddress::AnyIPv4, nUdpPort, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
-    lmcTrace::write("Success");
-    lmcTrace::write("Joining multicast group " + multicastAddress.toString() +
-                    " on interface " + multicastInterface.humanReadableName());
+    qCInfo(lmcNetUdp(), "Success");
+    qCInfo(lmcNetUdp(), "%s",
+           qPrintable("Joining multicast group " + multicastAddress.toString() +
+                      " on interface " + multicastInterface.humanReadableName()));
     bool joined = pUdpReceiver->joinMulticastGroup(multicastAddress, multicastInterface);
-    lmcTrace::write((joined ? "Success" : "Failed"));
+    qCInfo(lmcNetUdp(), "%s", (joined ? "Success" : "Failed"));
     connect(pUdpReceiver, &QIODevice::readyRead, this, &lmcUdpNetwork::processPendingDatagrams);
     return true;
   }
 
-  lmcTrace::write("Failed");
+  qCCritical(lmcNetUdp(), "Failed");
   return false;
 }
 
 void lmcUdpNetwork::parseDatagram(QString* lpszAddress, QByteArray& baDatagram) {
-  lmcTrace::write("UDP datagram received from " + *lpszAddress);
+  qCDebug(lmcNetUdp(), "%s", qPrintable("UDP datagram received from " + *lpszAddress));
   DatagramHeader* pHeader = new DatagramHeader(DT_Broadcast, QString(), *lpszAddress);
   QString szData = QString::fromUtf8(baDatagram.data(), baDatagram.length());
   emit broadcastReceived(pHeader, &szData);

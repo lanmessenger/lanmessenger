@@ -6,6 +6,7 @@
 #include <QNetworkAddressEntry>
 #include <QHostAddress>
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/crypto.h"
@@ -38,15 +39,16 @@ lmcNetwork::~lmcNetwork(void) {
 }
 
 void lmcNetwork::init(XmlMessage* pInitParams) {
-  lmcTrace::write("Network initialized");
+  qCInfo(lmcNet(), "Network initialized");
 
   pSettings = new lmcSettings();
   isConnected = getIPAddress();
 
-  lmcTrace::write("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
-                  "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
-                  "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
-                  "\nConnection status: " + (isConnected ? "OK" : "Fail"));
+  qCInfo(lmcNet(), "%s",
+         qPrintable("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
+                    "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+                    "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
+                    "\nConnection status: " + (isConnected ? "OK" : "Fail")));
 
   int cliUdpPort = pInitParams->data(XN_ARGUDPPORT).toInt();
   int udpPort = cliUdpPort > 0 ? cliUdpPort : pSettings->value(IDS_UDPPORT, IDS_UDPPORT_VAL).toInt();
@@ -56,7 +58,7 @@ void lmcNetwork::init(XmlMessage* pInitParams) {
 }
 
 void lmcNetwork::start(void) {
-  lmcTrace::write("Network started");
+  qCInfo(lmcNet(), "Network started");
   pCrypto->generateRSA();
 
   pTimer = new QTimer(this);
@@ -81,7 +83,7 @@ void lmcNetwork::stop(void) {
   pUdpNetwork->stop();
   pTcpNetwork->stop();
 
-  lmcTrace::write("Network stopped");
+  qCInfo(lmcNet(), "Network stopped");
 }
 
 QString lmcNetwork::physicalAddress(void) {
@@ -151,10 +153,11 @@ void lmcNetwork::timer_timeout(void) {
   isConnected = getIPAddress(false);
 
   if(prev != isConnected) {
-    lmcTrace::write("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
-                    "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
-                    "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
-                    "\nConnection status: " + (isConnected ? "OK" : "Fail"));
+    qCInfo(lmcNet(), "%s",
+           qPrintable("Network interface selected: " + (networkInterface.isValid() ? networkInterface.humanReadableName() : "None") +
+                      "\nIP address obtained: " + (ipAddress.isEmpty() ? "NULL" : ipAddress) +
+                      "\nSubnet mask obtained: " + (subnetMask.isEmpty() ? "NULL" : subnetMask) +
+                      "\nConnection status: " + (isConnected ? "OK" : "Fail")));
 
     if(isConnected) {
       pUdpNetwork->setMulticastInterface(networkInterface);
@@ -219,7 +222,9 @@ bool lmcNetwork::getIPAddress(bool verbose) {
   //bool usePreferred = (szInterfaceName.compare(IDS_CONNECTION_VAL, Qt::CaseInsensitive) != 0);
   bool usePreferred = false;
 
-  lmcTrace::write("Checking for active network interface...", verbose);
+  if(verbose) {
+    qCDebug(lmcNet(), "Checking for active network interface...");
+  }
 
   //	get a list of all network interfaces available in the system
   QList<QNetworkInterface> allInterfaces = QNetworkInterface::allInterfaces();
@@ -235,36 +240,38 @@ bool lmcNetwork::getIPAddress(bool verbose) {
 
     if(isInterfaceUp(&allInterfaces[index])) {
       activeFound = true;
-      lmcTrace::write("Active network interface found: " + allInterfaces[index].humanReadableName(),
-                      verbose);
+      if(verbose) {
+        qCInfo(lmcNet(), "%s",
+               qPrintable("Active network interface found: " + allInterfaces[index].humanReadableName()));
+      }
       QNetworkAddressEntry addressEntry;
       if(getIPAddress(&allInterfaces[index], &addressEntry)) {
         ipAddress = addressEntry.ip().toString();
         subnetMask = addressEntry.netmask().toString();
         networkInterface = allInterfaces[index];
         interfaceName = allInterfaces[index].name();
+        usePreferred = false;
         return true;
       }
     }
   }
 
-  lmcTrace::write(QString("Warning: ") + (activeFound ? "No IP address found" : "No active network interface found"),
-                  verbose);
+  if(verbose) {
+    qCWarning(lmcNet(), "%s",
+              qPrintable(activeFound ? "No IP address found" : "No active network interface found"));
+  }
   ipAddress = QString();
   subnetMask = QString();
   return false;
 }
 
 bool lmcNetwork::getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddressEntry* pAddressEntry) {
-  //lmcTrace::write("Querying IP address from network interface...");
-
   //	get a list of all associated ip addresses of the interface
   QList<QNetworkAddressEntry> addressEntries = pNetworkInterface->addressEntries();
   //	return the first address which is an ipv4 address
   for(int index = 0; index < addressEntries.count(); index++) {
     if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv4Protocol) {
       *pAddressEntry = addressEntries[index];
-      //lmcTrace::write("IPv4 address found for network interface.");
       return true;
     }
   }
@@ -272,12 +279,10 @@ bool lmcNetwork::getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddr
   for(int index = 0; index < addressEntries.count(); index++) {
     if(addressEntries[index].ip().protocol() == QAbstractSocket::IPv6Protocol) {
       *pAddressEntry = addressEntries[index];
-      //lmcTrace::write("IPv6 address found for network interface.");
       return true;
     }
   }
 
-  //lmcTrace::write("Warning: No IP address found for network interface.");
   return false;
 }
 
@@ -310,7 +315,7 @@ bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface) {
 }
 
 bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface, QString* lpszPreferred) {
-  lmcTrace::write("Checking for active network interface...");
+  qCDebug(lmcNet(), "Checking for active network interface...");
 
   //	get a list of all network interfaces available in the system
   QList<QNetworkInterface> allInterfaces = QNetworkInterface::allInterfaces();
@@ -324,12 +329,12 @@ bool lmcNetwork::getNetworkInterface(QNetworkInterface* pNetworkInterface, QStri
 
     if(isInterfaceUp(&allInterfaces[index])) {
       *pNetworkInterface = allInterfaces[index];
-      lmcTrace::write("Active network interface found: " + pNetworkInterface->humanReadableName());
+      qCInfo(lmcNet(), "%s", qPrintable("Active network interface found: " + pNetworkInterface->humanReadableName()));
       return true;
     }
   }
 
-  lmcTrace::write("Warning: No active network interface found");
+  qCWarning(lmcNet(), "No active network interface found");
   return false;
 }
 
@@ -346,8 +351,6 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
   QNetworkInterface networkInterface;
 
   if(getNetworkInterface(&networkInterface)) {
-    //lmcTrace::write("Querying IP address from network interface...");
-
     //	get a list of all associated ip addresses of the interface
     QList<QNetworkAddressEntry> addressEntries = networkInterface.addressEntries();
     //	return the first address which is an ipv4 address
@@ -356,7 +359,6 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
         *pAddressEntry = addressEntries[index];
         this->networkInterface = networkInterface;
         this->interfaceName = networkInterface.name();
-        //lmcTrace::write("IPv4 address found for network interface.");
         return true;
       }
     }
@@ -366,12 +368,9 @@ bool lmcNetwork::getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry) {
         *pAddressEntry = addressEntries[index];
         this->networkInterface = networkInterface;
         this->interfaceName = networkInterface.name();
-        //lmcTrace::write("IPv6 address found for network interface.");
         return true;
       }
     }
-
-    //lmcTrace::write("Warning: No IP address found for network interface.");
   }
 
   return false;
