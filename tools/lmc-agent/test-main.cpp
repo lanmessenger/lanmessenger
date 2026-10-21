@@ -11,7 +11,7 @@
 
 #include "app/apprunner.h"
 #include "agent_server.h"
-#include "core/trace.h"
+#include "core/lmclogging.h"
 #include <QCoreApplication>
 
 namespace {
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
       return;
     // The test agent server, born in the GUI thread before exec().
     // Parented to the application: freed on quit, no delete needed.
-    new lmc_agent::AgentServer(testAgentPort(), lmcTrace::fileName(),
+    new lmc_agent::AgentServer(testAgentPort(), LmcLogging::fileName(),
                                &application);
   });
 }

@@ -9,7 +9,6 @@
 #include <QTreeWidgetItem>
 #include <QKeyEvent>
 #include <QFile>
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/settings.h"
 #include "gui/chat/messagelog.h"

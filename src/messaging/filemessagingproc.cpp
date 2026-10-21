@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/stdlocation.h"
 #include "messaging.h"

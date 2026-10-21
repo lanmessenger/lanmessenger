@@ -3,7 +3,6 @@
 // Copyright (c) 2026 LAN Messenger.
 #include <QTcpServer>
 #include <QTcpSocket>
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/crypto.h"

@@ -6,7 +6,6 @@
 #include "network/network.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
-#include "core/trace.h"
 #include "core/lmccategories.h"
 
 lmcMessaging::lmcMessaging(void) {

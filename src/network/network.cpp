@@ -5,7 +5,6 @@
 #include <QTimer>
 #include <QNetworkAddressEntry>
 #include <QHostAddress>
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"

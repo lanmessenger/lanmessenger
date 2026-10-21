@@ -3,6 +3,8 @@
 #include "core/lmclogging.h"
 #include "core/lmccategories.h"
 #include "core/stdlocation.h"
+#include "core/definitions.h"
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QLoggingCategory>
@@ -72,6 +74,15 @@ void LmcLogging::enable(const QString& logFile) {
       g_fileName.clear();
       return;
     }
+    // Legacy file header: timestamp-prefixed like any other line.
+    const QString timeStamp =
+      QStringLiteral("[") +
+      QDateTime::currentDateTime().toString(QStringLiteral("yyyy.MM.dd hh:mm:ss.zzz")) +
+      QStringLiteral("] ");
+    QTextStream stream(&g_file);
+    stream << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
+           << timeStamp << "         " IDA_TITLE " " IDA_VERSION " application log\n"
+           << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
   }
   if(!g_installed) {
     g_previous = qInstallMessageHandler(lmcMessageHandler);

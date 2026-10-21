@@ -2,8 +2,8 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-// Qt logging file sink (migration step 1): one handler per process,
-// dual-writes to the same file as lmcTrace. No file without /trace.
+// Qt logging file sink (migration step 6): the only file sink.
+// No file without /trace.
 #include <QString>
 
 class LmcLogging {

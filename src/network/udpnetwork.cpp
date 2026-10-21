@@ -4,7 +4,6 @@
 #include "udpnetwork.h"
 #include <QUdpSocket>
 #include <QNetworkAddressEntry>
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"

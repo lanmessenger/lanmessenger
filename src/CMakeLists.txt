@@ -44,7 +44,6 @@ add_library(lmc_core STATIC
     gui/widgets/subcontrols.cpp
     network/tcpnetwork.cpp
     core/theme.cpp
-    core/trace.cpp
     core/lmclogging.cpp
     gui/files/transferlistview.cpp
     gui/files/transferwindow.cpp
@@ -93,7 +92,6 @@ add_library(lmc_core STATIC
     gui/widgets/subcontrols.h
     network/tcpnetwork.h
     core/theme.h
-    core/trace.h
     core/lmccategories.h
     core/lmclogging.h
     gui/files/transferlistview.h

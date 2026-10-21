@@ -10,7 +10,6 @@
 #include <QTimer>
 #include <QSysInfo>
 #include <QFile>
-#include "core/trace.h"
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
