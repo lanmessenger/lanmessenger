@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef CHATDEFINITIONS_H
-#define CHATDEFINITIONS_H
+#pragma once
 
 #include "core/uidefinitions.h"
 
@@ -39,5 +38,3 @@ const QString ChatStateNames[] = {
   "paused",
   "inactive",
   "gone"};
-
-#endif // CHATDEFINITIONS_H

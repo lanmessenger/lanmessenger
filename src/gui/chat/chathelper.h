@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef CHATHELPER_H
-#define CHATHELPER_H
+#pragma once
 
 #include <QTextBlockUserData>
 #include "core/uidefinitions.h"
@@ -44,5 +43,3 @@ public:
   static void encodeSmileys(QString* lpszMessage);
   static void decodeSmileys(QString* lpszMessage);
 };
-
-#endif // CHATHELPER_H

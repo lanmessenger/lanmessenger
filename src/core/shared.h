@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef SHARED_H
-#define SHARED_H
+#pragma once
 
 #include <QString>
 #include <QDateTime>
@@ -102,5 +101,3 @@ public:
   static bool copyFile(const QString& source, const QString& destination);
   static void setUtf8Stream(QTextStream& stream);
 };
-
-#endif // SHARED_H

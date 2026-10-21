@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include <QApplication>
 #include <QHash>
@@ -42,5 +41,3 @@ private:
   static Translators translators;
   static Translators sysTranslators;
 };
-
-#endif // APPLICATION_H

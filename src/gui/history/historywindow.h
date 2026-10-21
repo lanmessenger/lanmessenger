@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef HISTORYWINDOW_H
-#define HISTORYWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QList>
@@ -43,5 +42,3 @@ private:
   lmcMessageLog* pMessageLog;
   QList<MsgInfo> msgList;
 };
-
-#endif // HISTORYWINDOW_H

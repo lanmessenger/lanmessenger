@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef NETWORK_H
-#define NETWORK_H
+#pragma once
 
 #include <QObject>
 #include <QNetworkAddressEntry>
@@ -84,5 +83,3 @@ private:
   QString interfaceName;
   QNetworkInterface networkInterface;
 };
-
-#endif // NETWORK_H

@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef NETSTREAMER_H
-#define NETSTREAMER_H
+#pragma once
 
 #include <QTcpSocket>
 #include <QTcpServer>
@@ -147,5 +146,3 @@ private:
   quint32 inDataLen;
   bool reading;
 };
-
-#endif // NETSTREAMER_H

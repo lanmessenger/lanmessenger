@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef USERINFOWINDOW_H
-#define USERINFOWINDOW_H
+#pragma once
 
 #include <QDialog>
 #include "ui_userinfowindow.h"
@@ -33,5 +32,3 @@ private:
   lmcSettings* pSettings;
   XmlMessage userInfo;
 };
-
-#endif // USERINFOWINDOW_H

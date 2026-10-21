@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMC_H
-#define LMC_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -108,5 +107,3 @@ private:
   int refreshTime;
   XmlMessage* pInitParams;
 };
-
-#endif // LMC_H

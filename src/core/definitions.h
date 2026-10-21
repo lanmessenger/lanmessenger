@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef DEFINITIONS_H
-#define DEFINITIONS_H
+#pragma once
 
 //	Information about the application
 #define IDA_TITLE "LAN Messenger"
@@ -287,5 +286,3 @@ enum UserCap {
 #define LMC_FALSE "false"
 
 #define PROGRESS_TIMEOUT 1500
-
-#endif // DEFINITIONS_H

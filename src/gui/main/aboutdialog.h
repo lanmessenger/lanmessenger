@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QPicture>
@@ -29,5 +28,3 @@ private:
   Ui::AboutDialog ui;
   lmcSettings* pSettings;
 };
-
-#endif // ABOUTDIALOG_H

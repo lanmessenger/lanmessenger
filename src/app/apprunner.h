@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMC_APPRUNNER_H
-#define LMC_APPRUNNER_H
+#pragma once
 
 // Single application entry point shared by the production binary
 // (src/app/main.cpp) and the GUI test binary
@@ -26,5 +25,3 @@ int lmcRunApplication(int argc, char* argv[],
 // Maps a second-instance command line to the IPC command sent to the running
 // instance: "term" iff /term is present, "raise" otherwise (unit-tested).
 QString remoteCommandFor(const QStringList& arguments);
-
-#endif // LMC_APPRUNNER_H

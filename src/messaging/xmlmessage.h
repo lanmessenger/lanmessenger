@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef XMLMESSAGE_H
-#define XMLMESSAGE_H
+#pragma once
 
 #include <QDomDocument>
 #include "core/definitions.h"
@@ -86,5 +85,3 @@ private:
   bool removeXmlNode(const QString& parentNode, const QString& nodeName);
   bool xmlNodeExists(const QString& parentNode, const QString& nodeName);
 };
-
-#endif // XMLMESSAGE_H

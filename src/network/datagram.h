@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef DATAGRAM_H
-#define DATAGRAM_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -22,5 +21,3 @@ public:
   static bool getHeader(QByteArray& baDatagram, DatagramHeader** ppHeader);
   static QByteArray getData(QByteArray& baDatagram);
 };
-
-#endif // DATAGRAM_H

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMC_SINGLEINSTANCE_H
-#define LMC_SINGLEINSTANCE_H
+#pragma once
 
 #include <QObject>
 #include <QLockFile>
@@ -66,5 +65,3 @@ private:
   QLockFile lockFile_;
   bool listening_ = false;
 };
-
-#endif // LMC_SINGLEINSTANCE_H

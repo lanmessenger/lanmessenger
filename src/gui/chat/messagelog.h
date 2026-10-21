@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef MESSAGELOG_H
-#define MESSAGELOG_H
+#pragma once
 
 #include "core/shared.h"
 #include "gui/chat/chatdefinitions.h"
@@ -109,5 +108,3 @@ private:
   bool outStyle;
   bool autoScroll;
 };
-
-#endif // MESSAGELOG_H

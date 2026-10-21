@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef USERTREEWIDGET_H
-#define USERTREEWIDGET_H
+#pragma once
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QTreeWidget>
@@ -82,5 +81,3 @@ private:
   bool isCheckable;
   UserListView viewType;
 };
-
-#endif // USERTREEWIDGET_H

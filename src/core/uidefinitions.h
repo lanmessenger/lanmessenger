@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef UIDEFINITIONS_H
-#define UIDEFINITIONS_H
+#pragma once
 
 #include <QString>
 #include "definitions.h"
@@ -259,5 +258,3 @@ const int itemViewHeight[] = {36, 20};
 #else
 #define GRAY_TEXT_COLOR QApplication::palette().color(QPalette::Shadow)
 #endif
-
-#endif // UIDEFINITIONS_H

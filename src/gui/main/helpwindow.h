@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef HELPWINDOW_H
-#define HELPWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <qevent.h>
@@ -31,5 +30,3 @@ private:
   Ui::HelpWindow ui;
   lmcSettings* pSettings;
 };
-
-#endif // HELPWINDOW_H

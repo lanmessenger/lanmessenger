@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef CHATWINDOW_H
-#define CHATWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QToolBar>
@@ -125,5 +124,3 @@ private:
   qint64 snapKeyStroke;
   bool dataSaved;
 };
-
-#endif // CHATWINDOW_H

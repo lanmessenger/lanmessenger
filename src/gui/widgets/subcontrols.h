@@ -3,8 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 //	This file contains definitions for subclassed controls
 
-#ifndef SUBCONTROLS_H
-#define SUBCONTROLS_H
+#pragma once
 
 #include <QStylePainter>
 #include <QStyleOption>
@@ -52,5 +51,3 @@ protected:
   void focusInEvent(QFocusEvent* event);
   void focusOutEvent(QFocusEvent* event);
 };
-
-#endif //SUBCONTROLS_H

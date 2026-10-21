@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QSystemTrayIcon>
@@ -188,5 +187,3 @@ private:
   QAction* avatarBrowseAction;
   bool windowLoaded;
 };
-
-#endif // MAINWINDOW_H

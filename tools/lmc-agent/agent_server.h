@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMC_AGENT_SERVER_H
-#define LMC_AGENT_SERVER_H
+#pragma once
 
 // QTcpServer speaking the NDJSON protocol from PROTOCOL.md.
 // Lives in the GUI thread (parented to QApplication or the test core):
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace lmc_agent
-
-#endif // LMC_AGENT_SERVER_H

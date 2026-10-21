@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-#ifndef ACTIONHELPER_H
-#define ACTIONHELPER_H
+#pragma once
 
 #include <QAction>
 #include <QIcon>
@@ -28,5 +27,3 @@ public:
     return action;
   }
 };
-
-#endif // ACTIONHELPER_H

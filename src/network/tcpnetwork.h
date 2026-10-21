@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef TCPNETWORK_H
-#define TCPNETWORK_H
+#pragma once
 
 #include <QObject>
 #include <QTcpSocket>
@@ -67,5 +66,3 @@ private:
   lmcCrypto* crypto;
   QHostAddress ipAddress;
 };
-
-#endif // TCPNETWORK_H

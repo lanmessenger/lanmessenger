@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef SOUNDPLAYER_H
-#define SOUNDPLAYER_H
+#pragma once
 
 #include "uidefinitions.h"
 #include "settings.h"
@@ -24,5 +23,3 @@ private:
   bool noBusySound;
   bool noDNDSound;
 };
-
-#endif // SOUNDPLAYER_H

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef THEME_H
-#define THEME_H
+#pragma once
 
 #include "stdlocation.h"
 
@@ -38,5 +37,3 @@ public:
   static const Themes availableThemes(void);
   static const ThemeData loadTheme(const QString& path);
 };
-
-#endif // THEME_H

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMC_AGENT_CORE_H
-#define LMC_AGENT_CORE_H
+#pragma once
 
 // In-process GUI adapter core: search + fire-and-post executors.
 // Pure Qt Widgets API only — deliberately no lmc headers, so the core
@@ -105,5 +104,3 @@ bool openChat(const QString& peer, double timeoutSecs, QString* title,
               QString* error);
 
 } // namespace lmc_agent
-
-#endif // LMC_AGENT_CORE_H

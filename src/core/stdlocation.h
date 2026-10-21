@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef STDLOCATION_H
-#define STDLOCATION_H
+#pragma once
 
 #include <QDir>
 #include <QFileInfo>
@@ -112,5 +111,3 @@ public:
                                     "/" SL_TEMPCONFIG);
   }
 };
-
-#endif // STDLOCATION_H

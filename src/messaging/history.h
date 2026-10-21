@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef HISTORY_H
-#define HISTORY_H
+#pragma once
 
 #include <QString>
 #include <QFile>
@@ -71,5 +70,3 @@ private:
   static qint64 insertIndex(QDataStream* pStream, qint64 dataPos, QString user, QDateTime timeStamp);
   static void updateIndex(QDataStream* pData, qint64 oldIndex, qint64 newIndex);
 };
-
-#endif // HISTORY_H

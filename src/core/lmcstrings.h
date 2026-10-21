@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef LMCSTRINGS_H
-#define LMCSTRINGS_H
+#pragma once
 
 #include <QStringList>
 #include <QCoreApplication>
@@ -34,5 +33,3 @@ private:
   static QStringList m_awayTimeDesc;
   static QStringList m_userListView;
 };
-
-#endif // LMCSTRINGS_H

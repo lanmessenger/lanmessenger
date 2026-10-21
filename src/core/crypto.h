@@ -8,8 +8,7 @@
 #include <openssl/pem.h>
 #include <openssl/aes.h>
 
-#ifndef CRYPTO_H
-#define CRYPTO_H
+#pragma once
 
 class EVP_CIPHER_CTX_wrapper {
 public:
@@ -78,5 +77,3 @@ private:
   int bits;
   long exponent;
 };
-
-#endif // CRYPTO_H

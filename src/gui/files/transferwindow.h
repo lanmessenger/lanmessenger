@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef TRANSFERWINDOW_H
-#define TRANSFERWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QFileInfo>
@@ -65,5 +64,3 @@ private:
   QAction* pactRemove;
   QList<FileView> pendingSendList;
 };
-
-#endif // TRANSFERWINDOW_H

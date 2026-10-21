@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QRegularExpression>
@@ -86,5 +85,3 @@ private:
   int statusTimerId;
   int statusNow;
 };
-
-#endif // SETTINGSDIALOG_H

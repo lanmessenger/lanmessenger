@@ -1,8 +1,7 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef IMAGEPICKER_H
-#define IMAGEPICKER_H
+#pragma once
 
 #include <QTableWidget>
 
@@ -26,5 +25,3 @@ private:
 
   QTableWidgetItem* hoverItem;
 };
-
-#endif // IMAGEPICKER_H

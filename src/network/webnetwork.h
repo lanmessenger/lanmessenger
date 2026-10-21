@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#ifndef WEBNETWORK_H
-#define WEBNETWORK_H
+#pragma once
 
 #include <QObject>
 #include <QNetworkAccessManager>
@@ -43,5 +42,3 @@ private:
   QNetworkAccessManager* manager;
   bool active;
 };
-
-#endif // WEBNETWORK_H
