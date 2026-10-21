@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 LAN Messenger.
 #include "agent_core.h"
 
 // Item data roles mirror src/core/uidefinitions.h:84-92

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 LAN Messenger.
 // Test binary entry point (lan-messenger-test): thin wrapper over
 // lmcRunApplication (src/app/apprunner.h, same lmc_core as production),
 // plus the in-process test agent linked in directly.

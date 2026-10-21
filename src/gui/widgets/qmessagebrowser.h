@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 LAN Messenger.
 #ifndef QMESSAGEBROWSER_H
 #define QMESSAGEBROWSER_H
 

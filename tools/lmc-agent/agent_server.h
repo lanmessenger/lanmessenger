@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 LAN Messenger.
 #ifndef LMC_AGENT_SERVER_H
 #define LMC_AGENT_SERVER_H
 
