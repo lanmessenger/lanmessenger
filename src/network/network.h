@@ -69,7 +69,6 @@ private:
   bool getIPAddress();
   bool getIPAddress(QNetworkInterface* pNetworkInterface, QNetworkAddressEntry* pAddressEntry);
   bool getNetworkInterface(QNetworkInterface* pNetworkInterface);
-  bool getNetworkInterface(QNetworkInterface* pNetworkInterface, QString* lpszPreferred);
   bool isInterfaceUp(QNetworkInterface* pNetworkInterface);
   bool getNetworkAddressEntry(QNetworkAddressEntry* pAddressEntry);
 

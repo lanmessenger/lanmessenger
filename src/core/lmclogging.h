@@ -8,7 +8,6 @@
 
 class LmcLogging {
 public:
-  static void init(bool enabled, const QString& logFile);
   static void enable(const QString& logFile);
   static void disable();
   // Path from enable(); empty when the sink is off.

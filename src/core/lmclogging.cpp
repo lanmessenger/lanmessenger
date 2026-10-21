@@ -42,6 +42,7 @@ void lmcMessageHandler(QtMsgType type, const QMessageLogContext& context, const 
     if(g_file.isOpen()) {
       QTextStream stream(&g_file);
       stream << formatted << "\n";
+      stream.flush();
       if(type == QtCriticalMsg || type == QtFatalMsg)
         g_file.flush();
     }
@@ -87,14 +88,6 @@ int pruneOldLogs() {
 } // namespace
 
 void LmcLogging::enable(const QString& logFile) {
-  // User env wins over code: apply built-in rules/pattern only when the
-  // corresponding variable is unset. setFilterRules takes '\n'-separated
-  // rules only (';' is malformed there; verified on Qt 6.4).
-  if(qgetenv("QT_LOGGING_RULES").isEmpty())
-    QLoggingCategory::setFilterRules(QStringLiteral("*.critical=true\n*.warning=true\nlmc.*.debug=true"));
-  if(qgetenv("QT_MESSAGE_PATTERN").isEmpty())
-    qSetMessagePattern(QStringLiteral("[%{time yyyy.MM.dd hh:mm:ss.zzz} %{threadid} %{category}] %{message}"));
-
   QDir().mkpath(StdLocation::logDir());
   const int pruned = pruneOldLogs();
   {
@@ -105,6 +98,10 @@ void LmcLogging::enable(const QString& logFile) {
     g_file.setFileName(logFile);
     if(!g_file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
       g_fileName.clear();
+      locker.unlock();
+      // Failure must not leave debug enabled without a file.
+      if(qgetenv("QT_LOGGING_RULES").isEmpty())
+        QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
       return;
     }
     // Legacy file header: timestamp-prefixed like any other line.
@@ -117,7 +114,17 @@ void LmcLogging::enable(const QString& logFile) {
            << timeStamp << "         " IDA_TITLE " " IDA_VERSION " application log\n"
            << timeStamp << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
            << timeStamp << "Log rotation: removed " << pruned << " file(s)\n";
+    stream.flush();
   }
+  // User env wins over code: apply built-in rules/pattern only when the
+  // corresponding variable is unset. setFilterRules takes '\n'-separated
+  // rules only (';' is malformed there; verified on Qt 6.4).
+  // Installed only after a successful open so a failed open leaves
+  // the previous filtering untouched (plus the rollback above).
+  if(qgetenv("QT_LOGGING_RULES").isEmpty())
+    QLoggingCategory::setFilterRules(QStringLiteral("*.critical=true\n*.warning=true\nlmc.*.debug=true"));
+  if(qgetenv("QT_MESSAGE_PATTERN").isEmpty())
+    qSetMessagePattern(QStringLiteral("[%{time yyyy.MM.dd hh:mm:ss.zzz} %{threadid} %{category}] %{message}"));
   if(!g_installed) {
     g_previous = qInstallMessageHandler(lmcMessageHandler);
     g_installed = true;
@@ -141,13 +148,6 @@ void LmcLogging::disable() {
     g_previous = nullptr;
     g_installed = false;
   }
-}
-
-void LmcLogging::init(bool enabled, const QString& logFile) {
-  if(enabled && !logFile.isEmpty())
-    enable(logFile);
-  else
-    disable();
 }
 
 QString LmcLogging::fileName() {

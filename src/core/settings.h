@@ -101,8 +101,6 @@
 #define IDS_SOUNDEVENT_VAL Qt::Checked
 #define IDS_SOUNDFILEHDR "SoundFiles"
 #define IDS_SOUNDFILE "File"
-#define IDS_CONNECTION "Connection/Connection"
-#define IDS_CONNECTION_VAL AUTO_CONNECTION
 #define IDS_TIMEOUT "Connection/Timeout"
 #define IDS_TIMEOUT_VAL 10
 #define IDS_MAXRETRIES "Connection/MaxRetries"

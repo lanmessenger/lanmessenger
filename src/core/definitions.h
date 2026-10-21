@@ -280,8 +280,6 @@ enum UserCap {
 #define GRP_DEFAULT "General"
 #define GRP_DEFAULT_ID "1CD75C10048C4E65F6082539A32DC111"
 
-#define AUTO_CONNECTION "Auto"
-
 #define LMC_TRUE "true"
 #define LMC_FALSE "false"
 

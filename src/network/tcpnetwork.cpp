@@ -101,7 +101,7 @@ void lmcTcpNetwork::sendMessage(QString* lpszReceiverId, QString* lpszData) {
     msgStream = messageMap.value(*lpszReceiverId, NULL);
 
   if(msgStream) {
-    qCInfo(lmcNetTcp(), "%s", qPrintable("Sending TCP data stream to user " + *lpszReceiverId));
+    qCDebug(lmcNetTcp(), "%s", qPrintable("Sending TCP data stream to user " + *lpszReceiverId));
     QByteArray clearData = lpszData->toUtf8();
     QByteArray cipherData = crypto->encrypt(lpszReceiverId, clearData);
     if(cipherData.isEmpty()) {
