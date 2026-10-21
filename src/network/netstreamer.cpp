@@ -4,6 +4,9 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDataStream>
+#include <QTcpSocket>
+#include <QTimer>
+#include <QFile>
 #include "core/trace.h"
 #include "netstreamer.h"
 

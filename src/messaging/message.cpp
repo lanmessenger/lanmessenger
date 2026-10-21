@@ -1,7 +1,10 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
-#include "core/trace.h"
+#include <QString>
+#include <QDateTime>
+#include "core/shared.h"
+#include "xmlmessage.h"
 #include "message.h"
 
 QString Message::addHeader(MessageType type, qint64 id, QString* lpszLocalId, QString* lpszPeerId, XmlMessage* pMessage) {

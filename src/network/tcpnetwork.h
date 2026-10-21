@@ -4,11 +4,19 @@
 #pragma once
 
 #include <QObject>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include "core/shared.h"
-#include "netstreamer.h"
-#include "core/crypto.h"
+#include <QString>
+#include <QList>
+#include <QMap>
+#include <QHostAddress>
+#include "core/definitions.h"
+
+class QTcpSocket;
+class QTcpServer;
+class FileSender;
+class FileReceiver;
+class MsgStream;
+class lmcCrypto;
+struct DatagramHeader;
 
 class lmcTcpNetwork : public QObject {
   Q_OBJECT

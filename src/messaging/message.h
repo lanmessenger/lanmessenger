@@ -4,9 +4,10 @@
 #pragma once
 
 #include <QString>
-#include <QStringList>
-#include "core/shared.h"
-#include "xmlmessage.h"
+#include "core/definitions.h"
+
+struct MessageHeader;
+class XmlMessage;
 
 enum MessagHeaderMember {
   MH_AppId = 0,

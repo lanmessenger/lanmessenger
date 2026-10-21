@@ -5,13 +5,14 @@
 
 #include <QWidget>
 #include <QString>
-#include <QStringList>
 #include <QList>
 #include <QVariant>
 #include <QSystemTrayIcon>
 #include "ui_mainwindow.h"
-#include "core/shared.h"
+#include "core/definitions.h"
 
+struct User;
+struct Group;
 class XmlMessage;
 class lmcSettings;
 class lmcSoundPlayer;

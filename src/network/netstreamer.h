@@ -3,11 +3,14 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QTimer>
-#include <QFile>
-#include "core/shared.h"
+#include <QObject>
+#include <QString>
+#include <QByteArray>
+#include "core/definitions.h"
+
+class QTcpSocket;
+class QTimer;
+class QFile;
 
 /****************************************************************************
 ** Class: FileSender

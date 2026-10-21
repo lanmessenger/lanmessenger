@@ -2,7 +2,9 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include <QDataStream>
+#include <QString>
 #include "core/trace.h"
+#include "core/shared.h"
 #include "datagram.h"
 
 void Datagram::addHeader(DatagramType type, QByteArray& baData) {

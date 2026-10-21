@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QKeyEvent>
 #include <QCloseEvent>
+#include "core/shared.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "core/soundplayer.h"

@@ -3,10 +3,10 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-#include <QString>
-#include <QStringList>
-#include "core/shared.h"
-#include "messaging/xmlmessage.h"
+#include <QByteArray>
+#include "core/definitions.h"
+
+struct DatagramHeader;
 
 enum DatagramHeaderMember {
   DH_AppId = 0,
