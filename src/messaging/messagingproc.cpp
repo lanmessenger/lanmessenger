@@ -2,9 +2,11 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "core/trace.h"
+#include "core/stdlocation.h"
 #include "messaging.h"
 #include "message.h"
 #include "network/network.h"
+#include <QDir>
 
 //	A broadcast is to be sent
 void lmcMessaging::sendBroadcast(MessageType type, XmlMessage* pMessage) {

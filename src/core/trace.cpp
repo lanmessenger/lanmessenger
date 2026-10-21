@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDir>
+#include "core/definitions.h"
+#include "core/stdlocation.h"
 #include "trace.h"
 
 bool lmcTrace::traceMode;

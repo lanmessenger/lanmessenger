@@ -2,7 +2,9 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include <QMenu>
+#include <QWidget>
 #include "imagepickeraction.h"
+#include "imagepicker.h"
 
 lmcImagePickerAction::lmcImagePickerAction(QObject* parent, const QString source[], int sourceCount, int picSize, int columns, int* selected)
     : QWidgetAction(parent) {

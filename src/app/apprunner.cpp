@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QSslSocket>
+#include <QDir>
 #include <cstdio>
 
 //	Define a unique application id. This is a combination of two GUIDs

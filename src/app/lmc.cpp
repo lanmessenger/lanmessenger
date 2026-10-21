@@ -9,6 +9,7 @@
 #include <QTranslator>
 #include <QTimer>
 #include <QSysInfo>
+#include <QFile>
 #include "core/trace.h"
 #include "core/shared.h"
 #include "core/settings.h"

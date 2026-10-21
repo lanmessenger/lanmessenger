@@ -3,9 +3,11 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-#include <QWidget>
 #include <QWidgetAction>
-#include "imagepicker.h"
+#include <QList>
+#include <QString>
+
+class QWidget;
 
 class lmcImagePickerAction : public QWidgetAction {
 public:

@@ -3,11 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
-#include <QFile>
-#include <QTextStream>
-#include <QDateTime>
-#include <QDir>
-#include "stdlocation.h"
+#include <QString>
 
 class lmcTrace {
 public:

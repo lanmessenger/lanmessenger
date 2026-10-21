@@ -2,9 +2,12 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "core/trace.h"
+#include "core/stdlocation.h"
 #include "messaging.h"
 #include "network/network.h"
 #include <QDirIterator>
+#include <QDir>
+#include <QFileInfo>
 
 void lmcMessaging::receiveProgress(QString* lpszUserId, QString* lpszData) {
   XmlMessage xmlMessage(*lpszData);
