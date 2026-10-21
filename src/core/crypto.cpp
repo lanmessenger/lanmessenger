@@ -2,6 +2,7 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "trace.h"
+#include "lmccategories.h"
 #include "crypto.h"
 
 lmcCrypto::lmcCrypto(void) {
@@ -98,7 +99,7 @@ QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
   int outLen = clearData.length() + AES_BLOCK_SIZE;
   unsigned char* outBuffer = (unsigned char*)malloc(outLen);
   if(outBuffer == NULL) {
-    lmcTrace::write("Error: Buffer not allocated");
+    qCCritical(lmcCoreLog(), "Buffer not allocated");
     return QByteArray();
   }
   int foutLen = 0;
@@ -114,7 +115,7 @@ QByteArray lmcCrypto::encrypt(QString* lpszUserId, QByteArray& clearData) {
       }
     }
   }
-  lmcTrace::write("Error: Message encryption failed");
+  qCCritical(lmcCoreLog(), "Message encryption failed");
   return QByteArray();
 }
 
@@ -122,7 +123,7 @@ QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
   int outLen = cipherData.length();
   unsigned char* outBuffer = (unsigned char*)malloc(outLen);
   if(outBuffer == NULL) {
-    lmcTrace::write("Error: Buffer not allocated");
+    qCCritical(lmcCoreLog(), "Buffer not allocated");
     return QByteArray();
   }
   int foutLen = 0;
@@ -138,6 +139,6 @@ QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
       }
     }
   }
-  lmcTrace::write("Error: Message decryption failed");
+  qCCritical(lmcCoreLog(), "Message decryption failed");
   return QByteArray();
 }

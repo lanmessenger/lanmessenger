@@ -2,6 +2,7 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include "core/trace.h"
+#include "core/lmccategories.h"
 #include "core/stdlocation.h"
 #include "messaging.h"
 #include "network/network.h"
@@ -63,7 +64,8 @@ void lmcMessaging::prepareFile(MessageType type, qint64 msgId, bool retry, QStri
   User* user = getUser(lpszUserId);
   QString szMessage;
 
-  lmcTrace::write("Sending file message type " + QString::number(fileOp) + " to user " + *lpszUserId + ", Mode: " + QString::number(fileMode));
+  qCDebug(lmcFile(), "Sending file message type %d to user %s, Mode: %d", fileOp,
+          qPrintable(*lpszUserId), fileMode);
 
   switch(fileOp) {
   case FO_Request:
@@ -100,7 +102,8 @@ void lmcMessaging::prepareFolder(MessageType type, qint64 msgId, bool retry, QSt
   int folderOp = Helper::indexOf(FileOpNames, FO_Max, pMessage->data(XN_FILEOP));
   int folderMode = Helper::indexOf(FileModeNames, FM_Max, pMessage->data(XN_MODE));
 
-  lmcTrace::write("Sending folder message type " + QString::number(folderOp) + " to user " + *lpszUserId + ", Mode: " + QString::number(folderMode));
+  qCDebug(lmcFile(), "Sending folder message type %d to user %s, Mode: %d", folderOp,
+          qPrintable(*lpszUserId), folderMode);
 
   switch(folderOp) {
   case FO_Request:
@@ -134,8 +137,8 @@ void lmcMessaging::processFile(MessageHeader* pHeader, XmlMessage* pMessage) {
   pMessage->removeData(XN_MODE);
   pMessage->addData(XN_MODE, FileModeNames[fileMode]);
 
-  lmcTrace::write("Processing file message type " + QString::number(fileOp) + " from user " +
-                  pHeader->userId + ", Mode: " + QString::number(fileMode));
+  qCDebug(lmcFile(), "Processing file message type %d from user %s, Mode: %d", fileOp,
+          qPrintable(pHeader->userId), fileMode);
 
   switch(fileOp) {
   case FO_Request:
@@ -177,8 +180,8 @@ void lmcMessaging::processFolder(MessageHeader* pHeader, XmlMessage* pMessage) {
   pMessage->removeData(XN_MODE);
   pMessage->addData(XN_MODE, FileModeNames[fileMode]);
 
-  lmcTrace::write("Processing folder message type " + QString::number(fileOp) + " from user " +
-                  pHeader->userId + ", Mode: " + QString::number(fileMode));
+  qCDebug(lmcFile(), "Processing folder message type %d from user %s, Mode: %d", fileOp,
+          qPrintable(pHeader->userId), fileMode);
 
   switch(fileOp) {
   case FO_Request:

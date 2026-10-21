@@ -7,6 +7,7 @@
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "core/trace.h"
+#include "core/lmccategories.h"
 
 lmcMessaging::lmcMessaging(void) {
   pNetwork = new lmcNetwork();
@@ -32,7 +33,7 @@ lmcMessaging::~lmcMessaging(void) {
 }
 
 void lmcMessaging::init(XmlMessage* pInitParams) {
-  lmcTrace::write("Messaging initialized");
+  qCInfo(lmcMsg(), "Messaging initialized");
 
   pNetwork->init(pInitParams);
 
@@ -70,7 +71,7 @@ void lmcMessaging::init(XmlMessage* pInitParams) {
 }
 
 void lmcMessaging::start(void) {
-  lmcTrace::write("Messaging started");
+  qCInfo(lmcMsg(), "Messaging started");
   pNetwork->start();
 
   sendBroadcast(MT_Depart, NULL);
@@ -78,7 +79,7 @@ void lmcMessaging::start(void) {
 }
 
 void lmcMessaging::update(void) {
-  lmcTrace::write("Refreshing contacts list...");
+  qCDebug(lmcMsg(), "Refreshing contacts list...");
   sendBroadcast(MT_Announce, NULL);
 
   for(int index = 0; index < userList.count(); index++)
@@ -94,7 +95,7 @@ void lmcMessaging::stop(void) {
 
   saveGroups();
 
-  lmcTrace::write("Messaging stopped");
+  qCInfo(lmcMsg(), "Messaging stopped");
 }
 
 bool lmcMessaging::isConnected(void) {
@@ -311,7 +312,8 @@ bool lmcMessaging::addUser(QString szUserId, QString szVersion, QString szAddres
     if(userList[index].id.compare(szUserId) == 0)
       return false;
 
-  lmcTrace::write("Adding new user: " + szUserId + ", " + szVersion + ", " + szAddress);
+  qCInfo(lmcMsg(), "Adding new user: %s, %s, %s", qPrintable(szUserId), qPrintable(szVersion),
+         qPrintable(szAddress));
 
   if(!userGroupMap.contains(szUserId) || !groupList.contains(Group(userGroupMap.value(szUserId))))
     userGroupMap.insert(szUserId, GRP_DEFAULT_ID);
