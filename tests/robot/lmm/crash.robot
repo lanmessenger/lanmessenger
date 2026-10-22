@@ -11,7 +11,7 @@ Suite Teardown    Run Keyword And Ignore Error    Terminate Process    lmmd
 
 *** Variables ***
 ${LMM_PORT}       17774
-${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-crash
+${PEER_HOME}      ${TEMPDIR}${/}e2e-lmmd-crash
 
 
 *** Keywords ***

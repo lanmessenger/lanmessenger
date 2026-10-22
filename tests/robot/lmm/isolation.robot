@@ -12,7 +12,7 @@ Suite Teardown    Stop Mock Stand
 
 *** Variables ***
 ${LMM_PORT}       17775
-${PEER_HOME}      ${OUTPUT_DIR}/lmmd-home-isolation
+${PEER_HOME}      ${TEMPDIR}${/}e2e-lmmd-isolation
 
 
 *** Keywords ***

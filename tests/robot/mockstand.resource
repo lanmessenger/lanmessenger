@@ -25,7 +25,15 @@ Start Mock Stand
     ...    connect to it. Peers, cross-visibility and the event cursor are
     ...    the caller's job: each suite needs its own peer set, and Reset
     ...    Event Cursor only makes sense after the setup chatter.
+    ...    ${home} must live under ${TEMPDIR}, never under ${OUTPUT_DIR}:
+    ...    the workers store received files below their HOME (Documents /
+    ...    Received Files), and everything under OUTPUT_DIR is uploaded as
+    ...    CI artifacts — a home under OUTPUT_DIR leaks test payloads
+    ...    (e.g. the files.robot bins, up to 32MB) into robot-results-*.
+    ...    The dir is wiped on start: full and --rerunfailed runs share
+    ...    TEMPDIR, so a stale peer dir must not survive into the retry.
     [Arguments]    ${port}    ${home}
+    Run Keyword And Ignore Error    Remove Directory    ${home}    recursive=True
     Create Directory    ${home}
     # TCP loopback, one address namespace on every OS: no socket files,
     # no per-OS path resolution, nothing to clean up after a crash.

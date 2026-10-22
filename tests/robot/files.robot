@@ -38,7 +38,7 @@ Start File Stand
     [Documentation]    Daemon + real app up, mock added, cross-visibility
     ...    confirmed on the mock side, event cursor reset for delivery.
     Seed App Config    ${APP_NAME}
-    Start Mock Stand    ${LMM_PORT}    ${OUTPUT_DIR}/lmmd-home
+    Start Mock Stand    ${LMM_PORT}    ${TEMPDIR}${/}e2e-lmmd-${LMM_PORT}
     Launch LMC
     Add Peer    ${MOCK}
     Wait For Contact Ready    ${MOCK}    ${APP_NAME}    timeout=30s
