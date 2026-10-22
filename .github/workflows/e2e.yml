@@ -4,7 +4,10 @@
 # headers). Skipped only when the caller already built them (skip-build).
 #
 # Legs: linux-x64, windows-x64, macos-arm64, macos-x64. Every leg runs the
-# same full suite (lmc scenarios plus the lmm/ self-checks).
+# same full suite (lmc scenarios plus the lmm/ self-checks), screenshots.robot
+# included on all 4 legs: whole-desktop shots land in robot-results-<leg>
+# (Linux raw .xwd without conversion in v1, Win/Mac PNG), widget shots ride
+# along as control duplicates. No autocommit to site/ in v1.
 #
 # Flake policy: every leg runs the suite once, then --rerunfailed exactly
 # once, then rebot --merge. A real breakage stays red after the retry; a
@@ -112,6 +115,8 @@ jobs:
       # System Qt 6.2, like the test layout was built against (oldest
       # baseline); no install-qt-action here on purpose. Runtime subset of
       # the build env: no compilers, no cmake.
+      # x11-apps = xwd for the screenshots desktop capture (xwd lives in
+      # x11-apps, NOT in x11-utils).
       - name: Install runtime dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -122,7 +127,7 @@ jobs:
             qt6-translations-l10n \
             qt6-multimedia-dev \
             libssl-dev \
-            xvfb xauth x11-utils \
+            xvfb xauth x11-utils x11-apps \
             python3-pip python3-venv
 
       - name: Download test layout (Linux)
@@ -269,6 +274,27 @@ jobs:
             xdpyinfo -display :99 >/dev/null 2>&1 && break || sleep 1
           done
           xdpyinfo -display :99 >/dev/null
+
+      # Screenshots reference frame: bare Xvfb, no WM (deterministic
+      # placement comes from the agent set_geometry, not decorations).
+      - name: Log display resolution (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          xdpyinfo -display :99 | grep -E 'dimensions|resolution' || true
+          xwd -display :99 -root -out /tmp/res-probe.xwd && ls -l /tmp/res-probe.xwd && rm -f /tmp/res-probe.xwd || true
+
+      - name: Log display resolution (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Windows.Forms
+          [System.Windows.Forms.Screen]::AllScreens | Select-Object DeviceName, Primary, Bounds | Format-Table -AutoSize | Out-String -Width 200
+
+      - name: Log display resolution (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          system_profiler SPDisplaysDataType | head -60 || true
 
       # ---- Full suite + one flake-absorbing retry + merge ----
       - name: Run full suite (Linux)

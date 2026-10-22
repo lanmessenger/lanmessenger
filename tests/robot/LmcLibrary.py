@@ -234,6 +234,27 @@ class LmcLibrary:
                     % (locator, json.dumps(res, ensure_ascii=False)))
         return res
 
+    @keyword("Place Window")
+    def place_window(self, locator, x, y, width, height):
+        """Deterministically place a top-level window (``set_geometry``):
+        ``setGeometry + raise + activateWindow``, synchronous in the GUI
+        thread. The window must be visible (place after show). Child
+        locators resolve to their window. Used by the screenshots suite to
+        pin Main/Chat under bare Xvfb (no WM); the v1 layout for 1280x1024
+        lives in that suite's Variables. Returns the applied geometry dict
+        (x, y, width, height).
+        """
+        res = self._request("set_geometry", {
+            "locator": locator,
+            "x": int(x),
+            "y": int(y),
+            "width": int(width),
+            "height": int(height),
+        })
+        logger.info("place_window %s -> %s"
+                    % (locator, json.dumps(res, ensure_ascii=False)))
+        return res
+
     @keyword("Type Text")
     def type_text(self, locator, text, send=True):
         """Set text on a ``QTextEdit``/``QPlainTextEdit``/``QLineEdit``

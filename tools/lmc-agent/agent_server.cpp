@@ -40,6 +40,31 @@ double timeoutParam(const QJsonObject& params) {
   return kDefaultTimeoutSecs;
 }
 
+// One geometry int for set_geometry: presence checked first (toInt(-1)
+// conflates "missing" with an explicit negative), then the range.
+// `alias` is the compact form (`w`/`h`); empty when there is none.
+bool geometryParam(const QJsonObject& params, const QString& name,
+                   const QString& alias, int minimum, int* out,
+                   QString* error) {
+  int value = -1;
+  if(params.contains(name))
+    value = params.value(name).toInt(-1);
+  else if(!alias.isEmpty() && params.contains(alias))
+    value = params.value(alias).toInt(-1);
+  else {
+    if(error)
+      *error = QStringLiteral("missing %1").arg(name);
+    return false;
+  }
+  if(value < minimum) {
+    if(error)
+      *error = QStringLiteral("%1 must be >= %2").arg(name).arg(minimum);
+    return false;
+  }
+  *out = value;
+  return true;
+}
+
 QJsonObject errorReply(const QJsonValue& id, const QString& error) {
   QJsonObject reply;
   reply[QStringLiteral("id")] = id;
@@ -252,6 +277,25 @@ private:
                       &closed, &error))
         return errorReply(id, error);
       return okReply(id, closed);
+    }
+    if(cmd == QStringLiteral("set_geometry")) {
+      const QString locator = params.value(QStringLiteral("locator")).toString();
+      if(locator.isEmpty())
+        return errorReply(id, QStringLiteral("set_geometry: missing locator"));
+      int x = 0, y = 0, width = 0, height = 0;
+      QString error;
+      if(!geometryParam(params, QStringLiteral("x"), QString(), 0, &x, &error) ||
+         !geometryParam(params, QStringLiteral("y"), QString(), 0, &y, &error) ||
+         !geometryParam(params, QStringLiteral("width"), QStringLiteral("w"),
+                        1, &width, &error) ||
+         !geometryParam(params, QStringLiteral("height"),
+                        QStringLiteral("h"), 1, &height, &error))
+        return errorReply(id, QStringLiteral("set_geometry: %1").arg(error));
+      QJsonObject placed;
+      if(!setGeometry(parseLocator(locator), x, y, width, height, &placed,
+                      &error))
+        return errorReply(id, error);
+      return okReply(id, placed);
     }
     if(cmd == QStringLiteral("dump_tree")) {
       QJsonObject result;

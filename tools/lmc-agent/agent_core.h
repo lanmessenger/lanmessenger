@@ -87,6 +87,14 @@ bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
 bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
                  QString* error);
 
+// Deterministic window placement for E2E screenshots: setGeometry +
+// raise + activateWindow on the top-level window matching the locator
+// (a child locator resolves to QWidget::window()), synchronous in the
+// GUI thread (no nested loop, no WM needed: bare Xvfb is enough).
+// Returns the applied geometry (x, y, width, height) plus identity.
+bool setGeometry(const QJsonObject& criteria, int x, int y, int width,
+                 int height, QJsonObject* placed, QString* error);
+
 // Blocking wait helpers (bounded local event loop, GUI thread).
 // wait_for_gone reports the stuck object on timeout (class/title/visible
 // plus sameWindow vs the object seen at entry), so a flaky close can be

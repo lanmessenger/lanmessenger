@@ -460,6 +460,48 @@ bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
   return true;
 }
 
+bool setGeometry(const QJsonObject& criteria, int x, int y, int width,
+                 int height, QJsonObject* placed, QString* error) {
+  QWidget* match = findWidget(criteria);
+  if(!match) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  if(width <= 0 || height <= 0) {
+    if(error)
+      *error = QStringLiteral("width and height must be positive");
+    return false;
+  }
+  // Resolve to the top-level: geometry of a child is managed by layouts.
+  QWidget* window = match->isWindow() ? match : match->window();
+  if(!window->isVisible()) {
+    if(error)
+      *error = QStringLiteral("window not visible (place after it is shown): %1")
+                 .arg(window->objectName());
+    return false;
+  }
+  // Synchronous: runs in the GUI thread already, no nested loop needed.
+  // No window manager on Linux CI (bare Xvfb), so plain setGeometry is
+  // the deterministic primitive; raise + activateWindow order the two
+  // screenshot windows without decorations.
+  window->setGeometry(x, y, width, height);
+  window->raise();
+  window->activateWindow();
+  if(placed) {
+    (*placed)[QStringLiteral("objectName")] = window->objectName();
+    (*placed)[QStringLiteral("class")] =
+      QString::fromLatin1(window->metaObject()->className());
+    (*placed)[QStringLiteral("title")] = window->windowTitle();
+    const QRect g = window->geometry();
+    (*placed)[QStringLiteral("x")] = g.x();
+    (*placed)[QStringLiteral("y")] = g.y();
+    (*placed)[QStringLiteral("width")] = g.width();
+    (*placed)[QStringLiteral("height")] = g.height();
+  }
+  return true;
+}
+
 bool keyFromName(const QString& name, int* key, QString* error) {
   // Small table on purpose: only keys E2E drives (chat send, dialog
   // Tab-chains, Escape closes). No printable characters — text entry

@@ -244,6 +244,91 @@ Close All Chats
     END
     Wait For Object To Disappear    name=ChatWindow    timeout=10
 
+Capture Desktop Screenshot
+    [Documentation]    Whole-desktop capture into OUTPUT_DIR, per OS:
+    ...    Linux — `xwd -display :99 -root -out screenshot-desktop-linux.xwd`
+    ...    (raw dump, no conversion in v1); Windows — PowerShell
+    ...    CopyFromScreen into screenshot-desktop-win.png (stdlib .NET, no
+    ...    Pillow); macOS — `screencapture -x -m` into
+    ...    screenshot-desktop-mac.png, fallback to two widget Grabs when
+    ...    no frame lands (missing Screen Recording permission).
+    ...    Dispatch by `platform.system()`; returns the desktop file path
+    ...    (the macOS no-frame fallback returns the chat widget shot and
+    ...    logs DESKTOP FALLBACK USED). Widget shots (`Grab Screenshot`)
+    ...    stay as control duplicates — the caller takes them separately.
+    ${os}=    Evaluate    platform.system()    modules=platform
+    Log    DESKTOP CAPTURE OS: ${os}
+    IF    '${os}' == 'Linux'
+        ${file}=    Capture Desktop Screenshot On Linux
+    ELSE IF    '${os}' == 'Windows'
+        ${file}=    Capture Desktop Screenshot On Windows
+    ELSE IF    '${os}' == 'Darwin'
+        ${file}=    Capture Desktop Screenshot On Mac
+    ELSE
+        Fail    Unsupported OS for desktop capture: ${os}
+    END
+    RETURN    ${file}
+
+Capture Desktop Screenshot On Linux
+    [Documentation]    Worker, see Capture Desktop Screenshot. Raw xwd dump,
+    ...    no conversion in v1 (x11-apps provides xwd on the leg).
+    ...    DISPLAY defaults to :99 (CI Xvfb, e2e.yml), overridable from env.
+    ${display}=    Get Environment Variable    DISPLAY    :99
+    ${file}=    Set Variable    ${OUTPUT_DIR}${/}screenshot-desktop-linux.xwd
+    ${res}=    Run Process    xwd    -display    ${display}    -root    -out    ${file}    timeout=30s
+    Log    XWD EXIT: rc=${res.rc} stdout=${res.stdout} stderr=${res.stderr}
+    Should Be Equal As Integers    ${res.rc}    0    xwd failed on ${display}
+    File Should Exist    ${file}
+    ${size}=    Get File Size    ${file}
+    Log    DESKTOP CAPTURE: ${file} (${size} bytes, display=${display})
+    RETURN    ${file}
+
+Capture Desktop Screenshot On Windows
+    [Documentation]    Worker, see Capture Desktop Screenshot. Native
+    ...    PowerShell + System.Drawing CopyFromScreen (helper script
+    ...    capture-desktop-win.ps1 next to this file): no Pillow needed
+    ...    (windows-2022 carries .NET Framework). Primary screen only.
+    ${file}=    Set Variable    ${OUTPUT_DIR}${/}screenshot-desktop-win.png
+    ${res}=    Run Process    powershell    -NoProfile    -ExecutionPolicy    Bypass
+    ...    -File    ${CURDIR}${/}capture-desktop-win.ps1    -OutPath    ${file}    timeout=60s
+    Log    POWERSHELL CAPTURE EXIT: rc=${res.rc} stdout=${res.stdout} stderr=${res.stderr}
+    Should Be Equal As Integers    ${res.rc}    0    PowerShell desktop capture failed
+    File Should Exist    ${file}
+    ${size}=    Get File Size    ${file}
+    Log    DESKTOP CAPTURE: ${file} (${size} bytes)
+    RETURN    ${file}
+
+Capture Desktop Screenshot On Mac
+    [Documentation]    Worker, see Capture Desktop Screenshot. `screencapture
+    ...    -x -m`: silent, no shadow. Retina 2x stays as is in v1 (normalize
+    ...    via `sips -Z` is out of scope). A missing frame (no Screen
+    ...    Recording permission) falls back to two widget Grabs so the
+    ...    suite still leaves evidence; sizes are always logged, small
+    ...    frames are NOT second-guessed (a black desktop in artifacts is
+    ...    self-evident on manual review).
+    ${file}=    Set Variable    ${OUTPUT_DIR}${/}screenshot-desktop-mac.png
+    ${res}=    Run Process    screencapture    -x    -m    ${file}    timeout=60s
+    Log    SCREENCAPTURE EXIT: rc=${res.rc} stdout=${res.stdout} stderr=${res.stderr}
+    ${exists}=    Run Keyword And Return Status    File Should Exist    ${file}
+    IF    not ${exists}
+        Log    DESKTOP FALLBACK USED: screencapture produced no file    WARN
+        ${fb}=    Grab Mac Fallback Shots
+        RETURN    ${fb}
+    END
+    ${size}=    Get File Size    ${file}
+    Log    DESKTOP CAPTURE: ${file} (${size} bytes)
+    RETURN    ${file}
+
+Grab Mac Fallback Shots
+    [Documentation]    Shared widget-shot fallback (see Capture Desktop
+    ...    Screenshot On Mac): Main + Chat grabs under fixed names, so the
+    ...    suite still leaves evidence with no desktop frame. Returns the
+    ...    chat shot path.
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}screenshot-desktop-mac-fallback-main.png    locator=name=MainWindow visible=true
+    ${fb}=    Set Variable    ${OUTPUT_DIR}${/}screenshot-desktop-mac-fallback-chat.png
+    Grab Screenshot    output_file=${fb}    locator=name=ChatWindow visible=true
+    RETURN    ${fb}
+
 Open Self Chat
     [Documentation]    Open a conversation with the loopback self-peer
     ...    (${SELF_PEER}) through the agent: the same chatStarting path as
