@@ -5,15 +5,17 @@ description: First launch on a Mac, the Gatekeeper warning, and why it appears.
 
 Download the DMG matching your Mac: `lmc_<version>_arm64.dmg` for Apple
 Silicon (M-series) or `lmc_<version>_x86_64.dmg` for Intel. Open the DMG
-and drag `LAN-Messenger.app` to `/Applications`.
+and drag `LAN-Messenger.app` to `/Applications`. In Finder, Launchpad,
+and Spotlight the app appears as LAN Messenger (the bundle file keeps
+the hyphen).
 
 ## First launch is blocked
 
 On the first launch macOS may refuse to open the app with one of these:
 
-- "LAN-Messenger can't be opened because Apple cannot check it for
+- "LAN Messenger can't be opened because Apple cannot check it for
   malicious software."
-- "LAN-Messenger is damaged and can't be opened."
+- "LAN Messenger is damaged and can't be opened."
 
 This is Gatekeeper, not a broken download. The app is ad-hoc signed and
 not notarized, so macOS cannot verify the developer identity and errs on

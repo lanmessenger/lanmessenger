@@ -12,7 +12,10 @@ configuring.
 
 The build is driven by CMake. The `package-local` target stages
 `LAN-Messenger.app` into the `LMC_RELEASE_DIR` directory (defaults to
-`<build-dir>/release`; use `release` for the packaging scripts):
+`<build-dir>/release`; use `release` for the packaging scripts). The
+bundle file and the executable keep the hyphen; in Finder, Launchpad,
+and Spotlight the app appears as LAN Messenger (via `CFBundleDisplayName`,
+see `setup/mac/Info.plist.in`):
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
@@ -39,7 +42,7 @@ background picture, icon size 72) and the user license agreement, as
 declared in `dmg-settings.py`:
 
 ```bash
-dmgbuild -s dmg-settings.py "LAN-Messenger" "../lmc_<version>_<arch>.dmg"
+dmgbuild -s dmg-settings.py "LAN Messenger" "../lmc_<version>_<arch>.dmg"
 ```
 
 `<arch>` is `x86_64` or `arm64`; remove a previous image first with

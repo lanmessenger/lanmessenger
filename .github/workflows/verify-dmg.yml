@@ -85,6 +85,7 @@ jobs:
             || { echo 'missing Frameworks LC_RPATH in main binary' >&2; exit 1; }
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")" = "LAN Messenger"
           exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")"
           test "$exe" = "LAN-Messenger"
           test -x "$app/Contents/MacOS/$exe"

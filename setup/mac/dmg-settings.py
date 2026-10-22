@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""dmgbuild settings for the LAN-Messenger macOS disk image.
+"""dmgbuild settings for the LAN Messenger macOS disk image.
 
 Builds the distributable dmg in one step: app bundle, Applications
 symlink, Finder window layout (icon positions, background picture)
@@ -10,7 +10,7 @@ Finder, so the detach/convert flake class of the old
 createdisk+addlicense scripts cannot occur here.
 
 Usage (from setup/mac, after stage-mac-app prepared the bundle):
-    dmgbuild -s dmg-settings.py "LAN-Messenger" "../lmc_<ver>_<arch>.dmg"
+    dmgbuild -s dmg-settings.py "LAN Messenger" "../lmc_<ver>_<arch>.dmg"
 """
 import os
 
@@ -19,10 +19,12 @@ import os
 # Must be run from setup/mac, as documented above and in CI.
 MACDIR = os.getcwd()
 
-volume_name = 'LAN-Messenger'
+volume_name = 'LAN Messenger'
 format = 'UDBZ'
 filesystem = 'HFS+'
 
+# Bundle file keeps the hyphen (LAN-Messenger.app); the volume and the
+# Finder/Launchpad display name use the space ("LAN Messenger").
 files = [os.path.join(MACDIR, 'LAN-Messenger.app')]
 symlinks = {'Applications': '/Applications'}
 

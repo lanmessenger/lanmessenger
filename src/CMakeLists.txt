@@ -201,11 +201,16 @@ elseif(APPLE)
     if(NOT LMC_MACOS_BUNDLE_VERSION MATCHES "^[0-9]+(\\.[0-9]+)*$")
         set(LMC_MACOS_BUNDLE_VERSION "${LMC_MACOS_SHORT_VERSION}")
     endif()
+    # File names stay LAN-Messenger (bundle dir, executable); CFBundleName
+    # is the short name. What the user sees in Finder/Launchpad/Spotlight
+    # is CFBundleDisplayName (see setup/mac/Info.plist.in).
+    set(LMC_MACOS_DISPLAY_NAME "LAN Messenger")
     set_target_properties(lmc PROPERTIES
         OUTPUT_NAME "LAN-Messenger"
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE lmc.icns
         MACOSX_BUNDLE_BUNDLE_NAME "LAN-Messenger"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../setup/mac/Info.plist.in"
         MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.lanmessenger.lmc"
         MACOSX_BUNDLE_BUNDLE_VERSION "${LMC_MACOS_BUNDLE_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${LMC_MACOS_SHORT_VERSION}"
