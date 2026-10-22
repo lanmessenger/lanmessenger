@@ -46,6 +46,12 @@ Launch LMC
     ...    QTest uses qWaitForWindowExposed for the same reason).
     ...    Assumes Display/SslFixture/UserScope and LD_LIBRARY_PATH arrive
     ...    through the environment (robot never exports them itself).
+    ...    ${config_file}: optional ini from Seed App Config, passed as
+    ...    /config= (the app imports User/Name from it too). Without it the
+    ...    name comes from the OS-default store — on Windows that is the
+    ...    %APPDATA% seed, NOT the scratch %{HOME} — so mock-stand suites
+    ...    that need a chosen name must pass it.
+    [Arguments]    ${config_file}=${NONE}
     # Split, not a single argument: the app parses /silent and /loopback
     # as separate argv entries, and shell=False passes them through
     # verbatim.
@@ -57,6 +63,10 @@ Launch LMC
     # /trace explicitly: prod default is off on all OS, tests opt in.
     @{app_args}=    Evaluate
     ...    $app_args + ([] if any(a.lower() == '/trace' for a in $app_args) else ['/trace'])
+    IF    $config_file is not None
+        File Should Exist    ${config_file}    /config= target missing: Seed App Config first
+        @{app_args}=    Evaluate    $app_args + ['/config=' + $config_file]
+    END
     Start Process    ${APP_PATH}    @{app_args}    alias=app
     ...    stdout=${OUTPUT_DIR}${/}lmc-app-${SUITE NAME}.log    stderr=STDOUT
     Connect To Test Agent    ${AGENT_PORT}    timeout=30s
@@ -181,7 +191,10 @@ Seed App Config
     ...    step; never pass /noconfig here, it deletes this file. Needed
     ...    by suites that launch the app themselves (mock-peer stands);
     ...    the plain loopback suites rely on the pre-seeded HOME instead.
+    ...    Returns the ini path: pass it to Launch LMC so the app imports
+    ...    it via /config= (name included) instead of the OS-default store.
     [Arguments]    ${name}
+    ${path}=    Set Variable    %{HOME}/.config/lmc/lmc.ini
     Create Directory    %{HOME}/.config/lmc
     ${ini}=    Catenate    SEPARATOR=\n
     ...    [General]
@@ -192,7 +205,8 @@ Seed App Config
     ...    ${EMPTY}
     ...    [User]
     ...    Name=${name}
-    Create File    %{HOME}/.config/lmc/lmc.ini    ${ini}\n
+    Create File    ${path}    ${ini}\n
+    RETURN    ${path}
 
 Window Should Be Visible
     [Documentation]    Wait for a top-level window and require it mapped.

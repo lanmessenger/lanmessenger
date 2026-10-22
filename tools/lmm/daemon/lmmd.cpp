@@ -202,7 +202,7 @@ QJsonObject Lmmd::cmdStatus() {
 QJsonObject Lmmd::cmdPeerAdd(const QJsonObject& p, QString* error) {
   const QString name = p.value("name").toString();
   if(!lmmRpc::validName(name)) {
-    *error = "invalid name (1-32 of A-Za-z0-9_.-)";
+    *error = "invalid name (1-32 chars of A-Za-z0-9_. -; single internal spaces)";
     return {};
   }
   if(peers_.contains(name)) {

@@ -17,10 +17,13 @@
 
 namespace lmmRpc {
 
-// Peer handle rule, shared by supervisor and worker.
+// Peer handle rule, shared by supervisor and worker. Spaces are allowed
+// between name parts (contact list shows "James Smith", not
+// "James_Smith"): single internal spaces only, no leading/trailing ones,
+// total length capped at 32.
 inline bool validName(const QString& name) {
-  static const QRegularExpression re("^[A-Za-z0-9_.-]{1,32}$");
-  return re.match(name).hasMatch();
+  static const QRegularExpression re("^[A-Za-z0-9_.-]+( [A-Za-z0-9_.-]+)*$");
+  return name.size() <= 32 && re.match(name).hasMatch();
 }
 
 inline QJsonObject makeRequest(const QJsonValue& id, const QString& cmd,

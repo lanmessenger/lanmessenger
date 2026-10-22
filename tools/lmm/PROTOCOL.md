@@ -67,7 +67,7 @@ Malformed lines get `{"id": 0, "ok": false, "error": "invalid json"}`.
 |---|---|---|
 | `status` | — | `{port, peers:[names], uptimeMs, lmcVersion}` (worker daemons add `settingsFile`: the live ini path on that OS, and `pid`: the worker process id, so kill-target checks report instead of parsing platform process tables) |
 | `worker.status` | `{peer}` | the worker's own `status` dict verbatim (port, settingsFile, ...) — test introspection, not user traffic |
-| `peer.add` | `{name, status?}` | `{peer, userId}`. `name`: `1-32` of `A-Za-z0-9_.-`, unique. Starts announce immediately. |
+| `peer.add` | `{name, status?}` | `{peer, userId}`. `name`: `1-32` chars of `A-Za-z0-9_.`, `-`, single internal spaces (`James Smith`), unique. Starts announce immediately. |
 | `peer.list` | — | `{peers: [{peer, userId, displayName, contacts}]}` |
 | `peer.contacts` | `{peer}` | `{peer, contacts: [{userId, name, address, status}]}` |
 | `peer.announce` | `{peer}` | `{peer, announced: true}` (force re-announce) |

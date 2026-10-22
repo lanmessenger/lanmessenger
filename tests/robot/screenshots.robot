@@ -5,14 +5,16 @@ Documentation     Desktop screenshots E2E: the real application against lmmd
 ...               the single-instance socket path is covered by
 ...               second_instance.robot instead.
 ...               Contact list follows site/src/data/mockup-contacts.ts
-...               (all 8 people, same order; handles use underscores —
-...               lmmd peer.add rejects spaces; away/busy mirror the mockup
+...               (all 8 people, same order, names with spaces —
+...               lmmd peer.add accepts single internal spaces;
+...               away/busy mirror the mockup
 ...               where the row stays visible, see Variables).
 ...               The dialog is 5 replicas without emoji and without
 ...               v{version}. Windows are placed
 ...               deterministically via the agent (set_geometry: no WM on
-...               Linux CI, bare Xvfb): v1 layout for 1280x1024 is
-...               Main 0,0 380x700, Chat 390,0 630x700. The dialog markers
+...               Linux CI, bare Xvfb): v2 layout for 1280x1024 spreads Main
+...               (64,96 360x620) and Chat (560,240 600x640) diagonally with
+...               desktop visible around and between them, no overlap. The dialog markers
 ...               (LINE_*) are suite-unique: CI runs the whole tests/robot/
 ...               with one shared HOME, so no other suite may reuse these
 ...               texts (stale chat history would cross-match). The desktop capture
@@ -40,23 +42,26 @@ Test Teardown     Close All Chats
 
 *** Variables ***
 ${LMM_PORT}       17773
+# Free name choice: Seed App Config + /config= (see Launch LMC) imports
+# User/Name on every leg, so the suite is not bound to the CI seed name.
+# Override locally without editing: robot -v APP_NAME:Zoe ...
 ${APP_NAME}       Alice
 # Normal network mode: /loopback would make the app talk to itself
 # instead of discovering the mocks (see messagingproc.cpp self-filter).
 ${APP_ARGS}       /silent
 # Contact list: the 8 people of site/src/data/mockup-contacts.ts, in the
-# same order. Handles use underscores: lmmd peer.add only accepts
-# [A-Za-z0-9_.-]{1,32} (tools/lmm/daemon/rpc.h validName) — the announced
-# name shown in tvUserList IS the handle, so spaces are unreachable
-# without daemon changes. Avatars stay default (mocks have none).
+# same order. Names carry spaces (lmmd peer.add allows single internal
+# spaces — tools/lmm/daemon/rpc.h validName); the announced name shown in
+# tvUserList IS the handle, so the list matches the mockup. Avatars stay
+# default (mocks have none).
 ${PEER_BOB}       Bob
-${PEER_JAMES}     James_Smith
-${PEER_MARIA}     Maria_Garcia
-${PEER_ROBERT}    Robert_Johnson
-${PEER_LINDA}     Linda_Brown
-${PEER_MICHAEL}   Michael_Davis
-${PEER_SARAH}     Sarah_Miller
-${PEER_DAVID}     David_Wilson
+${PEER_JAMES}     James Smith
+${PEER_MARIA}     Maria Garcia
+${PEER_ROBERT}    Robert Johnson
+${PEER_LINDA}     Linda Brown
+${PEER_MICHAEL}   Michael Davis
+${PEER_SARAH}     Sarah Miller
+${PEER_DAVID}     David Wilson
 # Statuses mirror the mockup where the row stays visible: Michael away,
 # Sarah busy (mockup statusIcons). David is offline in the mockup, but an
 # offline-type status ("gone") suppresses MT_Announce to the app layer
@@ -69,24 +74,26 @@ ${LINE_3}         Done. Still chatting.
 ${LINE_4}         File transfer works too.
 ${LINE_5}         Perfect. Ship it!
 # Deterministic placement under 1280x1024 (bare Xvfb, no WM):
-# set_geometry + raise + activateWindow via Place Window.
-${MAIN_X}         0
-${MAIN_Y}         0
-${MAIN_W}         380
-${MAIN_H}         700
-${CHAT_X}         390
-${CHAT_Y}         0
-${CHAT_W}         630
-${CHAT_H}         700
+# set_geometry + raise + activateWindow via Place Window. v2 spreads
+# the windows diagonally — Main upper-left, Chat lower-right — with
+# desktop visible on every side and a gap between them (no overlap).
+${MAIN_X}         64
+${MAIN_Y}         96
+${MAIN_W}         360
+${MAIN_H}         620
+${CHAT_X}         560
+${CHAT_Y}         240
+${CHAT_W}         600
+${CHAT_H}         640
 
 
 *** Keywords ***
 Start Screenshots Stand
     [Documentation]    Daemon + real app up, 8 mocks added, cross-visibility
     ...    confirmed on the mock side, event cursor reset for delivery.
-    Seed App Config    ${APP_NAME}
+    ${ini}=    Seed App Config    ${APP_NAME}
     Start Mock Stand    ${LMM_PORT}    ${TEMPDIR}${/}e2e-lmmd-${LMM_PORT}
-    Launch LMC
+    Launch LMC    ${ini}
     Add Peer    ${PEER_BOB}
     Add Peer    ${PEER_JAMES}
     Add Peer    ${PEER_MARIA}
