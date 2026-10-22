@@ -116,10 +116,10 @@ jobs:
           timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
 
       - name: Build unit tests
-        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner tst_application --parallel
 
       - name: Unit tests
-        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner|application" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -282,10 +282,10 @@ jobs:
           }
 
       - name: Build unit tests
-        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner tst_application --parallel
 
       - name: Unit tests
-        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner|application" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -449,10 +449,10 @@ jobs:
           ls -lh setup/*.dmg || true
 
       - name: Build unit tests
-        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner --parallel
+        run: cmake --build build --config Release --target tst_crypto tst_singleinstance tst_apprunner tst_application --parallel
 
       - name: Unit tests
-        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner" --output-on-failure
+        run: ctest --test-dir build -C Release -R "crypto|singleinstance|apprunner|application" --output-on-failure
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'

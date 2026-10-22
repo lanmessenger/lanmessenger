@@ -8,6 +8,7 @@
 #include <QStringList>
 #include "singleinstance.h"
 class QDir;
+class QEvent;
 class QTranslator;
 
 typedef QHash<QString, QTranslator*> Translators;
@@ -32,6 +33,9 @@ public slots:
 
 Q_SIGNALS:
   void messageReceived(const QString& message);
+
+protected:
+  bool event(QEvent* e) override;
 
 private:
   SingleInstance* single_ = nullptr;

@@ -2,6 +2,7 @@
 // Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
 // Copyright (c) 2026 LAN Messenger.
 #include <QDir>
+#include <QEvent>
 #include <QFileInfo>
 #include <QTranslator>
 #include "application.h"
@@ -24,6 +25,17 @@ Application::~Application() {
 
 bool Application::isRunning() {
   return single_->isRunning();
+}
+
+bool Application::event(QEvent* e) {
+#ifdef Q_OS_MAC
+  // A macOS Dock/Finder reopen spawns no second process: LaunchServices
+  // delivers it in-process as ApplicationActivate. Route it through the same
+  // "raise" path as a second-instance IPC delivery.
+  if(e->type() == QEvent::ApplicationActivate)
+    emit messageReceived(QStringLiteral("raise"));
+#endif
+  return QApplication::event(e);
 }
 
 SingleInstance::StartupOutcome Application::resolveStartup(const QString& remoteCommand,

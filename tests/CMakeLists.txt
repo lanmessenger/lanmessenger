@@ -63,3 +63,22 @@ set_target_properties(tst_apprunner PROPERTIES
 
 add_test(NAME apprunner COMMAND tst_apprunner)
 set_tests_properties(apprunner PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# macOS Dock/Finder reopen: in-process ApplicationActivate -> messageReceived.
+# Owns an Application (QApplication) instance: offscreen like apprunner.
+add_executable(tst_application
+    unit/tst_application.cpp
+)
+
+target_link_libraries(tst_application PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_application PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME application COMMAND tst_application)
+set_tests_properties(application PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
