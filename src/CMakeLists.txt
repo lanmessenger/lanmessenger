@@ -44,7 +44,7 @@ add_library(lmc_core STATIC
     core/soundplayer.cpp
     gui/widgets/subcontrols.cpp
     network/tcpnetwork.cpp
-    core/themev2.cpp
+    core/theme.cpp
     core/lmclogging.cpp
     gui/files/transferlistview.cpp
     gui/files/transferwindow.cpp
@@ -92,7 +92,7 @@ add_library(lmc_core STATIC
     core/stdlocation.h
     gui/widgets/subcontrols.h
     network/tcpnetwork.h
-    core/themev2.h
+    core/theme.h
     core/lmccategories.h
     core/lmclogging.h
     gui/files/transferlistview.h

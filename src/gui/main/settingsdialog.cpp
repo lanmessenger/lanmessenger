@@ -443,7 +443,7 @@ void lmcSettingsDialog::populateThemes(void) {
   //  Re-reads the theme dirs: a new/edited theme.json shows up without restart.
   ui.cboTheme->blockSignals(true);
   ui.cboTheme->clear();
-  for(const QString& name : ThemeV2::availableThemes())
+  for(const QString& name : Theme::availableThemes())
     ui.cboTheme->addItem(name, name);
   QString saved = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
   int index = ui.cboTheme->findData(saved);

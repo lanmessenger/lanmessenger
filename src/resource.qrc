@@ -163,7 +163,7 @@
         <file alias="en_US.qm">resources/lang/en_US.qm</file>
     </qresource>
     <qresource prefix="/themes">
-        <file alias="BubbleV2/theme.json">resources/themes/BubbleV2/theme.json</file>
+        <file alias="Bubble/theme.json">resources/themes/Bubble/theme.json</file>
         <file alias="ClassicSlate/theme.json">resources/themes/ClassicSlate/theme.json</file>
         <file alias="MeshBlue/theme.json">resources/themes/MeshBlue/theme.json</file>
         <file alias="NordicTerminal/theme.json">resources/themes/NordicTerminal/theme.json</file>

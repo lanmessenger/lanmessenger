@@ -123,7 +123,7 @@
 #define IDS_FILESTORAGEPATH "FileTransfer/StoragePath"
 #define IDS_FILESTORAGEPATH_VAL ""
 #define IDS_THEME "Appearance/Theme"
-#define IDS_THEME_VAL "BubbleV2"
+#define IDS_THEME_VAL "Bubble"
 #define IDS_APPEARANCE_MODE "Appearance/Mode"
 #define IDS_APPEARANCE_MODE_VAL "system"
 #define IDS_USERLISTVIEW "Appearance/UserListView"

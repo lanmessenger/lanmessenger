@@ -52,13 +52,13 @@ BubbleDelegate::BubbleDelegate(QObject* parent)
     : QStyledItemDelegate(parent) {
 }
 
-void BubbleDelegate::setTheme(const ThemeV2& newTheme) {
+void BubbleDelegate::setTheme(const Theme& newTheme) {
   theme = newTheme;
   themeRev++;
   invalidateCache();
 }
 
-void BubbleDelegate::setMode(ThemeV2::Mode newMode, bool newSystemDark) {
+void BubbleDelegate::setMode(Theme::Mode newMode, bool newSystemDark) {
   mode = newMode;
   systemDark = newSystemDark;
   themeRev++;
@@ -102,7 +102,7 @@ QString BubbleDelegate::cardFor(const QModelIndex& index) const {
 QColor BubbleDelegate::cardColor(const QString& cardName, bool bg2, bool darkMode) const {
   if(!theme.cards.contains(cardName))
     return darkMode ? QColor(QStringLiteral("#262D36")) : QColor(Qt::white);
-  const ThemeV2::Card& card = theme.cards.value(cardName);
+  const Theme::Card& card = theme.cards.value(cardName);
   QString ref = bg2 ? (card.bg2.isEmpty() ? card.bg : card.bg2) : card.bg;
   QColor c = theme.resolve(ref, mode, systemDark);
   if(!c.isValid())
@@ -482,7 +482,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   grad.setColorAt(0, bg);
   grad.setColorAt(1, bg2.isValid() ? bg2 : bg);
   painter->setBrush(grad);
-  const ThemeV2::Card& cardDef = theme.cards.value(card);
+  const Theme::Card& cardDef = theme.cards.value(card);
   if(!cardDef.border.isEmpty()) {
     painter->setPen(theme.resolve(cardDef.border, mode, systemDark));
   } else {

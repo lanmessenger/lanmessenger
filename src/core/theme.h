@@ -7,10 +7,10 @@
 #include <QMap>
 #include <QString>
 
-//  Native chat render (BubbleV2): tokens + light/dark + layout_*.
+//  Native chat render (Bubble): tokens + light/dark + layout_*.
 //  Stage 1 parses and validates layout_* but ignores them (delegate tree is
 //  hardcoded 1:1 with them). Stage 2 reads the same file.
-class ThemeV2 {
+class Theme {
 public:
   enum class Mode {
     System,
@@ -64,9 +64,9 @@ public:
   //  Raw layout trees for stage 2 (stage 1 only validates them).
   QMap<QString, QJsonArray> layouts;
 
-  static ThemeV2 loadFromJson(const QByteArray& data);
-  static ThemeV2 loadFromFile(const QString& filePath);
-  static ThemeV2 builtInDefault();
+  static Theme loadFromJson(const QByteArray& data);
+  static Theme loadFromFile(const QString& filePath);
+  static Theme builtInDefault();
   static QString defaultJsonText();
   //  Theme discovery: validated names, user dir overrides built-in qrc.
   static QStringList availableThemes();

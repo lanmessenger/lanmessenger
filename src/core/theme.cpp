@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-#include "themev2.h"
+#include "theme.h"
 
 #include <QDir>
 #include <QFile>
@@ -188,15 +188,15 @@ bool validateNode(const QJsonObject& node, int depth, const QMap<QString, QColor
 
 } // namespace
 
-QString ThemeV2::defaultJsonText() {
-  QFile f(QStringLiteral(":/themes/BubbleV2/theme.json"));
+QString Theme::defaultJsonText() {
+  QFile f(QStringLiteral(":/themes/Bubble/theme.json"));
   if(f.open(QIODevice::ReadOnly))
     return QString::fromUtf8(f.readAll());
   return QString();
 }
 
-ThemeV2 ThemeV2::builtInDefault() {
-  ThemeV2 t;
+Theme Theme::builtInDefault() {
+  Theme t;
   t.bubble = Bubble();
   t.avatar = Avatar();
   t.header = Header();
@@ -257,19 +257,19 @@ ThemeV2 ThemeV2::builtInDefault() {
   return t;
 }
 
-ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
-  ThemeV2 t;
+Theme Theme::loadFromJson(const QByteArray& data) {
+  Theme t;
   QJsonParseError parseError;
   QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
   if(parseError.error != QJsonParseError::NoError || !doc.isObject()) {
     t.errorString = QStringLiteral("bad json: %1").arg(parseError.errorString());
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
   QJsonObject root = doc.object();
   if(!root.contains(QStringLiteral("version")) || root.value(QStringLiteral("version")).toInt(-1) != 1) {
     t.errorString = QStringLiteral("bad version (want 1)");
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
 
@@ -282,7 +282,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
      !checkIntArray(b.value(QStringLiteral("padding")), 4, err, "bubble.padding") ||
      !checkDoubleArray(b.value(QStringLiteral("shadow")), 4, err, "bubble.shadow")) {
     t.errorString = err;
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
   QJsonArray radius = b.value(QStringLiteral("radius")).toArray();
@@ -293,7 +293,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
     t.bubble.padding[i] = padding.at(i).toInt();
     if(t.bubble.radius[i] < 0 || t.bubble.padding[i] < 0) {
       t.errorString = QStringLiteral("bubble.radius/padding must be >= 0");
-      qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
   }
@@ -309,7 +309,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
      t.bubble.maxWidthPct < 1 || t.bubble.maxWidthPct > 100 ||
      t.bubble.shadowOpacity < 0.0 || t.bubble.shadowOpacity > 1.0) {
     t.errorString = QStringLiteral("bad bubble numbers");
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
 
@@ -322,7 +322,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
                             t.avatar.shape != QLatin1String("rounded") &&
                             t.avatar.shape != QLatin1String("square"))) {
     t.errorString = QStringLiteral("bad avatar");
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
   QJsonObject h = root.value(QStringLiteral("header")).toObject();
@@ -330,7 +330,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
   t.header.timeFormat = h.value(QStringLiteral("timeFormat")).toString();
   if(t.header.timeFormat.isEmpty()) {
     t.errorString = QStringLiteral("bad header.timeFormat");
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
 
@@ -338,7 +338,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
   for(auto palName : {QStringLiteral("light"), QStringLiteral("dark")}) {
     if(!root.contains(palName) || !root.value(palName).isObject()) {
       t.errorString = QStringLiteral("missing palette %1").arg(palName);
-      qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
     QJsonObject pal = root.value(palName).toObject();
@@ -347,7 +347,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
       if(!pal.contains(key) || !pal.value(key).isString() ||
          !isHexColor(pal.value(key).toString())) {
         t.errorString = QStringLiteral("bad token %1.%2").arg(palName, key);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
       if(palName == QLatin1String("light"))
@@ -360,7 +360,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
   //  cards
   if(!root.contains(QStringLiteral("cards")) || !root.value(QStringLiteral("cards")).isObject()) {
     t.errorString = QStringLiteral("missing cards");
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
   QJsonObject cards = root.value(QStringLiteral("cards")).toObject();
@@ -368,7 +368,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
     QString name = QLatin1String(kCards[i]);
     if(!cards.contains(name) || !cards.value(name).isObject()) {
       t.errorString = QStringLiteral("missing card %1").arg(name);
-      qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
     QJsonObject c = cards.value(name).toObject();
@@ -382,18 +382,18 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
       if(v == QLatin1String("transparent")) {
         if(!isSystemBg) {
           t.errorString = QStringLiteral("transparent only for system.bg");
-          qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+          qCWarning(lmcUi) << "Theme:" << t.errorString;
           return t;
         }
       } else if(isTokenRef(v)) {
         if(!t.hasToken(tokenName(v))) {
           t.errorString = QStringLiteral("unknown token %1 in card %2").arg(v, name);
-          qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+          qCWarning(lmcUi) << "Theme:" << t.errorString;
           return t;
         }
       } else {
         t.errorString = QStringLiteral("bad color %1 in card %2 (want $token)").arg(key, name);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
       if(key == QLatin1String("bg"))
@@ -410,7 +410,7 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
       if(card.tail != QLatin1String("left") && card.tail != QLatin1String("right") &&
          card.tail != QLatin1String("none")) {
         t.errorString = QStringLiteral("bad tail in card %1").arg(name);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
     }
@@ -419,14 +419,14 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
       if(card.align != QLatin1String("left") && card.align != QLatin1String("center") &&
          card.align != QLatin1String("right")) {
         t.errorString = QStringLiteral("bad align in card %1").arg(name);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
     }
     if(c.contains(QStringLiteral("avatar"))) {
       if(!c.value(QStringLiteral("avatar")).isBool()) {
         t.errorString = QStringLiteral("bad avatar in card %1").arg(name);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
       card.avatar = c.value(QStringLiteral("avatar")).toBool();
@@ -440,19 +440,19 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
     QString name = QLatin1String(kLayouts[i]);
     if(!root.contains(name) || !root.value(name).isArray()) {
       t.errorString = QStringLiteral("missing %1").arg(name);
-      qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
     QJsonArray arr = root.value(name).toArray();
     for(const QJsonValue& v : arr) {
       if(!v.isObject()) {
         t.errorString = QStringLiteral("bad node in %1").arg(name);
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
       if(!validateNode(v.toObject(), 1, t.light, t.dark, t.errorString)) {
         t.errorString = name + QStringLiteral(": ") + t.errorString;
-        qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
     }
@@ -463,18 +463,18 @@ ThemeV2 ThemeV2::loadFromJson(const QByteArray& data) {
   return t;
 }
 
-ThemeV2 ThemeV2::loadFromFile(const QString& filePath) {
+Theme Theme::loadFromFile(const QString& filePath) {
   QFile f(filePath);
   if(!f.open(QIODevice::ReadOnly)) {
-    ThemeV2 t = builtInDefault();
+    Theme t = builtInDefault();
     t.isValid = false;
     t.errorString = QStringLiteral("cannot open %1").arg(filePath);
-    qCWarning(lmcUi) << "ThemeV2:" << t.errorString;
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
-  ThemeV2 t = loadFromJson(f.readAll());
+  Theme t = loadFromJson(f.readAll());
   if(!t.isValid) {
-    ThemeV2 fallback = builtInDefault();
+    Theme fallback = builtInDefault();
     fallback.isValid = false;
     fallback.errorString = t.errorString;
     return fallback;
@@ -491,21 +491,21 @@ QMap<QString, QString> scanThemeFiles() {
   auto consider = [&](const QString& filePath) {
     QString name = QFileInfo(filePath).dir().dirName();
     if(name.isEmpty()) {
-      qCWarning(lmcUi) << "ThemeV2: skipping nameless" << filePath;
+      qCWarning(lmcUi) << "Theme: skipping nameless" << filePath;
       return;
     }
-    ThemeV2 t = ThemeV2::loadFromFile(filePath);
+    Theme t = Theme::loadFromFile(filePath);
     if(!t.isValid) {
-      qCWarning(lmcUi) << "ThemeV2: skipping" << filePath << t.errorString;
+      qCWarning(lmcUi) << "Theme: skipping" << filePath << t.errorString;
       return;
     }
     found.insert(name, filePath);
   };
-  QString builtIn = QStringLiteral(":/themes/BubbleV2/theme.json");
+  QString builtIn = QStringLiteral(":/themes/Bubble/theme.json");
   if(QFile::exists(builtIn))
     consider(builtIn);
   else
-    qCWarning(lmcUi) << "ThemeV2: missing built-in" << builtIn;
+    qCWarning(lmcUi) << "Theme: missing built-in" << builtIn;
   //  Further built-in themes ship in the same qrc prefix; the user dir wins.
   QDir builtInDir(QStringLiteral(":/themes"));
   const QStringList builtInSubs = builtInDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -528,24 +528,24 @@ QMap<QString, QString> scanThemeFiles() {
 
 } // namespace
 
-QStringList ThemeV2::availableThemes() {
+QStringList Theme::availableThemes() {
   return scanThemeFiles().keys();
 }
 
-QString ThemeV2::themeFileFor(const QString& name) {
+QString Theme::themeFileFor(const QString& name) {
   return scanThemeFiles().value(name);
 }
 
-bool ThemeV2::hasToken(const QString& token) const {
+bool Theme::hasToken(const QString& token) const {
   return light.contains(token) && dark.contains(token);
 }
 
-QColor ThemeV2::resolveToken(const QString& token, bool darkMode) const {
+QColor Theme::resolveToken(const QString& token, bool darkMode) const {
   const auto& pal = darkMode ? dark : light;
   return pal.value(token, QColor());
 }
 
-QColor ThemeV2::resolve(const QString& ref, Mode mode, bool systemDark) const {
+QColor Theme::resolve(const QString& ref, Mode mode, bool systemDark) const {
   if(ref == QLatin1String("transparent"))
     return QColor(Qt::transparent);
   if(!isTokenRef(ref))
@@ -553,7 +553,7 @@ QColor ThemeV2::resolve(const QString& ref, Mode mode, bool systemDark) const {
   return resolveToken(tokenName(ref), isDark(mode, systemDark));
 }
 
-bool ThemeV2::isDark(Mode mode, bool systemDark) const {
+bool Theme::isDark(Mode mode, bool systemDark) const {
   if(mode == Mode::Dark)
     return true;
   if(mode == Mode::Light)
@@ -561,10 +561,10 @@ bool ThemeV2::isDark(Mode mode, bool systemDark) const {
   return systemDark;
 }
 
-QJsonArray ThemeV2::layoutFor(const QString& name) const {
+QJsonArray Theme::layoutFor(const QString& name) const {
   if(layouts.contains(name))
     return layouts.value(name);
   //  Fall back to layout_incoming with a swapped card + a log line.
-  qCWarning(lmcUi) << "ThemeV2: missing" << name << "- fallback to layout_incoming";
+  qCWarning(lmcUi) << "Theme: missing" << name << "- fallback to layout_incoming";
   return layouts.value(QStringLiteral("layout_incoming"));
 }

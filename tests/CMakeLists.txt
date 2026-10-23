@@ -83,20 +83,20 @@ set_target_properties(tst_application PROPERTIES
 add_test(NAME application COMMAND tst_application)
 set_tests_properties(application PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ThemeV2 validator (native chat render, BubbleV2): pure JSON validation,
-# no network, no GUI. Fixture dir is the source themes dir (BubbleV2/theme.json).
-add_executable(tst_themev2
-    unit/tst_themev2.cpp
+# Theme validator (native chat render, Bubble): pure JSON validation,
+# no network, no GUI. Fixture dir is the source themes dir (Bubble/theme.json).
+add_executable(tst_theme
+    unit/tst_theme.cpp
     ../src/resource.qrc
 )
 
-target_compile_definitions(tst_themev2 PRIVATE
-    LMC_THEMEV2_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../src/resources/themes"
+target_compile_definitions(tst_theme PRIVATE
+    LMC_THEME_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../src/resources/themes"
 )
 
-target_link_libraries(tst_themev2 PRIVATE lmc_core Qt6::Test)
+target_link_libraries(tst_theme PRIVATE lmc_core Qt6::Test)
 
-set_target_properties(tst_themev2 PROPERTIES
+set_target_properties(tst_theme PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
@@ -104,8 +104,8 @@ set_target_properties(tst_themev2 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
 )
 
-add_test(NAME themev2 COMMAND tst_themev2)
-set_tests_properties(themev2 PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+add_test(NAME theme COMMAND tst_theme)
+set_tests_properties(theme PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 # ChatMessageModel: группировка/plainText/файлы, без сети.
 add_executable(tst_chatmodel

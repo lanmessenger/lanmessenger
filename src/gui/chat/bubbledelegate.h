@@ -7,7 +7,7 @@
 #include <QStyledItemDelegate>
 #include <QTextDocument>
 
-#include "core/themev2.h"
+#include "core/theme.h"
 
 //  Native chat delegate: tree hardcoded 1:1 with the future
 //  layout_incoming/outgoing (S subset avatar/header/bubble/
@@ -40,8 +40,8 @@ public:
 
   explicit BubbleDelegate(QObject* parent = nullptr);
 
-  void setTheme(const ThemeV2& theme);
-  void setMode(ThemeV2::Mode mode, bool systemDark);
+  void setTheme(const Theme& theme);
+  void setMode(Theme::Mode mode, bool systemDark);
   void setDisplaySettings(const DisplaySettings& settings);
   void invalidateCache();
 
@@ -94,8 +94,8 @@ private:
   //  grouped rows hide it unless the theme opts in via showOnGrouped.
   bool reservesAvatar(const QString& card, bool grouped) const;
 
-  ThemeV2 theme;
-  ThemeV2::Mode mode = ThemeV2::Mode::System;
+  Theme theme;
+  Theme::Mode mode = Theme::Mode::System;
   bool systemDark = false;
   DisplaySettings display;
   int themeRev = 0;

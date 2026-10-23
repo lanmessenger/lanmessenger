@@ -1,4 +1,4 @@
-# BubbleV2 theme.json — schema (stage 1, forward-compatible with stage 2)
+# Bubble theme.json — schema (stage 1, forward-compatible with stage 2)
 
 One dir per theme: `src/resources/themes/<Name>/theme.json`, UTF-8, strict JSON
 (no comments; explanations go in `_comment` fields). Parser is `QJsonDocument`.

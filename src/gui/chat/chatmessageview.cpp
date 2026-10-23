@@ -94,9 +94,9 @@ void ChatMessageView::initChat(bool clearLog) {
 }
 
 void ChatMessageView::reloadTheme() {
-  theme = ThemeV2::loadFromFile(themeFilePath());
+  theme = Theme::loadFromFile(themeFilePath());
   if(!theme.isValid)
-    theme = ThemeV2::builtInDefault();
+    theme = Theme::builtInDefault();
   bubbleDelegate->setTheme(theme);
   bubbleDelegate->setMode(appearanceMode, systemDark);
   syncBackground();
@@ -264,11 +264,11 @@ bool ChatMessageView::isOwnRow(int row) const {
 void ChatMessageView::setAppearanceMode(const QString& newMode) {
   QString lower = newMode.toLower();
   if(lower == QLatin1String("light"))
-    appearanceMode = ThemeV2::Mode::Light;
+    appearanceMode = Theme::Mode::Light;
   else if(lower == QLatin1String("dark"))
-    appearanceMode = ThemeV2::Mode::Dark;
+    appearanceMode = Theme::Mode::Dark;
   else
-    appearanceMode = ThemeV2::Mode::System;
+    appearanceMode = Theme::Mode::System;
   bubbleDelegate->setMode(appearanceMode, systemDark);
   syncBackground();
   viewport()->update();
@@ -536,7 +536,7 @@ void ChatMessageView::onPaletteChanged() {
 void ChatMessageView::setThemeName(const QString& name) {
   if(name.isEmpty() || name == themeName)
     return;
-  if(ThemeV2::themeFileFor(name).isEmpty()) {
+  if(Theme::themeFileFor(name).isEmpty()) {
     qCWarning(lmcUi) << "ChatMessageView: unknown theme" << name;
     return;
   }
@@ -550,9 +550,9 @@ QString ChatMessageView::themeNameString() const {
 
 QString ChatMessageView::appearanceModeString() const {
   switch(appearanceMode) {
-  case ThemeV2::Mode::Light:
+  case Theme::Mode::Light:
     return QStringLiteral("light");
-  case ThemeV2::Mode::Dark:
+  case Theme::Mode::Dark:
     return QStringLiteral("dark");
   default:
     break;
@@ -588,10 +588,10 @@ bool ChatMessageView::event(QEvent* event) {
 QString ChatMessageView::themeFilePath() const {
   //  Name-resolved (user dir wins over built-in qrc); file-based so theme
   //  authors can iterate without rebuild. Fallback is the built-in qrc.
-  QString file = ThemeV2::themeFileFor(themeName);
+  QString file = Theme::themeFileFor(themeName);
   if(!file.isEmpty())
     return file;
-  return QStringLiteral(":/themes/BubbleV2/theme.json");
+  return QStringLiteral(":/themes/Bubble/theme.json");
 }
 
 void ChatMessageView::syncBackground() {

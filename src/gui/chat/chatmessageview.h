@@ -5,7 +5,7 @@
 #include <QHash>
 #include <QListView>
 
-#include "core/themev2.h"
+#include "core/theme.h"
 #include "gui/chat/bubbledelegate.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "messaging/xmlmessage.h"
@@ -104,9 +104,9 @@ private:
 
   ChatMessageModel* chatModel;
   BubbleDelegate* bubbleDelegate;
-  ThemeV2 theme;
-  QString themeName = QStringLiteral("BubbleV2");
-  ThemeV2::Mode appearanceMode = ThemeV2::Mode::System;
+  Theme theme;
+  QString themeName = QStringLiteral("Bubble");
+  Theme::Mode appearanceMode = Theme::Mode::System;
   bool systemDark = false;
   bool autoScroll = true;
   QMenu* contextMenu = nullptr;

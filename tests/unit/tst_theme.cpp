@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-// Unit tests for the ThemeV2 validator (BubbleV2, stage 1).
+// Unit tests for the Theme validator (Bubble, stage 1).
 
 #include <QtTest>
 
@@ -9,7 +9,7 @@
 #include <QStandardPaths>
 
 #include "core/stdlocation.h"
-#include "core/themev2.h"
+#include "core/theme.h"
 
 namespace {
 
@@ -63,7 +63,7 @@ QByteArray withReplaced(const QByteArray& base, const QByteArray& from, const QB
 
 } // namespace
 
-class TstThemeV2 : public QObject {
+class TstTheme : public QObject {
   Q_OBJECT
 
 private slots:
@@ -84,8 +84,8 @@ private slots:
   void realFileLoads();
 };
 
-void TstThemeV2::validTheme() {
-  ThemeV2 t = ThemeV2::loadFromJson(validJson());
+void TstTheme::validTheme() {
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QCOMPARE(t.bubble.maxWidthPct, 75);
   QCOMPARE(t.avatar.size, 40);
@@ -94,117 +94,117 @@ void TstThemeV2::validTheme() {
   QCOMPARE(t.layouts.size(), 5);
 }
 
-void TstThemeV2::badVersion() {
-  ThemeV2 t = ThemeV2::loadFromJson(withReplaced(validJson(), "\"version\": 1", "\"version\": 2"));
+void TstTheme::badVersion() {
+  Theme t = Theme::loadFromJson(withReplaced(validJson(), "\"version\": 1", "\"version\": 2"));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::missingTwelfthTokenRejected() {
+void TstTheme::missingTwelfthTokenRejected() {
   //  Both palettes must carry the full 12-token set.
-  ThemeV2 tLight = ThemeV2::loadFromJson(
+  Theme tLight = Theme::loadFromJson(
     withReplaced(validJson(), ", \"textInverse\": \"#1A1D21\"", ""));
   QVERIFY(!tLight.isValid);
-  ThemeV2 tDark = ThemeV2::loadFromJson(
+  Theme tDark = Theme::loadFromJson(
     withReplaced(validJson(), ", \"textInverse\": \"#E8EAED\"", ""));
   QVERIFY(!tDark.isValid);
 }
 
-void TstThemeV2::cardTextAccepted() {
+void TstTheme::cardTextAccepted() {
   //  Optional per-card text (e.g. outgoing on a saturated bubble) is valid
   //  and resolves; cards without text keep the global text token.
   QByteArray withCardText = withReplaced(
     validJson(), "\"bg2\": \"$bubbleOut2\", \"tail\"",
     "\"bg2\": \"$bubbleOut2\", \"text\": \"$textInverse\", \"tail\"");
-  ThemeV2 t = ThemeV2::loadFromJson(withCardText);
+  Theme t = Theme::loadFromJson(withCardText);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QCOMPARE(t.cards.value(QStringLiteral("outgoing")).text, QStringLiteral("$textInverse"));
-  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), ThemeV2::Mode::Light, false),
+  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), Theme::Mode::Light, false),
            QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), ThemeV2::Mode::Dark, false),
+  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), Theme::Mode::Dark, false),
            QColor(QStringLiteral("#E8EAED")));
   QCOMPARE(t.cards.value(QStringLiteral("incoming")).text, QString());
   //  Delegate contract: empty card.text falls back to the global text token.
-  QCOMPARE(t.resolve(t.cards.value(QStringLiteral("outgoing")).text, ThemeV2::Mode::Light, false),
+  QCOMPARE(t.resolve(t.cards.value(QStringLiteral("outgoing")).text, Theme::Mode::Light, false),
            QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$text"), ThemeV2::Mode::Light, false),
+  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::Light, false),
            QColor(QStringLiteral("#1A1D21")));
 }
 
-void TstThemeV2::hexInCardsRejected() {
-  ThemeV2 t = ThemeV2::loadFromJson(
+void TstTheme::hexInCardsRejected() {
+  Theme t = Theme::loadFromJson(
     withReplaced(validJson(), "\"bg\": \"$bubbleIn\"", "\"bg\": \"#FFFFFF\""));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::transparentOutsideSystemRejected() {
-  ThemeV2 t = ThemeV2::loadFromJson(
+void TstTheme::transparentOutsideSystemRejected() {
+  Theme t = Theme::loadFromJson(
     withReplaced(validJson(), "\"incoming\": {\"bg\": \"$bubbleIn\"", "\"incoming\": {\"bg\": \"transparent\""));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::unknownTokenRejected() {
-  ThemeV2 t = ThemeV2::loadFromJson(
+void TstTheme::unknownTokenRejected() {
+  Theme t = Theme::loadFromJson(
     withReplaced(validJson(), "$bubbleIn2", "$nope"));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::missingLayoutRejected() {
+void TstTheme::missingLayoutRejected() {
   QByteArray base = validJson();
   //  Cut out layout_request entirely via marker: easier to corrupt the key name.
-  ThemeV2 t = ThemeV2::loadFromJson(withReplaced(base, "layout_request", "layout_nope"));
+  Theme t = Theme::loadFromJson(withReplaced(base, "layout_request", "layout_nope"));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::reservedBlocksAcceptedButIgnored() {
+void TstTheme::reservedBlocksAcceptedButIgnored() {
   //  The validator accepts linkPreview/quote/code/buttons (L); the S delegate ignores them.
   QByteArray base = withReplaced(validJson(), "{\"type\": \"body\"}",
                                  "{\"type\": \"quote\"}");
-  ThemeV2 t = ThemeV2::loadFromJson(base);
+  Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QByteArray base2 = withReplaced(validJson(), "{\"type\": \"body\"}",
                                   "{\"type\": \"linkPreview\"}");
-  ThemeV2 t2 = ThemeV2::loadFromJson(base2);
+  Theme t2 = Theme::loadFromJson(base2);
   QVERIFY2(t2.isValid, qPrintable(t2.errorString));
 }
 
-void TstThemeV2::badFlagRejected() {
-  ThemeV2 t = ThemeV2::loadFromJson(withReplaced(validJson(), "isGrouped", "isFoo"));
+void TstTheme::badFlagRejected() {
+  Theme t = Theme::loadFromJson(withReplaced(validJson(), "isGrouped", "isFoo"));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::tooDeepRejected() {
+void TstTheme::tooDeepRejected() {
   //  hbox=1, vbox=2, bubble=3, body=4, + nested body = 5 (>4).
   QByteArray deep = withReplaced(
     validJson(), "{\"type\": \"body\"}",
     "{\"type\": \"bubble\", \"card\": \"incoming\", \"children\": [{\"type\": \"body\"}]}");
-  ThemeV2 t = ThemeV2::loadFromJson(deep);
+  Theme t = Theme::loadFromJson(deep);
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::fractionalArrayRejected() {
+void TstTheme::fractionalArrayRejected() {
   //  Pixel arrays are integers: 12.5 would silently truncate via toInt().
-  ThemeV2 t = ThemeV2::loadFromJson(
+  Theme t = Theme::loadFromJson(
     withReplaced(validJson(), "\"radius\": [12, 12, 12, 4]", "\"radius\": [12, 12, 12, 4.5]"));
   QVERIFY(!t.isValid);
 }
 
-void TstThemeV2::resolveTokens() {
-  ThemeV2 t = ThemeV2::loadFromJson(validJson());
+void TstTheme::resolveTokens() {
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY(t.isValid);
-  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), ThemeV2::Mode::Light, false),
+  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), Theme::Mode::Light, false),
            QColor(QStringLiteral("#FFFFFF")));
-  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), ThemeV2::Mode::Dark, false),
+  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), Theme::Mode::Dark, false),
            QColor(QStringLiteral("#1F242B")));
   //  System follows systemDark.
-  QCOMPARE(t.resolve(QStringLiteral("$text"), ThemeV2::Mode::System, false),
+  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::System, false),
            QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$text"), ThemeV2::Mode::System, true),
+  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::System, true),
            QColor(QStringLiteral("#E8EAED")));
-  QCOMPARE(t.resolve(QStringLiteral("transparent"), ThemeV2::Mode::Light, false),
+  QCOMPARE(t.resolve(QStringLiteral("transparent"), Theme::Mode::Light, false),
            QColor(Qt::transparent));
 }
 
-void TstThemeV2::availableThemesListsUserAndSkipsBroken() {
+void TstTheme::availableThemesListsUserAndSkipsBroken() {
   QStandardPaths::setTestModeEnabled(true);
   QString base = StdLocation::userThemeDir();
   QVERIFY(QDir().mkpath(base + QStringLiteral("/Good")));
@@ -218,32 +218,32 @@ void TstThemeV2::availableThemesListsUserAndSkipsBroken() {
   bad.write("{broken");
   bad.close();
 
-  QStringList themes = ThemeV2::availableThemes();
-  QVERIFY(themes.contains(QStringLiteral("BubbleV2")));
+  QStringList themes = Theme::availableThemes();
+  QVERIFY(themes.contains(QStringLiteral("Bubble")));
   QVERIFY(themes.contains(QStringLiteral("Good")));
   QVERIFY(!themes.contains(QStringLiteral("Bad")));
-  QCOMPARE(ThemeV2::themeFileFor(QStringLiteral("Good")),
+  QCOMPARE(Theme::themeFileFor(QStringLiteral("Good")),
            QDir(base).absoluteFilePath(QStringLiteral("Good/theme.json")));
-  QVERIFY(ThemeV2::themeFileFor(QStringLiteral("Nope")).isEmpty());
+  QVERIFY(Theme::themeFileFor(QStringLiteral("Nope")).isEmpty());
 
   QVERIFY(QDir(base + QStringLiteral("/Good")).removeRecursively());
   QVERIFY(QDir(base + QStringLiteral("/Bad")).removeRecursively());
   QStandardPaths::setTestModeEnabled(false);
 }
 
-void TstThemeV2::realFileLoads() {
-  QDir themesDir(QString::fromLocal8Bit(LMC_THEMEV2_DIR));
+void TstTheme::realFileLoads() {
+  QDir themesDir(QString::fromLocal8Bit(LMC_THEME_DIR));
   const QStringList subdirs =
     themesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
   QVERIFY2(!subdirs.isEmpty(), "no themes found");
-  QVERIFY(subdirs.contains(QStringLiteral("BubbleV2")));
+  QVERIFY(subdirs.contains(QStringLiteral("Bubble")));
   for(const QString& sub : subdirs) {
     QFile f(themesDir.absoluteFilePath(sub + QStringLiteral("/theme.json")));
     QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QStringLiteral("cannot open ") + sub));
-    ThemeV2 t = ThemeV2::loadFromJson(f.readAll());
+    Theme t = Theme::loadFromJson(f.readAll());
     QVERIFY2(t.isValid, qPrintable(sub + QStringLiteral(": ") + t.errorString));
   }
 }
 
-QTEST_MAIN(TstThemeV2)
-#include "tst_themev2.moc"
+QTEST_MAIN(TstTheme)
+#include "tst_theme.moc"
