@@ -716,6 +716,19 @@ void lmcChatRoomWindow::sendMessage(void) {
       }
     } else
       emit messageSent(type, NULL, &xmlMessage);
+
+    //  One-shot override: an explicitly chosen font/color applies to this
+    //  message only, then the composer falls back to the settings defaults.
+    if(messageFontSet || messageColorSet) {
+      QFont defaultFont = QApplication::font();
+      defaultFont.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
+      setMessageFont(defaultFont);
+      messageFontSet = false;
+      messageColor = QApplication::palette().text().color();
+      messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
+      messageColorSet = false;
+      ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    }
   } else
     appendMessageLog(MT_Error, NULL, NULL, NULL);
 
