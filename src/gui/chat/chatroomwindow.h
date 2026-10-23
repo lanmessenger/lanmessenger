@@ -116,6 +116,7 @@ private:
   bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
+  bool messageColorSet = false;
   bool dataSaved;
   bool windowLoaded;
 };

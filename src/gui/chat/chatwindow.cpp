@@ -447,6 +447,7 @@ void lmcChatWindow::btnFontColor_clicked(void) {
   QColor color = QColorDialog::getColor(messageColor, this, tr("Select Color"));
   if(color.isValid()) {
     messageColor = color;
+    messageColorSet = true;
     ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   }
 }
@@ -649,7 +650,8 @@ void lmcChatWindow::sendMessage(void) {
     XmlMessage xmlMessage;
     xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
     xmlMessage.addData(XN_FONT, font.toString());
-    xmlMessage.addData(XN_COLOR, messageColor.name());
+    if(messageColorSet)
+      xmlMessage.addData(XN_COLOR, messageColor.name());
     if(groupMode) {
       xmlMessage.addData(XN_THREAD, threadId);
       xmlMessage.addData(XN_GROUPMESSAGE, szMessage);
