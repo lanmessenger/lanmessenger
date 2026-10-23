@@ -16,8 +16,8 @@
 namespace {
 
 const char* kTokens[] = {"bubbleIn", "bubbleIn2", "bubbleOut", "bubbleOut2", "text", "secondary",
-                         "link", "border", "page", "accent", "accentSoft"};
-const int kTokenCount = 11;
+                         "link", "border", "page", "accent", "accentSoft", "textInverse"};
+const int kTokenCount = 12;
 
 const char* kCards[] = {"incoming", "outgoing", "broadcast", "system", "request"};
 const int kCardCount = 5;
@@ -205,9 +205,15 @@ ThemeV2 ThemeV2::builtInDefault() {
       m.insert(QLatin1String(kTokens[i]), QColor(QString::fromLatin1(vals[i])));
   };
   const char* lightVals[] = {"#FFFFFF", "#F1F4F8", "#D9F2C7", "#C9E8B4", "#1A1D21", "#6B7280",
-                             "#0B5FFF", "#D8DEE5", "#EDEFF2", "#2F9E44", "#E6F4EA"};
+                             "#0B5FFF", "#D8DEE5", "#EDEFF2", "#2F9E44", "#E6F4EA",
+                             "#1A1D21"};
   const char* darkVals[] = {"#1F242B", "#262D36", "#1D4D2B", "#1A4527", "#E8EAED", "#9AA0A6",
-                            "#8AB4F8", "#3A424C", "#131518", "#3FB950", "#1A2E22"};
+                            "#8AB4F8", "#3A424C", "#131518", "#3FB950", "#1A2E22",
+                            "#E8EAED"};
+  static_assert(sizeof(lightVals) / sizeof(lightVals[0]) == kTokenCount,
+                "lightVals must cover every token");
+  static_assert(sizeof(darkVals) / sizeof(darkVals[0]) == kTokenCount,
+                "darkVals must cover every token");
   fill(t.light, lightVals);
   fill(t.dark, darkVals);
   Card in;
@@ -500,6 +506,16 @@ QMap<QString, QString> scanThemeFiles() {
     consider(builtIn);
   else
     qCWarning(lmcUi) << "ThemeV2: missing built-in" << builtIn;
+  //  Further built-in themes ship in the same qrc prefix; the user dir wins.
+  QDir builtInDir(QStringLiteral(":/themes"));
+  const QStringList builtInSubs = builtInDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  for(const QString& sub : builtInSubs) {
+    QString filePath = builtInDir.absoluteFilePath(sub + QStringLiteral("/theme.json"));
+    if(filePath == builtIn)
+      continue;
+    if(QFile::exists(filePath))
+      consider(filePath);
+  }
   QDir userDir(StdLocation::userThemeDir());
   const QStringList subdirs = userDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
   for(const QString& sub : subdirs) {

@@ -1,6 +1,6 @@
 # BubbleV2 theme.json — schema (stage 1, forward-compatible with stage 2)
 
-One file per theme: `src/resources/themes/BubbleV2/theme.json`, UTF-8, strict JSON
+One dir per theme: `src/resources/themes/<Name>/theme.json`, UTF-8, strict JSON
 (no comments; explanations go in `_comment` fields). Parser is `QJsonDocument`.
 
 ## Top level
@@ -11,12 +11,14 @@ One file per theme: `src/resources/themes/BubbleV2/theme.json`, UTF-8, strict JS
 | `bubble` | object | see below |
 | `avatar` | object | see below |
 | `header` | object | see below |
-| `light` / `dark` | object | both palettes must contain the same token set (11); values are hex `#RRGGBB` / `#AARRGGBB` |
+| `light` / `dark` | object | both palettes must contain the same token set (12); values are hex `#RRGGBB` / `#AARRGGBB` |
 | `cards` | object | all 5 required: `incoming/outgoing/broadcast/system/request` |
 | `layout_incoming/outgoing/system/broadcast/request` | array | all 5 required; a missing one falls back to `layout_incoming` with a swapped `card` + a log line. In stage 1 they are parsed and validated but ignored (delegate tree is hardcoded 1:1). Stage 2 reads them from the same file with no theme changes. |
 
 Palette tokens (both): `bubbleIn, bubbleIn2, bubbleOut, bubbleOut2, text,
-secondary, link, border, page, accent, accentSoft`.
+secondary, link, border, page, accent, accentSoft, textInverse`.
+`textInverse` is body text for saturated bubbles (e.g. white on a blue
+outgoing); cards that do not need it simply omit `text`.
 
 ## `bubble`
 
@@ -31,9 +33,9 @@ secondary, link, border, page, accent, accentSoft`.
 
 - `avatar.size`: int > 0; `shape`: `circle|rounded|square`; `showOnGrouped`: bool
   (sugar over `isGrouped`; duplicating `header.ifNot=isGrouped` is allowed).
-- `header.senderBold`: bool; `header.timeFormat`: non-empty string.
-  `HH:mm` is fixed — a breaking change vs `QLocale::ShortFormat`:
-  time rendering no longer depends on the system locale.
+- `header.senderBold`: bool; `header.timeFormat`: non-empty `QDateTime::toString`
+  format, locale-independent (breaking change vs `QLocale::ShortFormat`).
+  Shipped themes use `HH:mm`; `NordicTerminal` uses `HH:mm:ss` as a seconds example.
 
 ## `cards`
 
@@ -42,6 +44,9 @@ secondary, link, border, page, accent, accentSoft`.
 - `transparent` is allowed only for `system.bg`.
 - `tail`: `left|right|none`; `avatar`: bool; `align`: `left|center|right`;
   `border`/`text`: `$token`.
+- Body text fallback chain: explicit per-message color, then the card's `text`
+  (when present), then the global `text` token. `system.text` defaults to
+  `$secondary` in the shipped themes.
 
 ## `layout_*` (L-MVP boundary, do not extend without a separate decision)
 

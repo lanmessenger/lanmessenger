@@ -23,11 +23,11 @@ QByteArray validJson() {
     "light": {"bubbleIn": "#FFFFFF", "bubbleIn2": "#F1F4F8", "bubbleOut": "#D9F2C7",
               "bubbleOut2": "#C9E8B4", "text": "#1A1D21", "secondary": "#6B7280",
               "link": "#0B5FFF", "border": "#D8DEE5", "page": "#EDEFF2",
-              "accent": "#2F9E44", "accentSoft": "#E6F4EA"},
+              "accent": "#2F9E44", "accentSoft": "#E6F4EA", "textInverse": "#1A1D21"},
     "dark": {"bubbleIn": "#1F242B", "bubbleIn2": "#262D36", "bubbleOut": "#1D4D2B",
              "bubbleOut2": "#1A4527", "text": "#E8EAED", "secondary": "#9AA0A6",
              "link": "#8AB4F8", "border": "#3A424C", "page": "#131518",
-             "accent": "#3FB950", "accentSoft": "#1A2E22"},
+             "accent": "#3FB950", "accentSoft": "#1A2E22", "textInverse": "#E8EAED"},
     "cards": {
       "incoming": {"bg": "$bubbleIn", "bg2": "$bubbleIn2", "tail": "left", "avatar": true},
       "outgoing": {"bg": "$bubbleOut", "bg2": "$bubbleOut2", "tail": "right", "avatar": false},
@@ -69,6 +69,8 @@ class TstThemeV2 : public QObject {
 private slots:
   void validTheme();
   void badVersion();
+  void missingTwelfthTokenRejected();
+  void cardTextAccepted();
   void hexInCardsRejected();
   void transparentOutsideSystemRejected();
   void unknownTokenRejected();
@@ -95,6 +97,37 @@ void TstThemeV2::validTheme() {
 void TstThemeV2::badVersion() {
   ThemeV2 t = ThemeV2::loadFromJson(withReplaced(validJson(), "\"version\": 1", "\"version\": 2"));
   QVERIFY(!t.isValid);
+}
+
+void TstThemeV2::missingTwelfthTokenRejected() {
+  //  Both palettes must carry the full 12-token set.
+  ThemeV2 tLight = ThemeV2::loadFromJson(
+    withReplaced(validJson(), ", \"textInverse\": \"#1A1D21\"", ""));
+  QVERIFY(!tLight.isValid);
+  ThemeV2 tDark = ThemeV2::loadFromJson(
+    withReplaced(validJson(), ", \"textInverse\": \"#E8EAED\"", ""));
+  QVERIFY(!tDark.isValid);
+}
+
+void TstThemeV2::cardTextAccepted() {
+  //  Optional per-card text (e.g. outgoing on a saturated bubble) is valid
+  //  and resolves; cards without text keep the global text token.
+  QByteArray withCardText = withReplaced(
+    validJson(), "\"bg2\": \"$bubbleOut2\", \"tail\"",
+    "\"bg2\": \"$bubbleOut2\", \"text\": \"$textInverse\", \"tail\"");
+  ThemeV2 t = ThemeV2::loadFromJson(withCardText);
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QCOMPARE(t.cards.value(QStringLiteral("outgoing")).text, QStringLiteral("$textInverse"));
+  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), ThemeV2::Mode::Light, false),
+           QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), ThemeV2::Mode::Dark, false),
+           QColor(QStringLiteral("#E8EAED")));
+  QCOMPARE(t.cards.value(QStringLiteral("incoming")).text, QString());
+  //  Delegate contract: empty card.text falls back to the global text token.
+  QCOMPARE(t.resolve(t.cards.value(QStringLiteral("outgoing")).text, ThemeV2::Mode::Light, false),
+           QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(t.resolve(QStringLiteral("$text"), ThemeV2::Mode::Light, false),
+           QColor(QStringLiteral("#1A1D21")));
 }
 
 void TstThemeV2::hexInCardsRejected() {
@@ -199,10 +232,17 @@ void TstThemeV2::availableThemesListsUserAndSkipsBroken() {
 }
 
 void TstThemeV2::realFileLoads() {
-  QFile f(QString::fromLocal8Bit(LMC_THEMEV2_DIR) + QStringLiteral("/BubbleV2/theme.json"));
-  QVERIFY2(f.open(QIODevice::ReadOnly), "cannot open BubbleV2/theme.json");
-  ThemeV2 t = ThemeV2::loadFromJson(f.readAll());
-  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QDir themesDir(QString::fromLocal8Bit(LMC_THEMEV2_DIR));
+  const QStringList subdirs =
+    themesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+  QVERIFY2(!subdirs.isEmpty(), "no themes found");
+  QVERIFY(subdirs.contains(QStringLiteral("BubbleV2")));
+  for(const QString& sub : subdirs) {
+    QFile f(themesDir.absoluteFilePath(sub + QStringLiteral("/theme.json")));
+    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QStringLiteral("cannot open ") + sub));
+    ThemeV2 t = ThemeV2::loadFromJson(f.readAll());
+    QVERIFY2(t.isValid, qPrintable(sub + QStringLiteral(": ") + t.errorString));
+  }
 }
 
 QTEST_MAIN(TstThemeV2)

@@ -249,8 +249,18 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index) const {
   bool isFile = (type == MT_File || type == MT_Folder);
   QFont font = rowFont(index);
   QColor color = index.data(ChatMessageModel::ColorRole).value<QColor>();
-  if(!color.isValid())
-    color = theme.resolveToken(QStringLiteral("text"), theme.isDark(mode, systemDark));
+  if(!color.isValid()) {
+    //  Per-card text (e.g. light text on a saturated outgoing bubble),
+    //  then the global text token. Cards without text keep legacy behavior.
+    QString card = cardFor(index);
+    QString ref;
+    if(theme.cards.contains(card))
+      ref = theme.cards.value(card).text;
+    if(!ref.isEmpty())
+      color = theme.resolve(ref, mode, systemDark);
+    if(!color.isValid())
+      color = theme.resolveToken(QStringLiteral("text"), theme.isDark(mode, systemDark));
+  }
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   QString style = fontStyleFor(font, color, display.fontSizeVal, own);
   QString linkColorName =

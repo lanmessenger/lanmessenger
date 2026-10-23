@@ -30,7 +30,8 @@
     "border": "#D8DEE5",
     "page": "#EDEFF2",
     "accent": "#2F9E44",
-    "accentSoft": "#E6F4EA"
+    "accentSoft": "#E6F4EA",
+    "textInverse": "#1A1D21"
   },
   "dark": {
     "bubbleIn": "#1F242B",
@@ -43,7 +44,8 @@
     "border": "#3A424C",
     "page": "#131518",
     "accent": "#3FB950",
-    "accentSoft": "#1A2E22"
+    "accentSoft": "#1A2E22",
+    "textInverse": "#E8EAED"
   },
   "cards": {
     "incoming": {

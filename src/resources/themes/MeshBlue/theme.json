@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "_comment": "Modern Mesh Blue from Stitch spec (Variant 2). Single radius array: incoming corners kept, outgoing approximated by renderer (uniform radius[0] in S). Cyan shadow tint is not supported by the renderer (black shadow); opacity is shared for light/dark. Outgoing body uses textInverse.",
+  "bubble": {
+    "radius": [14, 14, 14, 3],
+    "tail": 3,
+    "shadow": [0, 2, 4, 0.08],
+    "padding": [10, 14, 10, 14],
+    "spacing": 9,
+    "groupedSpacing": 3,
+    "maxWidthPct": 80
+  },
+  "avatar": {
+    "size": 26,
+    "shape": "rounded",
+    "showOnGrouped": false
+  },
+  "header": {
+    "senderBold": true,
+    "timeFormat": "HH:mm"
+  },
+  "light": {
+    "bubbleIn": "#FFFFFF",
+    "bubbleIn2": "#F0FDF4",
+    "bubbleOut": "#0284C7",
+    "bubbleOut2": "#0369A1",
+    "text": "#0F172A",
+    "secondary": "#64748B",
+    "link": "#0284C7",
+    "border": "#BAE6FD",
+    "page": "#EFF6FF",
+    "accent": "#0284C7",
+    "accentSoft": "#EFF6FF",
+    "textInverse": "#FFFFFF"
+  },
+  "dark": {
+    "bubbleIn": "#162235",
+    "bubbleIn2": "#111A29",
+    "bubbleOut": "#0EA5E9",
+    "bubbleOut2": "#0284C7",
+    "text": "#E2E8F0",
+    "secondary": "#7DD3FC",
+    "link": "#38BDF8",
+    "border": "#1E3A5F",
+    "page": "#0B1320",
+    "accent": "#0284C7",
+    "accentSoft": "#082F49",
+    "textInverse": "#FFFFFF"
+  },
+  "cards": {
+    "incoming": {
+      "bg": "$bubbleIn",
+      "bg2": "$bubbleIn2",
+      "tail": "left",
+      "avatar": true
+    },
+    "outgoing": {
+      "bg": "$bubbleOut",
+      "bg2": "$bubbleOut2",
+      "text": "$textInverse",
+      "tail": "right",
+      "avatar": false
+    },
+    "broadcast": {
+      "bg": "$accentSoft",
+      "bg2": "$accentSoft",
+      "border": "$accent",
+      "tail": "none"
+    },
+    "system": {
+      "bg": "transparent",
+      "align": "center",
+      "text": "$secondary"
+    },
+    "request": {
+      "bg": "$bubbleIn",
+      "bg2": "$bubbleIn2",
+      "border": "$border",
+      "tail": "left"
+    }
+  },
+  "layout_incoming": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "avatar"
+        },
+        {
+          "type": "vbox",
+          "stretch": 1,
+          "children": [
+            {
+              "type": "header",
+              "items": ["sender", "time"],
+              "ifNot": "isGrouped"
+            },
+            {
+              "type": "bubble",
+              "card": "incoming",
+              "children": [
+                {
+                  "type": "body"
+                },
+                {
+                  "type": "fileCard",
+                  "if": "isFile"
+                }
+              ]
+            },
+            {
+              "type": "status",
+              "if": "isOwnLast"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_outgoing": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "vbox",
+          "stretch": 1,
+          "children": [
+            {
+              "type": "header",
+              "items": ["time"],
+              "ifNot": "isGrouped"
+            },
+            {
+              "type": "bubble",
+              "card": "outgoing",
+              "children": [
+                {
+                  "type": "body"
+                },
+                {
+                  "type": "fileCard",
+                  "if": "isFile"
+                }
+              ]
+            },
+            {
+              "type": "status",
+              "if": "isOwnLast"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_system": [
+    {
+      "type": "vbox",
+      "children": [
+        {
+          "type": "bubble",
+          "card": "system",
+          "children": [
+            {
+              "type": "body"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_broadcast": [
+    {
+      "type": "vbox",
+      "children": [
+        {
+          "type": "bubble",
+          "card": "broadcast",
+          "children": [
+            {
+              "type": "body"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_request": [
+    {
+      "type": "vbox",
+      "children": [
+        {
+          "type": "bubble",
+          "card": "request",
+          "children": [
+            {
+              "type": "body"
+            },
+            {
+              "type": "fileCard",
+              "if": "isFile"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
