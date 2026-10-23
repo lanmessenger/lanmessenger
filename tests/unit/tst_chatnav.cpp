@@ -8,6 +8,7 @@
 
 #include "core/definitions.h"
 #include "gui/chat/chatmessageview.h"
+#include "gui/chat/chatwindow.h"
 #include "messaging/xmlmessage.h"
 
 namespace {
@@ -43,6 +44,8 @@ private slots:
   void viewportBackgroundMatchesPage();
   void legacyHtmlShowsAsSingleRow();
   void horizontalBarStaysOff();
+  void loopbackEchoSenderRemap();
+  void loopbackEchoRendersAsIncoming();
 };
 
 void TstChatNav::tabReturnAccepts() {
@@ -183,6 +186,48 @@ void TstChatNav::horizontalBarStaysOff() {
   QCOMPARE(view.horizontalScrollBarPolicy(), Qt::ScrollBarAlwaysOff);
   QVERIFY(!view.horizontalScrollBar()->isVisible());
   QCOMPARE(view.horizontalScrollBar()->maximum(), 0);
+}
+
+void TstChatNav::loopbackEchoSenderRemap() {
+  QString self = QStringLiteral("self");
+  QString peer = QStringLiteral("peer");
+  QString echo = QStringLiteral("self/echo");
+
+  QCOMPARE(lmcChatWindow::loopbackEchoSender(false, &self, self, &echo), &self);
+  QCOMPARE(lmcChatWindow::loopbackEchoSender(true, &peer, self, &echo), &peer);
+  QCOMPARE(lmcChatWindow::loopbackEchoSender(true, nullptr, self, &echo),
+           static_cast<QString*>(nullptr));
+  //  Enabled loopback without an alias (never happens in production) is a no-op.
+  QString empty;
+  QCOMPARE(lmcChatWindow::loopbackEchoSender(true, &self, self, &empty), &self);
+  //  Loopback echo addressed to ourselves resolves to the alias.
+  QCOMPARE(lmcChatWindow::loopbackEchoSender(true, &self, self, &echo), &echo);
+}
+
+void TstChatNav::loopbackEchoRendersAsIncoming() {
+  ChatMessageView view;
+  view.localId = QStringLiteral("me");
+  view.peerId = QStringLiteral("me");
+  view.resize(400, 300);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
+
+  //  Loopback wiring: sent row keeps our id, echo is logged under the alias.
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  QString echo = me + QStringLiteral("/echo");
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_MESSAGE, QStringLiteral("loopback ping"));
+  m.addData(XN_FONT, QFont().toString());
+  m.addData(XN_COLOR, QStringLiteral("#000000"));
+  view.appendMessageLog(MT_Message, &me, &meName, &m);
+  view.appendMessageLog(MT_Message, &echo, &meName, &m);
+
+  QCOMPARE(view.rowCount(), 2);
+  QVERIFY(view.isOwnRow(0));
+  QVERIFY(!view.isOwnRow(1));
+  QCOMPARE(view.plainText().count(QStringLiteral("loopback ping")), 2);
 }
 
 QTEST_MAIN(TstChatNav)

@@ -40,6 +40,12 @@ public:
   void connectionStateChanged(bool connected);
   void settingsChanged(void);
 
+  //  Loopback self-chat: log the echo under an alias so it renders as
+  //  incoming instead of grouping with the sent row.
+  void enableLoopbackEcho(void);
+  static QString* loopbackEchoSender(bool loopbackMode, QString* lpszUserId,
+                                     const QString& localId, QString* pEchoId);
+
   QString localId;
   QHash<QString, QString> peerIds;
   QString threadId;
@@ -123,4 +129,6 @@ private:
   qint64 keyStroke;
   qint64 snapKeyStroke;
   bool dataSaved;
+  bool loopbackMode;
+  QString loopbackEchoId;
 };

@@ -77,6 +77,8 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   peerCaps.clear();
   threadId = QString();
   groupMode = false;
+  loopbackMode = false;
+  loopbackEchoId = QString();
   dataSaved = false;
 
   chatState = CS_Blank;
@@ -160,6 +162,22 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
     pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
 }
 
+void lmcChatWindow::enableLoopbackEcho(void) {
+  loopbackMode = true;
+  loopbackEchoId = localId + QStringLiteral("/echo");
+  peerNames.insert(loopbackEchoId, peerNames.value(peerId));
+  pMessageLog->participantAvatars.insert(loopbackEchoId,
+                                         pMessageLog->participantAvatars.value(peerId));
+}
+
+QString* lmcChatWindow::loopbackEchoSender(bool loopbackMode, QString* lpszUserId,
+                                           const QString& localId, QString* pEchoId) {
+  if(loopbackMode && lpszUserId && pEchoId && !pEchoId->isEmpty() &&
+     lpszUserId->compare(localId) == 0)
+    return pEchoId;
+  return lpszUserId;
+}
+
 void lmcChatWindow::stop(void) {
   bool saveHistory = pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool();
   if(pMessageLog->hasData && saveHistory && !dataSaved) {
@@ -184,10 +202,15 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
   QString senderId = lpszUserId ? *lpszUserId : localId;
   QString senderName = lpszUserId ? peerNames.value(senderId) : localName;
   QString data;
+  //  Status/name/avatar updates below keep addressing the real self id.
+  QString* pLogId =
+    lmcChatWindow::loopbackEchoSender(loopbackMode, lpszUserId, localId, &loopbackEchoId);
+  if(pLogId != lpszUserId)
+    senderName = peerNames.value(*pLogId);
 
   switch(type) {
   case MT_Message:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     if(isHidden() || !isActiveWindow()) {
       pSoundPlayer->play(SE_NewMessage);
       title = tr("%1 says...");
@@ -195,7 +218,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     }
     break;
   case MT_Broadcast:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     if(isHidden() || !isActiveWindow()) {
       pSoundPlayer->play(SE_NewMessage);
       title = tr("Broadcast from %1");
@@ -203,7 +226,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     }
     break;
   case MT_ChatState:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     break;
   case MT_Status:
     data = pMessage->data(XN_STATUS);
@@ -221,6 +244,8 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     // this message may come with or without user id. NULL user id means avatar change
     // by local user, while non NULL user id means avatar change by a peer.
     pMessageLog->updateAvatar(&senderId, &data);
+    if(loopbackMode && senderId.compare(localId) == 0)
+      pMessageLog->updateAvatar(&loopbackEchoId, &data);
     break;
   case MT_UserName:
     data = pMessage->data(XN_NAME);
@@ -228,16 +253,18 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
       peerNames.insert(senderId, data);
       pMessageLog->peerName = data;
     }
+    if(loopbackMode && senderId.compare(localId) == 0 && peerNames.contains(loopbackEchoId))
+      peerNames.insert(loopbackEchoId, data);
     pMessageLog->updateUserName(&senderId, &data);
     break;
   case MT_Failed:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     break;
   case MT_File:
   case MT_Folder:
     if(pMessage->data(XN_FILEOP) == FileOpNames[FO_Request]) {
       //	a file request has been received
-      appendMessageLog(type, lpszUserId, &senderName, pMessage);
+      appendMessageLog(type, pLogId, &senderName, pMessage);
       if(pMessage->data(XN_MODE) == FileModeNames[FM_Receive] && (isHidden() || !isActiveWindow())) {
         pSoundPlayer->play(SE_NewFile);
         if(type == MT_File)
@@ -277,6 +304,8 @@ void lmcChatWindow::settingsChanged(void) {
   if(localName.compare(pLocalUser->name) != 0) {
     localName = pLocalUser->name;
     pMessageLog->updateUserName(&localId, &localName);
+    if(loopbackMode && !loopbackEchoId.isEmpty())
+      pMessageLog->updateUserName(&loopbackEchoId, &localName);
   }
 
   bool msgTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
