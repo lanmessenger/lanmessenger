@@ -27,7 +27,7 @@
 #include "core/uidefinitions.h"
 #include "messaging/history.h"
 #include "messaging/xmlmessage.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
@@ -46,10 +46,9 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
           this, &lmcChatRoomWindow::tvUserList_itemActivated);
   connect(ui.tvUserList, &lmcUserTreeWidget::itemContextMenu, this, &lmcChatRoomWindow::tvUserList_itemContextMenu);
 
-  pMessageLog = new lmcMessageLog(ui.wgtLog);
+  pMessageLog = new ChatMessageView(ui.wgtLog);
   ui.logLayout->addWidget(pMessageLog);
-  pMessageLog->setAcceptDrops(false);
-  connect(pMessageLog, &lmcMessageLog::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
+  connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
 
   int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
                           ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
@@ -150,8 +149,11 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   ui.txtMessage->setFocus();
 
-  QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  pMessageLog->initMessageLog(themePath);
+  //  Theme by name (user dir wins over built-in qrc), mode is Appearance/Mode.
+  pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
+  pMessageLog->setAppearanceMode(
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  pMessageLog->initChat();
 
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
@@ -359,16 +361,27 @@ void lmcChatRoomWindow::settingsChanged(void) {
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
-  QString theme = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  if(themeName.compare(pMessageLog->themeNameString()) != 0) {
+    //  Theme switch alone: setThemeName repaints with the new theme,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setThemeName(themeName);
+  }
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0) {
+    //  Mode switch alone: setAppearanceMode repaints with the new palette,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setAppearanceMode(appearanceMode);
+  }
   if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
      allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
-     trim != pMessageLog->trimMessage || theme.compare(pMessageLog->themePath) != 0) {
+     trim != pMessageLog->trimMessage) {
     pMessageLog->messageTime = msgTime;
     pMessageLog->messageDate = msgDate;
     pMessageLog->allowLinks = allowLinks;
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;
-    pMessageLog->themePath = theme;
     pMessageLog->reloadMessageLog();
   }
 

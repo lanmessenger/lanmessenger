@@ -68,6 +68,10 @@ public:
   static ThemeV2 loadFromFile(const QString& filePath);
   static ThemeV2 builtInDefault();
   static QString defaultJsonText();
+  //  Theme discovery: validated names, user dir overrides built-in qrc.
+  static QStringList availableThemes();
+  //  Resolve a theme name to its theme.json (empty when unknown).
+  static QString themeFileFor(const QString& name);
 
   bool hasToken(const QString& token) const;
   //  Mode::System resolves via systemDark; Light/Dark ignore it.

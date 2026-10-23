@@ -1827,47 +1827,64 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="grpChatTheme">
-           <property name="title">
-            <string>Chat Theme</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_30">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_25">
-              <item>
-               <widget class="QComboBox" name="cboTheme">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_23">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnRefresfTheme">
-                <property name="text">
-                 <string>Refresh</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QFrame" name="fraMessageLog">
+           <widget class="QGroupBox" name="grpChatTheme">
+            <property name="title">
+             <string>Theme</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_30">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_25">
+               <item>
+                <widget class="QLabel" name="lblTheme">
+                 <property name="text">
+                  <string>Theme:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cboTheme">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lblMode">
+                 <property name="text">
+                  <string>Mode:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cboMode"/>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_23">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnRefreshTheme">
+                 <property name="text">
+                  <string>Refresh</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QFrame" name="fraMessageLog">
               <property name="minimumSize">
                <size>
                 <width>341</width>
@@ -2207,9 +2224,10 @@
   <tabstop>rdbFileBottom</tabstop>
   <tabstop>txtFilePath</tabstop>
   <tabstop>btnFilePath</tabstop>
-  <tabstop>btnViewFiles</tabstop>
-  <tabstop>cboTheme</tabstop>
-  <tabstop>cboUserListView</tabstop>
+   <tabstop>btnViewFiles</tabstop>
+   <tabstop>cboTheme</tabstop>
+   <tabstop>cboMode</tabstop>
+   <tabstop>cboUserListView</tabstop>
   <tabstop>chkUserListToolTip</tabstop>
   <tabstop>rdbEnter</tabstop>
   <tabstop>rdbCmdEnter</tabstop>

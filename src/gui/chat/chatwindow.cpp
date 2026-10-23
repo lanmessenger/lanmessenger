@@ -151,10 +151,8 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   ui.txtMessage->setFocus();
 
-  QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  Q_UNUSED(themePath);
-  //  Stage 1: BubbleV2 is fixed, legacy Appearance/Theme is no longer read
-  //  (removed in S1.5 together with the old themes). Mode is Appearance/Mode.
+  //  Theme by name (user dir wins over built-in qrc), mode is Appearance/Mode.
+  pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
   pMessageLog->setAppearanceMode(
     pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
   pMessageLog->initChat();
@@ -286,6 +284,12 @@ void lmcChatWindow::settingsChanged(void) {
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
+  QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  if(themeName.compare(pMessageLog->themeNameString()) != 0) {
+    //  Theme switch alone: setThemeName repaints with the new theme,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setThemeName(themeName);
+  }
   QString appearanceMode =
     pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
   if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0) {

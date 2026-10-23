@@ -34,19 +34,16 @@ add_library(lmc_core STATIC
     core/lmcstrings.cpp
     gui/main/mainwindow.cpp
     messaging/message.cpp
-    gui/chat/messagelog.cpp
     messaging/messaging.cpp
     messaging/messagingproc.cpp
     network/netstreamer.cpp
     network/network.cpp
-    gui/widgets/qmessagebrowser.cpp
     core/settings.cpp
     gui/main/settingsdialog.cpp
     core/shared.cpp
     core/soundplayer.cpp
     gui/widgets/subcontrols.cpp
     network/tcpnetwork.cpp
-    core/theme.cpp
     core/themev2.cpp
     core/lmclogging.cpp
     gui/files/transferlistview.cpp
@@ -84,11 +81,9 @@ add_library(lmc_core STATIC
     core/lmcstrings.h
     gui/main/mainwindow.h
     messaging/message.h
-    gui/chat/messagelog.h
     messaging/messaging.h
     network/netstreamer.h
     network/network.h
-    gui/widgets/qmessagebrowser.h
     app/resource.h
     core/settings.h
     gui/main/settingsdialog.h
@@ -97,7 +92,6 @@ add_library(lmc_core STATIC
     core/stdlocation.h
     gui/widgets/subcontrols.h
     network/tcpnetwork.h
-    core/theme.h
     core/themev2.h
     core/lmccategories.h
     core/lmclogging.h

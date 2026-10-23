@@ -19,11 +19,10 @@
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
-#include "core/theme.h"
 #include "core/soundplayer.h"
 #include "app/application.h"
 #include "messaging/history.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
     : QDialog(parent, flags) {
@@ -33,7 +32,7 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   //	Destroy the window when it closes
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  pMessageLog = new lmcMessageLog(ui.fraMessageLog);
+  pMessageLog = new ChatMessageView(ui.fraMessageLog);
   ui.logLayout->addWidget(pMessageLog);
 
   statusTimerId = 0;
@@ -54,7 +53,8 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   connect(ui.btnFont, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnFont_clicked);
   connect(ui.btnColor, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnColor_clicked);
   connect(ui.btnReset, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnReset_clicked);
-  connect(ui.cboTheme, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::cboTheme_currentIndexChanged);
+  connect(ui.cboTheme, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::refreshPreview);
+  connect(ui.cboMode, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::refreshPreview);
   connect(ui.lvBroadcasts, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvBroadcasts_currentRowChanged);
   connect(ui.txtBroadcast, &QLineEdit::textEdited, this, &lmcSettingsDialog::txtBroadcast_textEdited);
   connect(ui.txtBroadcast, &QLineEdit::returnPressed, this, &lmcSettingsDialog::btnAddBroadcast_clicked);
@@ -64,7 +64,8 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   connect(ui.btnPlaySound, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnPlaySound_clicked);
   connect(ui.btnSoundPath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnSoundPath_clicked);
   connect(ui.btnResetSounds, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnResetSounds_clicked);
-  connect(ui.btnRefresfTheme, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnRefreshTheme_clicked);
+  connect(ui.btnRefreshTheme, &QAbstractButton::clicked, this,
+          &lmcSettingsDialog::btnRefreshTheme_clicked);
 }
 
 lmcSettingsDialog::~lmcSettingsDialog(void) {
@@ -94,12 +95,16 @@ void lmcSettingsDialog::init(void) {
     pListItem->setCheckState(IDS_SOUNDEVENT_VAL);
   }
 
-  Themes themes = lmcTheme::availableThemes();
-  for(int index = 0; index < themes.count(); index++)
-    ui.cboTheme->addItem(themes.at(index).name, themes.at(index).path);
-
   for(int index = 0; index < ULV_Max; index++)
     ui.cboUserListView->addItem(lmcStrings::userListView()[index], index);
+
+  //  The first addItem auto-selects index 0 and emits currentIndexChanged,
+  //  but pSettings does not exist yet, so keep refreshPreview quiet here.
+  ui.cboMode->blockSignals(true);
+  ui.cboMode->addItem(tr("System"), QStringLiteral("system"));
+  ui.cboMode->addItem(tr("Light"), QStringLiteral("light"));
+  ui.cboMode->addItem(tr("Dark"), QStringLiteral("dark"));
+  ui.cboMode->blockSignals(false);
 
   fontSize = 0;
   font = QApplication::font();
@@ -276,14 +281,22 @@ void lmcSettingsDialog::btnReset_clicked(void) {
   }
 }
 
-void lmcSettingsDialog::cboTheme_currentIndexChanged(int index) {
-  QString themePath = ui.cboTheme->itemData(index, Qt::UserRole).toString();
-
+void lmcSettingsDialog::refreshPreview(void) {
+  //  The preview renders mock messages with the selected theme and mode.
   pMessageLog->fontSizeVal = FS_SMALL;
   pMessageLog->localId = "Myself";
   pMessageLog->peerId = "Jack";
   pMessageLog->messageTime = true;
-  pMessageLog->initMessageLog(themePath);
+  QString themeName = ui.cboTheme->currentData().toString();
+  if(themeName.isEmpty())
+    themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  QString appearanceMode = ui.cboMode->currentData().toString();
+  if(appearanceMode.isEmpty())
+    appearanceMode =
+      pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  pMessageLog->setThemeName(themeName);
+  pMessageLog->setAppearanceMode(appearanceMode);
+  pMessageLog->initChat();
 
   XmlMessage msg;
   msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
@@ -421,9 +434,21 @@ void lmcSettingsDialog::btnResetSounds_clicked(void) {
   lvSounds_currentRowChanged(ui.lvSounds->currentRow());
 }
 
-void lmcSettingsDialog::btnRefreshTheme_clicked() {
-  pMessageLog->reloadTheme();
-  cboTheme_currentIndexChanged(ui.cboTheme->currentIndex());
+void lmcSettingsDialog::btnRefreshTheme_clicked(void) {
+  populateThemes();
+  refreshPreview();
+}
+
+void lmcSettingsDialog::populateThemes(void) {
+  //  Re-reads the theme dirs: a new/edited theme.json shows up without restart.
+  ui.cboTheme->blockSignals(true);
+  ui.cboTheme->clear();
+  for(const QString& name : ThemeV2::availableThemes())
+    ui.cboTheme->addItem(name, name);
+  QString saved = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  int index = ui.cboTheme->findData(saved);
+  ui.cboTheme->setCurrentIndex(index != -1 ? index : 0);
+  ui.cboTheme->blockSignals(false);
 }
 
 void lmcSettingsDialog::setPageHeaderStyle(QLabel* pLabel) {
@@ -466,7 +491,11 @@ void lmcSettingsDialog::setUIText(void) {
   for(int index = 0; index < ULV_Max; index++)
     ui.cboUserListView->setItemText(index, lmcStrings::userListView()[index]);
 
-  cboTheme_currentIndexChanged(ui.cboTheme->currentIndex());
+  ui.cboMode->setItemText(0, tr("System"));
+  ui.cboMode->setItemText(1, tr("Light"));
+  ui.cboMode->setItemText(2, tr("Dark"));
+
+  refreshPreview();
 
 #ifdef Q_OS_MAC
   ui.rdbEnter->setText("Return");
@@ -576,14 +605,12 @@ void lmcSettingsDialog::loadSettings(void) {
   ui.rdbFileBottom->setChecked(!pSettings->value(IDS_FILETOP, IDS_FILETOP_VAL).toBool());
   ui.txtFilePath->setText(StdLocation::fileStorageDir());
 
-  QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  for(int index = 0; index < ui.cboTheme->count(); index++) {
-    QString theme = ui.cboTheme->itemData(index, Qt::UserRole).toString();
-    if(themePath.compare(theme) == 0) {
-      ui.cboTheme->setCurrentIndex(index);
-      break;
-    }
-  }
+  populateThemes();
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  int modeIndex = ui.cboMode->findData(appearanceMode);
+  ui.cboMode->setCurrentIndex(modeIndex != -1 ? modeIndex : 0);
+
   int userListView = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.cboUserListView->setCurrentIndex(userListView);
   ui.chkUserListToolTip->setChecked(pSettings->value(IDS_STATUSTOOLTIP, IDS_STATUSTOOLTIP_VAL).toBool());
@@ -693,10 +720,11 @@ void lmcSettingsDialog::saveSettings(void) {
   pSettings->setValue(IDS_FILETOP, ui.rdbFileTop->isChecked(), IDS_FILETOP_VAL);
   pSettings->setValue(IDS_FILESTORAGEPATH, ui.txtFilePath->text(), IDS_FILESTORAGEPATH_VAL);
 
-  QString themePath = ui.cboTheme->itemData(ui.cboTheme->currentIndex(), Qt::UserRole).toString();
-  pSettings->setValue(IDS_THEME, themePath, IDS_THEME_VAL);
   pSettings->setValue(IDS_USERLISTVIEW, ui.cboUserListView->currentIndex(), IDS_USERLISTVIEW_VAL);
   pSettings->setValue(IDS_STATUSTOOLTIP, ui.chkUserListToolTip->isChecked(), IDS_STATUSTOOLTIP_VAL);
+  pSettings->setValue(IDS_THEME, ui.cboTheme->currentData().toString(), IDS_THEME_VAL);
+  pSettings->setValue(IDS_APPEARANCE_MODE, ui.cboMode->currentData().toString(),
+                      IDS_APPEARANCE_MODE_VAL);
 
   pSettings->setValue(IDS_SENDKEYMOD, ui.rdbCmdEnter->isChecked(), IDS_SENDKEYMOD_VAL);
 

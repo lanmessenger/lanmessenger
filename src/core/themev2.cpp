@@ -2,13 +2,16 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "themev2.h"
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocale>
 #include <cmath>
 
 #include "core/lmccategories.h"
+#include "core/stdlocation.h"
 
 namespace {
 
@@ -471,6 +474,50 @@ ThemeV2 ThemeV2::loadFromFile(const QString& filePath) {
     return fallback;
   }
   return t;
+}
+
+namespace {
+
+//  Name -> theme.json. Built-in qrc first, user dir last (wins on clash).
+//  Broken files are skipped with a log line, never fatal.
+QMap<QString, QString> scanThemeFiles() {
+  QMap<QString, QString> found;
+  auto consider = [&](const QString& filePath) {
+    QString name = QFileInfo(filePath).dir().dirName();
+    if(name.isEmpty()) {
+      qCWarning(lmcUi) << "ThemeV2: skipping nameless" << filePath;
+      return;
+    }
+    ThemeV2 t = ThemeV2::loadFromFile(filePath);
+    if(!t.isValid) {
+      qCWarning(lmcUi) << "ThemeV2: skipping" << filePath << t.errorString;
+      return;
+    }
+    found.insert(name, filePath);
+  };
+  QString builtIn = QStringLiteral(":/themes/BubbleV2/theme.json");
+  if(QFile::exists(builtIn))
+    consider(builtIn);
+  else
+    qCWarning(lmcUi) << "ThemeV2: missing built-in" << builtIn;
+  QDir userDir(StdLocation::userThemeDir());
+  const QStringList subdirs = userDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  for(const QString& sub : subdirs) {
+    QString filePath = userDir.absoluteFilePath(sub + QStringLiteral("/theme.json"));
+    if(QFile::exists(filePath))
+      consider(filePath);
+  }
+  return found;
+}
+
+} // namespace
+
+QStringList ThemeV2::availableThemes() {
+  return scanThemeFiles().keys();
+}
+
+QString ThemeV2::themeFileFor(const QString& name) {
+  return scanThemeFiles().value(name);
 }
 
 bool ThemeV2::hasToken(const QString& token) const {

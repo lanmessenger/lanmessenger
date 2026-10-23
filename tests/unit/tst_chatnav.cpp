@@ -40,6 +40,7 @@ private slots:
   void tabReturnAccepts();
   void tabPastLastAnchorLeavesView();
   void viewportBackgroundMatchesPage();
+  void legacyHtmlShowsAsSingleRow();
 };
 
 void TstChatNav::tabReturnAccepts() {
@@ -121,6 +122,33 @@ void TstChatNav::viewportBackgroundMatchesPage() {
   view.setAppearanceMode(QStringLiteral("dark"));
   QCOMPARE(view.viewport()->palette().color(QPalette::Base),
            QColor(QStringLiteral("#131518")));
+}
+
+void TstChatNav::legacyHtmlShowsAsSingleRow() {
+  ChatMessageView view;
+  view.resize(400, 300);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
+  view.initChat();
+
+  //  S1.5 history: stored blobs (legacy or new-model HTML) render as one
+  //  read-only body row, never migrated.
+  QString name = QStringLiteral("Jack");
+  QDateTime when = QDateTime::currentDateTime();
+  QString html = QStringLiteral("<html><body><p><span class='salutation'>Jack:</span>"
+                                "<span class='time'>12:00</span>"
+                                "<span class='message'>hi there</span></p></body></html>");
+  view.showLegacyHtml(&name, &when, &html);
+
+  QCOMPARE(view.rowCount(), 1);
+  QVERIFY(view.messageAt(0).contains(QStringLiteral("hi there")));
+  //  Stored blobs carry no own-flag: history never reads as outgoing.
+  QVERIFY(!view.isOwnRow(0));
+
+  //  Broken offset / wiped historyFile: no phantom empty bubble.
+  QString empty;
+  view.showLegacyHtml(&name, &when, &empty);
+  QCOMPARE(view.rowCount(), 0);
 }
 
 QTEST_MAIN(TstChatNav)

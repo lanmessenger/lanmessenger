@@ -4,6 +4,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
 #include <QHelpEvent>
@@ -12,6 +13,7 @@
 #include <QMouseEvent>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QTextDocument>
 #include <QToolTip>
 #include <QUrl>
 
@@ -77,12 +79,6 @@ ChatMessageView::ChatMessageView(QWidget* parent)
   connect(chatModel, &QAbstractItemModel::dataChanged, this,
           &ChatMessageView::plainTextChanged);
   systemDark = qApp->palette().window().color().lightness() < 128;
-}
-
-void ChatMessageView::initMessageLog(QString newThemePath, bool clearLog) {
-  //  Legacy themePath (Appearance/Theme) is no longer read; BubbleV2 is fixed.
-  themePath = newThemePath;
-  initChat(clearLog);
 }
 
 void ChatMessageView::initChat(bool clearLog) {
@@ -235,6 +231,30 @@ void ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
     reloadMessageLog();
   if(autoScroll)
     scrollToBottom();
+}
+
+void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString* html) {
+  initChat();
+  QTextDocument doc;
+  doc.setHtml(html ? *html : QString());
+  QString text = doc.toPlainText().trimmed();
+  //  Broken offset or wiped historyFile: no phantom empty bubble.
+  if(text.isEmpty())
+    return;
+  XmlMessage xmlMessage;
+  if(when)
+    xmlMessage.addHeader(XN_TIME, QString::number(when->toMSecsSinceEpoch()));
+  xmlMessage.addData(XN_MESSAGE, text);
+  //  Saved blobs carry no own-flag: history rows are always incoming
+  //  (userId = userName never matches the empty history localId).
+  QString userId = userName ? *userName : QString();
+  appendMessageLog(MT_Message, &userId, userName, &xmlMessage);
+}
+
+bool ChatMessageView::isOwnRow(int row) const {
+  if(row < 0 || row >= chatModel->rowCount())
+    return false;
+  return chatModel->data(chatModel->index(row, 0), ChatMessageModel::OwnRole).toBool();
 }
 
 void ChatMessageView::setAppearanceMode(const QString& newMode) {
@@ -509,6 +529,21 @@ void ChatMessageView::onPaletteChanged() {
   }
 }
 
+void ChatMessageView::setThemeName(const QString& name) {
+  if(name.isEmpty() || name == themeName)
+    return;
+  if(ThemeV2::themeFileFor(name).isEmpty()) {
+    qCWarning(lmcUi) << "ChatMessageView: unknown theme" << name;
+    return;
+  }
+  themeName = name;
+  reloadTheme();
+}
+
+QString ChatMessageView::themeNameString() const {
+  return themeName;
+}
+
 QString ChatMessageView::appearanceModeString() const {
   switch(appearanceMode) {
   case ThemeV2::Mode::Light:
@@ -547,15 +582,11 @@ bool ChatMessageView::event(QEvent* event) {
 }
 
 QString ChatMessageView::themeFilePath() const {
-  //  File-based theme for iteration without rebuild; fallback is the built-in qrc.
-  QStringList candidates = {
-    StdLocation::sysThemeDir() + QStringLiteral("/BubbleV2/theme.json"),
-    StdLocation::userThemeDir() + QStringLiteral("/BubbleV2/theme.json"),
-    QStringLiteral(":/themes/BubbleV2/theme.json")};
-  for(const QString& path : candidates) {
-    if(QFile::exists(path))
-      return path;
-  }
+  //  Name-resolved (user dir wins over built-in qrc); file-based so theme
+  //  authors can iterate without rebuild. Fallback is the built-in qrc.
+  QString file = ThemeV2::themeFileFor(themeName);
+  if(!file.isEmpty())
+    return file;
   return QStringLiteral(":/themes/BubbleV2/theme.json");
 }
 

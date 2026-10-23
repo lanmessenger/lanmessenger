@@ -13,7 +13,7 @@
 #include "gui/chat/chathelper.h"
 #include "messaging/xmlmessage.h"
 
-//  Log save format (S1.5 removes the duplicate from messagelog.h).
+//  Log save format (Html/legacy-compatible, plain text).
 enum OutputFormat {
   HtmlFormat,
   TextFormat

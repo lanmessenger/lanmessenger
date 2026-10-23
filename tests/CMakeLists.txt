@@ -87,6 +87,7 @@ set_tests_properties(application PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscre
 # no network, no GUI. Fixture dir is the source themes dir (BubbleV2/theme.json).
 add_executable(tst_themev2
     unit/tst_themev2.cpp
+    ../src/resource.qrc
 )
 
 target_compile_definitions(tst_themev2 PRIVATE

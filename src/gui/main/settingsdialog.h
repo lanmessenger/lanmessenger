@@ -11,7 +11,7 @@
 #include "ui_settingsdialog.h"
 
 class lmcSettings;
-class lmcMessageLog;
+class ChatMessageView;
 class QLabel;
 class QIntValidator;
 class QRegularExpressionValidator;
@@ -52,7 +52,7 @@ private slots:
   void btnFont_clicked(void);
   void btnColor_clicked(void);
   void btnReset_clicked(void);
-  void cboTheme_currentIndexChanged(int index);
+  void refreshPreview(void);
   void lvBroadcasts_currentRowChanged(int index);
   void txtBroadcast_textEdited(const QString& text);
   void btnAddBroadcast_clicked(void);
@@ -64,6 +64,7 @@ private slots:
   void btnRefreshTheme_clicked(void);
 
 private:
+  void populateThemes(void);
   void setPageHeaderStyle(QLabel* pLabel);
   void setUIText(void);
   void loadSettings(void);
@@ -78,7 +79,7 @@ private:
   QIntValidator* pPortValidator;
   QRegularExpression ipRegExp;
   QRegularExpressionValidator* pIpValidator;
-  lmcMessageLog* pMessageLog;
+  ChatMessageView* pMessageLog;
   int statusTimerId;
   int statusNow;
 };

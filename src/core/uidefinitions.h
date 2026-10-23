@@ -47,7 +47,6 @@
 #define IDR_REFRESH ":/images/refresh"
 #define IDR_WEB ":/images/web"
 #define IDR_PIXEL ":/images/pixel"
-#define IDR_BLANK ":/images/blank"
 #define IDR_CHAT ":/images/chat"
 #define IDR_HGRIP ":/images/hgrip"
 #define IDR_VGRIP ":/images/vgrip"

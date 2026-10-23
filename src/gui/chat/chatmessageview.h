@@ -12,10 +12,10 @@
 
 class QMenu;
 class QAction;
+class QDateTime;
 
-//  Native chat view (stage 1, no flag): QListView + ChatMessageModel +
-//  BubbleDelegate. Public surface mirrors lmcMessageLog so chatwindow.cpp
-//  changes stay local; chatroom/history/settings move in S1.5.
+//  Native chat view (stage 1.5, single path): QListView + ChatMessageModel +
+//  BubbleDelegate. Single view for chat/chatroom/history/settings-preview.
 class ChatMessageView : public QListView {
   Q_OBJECT
   Q_PROPERTY(QString plainText READ plainText NOTIFY plainTextChanged)
@@ -24,7 +24,6 @@ public:
   explicit ChatMessageView(QWidget* parent = nullptr);
 
   //  lmcMessageLog compatibility (used by chatwindow).
-  void initMessageLog(QString themePath, bool clearLog = true);
   void initChat(bool clearLog = true);
   void reloadTheme();
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
@@ -38,12 +37,21 @@ public:
   void abortPendingFileOperations();
   void saveMessageLog(QString filePath);
   void restoreMessageLog(QString filePath, bool reload = true);
+  //  S1.5: legacy history (messenger.db) stores rendered HTML blobs.
+  //  No migration: show the blob as one read-only body row.
+  void showLegacyHtml(QString* userName, QDateTime* when, QString* html);
   void setAppearanceMode(const QString& mode);
   QString appearanceModeString() const;
+  //  Theme switch by name (user dir wins over built-in qrc); unknown names
+  //  are ignored, the log stays (reloadTheme repaints + invalidates cache).
+  void setThemeName(const QString& name);
+  QString themeNameString() const;
 
   QString plainText() const;
   int rowCount() const;
   QString messageAt(int row) const;
+  //  OwnRole of a row (history regression: stored rows must not read as own).
+  bool isOwnRow(int row) const;
 
   //  Fields mirror lmcMessageLog (assigned directly from chatwindow).
   QString localId;
@@ -56,7 +64,6 @@ public:
   bool autoFile = false;
   bool messageTime = true;
   bool messageDate = false;
-  QString themePath;
   bool allowLinks = true;
   bool pathToLink = false;
   bool trimMessage = true;
@@ -98,6 +105,7 @@ private:
   ChatMessageModel* chatModel;
   BubbleDelegate* bubbleDelegate;
   ThemeV2 theme;
+  QString themeName = QStringLiteral("BubbleV2");
   ThemeV2::Mode appearanceMode = ThemeV2::Mode::System;
   bool systemDark = false;
   bool autoScroll = true;

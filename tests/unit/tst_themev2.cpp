@@ -4,6 +4,11 @@
 
 #include <QtTest>
 
+#include <QDir>
+#include <QFile>
+#include <QStandardPaths>
+
+#include "core/stdlocation.h"
 #include "core/themev2.h"
 
 namespace {
@@ -72,6 +77,7 @@ private slots:
   void badFlagRejected();
   void tooDeepRejected();
   void fractionalArrayRejected();
+  void availableThemesListsUserAndSkipsBroken();
   void resolveTokens();
   void realFileLoads();
 };
@@ -163,6 +169,33 @@ void TstThemeV2::resolveTokens() {
            QColor(QStringLiteral("#E8EAED")));
   QCOMPARE(t.resolve(QStringLiteral("transparent"), ThemeV2::Mode::Light, false),
            QColor(Qt::transparent));
+}
+
+void TstThemeV2::availableThemesListsUserAndSkipsBroken() {
+  QStandardPaths::setTestModeEnabled(true);
+  QString base = StdLocation::userThemeDir();
+  QVERIFY(QDir().mkpath(base + QStringLiteral("/Good")));
+  QVERIFY(QDir().mkpath(base + QStringLiteral("/Bad")));
+  QFile good(base + QStringLiteral("/Good/theme.json"));
+  QVERIFY(good.open(QIODevice::WriteOnly));
+  good.write(validJson());
+  good.close();
+  QFile bad(base + QStringLiteral("/Bad/theme.json"));
+  QVERIFY(bad.open(QIODevice::WriteOnly));
+  bad.write("{broken");
+  bad.close();
+
+  QStringList themes = ThemeV2::availableThemes();
+  QVERIFY(themes.contains(QStringLiteral("BubbleV2")));
+  QVERIFY(themes.contains(QStringLiteral("Good")));
+  QVERIFY(!themes.contains(QStringLiteral("Bad")));
+  QCOMPARE(ThemeV2::themeFileFor(QStringLiteral("Good")),
+           QDir(base).absoluteFilePath(QStringLiteral("Good/theme.json")));
+  QVERIFY(ThemeV2::themeFileFor(QStringLiteral("Nope")).isEmpty());
+
+  QVERIFY(QDir(base + QStringLiteral("/Good")).removeRecursively());
+  QVERIFY(QDir(base + QStringLiteral("/Bad")).removeRecursively());
+  QStandardPaths::setTestModeEnabled(false);
 }
 
 void TstThemeV2::realFileLoads() {
