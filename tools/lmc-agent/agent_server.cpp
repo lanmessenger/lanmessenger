@@ -12,10 +12,12 @@
 #include <QPixmap>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QScreen>
 #include <QTcpSocket>
 #include <QTextEdit>
 #include <QTimer>
 #include <QVariant>
+#include <QWindow>
 
 #include "agent_core.h"
 
@@ -333,11 +335,33 @@ private:
       const QString file = params.value(QStringLiteral("file")).toString();
       if(file.isEmpty())
         return errorReply(id, QStringLiteral("missing file"));
-      const QPixmap shot = widget->grab();
+      QPixmap shot;
+      QJsonObject result;
+      if(params.value(QStringLiteral("frame")).toBool(false)) {
+        // Full window incl. native decorations (title bar + borders):
+        // real screen pixels of the frame rect. No WM (bare Xvfb) =>
+        // frame == client, same as QWidget::grab. Logical coords are
+        // exact at ratio 1 (Windows CI default); HiDPI legs verify by
+        // the PNG dims in artifacts.
+        QWidget* window = widget->isWindow() ? widget : widget->window();
+        const QRect frameRect = window->frameGeometry();
+        QScreen* screen = window->windowHandle() ? window->windowHandle()->screen() : nullptr;
+        if(!screen)
+          screen = QApplication::primaryScreen();
+        if(!screen)
+          return errorReply(id, QStringLiteral("no screen for frame grab"));
+        shot = screen->grabWindow(0, frameRect.x(), frameRect.y(),
+                                  frameRect.width(), frameRect.height());
+        result[QStringLiteral("x")] = frameRect.x();
+        result[QStringLiteral("y")] = frameRect.y();
+        result[QStringLiteral("width")] = frameRect.width();
+        result[QStringLiteral("height")] = frameRect.height();
+      } else {
+        shot = widget->grab();
+      }
       if(shot.isNull() || !shot.save(file)) {
         return errorReply(id, QStringLiteral("screenshot failed: %1").arg(file));
       }
-      QJsonObject result;
       result[QStringLiteral("file")] = file;
       return okReply(id, result);
     }

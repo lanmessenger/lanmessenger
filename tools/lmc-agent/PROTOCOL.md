@@ -79,7 +79,7 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
 | `get_log` | `{}` | `{path}` — this instance's trace file; empty when tracing is off (launch with `/trace`) |
 | `list_windows` | `{}` | `{windows: [{objectName, class, title, visible}]}` |
-| `grab_screenshot` | `{locator?, file}` | `{file}` — rendered app-side via `QWidget::grab` |
+| `grab_screenshot` | `{locator?, file, frame?}` | `{file}` (plus `x/y/width/height` for frame grabs) — default `QWidget::grab` (client area only); `frame=true` grabs real screen pixels of the top-level frame rect (native title bar + borders, bare Xvfb: same as client) |
 | `open_chat` | `{peer, timeout?}` | `{title}` — resolve `peer` by name or userId in the main-window contact tree, fire the same `tvUserList_itemActivated → chatStarting → startChat` path as keyboard Return (idempotent: reopens/shows the existing window), wait for a visible `ChatWindow`, return its title |
 | `close_app` | `{}` | `{closing: true}` — async `QCoreApplication::quit`, reply first |
 | `type_text` | `{locator, text, send?}` | `{typed: true}` — set text on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` directly; with `send=true` (default) a `Return` press is posted right after, so the widget's own Enter handling runs (e.g. `ChatWindow::eventFilter → sendMessage`, honoring the `SendKeyMod` setting) |

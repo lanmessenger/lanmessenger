@@ -295,12 +295,21 @@ class LmcLibrary:
         return self._request("list_windows").get("windows", [])
 
     @keyword("Grab Screenshot")
-    def grab_screenshot(self, output_file, locator=None):
-        """Render a widget app-side (QWidget::grab) into ``output_file``."""
-        params = {"file": output_file}
+    def grab_screenshot(self, output_file, locator=None, frame=False):
+        """Render a widget app-side into ``output_file``. Default
+        (``frame=False``) is ``QWidget::grab`` — client area only, no
+        window decorations. ``frame=True`` grabs real screen pixels of
+        the top-level frame rect (native title bar + borders); on bare
+        Xvfb (no WM) the frame is the client area, same output.
+        Returns the saved path (plus x/y/width/height for frame grabs).
+        """
+        if isinstance(frame, str):
+            frame = frame.strip().lower() in ("true", "1", "yes")
+        params = {"file": output_file, "frame": bool(frame)}
         if locator is not None:
             params["locator"] = locator
-        return self._request("grab_screenshot", params).get("file")
+        res = self._request("grab_screenshot", params)
+        return res.get("file")
 
     @keyword("Close Application")
     def close_application(self):

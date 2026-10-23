@@ -22,7 +22,17 @@ Documentation     Desktop screenshots E2E: the real application against lmmd
 ...               (no conversion in v1), Windows PNG via PowerShell,
 ...               macOS screencapture with widget-shot fallback. Shots are
 ...               saved, never compared (clocks, font smoothing and native
-...               decorations float per OS). No autocommit to site/ in v1 —
+...               decorations float per OS). The two window shots
+...               (screenshots-window-main.png, screenshots-window-chat.png)
+...               are the stable site input: full top-level frames with
+...               native title bar, grabbed with frame=${TRUE} on every leg
+...               (bare Xvfb: frame == client, no titles on Linux — the site
+...               composite is Windows-only). Sizes vary per OS (title bar
+...               heights differ), so the site reads actual PNG dims and only
+...               scales positions from the 1280x1024 base — see
+...               todo/site-screenshots-composite.md. The desktop capture
+...               stays a CI-layout artifact for our eyes only.
+...               No autocommit to site/ in v1 —
 ...               updating site/public/images/lmc_1225_* stays manual.
 ...               Two drivers in one suite, one per side: LmcLibrary
 ...               (via common.resource) owns the GUI with the in-process
@@ -175,7 +185,9 @@ Capture Desktop Scene
     ...    Send From Mock And Expect In Log    ${c}[userId]    ${LINE_5}
     Sleep    1s
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}screenshots-ui-tree.json
-    Grab Screenshot    output_file=${OUTPUT_DIR}${/}screenshots-widget-main.png    locator=name=MainWindow visible=true
-    Grab Screenshot    output_file=${OUTPUT_DIR}${/}screenshots-widget-chat.png    locator=name=ChatWindow visible=true
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}screenshots-window-main.png    locator=name=MainWindow visible=true    frame=${TRUE}
+    Log    WINDOW SHOT: ${OUTPUT_DIR}${/}screenshots-window-main.png
+    Grab Screenshot    output_file=${OUTPUT_DIR}${/}screenshots-window-chat.png    locator=name=ChatWindow visible=true    frame=${TRUE}
+    Log    WINDOW SHOT: ${OUTPUT_DIR}${/}screenshots-window-chat.png
     ${desktop}=    Capture Desktop Screenshot
     Log    DESKTOP SHOT: ${desktop}
