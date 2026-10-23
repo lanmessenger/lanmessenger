@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QKeyEvent>
 #include <QCloseEvent>
@@ -40,6 +41,19 @@
 #include "core/soundplayer.h"
 
 const qint64 pauseTime = 5000;
+
+static void mergeFormatOverDocument(QTextEdit* edit, const QTextCharFormat& format) {
+  QTextCursor saved = edit->textCursor();
+  int anchor = saved.anchor();
+  int position = saved.position();
+  QTextCursor cursor(edit->document());
+  cursor.select(QTextCursor::Document);
+  cursor.mergeCharFormat(format);
+  QTextCursor restore(edit->document());
+  restore.setPosition(anchor);
+  restore.setPosition(position, QTextCursor::KeepAnchor);
+  edit->setTextCursor(restore);
+}
 
 lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
@@ -451,6 +465,9 @@ void lmcChatWindow::btnFontColor_clicked(void) {
     messageColor = color;
     messageColorSet = true;
     ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    QTextCharFormat format;
+    format.setForeground(color);
+    mergeFormatOverDocument(ui.txtMessage, format);
   }
 }
 
@@ -796,7 +813,11 @@ QString lmcChatWindow::getWindowTitle(void) {
 
 void lmcChatWindow::setMessageFont(QFont& font) {
   ui.txtMessage->setFont(font);
-  ui.txtMessage->setFontPointSize(font.pointSize());
+  QTextCharFormat format;
+  format.setFontFamily(font.family());
+  if(font.pointSize() > 0)
+    format.setFontPointSize(font.pointSize());
+  mergeFormatOverDocument(ui.txtMessage, format);
 }
 
 void lmcChatWindow::setChatState(ChatState newChatState) {
