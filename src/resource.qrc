@@ -188,5 +188,6 @@
         <file alias="Classic/Incoming/NextContent.html">resources/themes/Classic/Incoming/NextContent.html</file>
         <file alias="Classic/Outgoing/Content.html">resources/themes/Classic/Outgoing/Content.html</file>
         <file alias="Classic/Outgoing/NextContent.html">resources/themes/Classic/Outgoing/NextContent.html</file>
+        <file alias="BubbleV2/theme.json">resources/themes/BubbleV2/theme.json</file>
     </qresource>
 </RCC>

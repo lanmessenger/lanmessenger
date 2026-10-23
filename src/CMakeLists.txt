@@ -12,7 +12,10 @@ set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 add_library(lmc_core STATIC
     gui/main/aboutdialog.cpp
     gui/chat/broadcastwindow.cpp
+    gui/chat/bubbledelegate.cpp
     gui/chat/chathelper.cpp
+    gui/chat/chatmessagemodel.cpp
+    gui/chat/chatmessageview.cpp
     gui/chat/chatroomwindow.cpp
     gui/chat/chatwindow.cpp
     core/crypto.cpp
@@ -44,6 +47,7 @@ add_library(lmc_core STATIC
     gui/widgets/subcontrols.cpp
     network/tcpnetwork.cpp
     core/theme.cpp
+    core/themev2.cpp
     core/lmclogging.cpp
     gui/files/transferlistview.cpp
     gui/files/transferwindow.cpp
@@ -57,9 +61,11 @@ add_library(lmc_core STATIC
     gui/widgets/actionhelper.h
     gui/main/aboutdialog.h
     gui/chat/broadcastwindow.h
+    gui/chat/bubbledelegate.h
     gui/chat/chatdefinitions.h
     gui/chat/chatwindow.h
-    gui/chat/chathelper.h
+    gui/chat/chatmessagemodel.h
+    gui/chat/chatmessageview.h
     gui/chat/chatroomwindow.h
     core/crypto.h
     network/datagram.h
@@ -92,6 +98,7 @@ add_library(lmc_core STATIC
     gui/widgets/subcontrols.h
     network/tcpnetwork.h
     core/theme.h
+    core/themev2.h
     core/lmccategories.h
     core/lmclogging.h
     gui/files/transferlistview.h
@@ -368,8 +375,10 @@ install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
         FILES_MATCHING PATTERN "*.qm")
 # Themes without Classic (bundled into resource.qrc) and notification sounds.
+# SCHEMA.md is authoring docs, not a runtime asset.
 install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
-        PATTERN "Classic" EXCLUDE)
+        PATTERN "Classic" EXCLUDE
+        PATTERN "*.md" EXCLUDE)
 install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})

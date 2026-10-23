@@ -14,7 +14,7 @@
 struct User;
 class XmlMessage;
 class lmcSettings;
-class lmcMessageLog;
+class ChatMessageView;
 class lmcSoundPlayer;
 class lmcToolButton;
 class lmcImagePickerAction;
@@ -98,7 +98,7 @@ private:
 
   Ui::ChatWindow ui;
   lmcSettings* pSettings;
-  lmcMessageLog* pMessageLog;
+  ChatMessageView* pMessageLog;
   QAction* pFontAction;
   QAction* pFontColorAction;
   lmcToolButton* pbtnSmiley;

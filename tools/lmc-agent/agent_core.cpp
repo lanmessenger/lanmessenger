@@ -89,8 +89,14 @@ bool widgetMatches(QWidget* widget, const QJsonObject& criteria) {
         return false;
     } else if(key == "className") {
       const QString name = want.toString();
-      if(QLatin1String(widget->metaObject()->className()) != name &&
-         !widget->inherits(name.toLatin1().constData()))
+      const QString actual = QLatin1String(widget->metaObject()->className());
+      bool match = (actual == name) || widget->inherits(name.toLatin1().constData());
+      if(!match && name == QLatin1String("lmcMessageLog"))
+        //  Stage 1: type=lmcMessageLog is the old C++ log class; the new view
+        //  is ChatMessageView (name kept here, the agent links no lmc headers).
+        match = (actual == QLatin1String("ChatMessageView")) ||
+                widget->inherits("ChatMessageView");
+      if(!match)
         return false;
     } else if(key == "text") {
       QString have;

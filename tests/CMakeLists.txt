@@ -82,3 +82,64 @@ set_target_properties(tst_application PROPERTIES
 
 add_test(NAME application COMMAND tst_application)
 set_tests_properties(application PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ThemeV2 validator (native chat render, BubbleV2): pure JSON validation,
+# no network, no GUI. Fixture dir is the source themes dir (BubbleV2/theme.json).
+add_executable(tst_themev2
+    unit/tst_themev2.cpp
+)
+
+target_compile_definitions(tst_themev2 PRIVATE
+    LMC_THEMEV2_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../src/resources/themes"
+)
+
+target_link_libraries(tst_themev2 PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_themev2 PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME themev2 COMMAND tst_themev2)
+set_tests_properties(themev2 PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ChatMessageModel: группировка/plainText/файлы, без сети.
+add_executable(tst_chatmodel
+    unit/tst_chatmodel.cpp
+    ../src/resource.qrc
+)
+
+target_link_libraries(tst_chatmodel PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_chatmodel PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME chatmodel COMMAND tst_chatmodel)
+set_tests_properties(chatmodel PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ChatMessageView keyboard nav (Tab/Return over file anchors), offscreen.
+add_executable(tst_chatnav
+    unit/tst_chatnav.cpp
+    ../src/resource.qrc
+)
+
+target_link_libraries(tst_chatnav PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_chatnav PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME chatnav COMMAND tst_chatnav)
+set_tests_properties(chatnav PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

@@ -32,7 +32,7 @@
 #include "core/uidefinitions.h"
 #include "messaging/history.h"
 #include "messaging/xmlmessage.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
 #include "gui/widgets/imagepickeraction.h"
@@ -48,10 +48,9 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   setAttribute(Qt::WA_DeleteOnClose, true);
   setAcceptDrops(true);
 
-  pMessageLog = new lmcMessageLog(ui.wgtLog);
+  pMessageLog = new ChatMessageView(ui.wgtLog);
   ui.logLayout->addWidget(pMessageLog);
-  pMessageLog->setAcceptDrops(false);
-  connect(pMessageLog, &lmcMessageLog::messageSent, this, &lmcChatWindow::log_sendMessage);
+  connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatWindow::log_sendMessage);
 
   int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
                           ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
@@ -153,7 +152,12 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   ui.txtMessage->setFocus();
 
   QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  pMessageLog->initMessageLog(themePath);
+  Q_UNUSED(themePath);
+  //  Stage 1: BubbleV2 is fixed, legacy Appearance/Theme is no longer read
+  //  (removed in S1.5 together with the old themes). Mode is Appearance/Mode.
+  pMessageLog->setAppearanceMode(
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  pMessageLog->initChat();
   if(!clearOnClose)
     pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
 }
@@ -282,16 +286,21 @@ void lmcChatWindow::settingsChanged(void) {
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
-  QString theme = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0) {
+    //  Mode switch alone: setAppearanceMode repaints with the new palette,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setAppearanceMode(appearanceMode);
+  }
   if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
      allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
-     trim != pMessageLog->trimMessage || theme.compare(pMessageLog->themePath) != 0) {
+     trim != pMessageLog->trimMessage) {
     pMessageLog->messageTime = msgTime;
     pMessageLog->messageDate = msgDate;
     pMessageLog->allowLinks = allowLinks;
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;
-    pMessageLog->themePath = theme;
     pMessageLog->reloadMessageLog();
   }
 }

@@ -10,6 +10,7 @@
 #include "core/definitions.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chathelper.h"
+#include "gui/chat/chatmessagemodel.h"
 #include "messaging/xmlmessage.h"
 #include "core/theme.h"
 #include "gui/widgets/qmessagebrowser.h"
@@ -24,11 +25,6 @@ class QColor;
 class QDateTime;
 class QUrl;
 class QPoint;
-
-enum OutputFormat {
-  HtmlFormat,
-  TextFormat
-};
 
 class lmcMessageLog : public QMessageBrowser {
   Q_OBJECT
