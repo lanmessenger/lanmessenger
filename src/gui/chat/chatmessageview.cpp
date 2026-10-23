@@ -65,6 +65,10 @@ ChatMessageView::ChatMessageView(QWidget* parent)
   setModel(chatModel);
   setItemDelegate(bubbleDelegate);
   setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+  //  Rows reflow to the viewport width in BubbleDelegate::sizeHint,
+  //  so a horizontal bar can only be an artifact of the vertical bar
+  //  narrowing the viewport against width-cached hints: keep it off.
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setUniformItemSizes(false);
   setSelectionMode(QAbstractItemView::ExtendedSelection);
   setFocusPolicy(Qt::StrongFocus);

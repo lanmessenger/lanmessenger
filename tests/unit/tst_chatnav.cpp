@@ -4,6 +4,7 @@
 // offscreen: no display needed.
 
 #include <QtTest>
+#include <QScrollBar>
 
 #include "core/definitions.h"
 #include "gui/chat/chatmessageview.h"
@@ -41,6 +42,7 @@ private slots:
   void tabPastLastAnchorLeavesView();
   void viewportBackgroundMatchesPage();
   void legacyHtmlShowsAsSingleRow();
+  void horizontalBarStaysOff();
 };
 
 void TstChatNav::tabReturnAccepts() {
@@ -149,6 +151,38 @@ void TstChatNav::legacyHtmlShowsAsSingleRow() {
   QString empty;
   view.showLegacyHtml(&name, &when, &empty);
   QCOMPARE(view.rowCount(), 0);
+}
+
+void TstChatNav::horizontalBarStaysOff() {
+  ChatMessageView view;
+  view.localId = QStringLiteral("me");
+  view.peerId = QStringLiteral("jack");
+  view.resize(400, 300);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
+
+  //  Overflow vertically: the vertical bar must appear while the
+  //  horizontal one stays off (rows reflow to the viewport width).
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  for(int i = 0; i < 60; i++) {
+    XmlMessage m;
+    m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+    m.addData(XN_MESSAGE,
+              QStringLiteral("message number %1 with enough text to wrap").arg(i));
+    m.addData(XN_FONT, QFont().toString());
+    m.addData(XN_COLOR, QStringLiteral("#000000"));
+    if(i % 2 == 0)
+      view.appendMessageLog(MT_Message, &jack, &jackName, &m);
+    else
+      view.appendMessageLog(MT_Message, &me, &meName, &m);
+  }
+  QTRY_VERIFY_WITH_TIMEOUT(view.verticalScrollBar()->isVisible(), 5000);
+  QCOMPARE(view.horizontalScrollBarPolicy(), Qt::ScrollBarAlwaysOff);
+  QVERIFY(!view.horizontalScrollBar()->isVisible());
+  QCOMPARE(view.horizontalScrollBar()->maximum(), 0);
 }
 
 QTEST_MAIN(TstChatNav)
