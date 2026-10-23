@@ -439,8 +439,10 @@ void lmcChatWindow::btnFont_clicked(void) {
   QFont font = ui.txtMessage->font();
   font.setPointSize(ui.txtMessage->fontPointSize());
   QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
-  if(ok)
+  if(ok) {
     setMessageFont(newFont);
+    messageFontSet = true;
+  }
 }
 
 void lmcChatWindow::btnFontColor_clicked(void) {
@@ -649,7 +651,8 @@ void lmcChatWindow::sendMessage(void) {
     MessageType type = groupMode ? MT_GroupMessage : MT_Message;
     XmlMessage xmlMessage;
     xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-    xmlMessage.addData(XN_FONT, font.toString());
+    if(messageFontSet)
+      xmlMessage.addData(XN_FONT, font.toString());
     if(messageColorSet)
       xmlMessage.addData(XN_COLOR, messageColor.name());
     if(groupMode) {

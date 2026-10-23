@@ -117,6 +117,7 @@ private:
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
   bool messageColorSet = false;
+  bool messageFontSet = false;
   bool dataSaved;
   bool windowLoaded;
 };

@@ -126,6 +126,7 @@ private:
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
   bool messageColorSet = false;
+  bool messageFontSet = false;
   ChatState chatState;
   qint64 keyStroke;
   qint64 snapKeyStroke;

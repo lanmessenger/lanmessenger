@@ -24,14 +24,17 @@ const int kRowMargin = 8;
 const int kHeaderGap = 2;
 const int kMaxCacheEntries = 150;
 
-QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own) {
+QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
+                     bool fontExplicit) {
   QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
   if(font.italic())
     style += QStringLiteral("font-style:italic; ");
   if(font.bold())
     style += QStringLiteral("font-weight:bold; ");
-  if(own) {
-    style += QStringLiteral("font-size:%1pt; ").arg(font.pointSize());
+  //  An explicitly chosen sender font is honored with its own size (like color);
+  //  otherwise the size comes from the local theme setting.
+  if(own || fontExplicit) {
+    style += QStringLiteral("font-size:%1pt; ").arg(font.pointSizeF());
     if(color.isValid())
       style += QStringLiteral("color:%1; ").arg(color.name());
   } else {
@@ -111,13 +114,19 @@ QColor BubbleDelegate::cardColor(const QString& cardName, bool bg2, bool darkMod
 }
 
 QFont BubbleDelegate::rowFont(const QModelIndex& index) const {
-  QFont f = index.data(ChatMessageModel::FontRole).value<QFont>();
-  bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  if(!own) {
-    //  As in getFontStyle: incoming rows take size from fontSizeVal.
-    static const double sizes[] = {8.25, 9.0, 10.5};
-    f.setPointSizeF(sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)]);
+  static const double sizes[] = {8.25, 9.0, 10.5};
+  double themeSize = sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
+  QVariant v = index.data(ChatMessageModel::FontRole);
+  if(v.isValid()) {
+    //  Sender chose a font: honor family and size (like color).
+    QFont f = v.value<QFont>();
+    if(f.pointSizeF() <= 0)
+      f.setPointSizeF(themeSize);
+    return f;
   }
+  //  Sender did not choose: theme fallback (app default family, local size).
+  QFont f;
+  f.setPointSizeF(themeSize);
   return f;
 }
 
@@ -262,7 +271,8 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index) const {
       color = theme.resolveToken(QStringLiteral("text"), theme.isDark(mode, systemDark));
   }
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  QString style = fontStyleFor(font, color, display.fontSizeVal, own);
+  bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();
+  QString style = fontStyleFor(font, color, display.fontSizeVal, own, fontExplicit);
   QString linkColorName =
     theme.resolveToken(QStringLiteral("link"), theme.isDark(mode, systemDark)).name();
   QString body;
