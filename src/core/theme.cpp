@@ -15,17 +15,6 @@
 
 namespace {
 
-const char* kTokens[] = {"bubbleIn", "bubbleIn2", "bubbleOut", "bubbleOut2", "text", "secondary",
-                         "link", "border", "page", "accent", "accentSoft", "textInverse"};
-const int kTokenCount = 12;
-
-//  Optional tokens (system pill): present in both palettes or in neither.
-const char* kOptionalTokens[] = {"pill", "pillBorder"};
-const int kOptionalTokenCount = 2;
-
-const char* kCards[] = {"incoming", "outgoing", "broadcast", "system", "request"};
-const int kCardCount = 5;
-
 const char* kLayouts[] = {"layout_incoming", "layout_outgoing", "layout_system", "layout_broadcast",
                           "layout_request"};
 const int kLayoutCount = 5;
@@ -47,14 +36,6 @@ bool isHexColor(const QString& s) {
   return true;
 }
 
-bool isTokenRef(const QString& s) {
-  return s.startsWith(QLatin1Char('$')) && s.length() > 1;
-}
-
-QString tokenName(const QString& ref) {
-  return ref.mid(1);
-}
-
 bool isKnownFlag(const QString& s) {
   for(int i = 0; i < kFlagCount; i++)
     if(s == QLatin1String(kFlags[i]))
@@ -71,8 +52,8 @@ bool isKnownLayout(const QString& s) {
 
 //  The S subset is rendered; L-reserved blocks validate but are ignored.
 bool isKnownBlock(const QString& s) {
-  static const char* blocks[] = {"hbox", "vbox", "avatar", "header", "bubble", "body",
-                                 "linkPreview", "fileCard", "quote", "code", "status", "buttons"};
+  static const char* blocks[] = {"hbox", "vbox", "avatar", "header", "body", "linkPreview",
+                                 "fileCard", "quote", "code", "status", "buttons"};
   for(auto* b : blocks)
     if(s == QLatin1String(b))
       return true;
@@ -116,17 +97,124 @@ bool checkIntArray(const QJsonValue& v, int n, QString& error, const char* what)
   return true;
 }
 
-bool isKnownTokenRef(const QString& ref, const QMap<QString, QColor>& light,
-                     const QMap<QString, QColor>& dark) {
-  if(!isTokenRef(ref))
+//  Literal color forms: "#hex" (both modes) or ["light", "dark"].
+//  Bare "transparent" only where explicitly allowed (body/fileCard bg).
+bool parseDualColor(const QJsonValue& v, const char* what, QString& error, Theme::DualColor& out,
+                    bool allowTransparent = false) {
+  auto bad = [&] {
+    error = QStringLiteral("bad %1 (want \"#hex\" or [\"light\", \"dark\"])")
+              .arg(QLatin1String(what));
     return false;
-  QString name = tokenName(ref);
-  return light.contains(name) && dark.contains(name);
+  };
+  if(v.isString()) {
+    QString s = v.toString().trimmed();
+    if(allowTransparent && s == QLatin1String("transparent")) {
+      out.light = QColor(Qt::transparent);
+      out.dark = QColor(Qt::transparent);
+      return true;
+    }
+    if(!isHexColor(s))
+      return bad();
+    out.light = QColor(s);
+    out.dark = QColor(s);
+    return true;
+  }
+  if(!v.isArray())
+    return bad();
+  QJsonArray a = v.toArray();
+  if(a.size() != 2 || !a.at(0).isString() || !a.at(1).isString())
+    return bad();
+  QString first = a.at(0).toString().trimmed();
+  QString second = a.at(1).toString().trimmed();
+  if(!isHexColor(first) || !isHexColor(second))
+    return bad();
+  out.light = QColor(first);
+  out.dark = QColor(second);
+  return true;
 }
 
-bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
-                  const QMap<QString, QColor>& light, const QMap<QString, QColor>& dark,
-                  QString& error) {
+//  gradient(#from, #to): exactly two bare hex stops, whitespace tolerated.
+bool parseGradient(const QString& s, const char* what, QString& error, QColor& from, QColor& to) {
+  QString t = s.trimmed();
+  if(!t.startsWith(QLatin1String("gradient(")) || !t.endsWith(QLatin1Char(')'))) {
+    error = QStringLiteral("bad %1 (want gradient(#from, #to))").arg(QLatin1String(what));
+    return false;
+  }
+  QString inner = t.mid(9, t.length() - 10);
+  const QStringList parts = inner.split(QLatin1Char(','));
+  if(parts.size() != 2) {
+    error = QStringLiteral("bad %1 (want gradient(#from, #to))").arg(QLatin1String(what));
+    return false;
+  }
+  QString f = parts.at(0).trimmed();
+  QString s2 = parts.at(1).trimmed();
+  if(!isHexColor(f) || !isHexColor(s2)) {
+    error = QStringLiteral("bad %1 (want gradient(#from, #to))").arg(QLatin1String(what));
+    return false;
+  }
+  from = QColor(f);
+  to = QColor(s2);
+  return true;
+}
+
+//  Rect fill: "#hex", "transparent", ["light", "dark"] or
+//  ["gradient(#from, #to)", "gradient(#from, #to)"]. A pair mixes
+//  either two solids or two gradients, never one of each.
+bool parseBg(const QJsonValue& v, const char* what, QString& error, Theme::Bg& out) {
+  if(v.isString()) {
+    QString s = v.toString().trimmed();
+    if(s == QLatin1String("transparent")) {
+      out.kind = Theme::Bg::Kind::Transparent;
+      return true;
+    }
+    Theme::DualColor solid;
+    if(!parseDualColor(v, what, error, solid))
+      return false;
+    out.kind = Theme::Bg::Kind::Solid;
+    out.solid = solid;
+    return true;
+  }
+  if(!v.isArray() || v.toArray().size() != 2) {
+    error = QStringLiteral("bad %1 (want \"#hex\", [\"light\", \"dark\"] or "
+                           "[\"gradient(#from, #to)\", \"gradient(#from, #to)\"])")
+              .arg(QLatin1String(what));
+    return false;
+  }
+  QJsonArray a = v.toArray();
+  if(!a.at(0).isString() || !a.at(1).isString()) {
+    error = QStringLiteral("bad %1 (want \"#hex\", [\"light\", \"dark\"] or "
+                           "[\"gradient(#from, #to)\", \"gradient(#from, #to)\"])")
+              .arg(QLatin1String(what));
+    return false;
+  }
+  QString first = a.at(0).toString().trimmed();
+  QString second = a.at(1).toString().trimmed();
+  bool firstGrad = first.startsWith(QLatin1String("gradient("));
+  bool secondGrad = second.startsWith(QLatin1String("gradient("));
+  if(firstGrad != secondGrad) {
+    error = QStringLiteral("bad %1 (pair mixes a color and a gradient)").arg(QLatin1String(what));
+    return false;
+  }
+  if(!firstGrad) {
+    Theme::DualColor solid;
+    if(!parseDualColor(v, what, error, solid))
+      return false;
+    out.kind = Theme::Bg::Kind::Solid;
+    out.solid = solid;
+    return true;
+  }
+  QColor lf, lt, df, dt;
+  if(!parseGradient(first, what, error, lf, lt) || !parseGradient(second, what, error, df, dt))
+    return false;
+  out.kind = Theme::Bg::Kind::Gradient;
+  out.lightFrom = lf;
+  out.lightTo = lt;
+  out.darkFrom = df;
+  out.darkTo = dt;
+  return true;
+}
+
+bool validateNode(const QJsonObject& node, int depth, const QString& layoutName, QString& error) {
   if(depth > 4) {
     error = QStringLiteral("layout too deep (>4)");
     return false;
@@ -139,6 +227,14 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
   if(!isKnownBlock(type)) {
     error = QStringLiteral("unknown block: %1").arg(type);
     return false;
+  }
+  //  Rows are tailless: no tail triangle is drawn, tail keys are rejected.
+  for(auto key : {QStringLiteral("tail"), QStringLiteral("tailSize"),
+                  QStringLiteral("tailStyle")}) {
+    if(node.contains(key)) {
+      error = QStringLiteral("tail is not supported (tailless rows)");
+      return false;
+    }
   }
   if(isContainer(type)) {
     //  Gap is the only spacing source: containers must carry it (int >= 0).
@@ -170,37 +266,160 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
         }
       }
     }
-    //  Node color overrides name the element and stay $token-only like cards.
+    //  Literal header colors: node value or the theme header default.
     for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
-      if(node.contains(key) &&
-         (!node.value(key).isString() ||
-          !isKnownTokenRef(node.value(key).toString(), light, dark))) {
-        error = QStringLiteral("bad %1 in header node (want known $token)").arg(key);
+      if(node.contains(key)) {
+        Theme::DualColor unused;
+        QByteArray what = QByteArray("header node ") + key.toLatin1();
+        if(!parseDualColor(node.value(key), what.constData(), error, unused))
+          return false;
+      }
+    }
+    for(auto key :
+        {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
+         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("margin"),
+         QStringLiteral("maxWidthPct")}) {
+      if(node.contains(key)) {
+        error = QStringLiteral("%1 only on body/fileCard").arg(key);
         return false;
       }
     }
   }
-  if(type == QLatin1String("bubble") && node.contains(QStringLiteral("textColor"))) {
-    if(!node.value(QStringLiteral("textColor")).isString() ||
-       !isKnownTokenRef(node.value(QStringLiteral("textColor")).toString(), light, dark)) {
-      error = QStringLiteral("bad textColor in bubble node (want known $token)");
+  if(type == QLatin1String("body") || type == QLatin1String("fileCard")) {
+    //  Fill is required: a rendered row always has one rect to paint.
+    //  One rect per layout: body and fileCard never stack, fileCard
+    //  lives in layout_request only.
+    if(!node.contains(QStringLiteral("bg"))) {
+      error = QStringLiteral("%1 without bg").arg(type);
+      return false;
+    }
+    Theme::Bg unusedBg;
+    QByteArray what = type.toLatin1() + QByteArray(" bg");
+    if(!parseBg(node.value(QStringLiteral("bg")), what.constData(), error, unusedBg))
+      return false;
+    for(auto key : {QStringLiteral("textColor"), QStringLiteral("border")}) {
+      if(node.contains(key)) {
+        Theme::DualColor unused;
+        QByteArray keyWhat = type.toLatin1() + QByteArray(" ") + key.toLatin1();
+        if(!parseDualColor(node.value(key), keyWhat.constData(), error, unused))
+          return false;
+      }
+    }
+    //  Rect metrics, required: pixel padding, shadow, row top gap, width cap.
+    //  Margin is an object like corners: {default, next?}, both ints >= 0;
+    //  an absent next falls back to default.
+    QByteArray padWhat = type.toLatin1() + QByteArray(" padding");
+    QByteArray shadowWhat = type.toLatin1() + QByteArray(" shadow");
+    if(!checkIntArray(node.value(QStringLiteral("padding")), 4, error, padWhat.constData()) ||
+       !checkDoubleArray(node.value(QStringLiteral("shadow")), 4, error,
+                         shadowWhat.constData()))
+      return false;
+    QJsonArray padding = node.value(QStringLiteral("padding")).toArray();
+    QJsonArray shadow = node.value(QStringLiteral("shadow")).toArray();
+    for(int i = 0; i < 4; i++) {
+      if(padding.at(i).toInt(-1) < 0) {
+        error = QStringLiteral("%1.padding must be >= 0").arg(type);
+        return false;
+      }
+    }
+    QJsonValue marginValue = node.value(QStringLiteral("margin"));
+    if(!marginValue.isObject()) {
+      error = QStringLiteral("bad %1 margin (want {default, next?})").arg(type);
+      return false;
+    }
+    QJsonObject marginObj = marginValue.toObject();
+    for(const QString& key : marginObj.keys()) {
+      if(key != QLatin1String("default") && key != QLatin1String("next")) {
+        error = QStringLiteral("bad %1 margin key %2").arg(type, key);
+        return false;
+      }
+    }
+    QJsonValue marginDefault = marginObj.value(QStringLiteral("default"));
+    if(!marginDefault.isDouble() ||
+       std::floor(marginDefault.toDouble()) != marginDefault.toDouble() ||
+       marginDefault.toInt() < 0) {
+      error = QStringLiteral("bad %1 margin.default (want int >= 0)").arg(type);
+      return false;
+    }
+    QJsonValue marginNextValue = marginObj.value(QStringLiteral("next"));
+    if(!marginNextValue.isUndefined() && !marginNextValue.isNull() &&
+       (!marginNextValue.isDouble() ||
+        std::floor(marginNextValue.toDouble()) != marginNextValue.toDouble() ||
+        marginNextValue.toInt() < 0)) {
+      error = QStringLiteral("bad %1 margin.next (want int >= 0)").arg(type);
+      return false;
+    }
+    int maxWidthPct = node.value(QStringLiteral("maxWidthPct")).toInt(-1);
+    if(maxWidthPct < 1 || maxWidthPct > 100 || shadow.at(3).toDouble(-1.0) < 0.0 ||
+       shadow.at(3).toDouble(2.0) > 1.0) {
+      error = QStringLiteral("bad %1 numbers (want maxWidthPct/shadow opacity)").arg(type);
+      return false;
+    }
+    for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
+      if(node.contains(key)) {
+        error = QStringLiteral("%1 only on header").arg(key);
+        return false;
+      }
+    }
+    bool isFileLayout = (layoutName == QLatin1String("layout_request"));
+    if(type == QLatin1String("body") && isFileLayout) {
+      error = QStringLiteral("body not allowed in layout_request (use fileCard)");
+      return false;
+    }
+    if(type == QLatin1String("fileCard") && !isFileLayout) {
+      error = QStringLiteral("fileCard only in layout_request");
       return false;
     }
   }
-  if(type == QLatin1String("bubble") && node.contains(QStringLiteral("card"))) {
-    QString card = node.value(QStringLiteral("card")).toString();
-    bool known = false;
-    for(int i = 0; i < kCardCount; i++)
-      if(card == QLatin1String(kCards[i]))
-        known = true;
-    if(!known) {
-      error = QStringLiteral("unknown card: %1").arg(card);
+  //  Color keys on any other node type are a typo: there is nothing to paint.
+  if(type != QLatin1String("header") && type != QLatin1String("body") &&
+     type != QLatin1String("fileCard")) {
+    for(auto key :
+        {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
+         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("margin"),
+         QStringLiteral("maxWidthPct"), QStringLiteral("senderColor"),
+         QStringLiteral("timeColor")}) {
+      if(node.contains(key)) {
+        error = QStringLiteral("%1 only on body/fileCard or header").arg(key);
+        return false;
+      }
+    }
+  }
+  //  Corners live on body/fileCard nodes only: {default, next?}, [TL, TR, BR, BL].
+  //  Outgoing nodes carry hand-mirrored values; no code mirror exists.
+  if(node.contains(QStringLiteral("corners"))) {
+    if(type != QLatin1String("body") && type != QLatin1String("fileCard")) {
+      error = QStringLiteral("corners only on body/fileCard");
       return false;
+    }
+    QJsonValue corners = node.value(QStringLiteral("corners"));
+    if(!corners.isObject()) {
+      error = QStringLiteral("bad corners (want {default, next?})");
+      return false;
+    }
+    QJsonObject c = corners.toObject();
+    for(const QString& key : c.keys()) {
+      if(key != QLatin1String("default") && key != QLatin1String("next")) {
+        error = QStringLiteral("bad corners key %1").arg(key);
+        return false;
+      }
+    }
+    QJsonArray def = c.value(QStringLiteral("default")).toArray();
+    QJsonArray next =
+      c.contains(QStringLiteral("next")) ? c.value(QStringLiteral("next")).toArray() : def;
+    if(!checkIntArray(def, 4, error, "corners.default") ||
+       !checkIntArray(next, 4, error, "corners.next"))
+      return false;
+    for(int i = 0; i < 4; i++) {
+      if(def.at(i).toInt() < 0 || next.at(i).toInt() < 0) {
+        error = QStringLiteral("corners.default/next must be >= 0");
+        return false;
+      }
     }
   }
   if(node.contains(QStringLiteral("children"))) {
-    //  Only containers and bubbles hold children; the rest are leaves.
-    if(!isContainer(type) && type != QLatin1String("bubble")) {
+    //  Only containers hold children; the rest are leaves.
+    if(!isContainer(type)) {
       error = QStringLiteral("%1 must not have children").arg(type);
       return false;
     }
@@ -209,37 +428,12 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
       return false;
     }
     QJsonArray kids = node.value(QStringLiteral("children")).toArray();
-    if(type == QLatin1String("bubble")) {
-      //  One content node per bubble: message and file never stack.
-      //  layout_request is the file layout (fileCard only, no body).
-      int content = 0;
-      for(const QJsonValue& c : kids) {
-        if(!c.isObject())
-          continue;
-        QString child = c.toObject().value(QStringLiteral("type")).toString();
-        if(child == QLatin1String("body") || child == QLatin1String("fileCard"))
-          content++;
-        bool isFileLayout = (layoutName == QLatin1String("layout_request"));
-        if(child == QLatin1String("body") && isFileLayout) {
-          error = QStringLiteral("body not allowed in layout_request (use fileCard)");
-          return false;
-        }
-        if(child == QLatin1String("fileCard") && !isFileLayout) {
-          error = QStringLiteral("fileCard only in layout_request");
-          return false;
-        }
-      }
-      if(content > 1) {
-        error = QStringLiteral("bubble holds one content node (body xor fileCard)");
-        return false;
-      }
-    }
     for(const QJsonValue& c : kids) {
       if(!c.isObject()) {
         error = QStringLiteral("bad child of %1").arg(type);
         return false;
       }
-      if(!validateNode(c.toObject(), depth + 1, layoutName, light, dark, error))
+      if(!validateNode(c.toObject(), depth + 1, layoutName, error))
         return false;
     }
   }
@@ -257,8 +451,6 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
     n.type = Theme::LayoutNode::Type::Avatar;
   else if(type == QLatin1String("header"))
     n.type = Theme::LayoutNode::Type::Header;
-  else if(type == QLatin1String("bubble"))
-    n.type = Theme::LayoutNode::Type::Bubble;
   else if(type == QLatin1String("body"))
     n.type = Theme::LayoutNode::Type::Body;
   else if(type == QLatin1String("fileCard"))
@@ -266,19 +458,83 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
   else if(type == QLatin1String("status"))
     n.type = Theme::LayoutNode::Type::Status;
   n.gap = obj.value(QStringLiteral("gap")).toInt(0);
-  n.card = obj.value(QStringLiteral("card")).toString();
   for(const QJsonValue& v : obj.value(QStringLiteral("items")).toArray())
     n.headerItems.append(v.toString());
   n.ifFlag = obj.value(QStringLiteral("if")).toString();
   n.ifNotFlag = obj.value(QStringLiteral("ifNot")).toString();
-  n.senderColor = obj.value(QStringLiteral("senderColor")).toString();
-  n.timeColor = obj.value(QStringLiteral("timeColor")).toString();
-  n.textColor = obj.value(QStringLiteral("textColor")).toString();
+  //  Validator guarantees the shapes; absent optionals keep has-flags false.
+  if(obj.contains(QStringLiteral("senderColor"))) {
+    QString dummy;
+    parseDualColor(obj.value(QStringLiteral("senderColor")), "header node senderColor", dummy,
+                   n.senderColor);
+    n.hasSenderColor = true;
+  }
+  if(obj.contains(QStringLiteral("timeColor"))) {
+    QString dummy;
+    parseDualColor(obj.value(QStringLiteral("timeColor")), "header node timeColor", dummy,
+                   n.timeColor);
+    n.hasTimeColor = true;
+  }
+  if(obj.contains(QStringLiteral("textColor"))) {
+    QString dummy;
+    parseDualColor(obj.value(QStringLiteral("textColor")), "body/fileCard textColor", dummy,
+                   n.textColor);
+    n.hasTextColor = true;
+  }
+  if(obj.contains(QStringLiteral("border"))) {
+    QString dummy;
+    parseDualColor(obj.value(QStringLiteral("border")), "body/fileCard border", dummy, n.border);
+    n.hasBorder = true;
+  }
+  if(obj.contains(QStringLiteral("bg"))) {
+    QString dummy;
+    parseBg(obj.value(QStringLiteral("bg")), "body/fileCard bg", dummy, n.bg);
+  }
+  QJsonArray pad = obj.value(QStringLiteral("padding")).toArray();
+  for(int i = 0; i < 4; i++)
+    n.padding[i] = pad.at(i).toInt();
+  QJsonArray sh = obj.value(QStringLiteral("shadow")).toArray();
+  n.shadowDx = sh.at(0).toDouble();
+  n.shadowDy = sh.at(1).toDouble();
+  n.shadowBlur = sh.at(2).toDouble();
+  n.shadowOpacity = sh.at(3).toDouble();
+  //  Validator guarantees the shape; an absent next falls back to default.
+  QJsonObject marginObj = obj.value(QStringLiteral("margin")).toObject();
+  n.marginDefault = marginObj.value(QStringLiteral("default")).toInt(0);
+  QJsonValue marginNext = marginObj.value(QStringLiteral("next"));
+  n.marginNext = (!marginNext.isUndefined() && !marginNext.isNull())
+                   ? marginNext.toInt(n.marginDefault)
+                   : n.marginDefault;
+  n.maxWidthPct = obj.value(QStringLiteral("maxWidthPct")).toInt(75);
+  //  Validator guarantees the shape; a node without corners keeps
+  //  the built-in default, next falls back to default.
+  QJsonObject corners = obj.value(QStringLiteral("corners")).toObject();
+  if(obj.contains(QStringLiteral("corners")) && !corners.isEmpty()) {
+    n.hasCorners = true;
+    QJsonArray def = corners.value(QStringLiteral("default")).toArray();
+    QJsonArray next =
+      corners.contains(QStringLiteral("next")) ? corners.value(QStringLiteral("next")).toArray()
+                                               : def;
+    for(int i = 0; i < 4; i++) {
+      n.cornersDefault[i] = def.at(i).toInt();
+      n.cornersNext[i] = next.at(i).toInt();
+    }
+  }
   for(const QJsonValue& c : obj.value(QStringLiteral("children")).toArray()) {
     if(c.isObject())
       n.children.append(compileNode(c.toObject()));
   }
   return n;
+}
+
+int treeContentCount(const Theme::LayoutNode& n) {
+  int count = (n.type == Theme::LayoutNode::Type::Body ||
+               n.type == Theme::LayoutNode::Type::FileCard)
+                ? 1
+                : 0;
+  for(const auto& c : n.children)
+    count += treeContentCount(c);
+  return count;
 }
 
 } // namespace
@@ -290,66 +546,77 @@ QString Theme::defaultJsonText() {
   return QString();
 }
 
+//  Last-resort theme: no resource dependency, minimal but complete.
+//  Only runs when even the compiled-in Bubble resource is unreadable.
+const char kFallbackThemeJson[] = R"JSON({
+  "version": 1,
+  "avatar": {"size": 40, "shape": "circle", "showOnGrouped": false},
+  "header": {
+    "senderBold": true, "timeFormat": "HH:mm", "outgoingYouLabel": false,
+    "senderColor": ["#1A1D21", "#E8EAED"], "timeColor": ["#6B7280", "#9AA0A6"]
+  },
+  "text": ["#1A1D21", "#E8EAED"],
+  "link": ["#0B5FFF", "#8AB4F8"],
+  "page": ["#EDEFF2", "#131518"],
+  "layout_incoming": [
+    {"type": "hbox", "gap": 8, "children": [
+      {"type": "avatar"},
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "header", "items": ["sender", "time"], "ifNot": "isGrouped"},
+        {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
+                                "gradient(#1F242B, #262D36)"],
+         "padding": [8, 10, 8, 10],
+         "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
+         "next": 2}, "maxWidthPct": 75},
+        {"type": "status", "if": "isOwnLast"}]}]}
+  ],
+  "layout_outgoing": [
+    {"type": "hbox", "gap": 8, "children": [
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "header", "items": ["time"], "ifNot": "isGrouped"},
+        {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
+                                "gradient(#1D4D2B, #1A4527)"],
+         "textColor": ["#1A1D21", "#E8EAED"],
+         "padding": [8, 10, 8, 10],
+         "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
+         "next": 2}, "maxWidthPct": 75},
+        {"type": "status", "if": "isOwnLast"}]}]}
+  ],
+  "layout_system": [
+    {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": "transparent",
+       "textColor": ["#6B7280", "#9AA0A6"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
+       "next": 2}, "maxWidthPct": 75}]}
+  ],
+  "layout_broadcast": [
+    {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"],
+       "border": ["#2F9E44", "#3FB950"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
+       "next": 2}, "maxWidthPct": 75}]}
+  ],
+  "layout_request": [
+    {"type": "vbox", "gap": 0, "children": [
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)",
+                                  "gradient(#1F242B, #262D36)"],
+       "border": ["#D8DEE5", "#3A424C"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
+       "next": 2}, "maxWidthPct": 75}]}
+  ]
+})JSON";
+
 Theme Theme::builtInDefault() {
-  Theme t;
-  t.bubble = Bubble();
-  t.avatar = Avatar();
-  t.header = Header();
-  auto fill = [](QMap<QString, QColor>& m, const char* vals[]) {
-    for(int i = 0; i < kTokenCount; i++)
-      m.insert(QLatin1String(kTokens[i]), QColor(QString::fromLatin1(vals[i])));
-  };
-  const char* lightVals[] = {"#FFFFFF", "#F1F4F8", "#D9F2C7", "#C9E8B4", "#1A1D21", "#6B7280",
-                             "#0B5FFF", "#D8DEE5", "#EDEFF2", "#2F9E44", "#E6F4EA",
-                             "#1A1D21"};
-  const char* darkVals[] = {"#1F242B", "#262D36", "#1D4D2B", "#1A4527", "#E8EAED", "#9AA0A6",
-                            "#8AB4F8", "#3A424C", "#131518", "#3FB950", "#1A2E22",
-                            "#E8EAED"};
-  static_assert(sizeof(lightVals) / sizeof(lightVals[0]) == kTokenCount,
-                "lightVals must cover every token");
-  static_assert(sizeof(darkVals) / sizeof(darkVals[0]) == kTokenCount,
-                "darkVals must cover every token");
-  fill(t.light, lightVals);
-  fill(t.dark, darkVals);
-  Card in;
-  in.bg = QStringLiteral("$bubbleIn");
-  in.bg2 = QStringLiteral("$bubbleIn2");
-  in.tail = QStringLiteral("left");
-  in.avatar = true;
-  in.hasAvatar = true;
-  t.cards.insert(QStringLiteral("incoming"), in);
-  Card out;
-  out.bg = QStringLiteral("$bubbleOut");
-  out.bg2 = QStringLiteral("$bubbleOut2");
-  out.tail = QStringLiteral("right");
-  out.avatar = false;
-  out.hasAvatar = true;
-  t.cards.insert(QStringLiteral("outgoing"), out);
-  Card bc;
-  bc.bg = QStringLiteral("$accentSoft");
-  bc.bg2 = QStringLiteral("$accentSoft");
-  bc.border = QStringLiteral("$accent");
-  bc.tail = QStringLiteral("none");
-  t.cards.insert(QStringLiteral("broadcast"), bc);
-  Card sys;
-  sys.bg = QStringLiteral("transparent");
-  sys.align = QStringLiteral("center");
-  sys.text = QStringLiteral("$secondary");
-  sys.tail = QStringLiteral("none");
-  t.cards.insert(QStringLiteral("system"), sys);
-  Card req;
-  req.bg = QStringLiteral("$bubbleIn");
-  req.bg2 = QStringLiteral("$bubbleIn2");
-  req.border = QStringLiteral("$border");
-  req.tail = QStringLiteral("left");
-  t.cards.insert(QStringLiteral("request"), req);
-  //  Empty layouts on the fallback theme: the delegate renders legacy
-  //  defaults for them (gaps 8/2, avatar/header rules of stage 1).
-  for(const char* name : {"layout_incoming", "layout_outgoing", "layout_system",
-                          "layout_broadcast", "layout_request"})
-    t.layouts.insert(QLatin1String(name), QJsonArray());
-  t.isValid = true;
-  return t;
+  //  Primary fallback: the compiled-in Bubble theme, same file the
+  //  theme list shows first.
+  Theme t = loadFromJson(defaultJsonText().toUtf8());
+  if(t.isValid)
+    return t;
+  qCWarning(lmcUi) << "Theme: built-in resource broken, using minimal fallback";
+  return loadFromJson(QByteArray(kFallbackThemeJson));
 }
 
 Theme Theme::loadFromJson(const QByteArray& data) {
@@ -368,87 +635,7 @@ Theme Theme::loadFromJson(const QByteArray& data) {
     return t;
   }
 
-  //  bubble
-  QJsonObject b = root.value(QStringLiteral("bubble")).toObject();
   QString err;
-  //  radius/padding are pixel integers; shadow is [dx, dy, blur, opacity]
-  //  where only opacity may be fractional (range-checked below).
-  if(!checkIntArray(b.value(QStringLiteral("radius")), 4, err, "bubble.radius") ||
-     !checkIntArray(b.value(QStringLiteral("padding")), 4, err, "bubble.padding") ||
-     !checkDoubleArray(b.value(QStringLiteral("shadow")), 4, err, "bubble.shadow")) {
-    t.errorString = err;
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
-    return t;
-  }
-  QJsonArray radius = b.value(QStringLiteral("radius")).toArray();
-  QJsonArray padding = b.value(QStringLiteral("padding")).toArray();
-  QJsonArray shadow = b.value(QStringLiteral("shadow")).toArray();
-  for(int i = 0; i < 4; i++) {
-    t.bubble.radius[i] = radius.at(i).toInt();
-    t.bubble.padding[i] = padding.at(i).toInt();
-    if(t.bubble.radius[i] < 0 || t.bubble.padding[i] < 0) {
-      t.errorString = QStringLiteral("bubble.radius/padding must be >= 0");
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-  }
-  //  Positional corner radii default to radius; explicit arrays must be valid.
-  for(int i = 0; i < 4; i++) {
-    t.bubble.radiusFirstInGroup[i] = t.bubble.radius[i];
-    t.bubble.radiusNextInGroup[i] = t.bubble.radius[i];
-  }
-  const char* posKeys[2] = {"radiusFirstInGroup", "radiusNextInGroup"};
-  int* posTargets[2] = {t.bubble.radiusFirstInGroup, t.bubble.radiusNextInGroup};
-  for(int k = 0; k < 2; k++) {
-    QJsonValue pos = b.value(QLatin1String(posKeys[k]));
-    if(pos.isUndefined() || pos.isNull())
-      continue;
-    if(!checkIntArray(pos, 4, err, QByteArray("bubble.") + posKeys[k])) {
-      t.errorString = err;
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    QJsonArray arr = pos.toArray();
-    for(int i = 0; i < 4; i++) {
-      posTargets[k][i] = arr.at(i).toInt();
-      if(posTargets[k][i] < 0) {
-        t.errorString =
-          QStringLiteral("bubble.%1 must be >= 0").arg(QLatin1String(posKeys[k]));
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-    }
-  }
-  t.bubble.tail = b.value(QStringLiteral("tail")).toInt(-1);
-  t.bubble.margin = b.value(QStringLiteral("margin")).toInt(-1);
-  //  Positional margins default to margin only when absent; an explicit
-  //  non-number falls back to -1 and invalidates the theme below.
-  t.bubble.marginFirstInGroup = t.bubble.margin;
-  t.bubble.marginNextInGroup = t.bubble.margin;
-  QJsonValue marginFirst = b.value(QStringLiteral("marginFirstInGroup"));
-  if(!marginFirst.isUndefined() && !marginFirst.isNull())
-    t.bubble.marginFirstInGroup = marginFirst.toInt(-1);
-  QJsonValue marginNext = b.value(QStringLiteral("marginNextInGroup"));
-  if(!marginNext.isUndefined() && !marginNext.isNull())
-    t.bubble.marginNextInGroup = marginNext.toInt(-1);
-  t.bubble.shadowDx = shadow.at(0).toDouble();
-  t.bubble.shadowDy = shadow.at(1).toDouble();
-  t.bubble.shadowBlur = shadow.at(2).toDouble();
-  t.bubble.shadowOpacity = shadow.at(3).toDouble();
-  if(t.bubble.tail < 0 || t.bubble.margin < 0 || t.bubble.marginFirstInGroup < 0 ||
-     t.bubble.marginNextInGroup < 0 || t.bubble.maxWidthPct < 1 || t.bubble.maxWidthPct > 100 ||
-     t.bubble.shadowOpacity < 0.0 || t.bubble.shadowOpacity > 1.0) {
-    t.errorString = QStringLiteral("bad bubble numbers");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
-    return t;
-  }
-  t.bubble.tailStyle = b.value(QStringLiteral("tailStyle")).toString(QStringLiteral("polygon"));
-  if(t.bubble.tailStyle != QLatin1String("polygon") && t.bubble.tailStyle != QLatin1String("rounded") &&
-     t.bubble.tailStyle != QLatin1String("none")) {
-    t.errorString = QStringLiteral("bad bubble.tailStyle (want polygon|rounded|none)");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
-    return t;
-  }
 
   //  view padding: optional root key, defaults keep the current look.
   QJsonValue viewPadding = root.value(QStringLiteral("viewPadding"));
@@ -508,149 +695,41 @@ Theme Theme::loadFromJson(const QByteArray& data) {
     qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
+  //  Theme-level header colors are defaults; layout header nodes override.
+  //  Required like timeFormat: there is no sane hardcoded default.
   for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
-    if(h.contains(key) && !h.value(key).isString()) {
-      t.errorString = QStringLiteral("bad header color %1 (want $token)").arg(key);
+    QByteArray what = QByteArray("header.") + key.toLatin1();
+    Theme::DualColor c;
+    if(!h.contains(key) || !parseDualColor(h.value(key), what.constData(), err, c)) {
+      t.errorString = err.isEmpty() ? QStringLiteral("missing header.%1").arg(key) : err;
       qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
+    if(key == QLatin1String("senderColor"))
+      t.header.senderColor = c;
+    else
+      t.header.timeColor = c;
   }
-  t.header.senderColor =
-    h.value(QStringLiteral("senderColor")).toString(QStringLiteral("$secondary"));
-  t.header.timeColor = h.value(QStringLiteral("timeColor")).toString(QStringLiteral("$secondary"));
 
-  //  palettes
-  for(auto palName : {QStringLiteral("light"), QStringLiteral("dark")}) {
-    if(!root.contains(palName) || !root.value(palName).isObject()) {
-      t.errorString = QStringLiteral("missing palette %1").arg(palName);
+  //  Single-use global colors: default body text, links, view fill.
+  for(auto key : {QStringLiteral("text"), QStringLiteral("link"), QStringLiteral("page")}) {
+    QByteArray what = key.toLatin1();
+    Theme::DualColor c;
+    if(!root.contains(key) || !parseDualColor(root.value(key), what.constData(), err, c)) {
+      t.errorString = err.isEmpty() ? QStringLiteral("missing %1").arg(key) : err;
       qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
-    QJsonObject pal = root.value(palName).toObject();
-    for(int i = 0; i < kTokenCount; i++) {
-      QString key = QLatin1String(kTokens[i]);
-      if(!pal.contains(key) || !pal.value(key).isString() ||
-         !isHexColor(pal.value(key).toString())) {
-        t.errorString = QStringLiteral("bad token %1.%2").arg(palName, key);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-      if(palName == QLatin1String("light"))
-        t.light.insert(key, QColor(pal.value(key).toString()));
-      else
-        t.dark.insert(key, QColor(pal.value(key).toString()));
-    }
+    if(key == QLatin1String("text"))
+      t.text = c;
+    else if(key == QLatin1String("link"))
+      t.link = c;
+    else
+      t.page = c;
   }
 
-  //  Optional tokens: both palettes or neither, hex-validated like required ones.
-  QJsonObject lightPal = root.value(QStringLiteral("light")).toObject();
-  QJsonObject darkPal = root.value(QStringLiteral("dark")).toObject();
-  for(int i = 0; i < kOptionalTokenCount; i++) {
-    QString key = QLatin1String(kOptionalTokens[i]);
-    bool hasLight = lightPal.contains(key);
-    bool hasDark = darkPal.contains(key);
-    if(!hasLight && !hasDark)
-      continue;
-    if(hasLight != hasDark || !lightPal.value(key).isString() || !darkPal.value(key).isString() ||
-       !isHexColor(lightPal.value(key).toString()) ||
-       !isHexColor(darkPal.value(key).toString())) {
-      t.errorString = QStringLiteral("bad optional token %1").arg(key);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    t.light.insert(key, QColor(lightPal.value(key).toString()));
-    t.dark.insert(key, QColor(darkPal.value(key).toString()));
-  }
-
-  for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
-    const QString& v =
-      (key == QLatin1String("senderColor")) ? t.header.senderColor : t.header.timeColor;
-    if(!isTokenRef(v) || !t.hasToken(tokenName(v))) {
-      t.errorString = QStringLiteral("bad header color %1 (want $token)").arg(key);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-  }
-
-  //  cards
-  if(!root.contains(QStringLiteral("cards")) || !root.value(QStringLiteral("cards")).isObject()) {
-    t.errorString = QStringLiteral("missing cards");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
-    return t;
-  }
-  QJsonObject cards = root.value(QStringLiteral("cards")).toObject();
-  for(int i = 0; i < kCardCount; i++) {
-    QString name = QLatin1String(kCards[i]);
-    if(!cards.contains(name) || !cards.value(name).isObject()) {
-      t.errorString = QStringLiteral("missing card %1").arg(name);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    QJsonObject c = cards.value(name).toObject();
-    Card card;
-    for(auto key : {QStringLiteral("bg"), QStringLiteral("bg2"), QStringLiteral("border"),
-                    QStringLiteral("text")}) {
-      if(!c.contains(key))
-        continue;
-      QString v = c.value(key).toString();
-      bool isSystemBg = (name == QLatin1String("system") && key == QLatin1String("bg"));
-      if(v == QLatin1String("transparent")) {
-        if(!isSystemBg) {
-          t.errorString = QStringLiteral("transparent only for system.bg");
-          qCWarning(lmcUi) << "Theme:" << t.errorString;
-          return t;
-        }
-      } else if(isTokenRef(v)) {
-        if(!t.hasToken(tokenName(v))) {
-          t.errorString = QStringLiteral("unknown token %1 in card %2").arg(v, name);
-          qCWarning(lmcUi) << "Theme:" << t.errorString;
-          return t;
-        }
-      } else {
-        t.errorString = QStringLiteral("bad color %1 in card %2 (want $token)").arg(key, name);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-      if(key == QLatin1String("bg"))
-        card.bg = v;
-      else if(key == QLatin1String("bg2"))
-        card.bg2 = v;
-      else if(key == QLatin1String("border"))
-        card.border = v;
-      else
-        card.text = v;
-    }
-    if(c.contains(QStringLiteral("tail"))) {
-      card.tail = c.value(QStringLiteral("tail")).toString();
-      if(card.tail != QLatin1String("left") && card.tail != QLatin1String("right") &&
-         card.tail != QLatin1String("none")) {
-        t.errorString = QStringLiteral("bad tail in card %1").arg(name);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-    }
-    if(c.contains(QStringLiteral("align"))) {
-      card.align = c.value(QStringLiteral("align")).toString();
-      if(card.align != QLatin1String("left") && card.align != QLatin1String("center") &&
-         card.align != QLatin1String("right")) {
-        t.errorString = QStringLiteral("bad align in card %1").arg(name);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-    }
-    if(c.contains(QStringLiteral("avatar"))) {
-      if(!c.value(QStringLiteral("avatar")).isBool()) {
-        t.errorString = QStringLiteral("bad avatar in card %1").arg(name);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-      card.avatar = c.value(QStringLiteral("avatar")).toBool();
-      card.hasAvatar = true;
-    }
-    t.cards.insert(name, card);
-  }
-
-  //  layouts: all 5 are required, non-empty; validate depth/types/if.
+  //  layouts: all 5 are required, non-empty, each holding exactly
+  //  one rect (the delegate always paints one); validate depth/types/if.
   for(int i = 0; i < kLayoutCount; i++) {
     QString name = QLatin1String(kLayouts[i]);
     if(!root.contains(name) || !root.value(name).isArray() ||
@@ -661,18 +740,31 @@ Theme Theme::loadFromJson(const QByteArray& data) {
     }
     QJsonArray arr = root.value(name).toArray();
     QVector<Theme::LayoutNode> done;
+    int content = 0;
     for(const QJsonValue& v : arr) {
       if(!v.isObject()) {
         t.errorString = QStringLiteral("bad node in %1").arg(name);
         qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
-      if(!validateNode(v.toObject(), 1, name, t.light, t.dark, t.errorString)) {
+      if(!validateNode(v.toObject(), 1, name, t.errorString)) {
         t.errorString = name + QStringLiteral(": ") + t.errorString;
         qCWarning(lmcUi) << "Theme:" << t.errorString;
         return t;
       }
-      done.append(compileNode(v.toObject()));
+      Theme::LayoutNode n = compileNode(v.toObject());
+      content += treeContentCount(n);
+      done.append(n);
+    }
+    if(content == 0) {
+      t.errorString = QStringLiteral("%1 without body/fileCard").arg(name);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    if(content > 1) {
+      t.errorString = QStringLiteral("%1 holds one body/fileCard").arg(name);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
     }
     t.layouts.insert(name, arr);
     t.compiled.insert(name, done);
@@ -755,24 +847,31 @@ QString Theme::themeFileFor(const QString& name) {
   return scanThemeFiles().value(name);
 }
 
-bool Theme::hasToken(const QString& token) const {
-  return light.contains(token) && dark.contains(token);
+QColor Theme::pick(const DualColor& c, bool darkMode) {
+  return darkMode ? c.dark : c.light;
 }
 
-QColor Theme::resolveToken(const QString& token, bool darkMode) const {
-  const auto& pal = darkMode ? dark : light;
-  return pal.value(token, QColor());
+void Theme::pickBg(const Bg& bg, bool darkMode, QColor& first, QColor& second) {
+  if(bg.kind == Bg::Kind::Transparent) {
+    first = QColor(Qt::transparent);
+    second = QColor(Qt::transparent);
+    return;
+  }
+  if(bg.kind == Bg::Kind::Gradient) {
+    if(darkMode) {
+      first = bg.darkFrom;
+      second = bg.darkTo;
+    } else {
+      first = bg.lightFrom;
+      second = bg.lightTo;
+    }
+    return;
+  }
+  first = pick(bg.solid, darkMode);
+  second = first;
 }
 
-QColor Theme::resolve(const QString& ref, Mode mode, bool systemDark) const {
-  if(ref == QLatin1String("transparent"))
-    return QColor(Qt::transparent);
-  if(!isTokenRef(ref))
-    return QColor();
-  return resolveToken(tokenName(ref), isDark(mode, systemDark));
-}
-
-bool Theme::isDark(Mode mode, bool systemDark) const {
+bool Theme::isDark(Mode mode, bool systemDark) {
   if(mode == Mode::Dark)
     return true;
   if(mode == Mode::Light)
@@ -787,7 +886,7 @@ QVector<Theme::LayoutNode> Theme::compiledLayout(const QString& name) const {
 QJsonArray Theme::layoutFor(const QString& name) const {
   if(layouts.contains(name))
     return layouts.value(name);
-  //  Fall back to layout_incoming with a swapped card + a log line.
+  //  Fall back to layout_incoming + a log line (kept for L).
   qCWarning(lmcUi) << "Theme: missing" << name << "- fallback to layout_incoming";
   return layouts.value(QStringLiteral("layout_incoming"));
 }

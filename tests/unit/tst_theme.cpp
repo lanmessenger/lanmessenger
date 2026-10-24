@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
-// Unit tests for the Theme validator (Bubble, stage 1).
+// Unit tests for the Theme validator (rect metrics, literal node colors).
 
 #include <QtTest>
 
@@ -14,50 +14,43 @@
 namespace {
 
 QByteArray validJson() {
-  return QByteArray(R"({
+  return QByteArray(R"JSON({
     "version": 1,
-    "bubble": {"radius": [12, 12, 12, 4], "tail": 8, "shadow": [0, 2, 8, 0.18],
-               "padding": [8, 10, 8, 10], "margin": 6, "marginFirstInGroup": 6,
-               "marginNextInGroup": 2, "maxWidthPct": 75},
     "avatar": {"size": 40, "shape": "circle", "showOnGrouped": false},
-    "header": {"senderBold": true, "timeFormat": "HH:mm"},
-    "light": {"bubbleIn": "#FFFFFF", "bubbleIn2": "#F1F4F8", "bubbleOut": "#D9F2C7",
-              "bubbleOut2": "#C9E8B4", "text": "#1A1D21", "secondary": "#6B7280",
-              "link": "#0B5FFF", "border": "#D8DEE5", "page": "#EDEFF2",
-              "accent": "#2F9E44", "accentSoft": "#E6F4EA", "textInverse": "#1A1D21"},
-    "dark": {"bubbleIn": "#1F242B", "bubbleIn2": "#262D36", "bubbleOut": "#1D4D2B",
-             "bubbleOut2": "#1A4527", "text": "#E8EAED", "secondary": "#9AA0A6",
-             "link": "#8AB4F8", "border": "#3A424C", "page": "#131518",
-             "accent": "#3FB950", "accentSoft": "#1A2E22", "textInverse": "#E8EAED"},
-    "cards": {
-      "incoming": {"bg": "$bubbleIn", "bg2": "$bubbleIn2", "tail": "left", "avatar": true},
-      "outgoing": {"bg": "$bubbleOut", "bg2": "$bubbleOut2", "tail": "right", "avatar": false},
-      "broadcast": {"bg": "$accentSoft", "bg2": "$accentSoft", "border": "$accent", "tail": "none"},
-      "system": {"bg": "transparent", "align": "center", "text": "$secondary"},
-      "request": {"bg": "$bubbleIn", "bg2": "$bubbleIn2", "border": "$border", "tail": "left"}
-    },
+    "header": {"senderBold": true, "timeFormat": "HH:mm",
+               "senderColor": ["#6B7280", "#9AA0A6"],
+               "timeColor": ["#6B7280", "#9AA0A6"]},
+    "text": ["#1A1D21", "#E8EAED"],
+    "link": ["#0B5FFF", "#8AB4F8"],
+    "page": ["#EDEFF2", "#131518"],
     "layout_incoming": [{"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["sender", "time"], "ifNot": "isGrouped"},
-        {"type": "bubble", "card": "incoming", "children": [{"type": "body"}]},
+        {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"], "ifNot": "isGrouped"},
+        {"type": "body", "corners": {"default": [12, 12, 12, 4], "next": [4, 12, 12, 4]}, "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75},
         {"type": "status", "if": "isOwnLast"}]}]}],
     "layout_outgoing": [{"type": "hbox", "gap": 8, "children": [
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "bubble", "card": "outgoing", "children": [{"type": "body"}]}]}]}],
+        {"type": "header", "items": ["time"], "ifNot": "isGrouped"},
+        {"type": "body", "corners": {"default": [12, 12, 4, 12], "next": [12, 4, 4, 12]}, "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75},
+        {"type": "status", "if": "isOwnLast"}]}]}],
     "layout_system": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "bubble", "card": "system", "children": [{"type": "body"}]}]}],
+      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}],
     "layout_broadcast": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "bubble", "card": "broadcast", "children": [{"type": "body"}]}]}],
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}],
     "layout_request": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "bubble", "card": "request", "children": [{"type": "fileCard"}]}]}]
-  })");
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}]
+  })JSON");
 }
 
 QByteArray withReplaced(const QByteArray& base, const QByteArray& from, const QByteArray& to) {
   QByteArray out = base;
   out.replace(from, to);
   return out;
+}
+
+Theme::LayoutNode incomingBody(const Theme& t) {
+  return t.compiledLayout(QStringLiteral("layout_incoming")).at(0).children.at(1).children.at(1);
 }
 
 } // namespace
@@ -68,7 +61,6 @@ class TstTheme : public QObject {
 private slots:
   void validTheme();
   void badVersion();
-  void missingTwelfthTokenRejected();
   void optionalKeysDefaulted();
   void outgoingYouLabelParsed();
   void outgoingYouLabelExplicitFalse();
@@ -76,13 +68,19 @@ private slots:
   void headerTypographyParsed();
   void badHeaderSizeRejected();
   void badHeaderColorRejected();
-  void bubbleMarginsDefaulted();
-  void bubbleMarginsParsed();
+  void headerColorsRequired();
+  void globalColorsParsed();
+  void missingGlobalColorRejected();
+  void badGlobalColorRejected();
+  void rectMarginsDefaulted();
+  void rectMarginsParsed();
   void badMarginRejected();
   void legacySpacingRejected();
   void cornerRadiiDefaulted();
   void cornerRadiiParsed();
+  void cornersAbsentDefaulted();
   void badCornerRadiiRejected();
+  void cornersOnNonRectRejected();
   void viewChromeDefaulted();
   void viewChromeParsed();
   void badViewChromeRejected();
@@ -92,61 +90,71 @@ private slots:
   void staleThemeGapKeysIgnored();
   void fileCardOutsideRequestRejected();
   void bodyInRequestRejected();
-  void bodyPlusFileCardRejected();
+  void twoRectsInLayoutRejected();
   void requestFileCardAccepted();
-  void nodeColorsParsed();
-  void badNodeColorRejected();
-  void emptyLayoutRejected();
-  void badTailStyleRejected();
-  void roundedTailStyleAccepted();
-  void systemPillAccepted();
-  void pillAsymmetricRejected();
-  void cardTextAccepted();
-  void hexInCardsRejected();
-  void transparentOutsideSystemRejected();
-  void unknownTokenRejected();
+  void bareHexBothModes();
+  void pairParsed();
+  void gradientParsed();
+  void solidKindsParsed();
+  void transparentAccepted();
+  void transparentOutsideBgRejected();
+  void mixedPairRejected();
+  void badGradientRejected();
+  void gradientWhitespaceAccepted();
+  void gradientOutsideBgRejected();
+  void missingBgRejected();
+  void rectMetricsParsed();
+  void tailRejected();
+  void colorKeyOnWrongNodeRejected();
+  void dollarRefsRejected();
+  void layoutWithoutRectRejected();
   void missingLayoutRejected();
-  void reservedBlocksAcceptedButIgnored();
-  void badFlagRejected();
-  void tooDeepRejected();
-  void fractionalArrayRejected();
+  void builtInDefaultValid();
+  void pickHelpers();
+  void shippedMeshBlueSpotCheck();
   void availableThemesListsUserAndSkipsBroken();
-  void resolveTokens();
   void realFileLoads();
 };
 
 void TstTheme::validTheme() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.bubble.maxWidthPct, 75);
+  QCOMPARE(incomingBody(t).maxWidthPct, 75);
   QCOMPARE(t.avatar.size, 40);
   QCOMPARE(t.header.timeFormat, QStringLiteral("HH:mm"));
-  QVERIFY(t.hasToken(QStringLiteral("bubbleIn")));
   QCOMPARE(t.layouts.size(), 5);
+  QCOMPARE(t.compiled.size(), 5);
+}
+
+void TstTheme::badVersion() {
+  Theme t = Theme::loadFromJson(withReplaced(validJson(), "\"version\": 1", "\"version\": 2"));
+  QVERIFY(!t.isValid);
 }
 
 void TstTheme::optionalKeysDefaulted() {
-  //  Old 12-token files without the new keys stay valid: no outgoing label,
-  //  polygon tail (Bubble behavior), no pill tokens.
+  //  No outgoing label, unit sizes, no node overrides.
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY(t.isValid);
   QVERIFY(!t.header.outgoingYouLabel);
-  QCOMPARE(t.bubble.tailStyle, QStringLiteral("polygon"));
-  QVERIFY(!t.hasToken(QStringLiteral("pill")));
-  QVERIFY(!t.hasToken(QStringLiteral("pillBorder")));
+  QCOMPARE(t.header.senderSize, 1.0);
+  QCOMPARE(t.header.timeSize, 1.0);
+  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& header = outgoing.at(0).children.at(0).children.at(0);
+  QVERIFY(!header.hasSenderColor);
+  QVERIFY(!header.hasTimeColor);
 }
 
 void TstTheme::outgoingYouLabelParsed() {
-  QByteArray labeled = withReplaced(validJson(), "\"timeFormat\": \"HH:mm\"}",
-                                    "\"timeFormat\": \"HH:mm\", \"outgoingYouLabel\": true}");
+  QByteArray labeled = withReplaced(validJson(), "\"senderBold\": true",
+                                    "\"senderBold\": true, \"outgoingYouLabel\": true");
   Theme t = Theme::loadFromJson(labeled);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVERIFY(t.header.outgoingYouLabel);
 }
 
 void TstTheme::outgoingYouLabelExplicitFalse() {
-  QByteArray base = withReplaced(validJson(), "\"timeFormat\": \"HH:mm\"}",
-                                 "\"timeFormat\": \"HH:mm\", \"outgoingYouLabel\": false}");
+  QByteArray base = withReplaced(validJson(), "\"senderBold\": true",
+                                 "\"senderBold\": true, \"outgoingYouLabel\": false");
   Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVERIFY(!t.header.outgoingYouLabel);
@@ -157,76 +165,124 @@ void TstTheme::headerTypographyDefaulted() {
   QVERIFY(t.isValid);
   QCOMPARE(t.header.senderSize, 1.0);
   QCOMPARE(t.header.timeSize, 1.0);
-  QCOMPARE(t.header.senderColor, QStringLiteral("$secondary"));
-  QCOMPARE(t.header.timeColor, QStringLiteral("$secondary"));
+  QCOMPARE(t.header.senderColor.light, QColor(QStringLiteral("#6B7280")));
+  QCOMPARE(t.header.senderColor.dark, QColor(QStringLiteral("#9AA0A6")));
+  QCOMPARE(t.header.timeColor.light, QColor(QStringLiteral("#6B7280")));
+  QCOMPARE(t.header.timeColor.dark, QColor(QStringLiteral("#9AA0A6")));
 }
 
 void TstTheme::headerTypographyParsed() {
   QByteArray typed = withReplaced(validJson(), "\"senderBold\": true", "\"senderBold\": false");
-  typed = withReplaced(typed, "\"timeFormat\": \"HH:mm\"}",
-                       "\"timeFormat\": \"HH:mm\", \"senderSize\": 1.25, \"timeSize\": 0.75, "
-                       "\"senderColor\": \"$text\", \"timeColor\": \"$link\"}");
+  typed = withReplaced(typed, "\"timeFormat\": \"HH:mm\"",
+                       "\"timeFormat\": \"HH:mm\", \"senderSize\": 1.25, \"timeSize\": 0.75");
+  typed = withReplaced(typed, "\"senderColor\": [\"#6B7280\", \"#9AA0A6\"],\n"
+                              "               \"timeColor\": [\"#6B7280\", \"#9AA0A6\"]",
+                       "\"senderColor\": \"#1A1D21\",\n"
+                       "               \"timeColor\": [\"#0B5FFF\", \"#8AB4F8\"]");
   Theme t = Theme::loadFromJson(typed);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVERIFY(!t.header.senderBold);
   QCOMPARE(t.header.senderSize, 1.25);
   QCOMPARE(t.header.timeSize, 0.75);
-  QCOMPARE(t.header.senderColor, QStringLiteral("$text"));
-  QCOMPARE(t.header.timeColor, QStringLiteral("$link"));
+  //  Bare hex covers both modes; a pair splits them.
+  QCOMPARE(t.header.senderColor.light, QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(t.header.senderColor.dark, QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(t.header.timeColor.light, QColor(QStringLiteral("#0B5FFF")));
+  QCOMPARE(t.header.timeColor.dark, QColor(QStringLiteral("#8AB4F8")));
 }
 
 void TstTheme::badHeaderSizeRejected() {
   for(const char* bad : {"0.1", "2.5", "\"big\"", "true"}) {
     QByteArray sized =
-      withReplaced(validJson(), "\"timeFormat\": \"HH:mm\"}",
-                   QByteArray("\"timeFormat\": \"HH:mm\", \"senderSize\": ") + bad + "}");
+      withReplaced(validJson(), "\"timeFormat\": \"HH:mm\"",
+                   QByteArray("\"timeFormat\": \"HH:mm\", \"senderSize\": ") + bad);
     Theme t = Theme::loadFromJson(sized);
     QVERIFY2(!t.isValid, bad);
   }
 }
 
 void TstTheme::badHeaderColorRejected() {
-  for(const char* bad : {"\"#1A1D21\"", "\"$nope\"", "42"}) {
+  //  $refs died with the token map; red is not a hex; single/short/long
+  //  arrays and gradients are not DualColors.
+  for(const char* bad :
+      {"\"$text\"", "\"red\"", "42", "[\"#1A1D21\"]", "[\"#1A1D21\", \"#E8EAED\", \"#000000\"]",
+       "[\"#1A1D21\", \"red\"]", "\"gradient(#1A1D21, #E8EAED)\""}) {
     QByteArray colored =
-      withReplaced(validJson(), "\"timeFormat\": \"HH:mm\"}",
-                   QByteArray("\"timeFormat\": \"HH:mm\", \"senderColor\": ") + bad + "}");
+      withReplaced(validJson(), "\"senderColor\": [\"#6B7280\", \"#9AA0A6\"]",
+                   QByteArray("\"senderColor\": ") + bad);
     Theme t = Theme::loadFromJson(colored);
     QVERIFY2(!t.isValid, bad);
   }
 }
 
-void TstTheme::bubbleMarginsDefaulted() {
-  //  Positional margins fall back to margin when absent.
-  QByteArray base = withReplaced(validJson(), ", \"marginFirstInGroup\": 6,\n"
-                                              "               \"marginNextInGroup\": 2",
-                                 "");
-  Theme t = Theme::loadFromJson(base);
-  QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.bubble.margin, 6);
-  QCOMPARE(t.bubble.marginFirstInGroup, 6);
-  QCOMPARE(t.bubble.marginNextInGroup, 6);
+void TstTheme::headerColorsRequired() {
+  //  No sane hardcoded default exists: the theme spells both.
+  QByteArray noSender = withReplaced(validJson(), ",\n               \"senderColor\": [\"#6B7280\", \"#9AA0A6\"]", "");
+  QVERIFY(!Theme::loadFromJson(noSender).isValid);
+  QByteArray noTime = withReplaced(validJson(), ",\n               \"timeColor\": [\"#6B7280\", \"#9AA0A6\"]", "");
+  QVERIFY(!Theme::loadFromJson(noTime).isValid);
 }
 
-void TstTheme::bubbleMarginsParsed() {
+void TstTheme::globalColorsParsed() {
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QCOMPARE(t.text.light, QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(t.text.dark, QColor(QStringLiteral("#E8EAED")));
+  QCOMPARE(t.link.light, QColor(QStringLiteral("#0B5FFF")));
+  QCOMPARE(t.link.dark, QColor(QStringLiteral("#8AB4F8")));
+  QCOMPARE(t.page.light, QColor(QStringLiteral("#EDEFF2")));
+  QCOMPARE(t.page.dark, QColor(QStringLiteral("#131518")));
+}
+
+void TstTheme::missingGlobalColorRejected() {
+  for(const char* key : {"\"text\"", "\"link\"", "\"page\""}) {
+    QByteArray base = validJson();
+    //  Cut the whole line: "key": [...],
+    int at = base.indexOf(QByteArray("\n    ") + key + ":");
+    QVERIFY(at >= 0);
+    int end = base.indexOf("\n", at + 1);
+    base.remove(at, end - at);
+    Theme t = Theme::loadFromJson(base);
+    QVERIFY2(!t.isValid, key);
+  }
+}
+
+void TstTheme::badGlobalColorRejected() {
+  for(const char* bad : {"42", "\"red\"", "\"$text\"", "[\"#1A1D21\"]"}) {
+    QByteArray colored = withReplaced(validJson(), "[\"#1A1D21\", \"#E8EAED\"]", bad);
+    Theme t = Theme::loadFromJson(colored);
+    QVERIFY2(!t.isValid, bad);
+  }
+}
+
+void TstTheme::rectMarginsDefaulted() {
+  //  An absent next falls back to default (every node).
+  QByteArray base = withReplaced(validJson(), ", \"next\": 2", "");
+  Theme t = Theme::loadFromJson(base);
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QCOMPARE(rect.marginDefault, 6);
+  QCOMPARE(rect.marginNext, 6);
+}
+
+void TstTheme::rectMarginsParsed() {
   QByteArray explicitMargins = withReplaced(
-    validJson(), "\"margin\": 6, \"marginFirstInGroup\": 6,\n"
-                 "               \"marginNextInGroup\": 2",
-    "\"margin\": 4, \"marginFirstInGroup\": 8, \"marginNextInGroup\": 3");
+    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
+    "\"margin\": {\"default\": 8, \"next\": 3}");
   Theme t = Theme::loadFromJson(explicitMargins);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.bubble.margin, 4);
-  QCOMPARE(t.bubble.marginFirstInGroup, 8);
-  QCOMPARE(t.bubble.marginNextInGroup, 3);
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QCOMPARE(rect.marginDefault, 8);
+  QCOMPARE(rect.marginNext, 3);
 }
 
 void TstTheme::badMarginRejected() {
+  //  default and next take ints >= 0; anything else invalidates.
   struct KeyValue {
     const char* key;
     const char* value;
   };
-  const KeyValue keys[] = {{"margin", "6"},
-                           {"marginFirstInGroup", "6"},
-                           {"marginNextInGroup", "2"}};
+  const KeyValue keys[] = {{"default", "6"}, {"next", "2"}};
   for(KeyValue kv : keys) {
     for(const char* bad : {"-1", "\"big\"", "true"}) {
       QByteArray sized = withReplaced(validJson(), QByteArray("\"") + kv.key + "\": " + kv.value,
@@ -235,52 +291,108 @@ void TstTheme::badMarginRejected() {
       QVERIFY2(!t.isValid, (QByteArray(kv.key) + "=" + bad).constData());
     }
   }
+  //  Margin is an object: scalar, unknown keys, and the flat legacy
+  //  keys no longer parse.
+  QByteArray scalar = withReplaced(validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
+                                   "\"margin\": 6");
+  QVERIFY(!Theme::loadFromJson(scalar).isValid);
+  QByteArray badKey = withReplaced(validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
+                                   "\"margin\": {\"default\": 6, \"next\": 2, \"first\": 1}");
+  QVERIFY(!Theme::loadFromJson(badKey).isValid);
 }
 
 void TstTheme::legacySpacingRejected() {
-  //  Hard rename: spacing/groupedSpacing no longer parse, margin is required.
+  //  Hard rename: spacing/groupedSpacing and the flat margin keys no
+  //  longer parse, the margin object is required.
   QByteArray legacy = withReplaced(
-    validJson(), "\"margin\": 6, \"marginFirstInGroup\": 6,\n"
-                 "               \"marginNextInGroup\": 2",
+    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
     "\"spacing\": 6, \"groupedSpacing\": 2");
   Theme t = Theme::loadFromJson(legacy);
   QVERIFY(!t.isValid);
+  QByteArray flat = withReplaced(
+    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
+    "\"margin\": 6, \"marginFirstInGroup\": 6, \"marginNextInGroup\": 2");
+  QVERIFY(!Theme::loadFromJson(flat).isValid);
 }
 
 void TstTheme::cornerRadiiDefaulted() {
-  Theme t = Theme::loadFromJson(validJson());
+  //  next falls back to default when absent; compiled nodes carry both.
+  QByteArray noNext = withReplaced(validJson(), ", \"next\": [4, 12, 12, 4]", "");
+  Theme t = Theme::loadFromJson(noNext);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QVERIFY(rect.hasCorners);
+  const int def[4] = {12, 12, 12, 4};
   for(int i = 0; i < 4; i++) {
-    QCOMPARE(t.bubble.radiusFirstInGroup[i], t.bubble.radius[i]);
-    QCOMPARE(t.bubble.radiusNextInGroup[i], t.bubble.radius[i]);
+    QCOMPARE(rect.cornersDefault[i], def[i]);
+    QCOMPARE(rect.cornersNext[i], def[i]);
   }
 }
 
 void TstTheme::cornerRadiiParsed() {
-  QByteArray corners =
-    withReplaced(validJson(), "\"radius\": [12, 12, 12, 4],",
-                 "\"radius\": [12, 12, 12, 4], \"radiusFirstInGroup\": [10, 10, 10, 2], "
-                 "\"radiusNextInGroup\": [2, 2, 10, 2],");
-  Theme t = Theme::loadFromJson(corners);
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  const int first[4] = {10, 10, 10, 2};
-  const int next[4] = {2, 2, 10, 2};
+  const Theme::LayoutNode& in = incomingBody(t);
+  const int inDef[4] = {12, 12, 12, 4};
+  const int inNext[4] = {4, 12, 12, 4};
   for(int i = 0; i < 4; i++) {
-    QCOMPARE(t.bubble.radiusFirstInGroup[i], first[i]);
-    QCOMPARE(t.bubble.radiusNextInGroup[i], next[i]);
+    QCOMPARE(in.cornersDefault[i], inDef[i]);
+    QCOMPARE(in.cornersNext[i], inNext[i]);
+  }
+  //  Outgoing carries hand-mirrored values, read verbatim (no code mirror).
+  //  The outgoing hbox holds the vbox directly (no avatar child).
+  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& out = outgoing.at(0).children.at(0).children.at(1);
+  const int outDef[4] = {12, 12, 4, 12};
+  const int outNext[4] = {12, 4, 4, 12};
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(out.cornersDefault[i], outDef[i]);
+    QCOMPARE(out.cornersNext[i], outNext[i]);
+  }
+}
+
+void TstTheme::cornersAbsentDefaulted() {
+  //  A body node without corners stays valid and uses the built-in
+  //  default; system/broadcast/request ship no corners.
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
+  const Theme::LayoutNode& rect = system.at(0).children.at(0);
+  QVERIFY(!rect.hasCorners);
+  const int def[4] = {12, 12, 12, 4};
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(rect.cornersDefault[i], def[i]);
+    QCOMPARE(rect.cornersNext[i], def[i]);
   }
 }
 
 void TstTheme::badCornerRadiiRejected() {
-  for(const char* key : {"radiusFirstInGroup", "radiusNextInGroup"}) {
-    for(const char* bad : {"[12, 12]", "[-1, 12, 12, 4]", "\"big\"", "true"}) {
-      QByteArray sized = withReplaced(
-        validJson(), "\"radius\": [12, 12, 12, 4],",
-        QByteArray("\"radius\": [12, 12, 12, 4], \"") + key + "\": " + bad + ",");
-      Theme t = Theme::loadFromJson(sized);
-      QVERIFY2(!t.isValid, (QByteArray(key) + "=" + bad).constData());
-    }
+  //  Short, negative, fractional, non-array, non-object corners;
+  //  missing default and unknown keys all invalidate the theme.
+  const char* cases[] = {
+    "\"corners\": {\"default\": [12, 12], \"next\": [4, 12, 12, 4]}",
+    "\"corners\": {\"default\": [-1, 12, 12, 4], \"next\": [4, 12, 12, 4]}",
+    "\"corners\": {\"default\": [12, 12, 12, 4.5], \"next\": [4, 12, 12, 4]}",
+    "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": \"round\"}",
+    "\"corners\": [12, 12, 12, 4]",
+    "\"corners\": {\"next\": [4, 12, 12, 4]}",
+    "\"corners\": {\"default\": [12, 12, 12, 4], \"first\": [12, 12, 12, 4]}",
+  };
+  for(const char* bad : cases) {
+    QByteArray sized = withReplaced(
+      validJson(),
+      "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": [4, 12, 12, 4]}", bad);
+    Theme t = Theme::loadFromJson(sized);
+    QVERIFY2(!t.isValid, bad);
   }
+}
+
+void TstTheme::cornersOnNonRectRejected() {
+  //  Corners paint the rect only: a header carrying them invalidates.
+  QByteArray bad = withReplaced(validJson(), "{\"type\": \"avatar\"}",
+                                "{\"type\": \"avatar\", "
+                                "\"corners\": {\"default\": [1, 1, 1, 1]}}");
+  QVERIFY(!Theme::loadFromJson(bad).isValid);
 }
 
 void TstTheme::viewChromeDefaulted() {
@@ -340,11 +452,12 @@ void TstTheme::containerGapParsed() {
   QCOMPARE(incoming.at(0).children.at(1).children.at(0).ifNotFlag,
            QStringLiteral("isGrouped"));
   QCOMPARE(incoming.at(0).children.at(1).children.at(1).type,
-           Theme::LayoutNode::Type::Bubble);
-  QCOMPARE(incoming.at(0).children.at(1).children.at(1).card, QStringLiteral("incoming"));
-  QCOMPARE(incoming.at(0).children.at(1).children.at(1).children.size(), 1);
-  QCOMPARE(incoming.at(0).children.at(1).children.at(1).children.at(0).type,
            Theme::LayoutNode::Type::Body);
+  const Theme::LayoutNode& inBody = incoming.at(0).children.at(1).children.at(1);
+  QVERIFY(inBody.hasCorners);
+  QCOMPARE(inBody.cornersDefault[3], 4);
+  QCOMPARE(inBody.cornersNext[0], 4);
+  QCOMPARE(inBody.children.size(), 0);
   QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
   QCOMPARE(system.size(), 1);
   QCOMPARE(system.at(0).type, Theme::LayoutNode::Type::VBox);
@@ -371,239 +484,337 @@ void TstTheme::staleThemeGapKeysIgnored() {
 }
 
 void TstTheme::fileCardOutsideRequestRejected() {
-  QByteArray bad =
-    withReplaced(validJson(), "\"card\": \"incoming\", \"children\": [{\"type\": \"body\"}]",
-                 "\"card\": \"incoming\", \"children\": [{\"type\": \"body\"}, {\"type\": \"fileCard\"}]");
+  //  fileCard lives in layout_request only: an incoming fileCard invalidates.
+  QByteArray bad = withReplaced(
+    validJson(), "{\"type\": \"body\", \"corners\": {\"default\": [12, 12, 12, 4]",
+    "{\"type\": \"fileCard\", \"corners\": {\"default\": [12, 12, 12, 4]");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
 }
 
 void TstTheme::bodyInRequestRejected() {
-  QByteArray bad =
-    withReplaced(validJson(), "\"card\": \"request\", \"children\": [{\"type\": \"fileCard\"}]",
-                 "\"card\": \"request\", \"children\": [{\"type\": \"body\"}]");
+  QByteArray bad = withReplaced(validJson(), "{\"type\": \"fileCard\", \"bg\"",
+                                "{\"type\": \"body\", \"bg\"");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
 }
 
-void TstTheme::bodyPlusFileCardRejected() {
-  //  Message and file never stack in one bubble, even in the file layout.
-  QByteArray bad =
-    withReplaced(validJson(), "\"card\": \"request\", \"children\": [{\"type\": \"fileCard\"}]",
-                 "\"card\": \"request\", \"children\": [{\"type\": \"body\"}, {\"type\": \"fileCard\"}]");
+void TstTheme::twoRectsInLayoutRejected() {
+  //  One rect per layout: a second body/fileCard invalidates the theme,
+  //  even in the file layout.
+  QByteArray bad = withReplaced(
+    validJson(), "\"next\": 2}, \"maxWidthPct\": 75},\n        {\"type\": \"status\"",
+    "\"next\": 2}, \"maxWidthPct\": 75}, {\"type\": \"body\", \"bg\": \"#FFFFFF\", \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": {\"default\": 6, \"next\": 2}, \"maxWidthPct\": 75},\n        {\"type\": \"status\"");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
-  QByteArray bad2 =
-    withReplaced(validJson(), "\"card\": \"incoming\", \"children\": [{\"type\": \"body\"}]",
-                 "\"card\": \"incoming\", \"children\": [{\"type\": \"body\"}, {\"type\": \"body\"}]");
+  QByteArray bad2 = withReplaced(
+    validJson(), "{\"type\": \"fileCard\", \"bg\"",
+    "{\"type\": \"body\", \"bg\"}, {\"type\": \"fileCard\", \"bg\"");
   Theme t2 = Theme::loadFromJson(bad2);
   QVERIFY(!t2.isValid);
 }
 
 void TstTheme::requestFileCardAccepted() {
-  //  The file layout holds an unconditional fileCard, no body.
+  //  The file layout holds an unconditional fileCard rect, no body.
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVector<Theme::LayoutNode> request = t.compiledLayout(QStringLiteral("layout_request"));
   QCOMPARE(request.size(), 1);
   QCOMPARE(request.at(0).children.size(), 1);
-  const Theme::LayoutNode& bubble = request.at(0).children.at(0);
-  QCOMPARE(bubble.type, Theme::LayoutNode::Type::Bubble);
-  QCOMPARE(bubble.children.size(), 1);
-  QCOMPARE(bubble.children.at(0).type, Theme::LayoutNode::Type::FileCard);
-  QVERIFY(bubble.children.at(0).ifFlag.isEmpty());
-  QVERIFY(bubble.children.at(0).ifNotFlag.isEmpty());
+  const Theme::LayoutNode& rect = request.at(0).children.at(0);
+  QCOMPARE(rect.type, Theme::LayoutNode::Type::FileCard);
+  QCOMPARE(rect.children.size(), 0);
+  QVERIFY(rect.ifFlag.isEmpty());
+  QVERIFY(rect.ifNotFlag.isEmpty());
+  QVERIFY(rect.hasBorder);
+  QCOMPARE(rect.padding[0], 8);
+  QCOMPARE(rect.padding[1], 10);
+  QCOMPARE(rect.shadowOpacity, 0.18);
+  QCOMPARE(rect.marginDefault, 6);
+  QCOMPARE(rect.marginNext, 2);
+  QCOMPARE(rect.maxWidthPct, 75);
 }
 
-void TstTheme::nodeColorsParsed() {
-  QByteArray base =
-    withReplaced(validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"ifNot\": \"isGrouped\"}",
-                 "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"senderColor\": \"$text\", \"timeColor\": \"$secondary\", \"ifNot\": \"isGrouped\"}");
-  base = withReplaced(base, "\"card\": \"incoming\", \"children\"",
-                      "\"card\": \"incoming\", \"textColor\": \"$bubbleIn\", \"children\"");
-  Theme t = Theme::loadFromJson(base);
+void TstTheme::bareHexBothModes() {
+  //  Form 1: one hex paints both modes (outgoing text ships bare).
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& rect = outgoing.at(0).children.at(0).children.at(1);
+  QVERIFY(rect.hasTextColor);
+  QCOMPARE(rect.textColor.light, QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(rect.textColor.dark, QColor(QStringLiteral("#1A1D21")));
+}
+
+void TstTheme::pairParsed() {
+  //  Form 2: [light, dark] splits the modes (incoming sender ships paired).
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVector<Theme::LayoutNode> incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
   const Theme::LayoutNode& header = incoming.at(0).children.at(1).children.at(0);
-  QCOMPARE(header.senderColor, QStringLiteral("$text"));
-  QCOMPARE(header.timeColor, QStringLiteral("$secondary"));
-  const Theme::LayoutNode& bubble = incoming.at(0).children.at(1).children.at(1);
-  QCOMPARE(bubble.textColor, QStringLiteral("$bubbleIn"));
+  QVERIFY(header.hasSenderColor);
+  QCOMPARE(header.senderColor.light, QColor(QStringLiteral("#1A1D21")));
+  QCOMPARE(header.senderColor.dark, QColor(QStringLiteral("#E8EAED")));
+  QVERIFY(!header.hasTimeColor);
 }
 
-void TstTheme::badNodeColorRejected() {
-  QByteArray hex =
-    withReplaced(validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"ifNot\": \"isGrouped\"}",
-                 "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"senderColor\": \"#FFFFFF\", \"ifNot\": \"isGrouped\"}");
-  QVERIFY(!Theme::loadFromJson(hex).isValid);
-  QByteArray unknown =
-    withReplaced(validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"ifNot\": \"isGrouped\"}",
-                 "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"timeColor\": \"$nope\", \"ifNot\": \"isGrouped\"}");
-  QVERIFY(!Theme::loadFromJson(unknown).isValid);
-  QByteArray badBubble = withReplaced(validJson(), "\"card\": \"incoming\", \"children\"",
-                                      "\"card\": \"incoming\", \"textColor\": \"red\", \"children\"");
-  QVERIFY(!Theme::loadFromJson(badBubble).isValid);
-}
-
-void TstTheme::emptyLayoutRejected() {
-  QByteArray empty =
-    withReplaced(validJson(), "[{\"type\": \"vbox\", \"gap\": 0, \"children\": [\n      {\"type\": \"bubble\", \"card\": \"system\", \"children\": [{\"type\": \"body\"}]}]}]",
-                 "[]");
-  Theme t = Theme::loadFromJson(empty);
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::badTailStyleRejected() {
-  QByteArray bad =
-    withReplaced(validJson(), "\"tail\": 8,", "\"tail\": 8, \"tailStyle\": \"spike\",");
-  Theme t = Theme::loadFromJson(bad);
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::roundedTailStyleAccepted() {
-  QByteArray rounded =
-    withReplaced(validJson(), "\"tail\": 8,", "\"tail\": 2, \"tailStyle\": \"rounded\",");
-  Theme t = Theme::loadFromJson(rounded);
+void TstTheme::gradientParsed() {
+  //  Form 3: per-mode gradients with exact stops (incoming bg).
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.bubble.tail, 2);
-  QCOMPARE(t.bubble.tailStyle, QStringLiteral("rounded"));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QCOMPARE(rect.bg.kind, Theme::Bg::Kind::Gradient);
+  QCOMPARE(rect.bg.lightFrom, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(rect.bg.lightTo, QColor(QStringLiteral("#F1F4F8")));
+  QCOMPARE(rect.bg.darkFrom, QColor(QStringLiteral("#1F242B")));
+  QCOMPARE(rect.bg.darkTo, QColor(QStringLiteral("#262D36")));
+  QCOMPARE(rect.maxWidthPct, 75);
+  QVERIFY(!rect.hasTextColor);
+  QVERIFY(!rect.hasBorder);
 }
 
-void TstTheme::systemPillAccepted() {
-  //  System pill: optional tokens in both palettes + $refs in the system card.
-  QByteArray base = withReplaced(validJson(), ", \"textInverse\": \"#1A1D21\"",
-                                 ", \"textInverse\": \"#1A1D21\", "
-                                 "\"pill\": \"#E8EDF2\", \"pillBorder\": \"#E2E8F0\"");
-  base = withReplaced(base, ", \"textInverse\": \"#E8EAED\"",
-                      ", \"textInverse\": \"#E8EAED\", "
-                      "\"pill\": \"#1E293B\", \"pillBorder\": \"#334155\"");
-  base = withReplaced(base, "\"system\": {\"bg\": \"transparent\"",
-                      "\"system\": {\"bg\": \"$pill\", \"border\": \"$pillBorder\"");
-  Theme t = Theme::loadFromJson(base);
+void TstTheme::solidKindsParsed() {
+  //  Solid pair (broadcast) and bare solid (outgoing is a gradient;
+  //  broadcast bg is a pair of plain hexes).
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.resolve(QStringLiteral("$pill"), Theme::Mode::Light, false),
-           QColor(QStringLiteral("#E8EDF2")));
-  QCOMPARE(t.resolve(QStringLiteral("$pillBorder"), Theme::Mode::Dark, false),
-           QColor(QStringLiteral("#334155")));
-  QCOMPARE(t.cards.value(QStringLiteral("system")).bg, QStringLiteral("$pill"));
+  QVector<Theme::LayoutNode> broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
+  const Theme::LayoutNode& rect = broadcast.at(0).children.at(0);
+  QCOMPARE(rect.bg.kind, Theme::Bg::Kind::Solid);
+  QCOMPARE(rect.bg.solid.light, QColor(QStringLiteral("#E6F4EA")));
+  QCOMPARE(rect.bg.solid.dark, QColor(QStringLiteral("#1A2E22")));
+  QVERIFY(rect.hasBorder);
+  QCOMPARE(rect.border.light, QColor(QStringLiteral("#2F9E44")));
+  QCOMPARE(rect.border.dark, QColor(QStringLiteral("#3FB950")));
 }
 
-void TstTheme::pillAsymmetricRejected() {
-  //  An optional token in one palette only invalidates the theme.
-  QByteArray base = withReplaced(validJson(), ", \"textInverse\": \"#1A1D21\"",
-                                 ", \"textInverse\": \"#1A1D21\", \"pill\": \"#E8EDF2\"");
-  Theme t = Theme::loadFromJson(base);
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::badVersion() {
-  Theme t = Theme::loadFromJson(withReplaced(validJson(), "\"version\": 1", "\"version\": 2"));
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::missingTwelfthTokenRejected() {
-  //  Both palettes must carry the full 12-token set.
-  Theme tLight = Theme::loadFromJson(
-    withReplaced(validJson(), ", \"textInverse\": \"#1A1D21\"", ""));
-  QVERIFY(!tLight.isValid);
-  Theme tDark = Theme::loadFromJson(
-    withReplaced(validJson(), ", \"textInverse\": \"#E8EAED\"", ""));
-  QVERIFY(!tDark.isValid);
-}
-
-void TstTheme::cardTextAccepted() {
-  //  Optional per-card text (e.g. outgoing on a saturated bubble) is valid
-  //  and resolves; cards without text keep the global text token.
-  QByteArray withCardText = withReplaced(
-    validJson(), "\"bg2\": \"$bubbleOut2\", \"tail\"",
-    "\"bg2\": \"$bubbleOut2\", \"text\": \"$textInverse\", \"tail\"");
-  Theme t = Theme::loadFromJson(withCardText);
+void TstTheme::transparentAccepted() {
+  //  "transparent" survives only as a body/fileCard bg (system look).
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.cards.value(QStringLiteral("outgoing")).text, QStringLiteral("$textInverse"));
-  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), Theme::Mode::Light, false),
-           QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$textInverse"), Theme::Mode::Dark, false),
-           QColor(QStringLiteral("#E8EAED")));
-  QCOMPARE(t.cards.value(QStringLiteral("incoming")).text, QString());
-  //  Delegate contract: empty card.text falls back to the global text token.
-  QCOMPARE(t.resolve(t.cards.value(QStringLiteral("outgoing")).text, Theme::Mode::Light, false),
-           QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::Light, false),
-           QColor(QStringLiteral("#1A1D21")));
+  QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
+  const Theme::LayoutNode& rect = system.at(0).children.at(0);
+  QCOMPARE(rect.bg.kind, Theme::Bg::Kind::Transparent);
+  QColor first, second;
+  Theme::pickBg(rect.bg, false, first, second);
+  QCOMPARE(first, QColor(Qt::transparent));
+  QCOMPARE(second, QColor(Qt::transparent));
+  Theme::pickBg(rect.bg, true, first, second);
+  QCOMPARE(first, QColor(Qt::transparent));
+  //  System text ships paired.
+  QVERIFY(rect.hasTextColor);
+  QCOMPARE(rect.textColor.dark, QColor(QStringLiteral("#9AA0A6")));
 }
 
-void TstTheme::hexInCardsRejected() {
-  Theme t = Theme::loadFromJson(
-    withReplaced(validJson(), "\"bg\": \"$bubbleIn\"", "\"bg\": \"#FFFFFF\""));
+void TstTheme::transparentOutsideBgRejected() {
+  QByteArray inText = withReplaced(validJson(), "\"textColor\": [\"#6B7280\", \"#9AA0A6\"]",
+                                   "\"textColor\": \"transparent\"");
+  QVERIFY(!Theme::loadFromJson(inText).isValid);
+  QByteArray inBorder = withReplaced(validJson(), "\"border\": [\"#2F9E44\", \"#3FB950\"]",
+                                     "\"border\": \"transparent\"");
+  QVERIFY(!Theme::loadFromJson(inBorder).isValid);
+  QByteArray inPair = withReplaced(validJson(), "[\"#1A1D21\", \"#E8EAED\"]",
+                                   "[\"transparent\", \"#E8EAED\"]");
+  QVERIFY(!Theme::loadFromJson(inPair).isValid);
+}
+
+void TstTheme::mixedPairRejected() {
+  //  A bg pair mixes either two solids or two gradients, never one of each.
+  QByteArray mixed = withReplaced(
+    validJson(), "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"]",
+    "\"bg\": [\"#FFFFFF\", \"gradient(#1F242B, #262D36)\"]");
+  QVERIFY(!Theme::loadFromJson(mixed).isValid);
+  QByteArray mixed2 = withReplaced(
+    validJson(), "\"bg\": [\"#E6F4EA\", \"#1A2E22\"]",
+    "\"bg\": [\"#E6F4EA\", \"gradient(#1A2E22, #1A2E22)\"]");
+  QVERIFY(!Theme::loadFromJson(mixed2).isValid);
+}
+
+void TstTheme::badGradientRejected() {
+  //  Arity is exactly two bare hex stops inside gradient(...).
+  for(const char* bad :
+      {"\"gradient(#FFFFFF)\"", "\"gradient(#FFFFFF, #F1F4F8, #000000)\"",
+       "\"gradient(red, #F1F4F8)\"", "\"gradient(#FFFFFF #F1F4F8)\"",
+       "\"gradient#FFFFFF, #F1F4F8)\"", "\"gradient(#FFFFFF, #F1F4F8\"",
+       "\"linear-gradient(#FFFFFF, #F1F4F8)\"", "\"gradient()\"",
+       "\"gradient(#FFF, #F1F4F8)\""}) {
+    QByteArray base = withReplaced(
+      validJson(), "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"]",
+      QByteArray("\"bg\": [") + bad + ", \"gradient(#1F242B, #262D36)\"]");
+    Theme t = Theme::loadFromJson(base);
+    QVERIFY2(!t.isValid, bad);
+  }
+}
+
+void TstTheme::gradientWhitespaceAccepted() {
+  //  Spaces around the tokens are tolerated, not significant.
+  QByteArray spaced = withReplaced(
+    validJson(), "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"]",
+    "\"bg\": [\"gradient( #FFFFFF , #F1F4F8 )\", \"gradient(#1F242B,#262D36)\"]");
+  Theme t = Theme::loadFromJson(spaced);
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QCOMPARE(rect.bg.lightFrom, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(rect.bg.darkTo, QColor(QStringLiteral("#262D36")));
+}
+
+void TstTheme::gradientOutsideBgRejected() {
+  //  Gradients paint fills only: text, border and header colors take solids.
+  QByteArray inText = withReplaced(validJson(), "\"textColor\": \"#1A1D21\"",
+                                   "\"textColor\": \"gradient(#1A1D21, #E8EAED)\"");
+  QVERIFY(!Theme::loadFromJson(inText).isValid);
+  QByteArray inBorder = withReplaced(
+    validJson(), "\"border\": [\"#2F9E44\", \"#3FB950\"]",
+    "\"border\": [\"gradient(#2F9E44, #1A2E22)\", \"gradient(#3FB950, #1A2E22)\"]");
+  QVERIFY(!Theme::loadFromJson(inBorder).isValid);
+  QByteArray inHeader = withReplaced(
+    validJson(), "\"senderColor\": [\"#1A1D21\", \"#E8EAED\"]",
+    "\"senderColor\": [\"gradient(#1A1D21, #000000)\", \"gradient(#E8EAED, #FFFFFF)\"]");
+  QVERIFY(!Theme::loadFromJson(inHeader).isValid);
+}
+
+void TstTheme::missingBgRejected() {
+  //  Every rect paints: bg is required on the node.
+  QByteArray noBg = withReplaced(
+    validJson(),
+    "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"], \"padding\"",
+    "\"padding\"");
+  Theme t = Theme::loadFromJson(noBg);
   QVERIFY(!t.isValid);
 }
 
-void TstTheme::transparentOutsideSystemRejected() {
-  Theme t = Theme::loadFromJson(
-    withReplaced(validJson(), "\"incoming\": {\"bg\": \"$bubbleIn\"", "\"incoming\": {\"bg\": \"transparent\""));
-  QVERIFY(!t.isValid);
+void TstTheme::rectMetricsParsed() {
+  //  Metrics ride the rect node: the incoming rect ships fixture values.
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QCOMPARE(rect.padding[0], 8);
+  QCOMPARE(rect.padding[1], 10);
+  QCOMPARE(rect.padding[2], 8);
+  QCOMPARE(rect.padding[3], 10);
+  QCOMPARE(rect.shadowDx, 0.0);
+  QCOMPARE(rect.shadowDy, 2.0);
+  QCOMPARE(rect.shadowBlur, 8.0);
+  QCOMPARE(rect.shadowOpacity, 0.18);
+  QCOMPARE(rect.marginDefault, 6);
+  QCOMPARE(rect.marginNext, 2);
+  QCOMPARE(rect.maxWidthPct, 75);
 }
 
-void TstTheme::unknownTokenRejected() {
-  Theme t = Theme::loadFromJson(
-    withReplaced(validJson(), "$bubbleIn2", "$nope"));
+void TstTheme::tailRejected() {
+  //  Rows are tailless: any tail key on any node invalidates the theme.
+  for(const char* key : {"\"tail\": \"left\"", "\"tailSize\": 8", "\"tailStyle\": \"polygon\""}) {
+    QByteArray tailed = withReplaced(validJson(), "\"maxWidthPct\": 75}",
+                                     QByteArray("\"maxWidthPct\": 75, ") + key + "}");
+    Theme t = Theme::loadFromJson(tailed);
+    QVERIFY2(!t.isValid, key);
+  }
+}
+
+void TstTheme::colorKeyOnWrongNodeRejected() {
+  //  Keys name the painted element: bg/text/border/metrics live on
+  //  body/fileCard, sender/time on headers, tails nowhere.
+  QByteArray bgOnHeader = withReplaced(
+    validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
+    "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"bg\": \"#FFFFFF\"");
+  QVERIFY(!Theme::loadFromJson(bgOnHeader).isValid);
+  QByteArray senderOnRect = withReplaced(
+    validJson(), "\"textColor\": \"#1A1D21\"",
+    "\"textColor\": \"#1A1D21\", \"senderColor\": \"#FFFFFF\"");
+  QVERIFY(!Theme::loadFromJson(senderOnRect).isValid);
+  QByteArray textOnAvatar = withReplaced(validJson(), "{\"type\": \"avatar\"}",
+                                         "{\"type\": \"avatar\", \"textColor\": \"#FFFFFF\"}");
+  QVERIFY(!Theme::loadFromJson(textOnAvatar).isValid);
+  QByteArray tailOnHeader = withReplaced(
+    validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
+    "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"tail\": \"left\"");
+  QVERIFY(!Theme::loadFromJson(tailOnHeader).isValid);
+}
+
+void TstTheme::dollarRefsRejected() {
+  //  No $ indirection remains anywhere: refs are literals now.
+  for(const char* bad : {"\"$text\"", "\"$bubbleIn\""}) {
+    QByteArray refed = withReplaced(validJson(), "\"textColor\": \"#1A1D21\"",
+                                    QByteArray("\"textColor\": ") + bad);
+    QVERIFY2(!Theme::loadFromJson(refed).isValid, bad);
+  }
+  QByteArray refedBg = withReplaced(
+    validJson(), "\"bg\": [\"#E6F4EA\", \"#1A2E22\"]", "\"bg\": \"$bubbleIn\"");
+  QVERIFY(!Theme::loadFromJson(refedBg).isValid);
+}
+
+void TstTheme::layoutWithoutRectRejected() {
+  //  The delegate always paints one rect: a layout without body/fileCard
+  //  is invalid.
+  QByteArray noRect = withReplaced(
+    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": {\"default\": 6, \"next\": 2}, \"maxWidthPct\": 75}",
+    "{\"type\": \"status\"}");
+  Theme t = Theme::loadFromJson(noRect);
   QVERIFY(!t.isValid);
 }
 
 void TstTheme::missingLayoutRejected() {
-  QByteArray base = validJson();
-  //  Cut out layout_request entirely via marker: easier to corrupt the key name.
-  Theme t = Theme::loadFromJson(withReplaced(base, "layout_request", "layout_nope"));
+  //  Renaming a layout key reads as a missing layout: all 5 are required.
+  Theme t = Theme::loadFromJson(withReplaced(validJson(), "\"layout_request\":",
+                                             "\"layout_nope\":"));
   QVERIFY(!t.isValid);
 }
 
-void TstTheme::reservedBlocksAcceptedButIgnored() {
-  //  The validator accepts linkPreview/quote/code/buttons (L); the S delegate ignores them.
-  QByteArray base = withReplaced(validJson(), "{\"type\": \"body\"}",
-                                 "{\"type\": \"quote\"}");
-  Theme t = Theme::loadFromJson(base);
+void TstTheme::builtInDefaultValid() {
+  //  Covers the compiled-in resource path and the minimal fallback literal.
+  Theme t = Theme::builtInDefault();
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QByteArray base2 = withReplaced(validJson(), "{\"type\": \"body\"}",
-                                  "{\"type\": \"linkPreview\"}");
-  Theme t2 = Theme::loadFromJson(base2);
-  QVERIFY2(t2.isValid, qPrintable(t2.errorString));
+  QCOMPARE(t.compiled.size(), 5);
+  QVERIFY(t.text.light.isValid());
+  QVERIFY(t.page.dark.isValid());
 }
 
-void TstTheme::badFlagRejected() {
-  Theme t = Theme::loadFromJson(withReplaced(validJson(), "isGrouped", "isFoo"));
-  QVERIFY(!t.isValid);
-}
+void TstTheme::pickHelpers() {
+  Theme::DualColor c{QColor(QStringLiteral("#111111")), QColor(QStringLiteral("#EEEEEE"))};
+  QCOMPARE(Theme::pick(c, false), QColor(QStringLiteral("#111111")));
+  QCOMPARE(Theme::pick(c, true), QColor(QStringLiteral("#EEEEEE")));
+  QCOMPARE(Theme::isDark(Theme::Mode::Light, true), false);
+  QCOMPARE(Theme::isDark(Theme::Mode::Dark, false), true);
+  QCOMPARE(Theme::isDark(Theme::Mode::System, false), false);
+  QCOMPARE(Theme::isDark(Theme::Mode::System, true), true);
 
-void TstTheme::tooDeepRejected() {
-  //  hbox=1, vbox=2, bubble=3, body=4, + nested body = 5 (>4).
-  QByteArray deep = withReplaced(
-    validJson(), "{\"type\": \"body\"}",
-    "{\"type\": \"bubble\", \"card\": \"incoming\", \"children\": [{\"type\": \"body\"}]}");
-  Theme t = Theme::loadFromJson(deep);
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::fractionalArrayRejected() {
-  //  Pixel arrays are integers: 12.5 would silently truncate via toInt().
-  Theme t = Theme::loadFromJson(
-    withReplaced(validJson(), "\"radius\": [12, 12, 12, 4]", "\"radius\": [12, 12, 12, 4.5]"));
-  QVERIFY(!t.isValid);
-}
-
-void TstTheme::resolveTokens() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY(t.isValid);
-  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), Theme::Mode::Light, false),
-           QColor(QStringLiteral("#FFFFFF")));
-  QCOMPARE(t.resolve(QStringLiteral("$bubbleIn"), Theme::Mode::Dark, false),
-           QColor(QStringLiteral("#1F242B")));
-  //  System follows systemDark.
-  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::System, false),
-           QColor(QStringLiteral("#1A1D21")));
-  QCOMPARE(t.resolve(QStringLiteral("$text"), Theme::Mode::System, true),
-           QColor(QStringLiteral("#E8EAED")));
-  QCOMPARE(t.resolve(QStringLiteral("transparent"), Theme::Mode::Light, false),
-           QColor(Qt::transparent));
+  const Theme::LayoutNode& rect = incomingBody(t);
+  QColor first, second;
+  Theme::pickBg(rect.bg, false, first, second);
+  QCOMPARE(first, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(second, QColor(QStringLiteral("#F1F4F8")));
+  Theme::pickBg(rect.bg, true, first, second);
+  QCOMPARE(first, QColor(QStringLiteral("#1F242B")));
+  QCOMPARE(second, QColor(QStringLiteral("#262D36")));
+  //  Solid: both stops coincide.
+  QVector<Theme::LayoutNode> broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
+  Theme::pickBg(broadcast.at(0).children.at(0).bg, true, first, second);
+  QCOMPARE(first, second);
+  QCOMPARE(first, QColor(QStringLiteral("#1A2E22")));
+}
+
+void TstTheme::shippedMeshBlueSpotCheck() {
+  //  The migration expanded tokens 1:1: incoming gradient and outgoing
+  //  bare-white text read back exactly.
+  QDir themesDir(QString::fromLocal8Bit(LMC_THEME_DIR));
+  QFile f(themesDir.absoluteFilePath(QStringLiteral("MeshBlue/theme.json")));
+  QVERIFY(f.open(QIODevice::ReadOnly));
+  Theme t = Theme::loadFromJson(f.readAll());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QVector<Theme::LayoutNode> incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
+  const Theme::LayoutNode& in = incoming.at(0).children.at(1).children.at(1);
+  QCOMPARE(in.bg.kind, Theme::Bg::Kind::Gradient);
+  QCOMPARE(in.bg.lightFrom, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(in.bg.lightTo, QColor(QStringLiteral("#F0FDF4")));
+  QCOMPARE(in.bg.darkFrom, QColor(QStringLiteral("#162235")));
+  QCOMPARE(in.bg.darkTo, QColor(QStringLiteral("#111A29")));
+  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& out = outgoing.at(0).children.at(0).children.at(1);
+  QVERIFY(out.hasTextColor);
+  QCOMPARE(out.textColor.light, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(out.textColor.dark, QColor(QStringLiteral("#FFFFFF")));
 }
 
 void TstTheme::availableThemesListsUserAndSkipsBroken() {

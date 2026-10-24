@@ -65,9 +65,25 @@ public:
     QStringList headerItems;
     int hboxGap = 8;
     int vboxGap = 2;
-    QString bubbleTextColor; // $token ref or empty = card default
-    QString senderColor;     // $token ref or empty = theme default
-    QString timeColor;       // $token ref or empty = theme default
+    Theme::DualColor text;        // body text: node value or theme default
+    Theme::DualColor senderColor; // header name: node value or theme default
+    Theme::DualColor timeColor;   // header time: node value or theme default
+    Theme::DualColor border;      // bubble outline
+    bool hasBorder = false;
+    Theme::Bg bg; // bubble fill
+    //  Rect metrics from the layout body/fileCard node. Rows are tailless.
+    int padding[4] = {0, 0, 0, 0}; // [T, R, B, L]
+    double shadowDx = 0.0;
+    double shadowDy = 0.0;
+    double shadowBlur = 0.0;
+    double shadowOpacity = 0.0;
+    int marginDefault = 0; // series-start top gap (single rows included)
+    int marginNext = 0;    // in-series top gap (absent next = default)
+    int maxWidthPct = 75;
+    //  Per-corner radii [TL, TR, BR, BL] from the layout body/fileCard node
+    //  (hand-mirrored by the theme author for outgoing; no code mirror).
+    int cornersDefault[4] = {12, 12, 12, 4};
+    int cornersNext[4] = {12, 12, 12, 4};
   };
   ResolvedRow resolveRow(const QModelIndex& index) const;
 
@@ -99,13 +115,18 @@ private:
     int corner[4] = {0, 0, 0, 0};
     bool hasHeader = false;
     QStringList headerItems;
-    QString senderColorRef;
-    QString timeColorRef;
-    QString bubbleTextRef;
+    Theme::DualColor senderColor;
+    Theme::DualColor timeColor;
+    Theme::DualColor border;
+    bool hasBorder = false;
+    Theme::Bg bg;
+    double shadowDx = 0.0;
+    double shadowDy = 0.0;
+    double shadowBlur = 0.0;
+    double shadowOpacity = 0.0;
   };
 
-  QString cardFor(const QModelIndex& index) const;
-  QColor cardColor(const QString& cardName, bool bg2, bool darkMode) const;
+  QString roleFor(const QModelIndex& index) const;
   double localPointSize() const;
   QFont rowFont(const QModelIndex& index) const;
   QString rowTime(const QModelIndex& index) const;

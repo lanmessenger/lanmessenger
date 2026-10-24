@@ -599,8 +599,8 @@ QString ChatMessageView::themeFilePath() const {
 void ChatMessageView::syncBackground() {
   //  Empty viewport must match the per-row page fill in BubbleDelegate::paint:
   //  otherwise an empty chat is white (QPalette::Base) while rows sit on gray.
-  bool darkMode = theme.isDark(appearanceMode, systemDark);
-  QColor page = theme.resolveToken(QStringLiteral("page"), darkMode);
+  bool darkMode = Theme::isDark(appearanceMode, systemDark);
+  QColor page = Theme::pick(theme.page, darkMode);
   if(!page.isValid())
     return;
   QPalette pal = palette();

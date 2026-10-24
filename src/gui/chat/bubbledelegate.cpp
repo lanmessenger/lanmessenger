@@ -129,7 +129,9 @@ void BubbleDelegate::invalidateCache() {
   avatars.clear();
 }
 
-QString BubbleDelegate::cardFor(const QModelIndex& index) const {
+//  Row role from the message alone: layout name minus the prefix,
+//  so "layout_" + role always names the tree to walk.
+QString BubbleDelegate::roleFor(const QModelIndex& index) const {
   int type = index.data(ChatMessageModel::TypeRole).toInt();
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   switch(type) {
@@ -146,17 +148,6 @@ QString BubbleDelegate::cardFor(const QModelIndex& index) const {
     break;
   }
   return own ? QStringLiteral("outgoing") : QStringLiteral("incoming");
-}
-
-QColor BubbleDelegate::cardColor(const QString& cardName, bool bg2, bool darkMode) const {
-  if(!theme.cards.contains(cardName))
-    return darkMode ? QColor(QStringLiteral("#262D36")) : QColor(Qt::white);
-  const Theme::Card& card = theme.cards.value(cardName);
-  QString ref = bg2 ? (card.bg2.isEmpty() ? card.bg : card.bg2) : card.bg;
-  QColor c = theme.resolve(ref, mode, systemDark);
-  if(!c.isValid())
-    c = theme.resolveToken(QStringLiteral("bubbleIn"), darkMode);
-  return c;
 }
 
 double BubbleDelegate::localPointSize() const {
@@ -319,7 +310,7 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
 }
 
 BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
-  QString card = cardFor(index);
+  QString card = roleFor(index);
   bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   bool ownLast = index.data(ChatMessageModel::OwnLastRole).toBool();
@@ -328,7 +319,14 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
   bool preview = !index.data(ChatMessageModel::PreviewRole).toString().isEmpty();
   ResolvedRow r;
   r.card = card;
-  //  Legacy defaults: no compiled layout (built-in fallback theme).
+  //  Theme defaults first; layout nodes override below. The bg default
+  //  blends with the page (unreachable with valid themes: every layout
+  //  carries a bubble, but a fully flag-gated row must still paint valid).
+  r.text = theme.text;
+  r.senderColor = theme.header.senderColor;
+  r.timeColor = theme.header.timeColor;
+  r.bg.kind = Theme::Bg::Kind::Solid;
+  r.bg.solid = theme.page;
   r.avatar = reservesAvatar(card, grouped);
   r.header =
     !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
@@ -367,7 +365,7 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
     }
     root = column;
   }
-  //  VBox level (root or the hbox column): header + bubble.
+  //  VBox level (root or the hbox column): header + body/fileCard.
   r.vboxGap = root->gap;
   r.header = false;
   r.headerItems.clear();
@@ -384,12 +382,27 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
         else if(card == QLatin1String("outgoing"))
           r.headerItems = QStringList{QStringLiteral("time")};
       }
-      r.senderColor = c.senderColor;
-      r.timeColor = c.timeColor;
-    } else if(c.type == Theme::LayoutNode::Type::Bubble) {
-      if(!c.card.isEmpty())
-        r.card = c.card;
-      r.bubbleTextColor = c.textColor;
+      r.senderColor = c.hasSenderColor ? c.senderColor : theme.header.senderColor;
+      r.timeColor = c.hasTimeColor ? c.timeColor : theme.header.timeColor;
+    } else if(c.type == Theme::LayoutNode::Type::Body ||
+              c.type == Theme::LayoutNode::Type::FileCard) {
+      r.text = c.hasTextColor ? c.textColor : theme.text;
+      r.bg = c.bg;
+      for(int i = 0; i < 4; i++)
+        r.padding[i] = c.padding[i];
+      r.shadowDx = c.shadowDx;
+      r.shadowDy = c.shadowDy;
+      r.shadowBlur = c.shadowBlur;
+      r.shadowOpacity = c.shadowOpacity;
+      r.marginDefault = c.marginDefault;
+      r.marginNext = c.marginNext;
+      r.maxWidthPct = c.maxWidthPct;
+      r.hasBorder = c.hasBorder;
+      r.border = c.border;
+      for(int i = 0; i < 4; i++) {
+        r.cornersDefault[i] = c.cornersDefault[i];
+        r.cornersNext[i] = c.cornersNext[i];
+      }
     }
     //  status and L-reserved blocks stay ignored like before.
   }
@@ -402,22 +415,15 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
   QFont font = rowFont(index);
   QColor color = index.data(ChatMessageModel::ColorRole).value<QColor>();
   if(!color.isValid()) {
-    //  Explicit message color wins, then the layout bubble node, then the
-    //  card (e.g. light text on a saturated outgoing bubble), then global.
-    QString card = row.card;
-    QString ref = row.bubbleTextColor;
-    if(ref.isEmpty() && theme.cards.contains(card))
-      ref = theme.cards.value(card).text;
-    if(!ref.isEmpty())
-      color = theme.resolve(ref, mode, systemDark);
-    if(!color.isValid())
-      color = theme.resolveToken(QStringLiteral("text"), theme.isDark(mode, systemDark));
+    //  Explicit message color wins, then the resolved row text
+    //  (layout body/fileCard node or theme default, e.g. light text on
+    //  a saturated outgoing bubble).
+    color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
   }
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();
   QString style = fontStyleFor(font, color, display.fontSizeVal, own, fontExplicit);
-  QString linkColorName =
-    theme.resolveToken(QStringLiteral("link"), theme.isDark(mode, systemDark)).name();
+  QString linkColorName = Theme::pick(theme.link, Theme::isDark(mode, systemDark)).name();
   QString body;
   if(isFile) {
     body = fileCardHtml(index);
@@ -438,41 +444,33 @@ int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
     avail -= theme.avatar.size + row.hboxGap;
   if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
      card == QLatin1String("request"))
-    avail = avail * theme.bubble.maxWidthPct / 100;
-  int padH = theme.bubble.padding[1] + theme.bubble.padding[3];
+    avail = avail * row.maxWidthPct / 100;
+  int padH = row.padding[1] + row.padding[3];
   return qMax(80, avail - padH);
 }
 
 int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
-  return index.data(ChatMessageModel::GroupedRole).toBool() ? theme.bubble.marginNextInGroup
-                                                            : theme.bubble.marginFirstInGroup;
+  ResolvedRow row = resolveRow(index);
+  return index.data(ChatMessageModel::GroupedRole).toBool() ? row.marginNext
+                                                            : row.marginDefault;
 }
 
 void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const {
-  //  radiusFirstInGroup stays parsed but unused: ungrouped rows use radius.
-  const int* src = index.data(ChatMessageModel::GroupedRole).toBool()
-                     ? theme.bubble.radiusNextInGroup
-                     : theme.bubble.radius;
+  //  Corners come from the layout body/fileCard node verbatim: outgoing nodes
+  //  carry hand-mirrored values, no code mirror exists.
+  ResolvedRow row = resolveRow(index);
+  const int* src = index.data(ChatMessageModel::GroupedRole).toBool() ? row.cornersNext
+                                                                      : row.cornersDefault;
   for(int i = 0; i < 4; i++)
     out[i] = src[i];
-  //  Arrays are written in incoming orientation (tail left); outgoing bubbles
-  //  (tail right) mirror them horizontally: [TL,TR,BR,BL] -> [TR,TL,BL,BR].
-  if(cardFor(index) == QLatin1String("outgoing")) {
-    int tl = out[0];
-    out[0] = out[1];
-    out[1] = tl;
-    int br = out[2];
-    out[2] = out[3];
-    out[3] = br;
-  }
 }
 
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
                                     const ResolvedRow& row) const {
   QString card = row.card;
-  int bubbleW = contentWidth(index, viewportWidth, row) + theme.bubble.padding[1] +
-                theme.bubble.padding[3];
-  int bubbleH = contentH + theme.bubble.padding[0] + theme.bubble.padding[2];
+  int bubbleW = contentWidth(index, viewportWidth, row) + row.padding[1] +
+                row.padding[3];
+  int bubbleH = contentH + row.padding[0] + row.padding[2];
   int x = 0;
   int top = rowTopMargin(index);
   int headerH = 0;
@@ -550,16 +548,27 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.doc->setTextWidth(contentWidth(index, viewportWidth, row));
   QSizeF docSize = e.doc->size();
   e.bubbleRect = rowBubbleRect(index, viewportWidth, qCeil(docSize.height()), row);
-  e.docRect = QRect(e.bubbleRect.left() + theme.bubble.padding[3],
-                    e.bubbleRect.top() + theme.bubble.padding[0],
+  e.docRect = QRect(e.bubbleRect.left() + row.padding[3],
+                    e.bubbleRect.top() + row.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
   e.topMargin = rowTopMargin(index);
-  rowCornerRadii(index, e.corner);
+  //  Corners from the already-resolved row: no second tree walk.
+  //  rowCornerRadii() stays for tests and external callers.
+  const int* src = index.data(ChatMessageModel::GroupedRole).toBool() ? row.cornersNext
+                                                                      : row.cornersDefault;
+  for(int i = 0; i < 4; i++)
+    e.corner[i] = src[i];
   e.hasHeader = row.header;
   e.headerItems = row.headerItems;
-  e.senderColorRef = row.senderColor;
-  e.timeColorRef = row.timeColor;
-  e.bubbleTextRef = row.bubbleTextColor;
+  e.senderColor = row.senderColor;
+  e.timeColor = row.timeColor;
+  e.border = row.border;
+  e.hasBorder = row.hasBorder;
+  e.bg = row.bg;
+  e.shadowDx = row.shadowDx;
+  e.shadowDy = row.shadowDy;
+  e.shadowBlur = row.shadowBlur;
+  e.shadowOpacity = row.shadowOpacity;
   //  +1: QRect::bottom() is the last pixel, size needs one past it.
   e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
   cache.insert(key, e);
@@ -606,12 +615,12 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
                            const QModelIndex& index) const {
   painter->save();
   painter->setRenderHint(QPainter::Antialiasing);
-  bool darkMode = theme.isDark(mode, systemDark);
-  QString card = cardFor(index);
+  bool darkMode = Theme::isDark(mode, systemDark);
+  QString card = roleFor(index);
   const CacheEntry& e = entryFor(index, option.rect.width());
   int top = option.rect.top();
 
-  painter->fillRect(option.rect, theme.resolveToken(QStringLiteral("page"), darkMode));
+  painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
 
   //  Header runs come from the layout header node (items + color
   //  overrides); the theme header holds defaults. Name run is senderColor,
@@ -644,11 +653,8 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     }
     if(!nameBold)
       nf.setBold(false);
-    QString senderRef =
-      e.senderColorRef.isEmpty() ? theme.header.senderColor : e.senderColorRef;
-    QString timeRef = e.timeColorRef.isEmpty() ? theme.header.timeColor : e.timeColorRef;
-    QColor nameColor = theme.resolve(senderRef, mode, systemDark);
-    QColor timeColor = theme.resolve(timeRef, mode, systemDark);
+    QColor nameColor = Theme::pick(e.senderColor, darkMode);
+    QColor timeColor = Theme::pick(e.timeColor, darkMode);
     QFontMetrics nfm(nf);
     QFontMetrics tfm(tf);
     int hx = e.bubbleRect.left();
@@ -681,44 +687,25 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 
   {
     QColor shadow(0, 0, 0);
-    shadow.setAlphaF(theme.bubble.shadowOpacity);
+    shadow.setAlphaF(e.shadowOpacity);
     painter->setPen(Qt::NoPen);
     painter->setBrush(shadow);
-    QRect shadowRect = bubble.translated(int(theme.bubble.shadowDx), int(theme.bubble.shadowDy));
+    QRect shadowRect = bubble.translated(int(e.shadowDx), int(e.shadowDy));
     painter->drawPath(roundedCorners(shadowRect, e.corner));
   }
 
-  QColor bg = cardColor(card, false, darkMode);
-  QColor bg2 = cardColor(card, true, darkMode);
+  QColor bg, bg2;
+  Theme::pickBg(e.bg, darkMode, bg, bg2);
   QLinearGradient grad(bubble.topLeft(), bubble.bottomLeft());
   grad.setColorAt(0, bg);
-  grad.setColorAt(1, bg2.isValid() ? bg2 : bg);
+  grad.setColorAt(1, bg2);
   painter->setBrush(grad);
-  const Theme::Card& cardDef = theme.cards.value(card);
-  if(!cardDef.border.isEmpty()) {
-    painter->setPen(theme.resolve(cardDef.border, mode, systemDark));
+  if(e.hasBorder) {
+    painter->setPen(Theme::pick(e.border, darkMode));
   } else {
     painter->setPen(Qt::NoPen);
   }
   painter->drawPath(roundedCorners(bubble, e.corner));
-
-  if(theme.bubble.tail > 0 && cardDef.tail != QLatin1String("none") &&
-     theme.bubble.tailStyle == QLatin1String("polygon")) {
-    int tail = theme.bubble.tail;
-    QPolygon tailPoly;
-    if(cardDef.tail == QLatin1String("left")) {
-      int ty = bubble.top() + bubble.height() / 3;
-      tailPoly << QPoint(bubble.left(), ty) << QPoint(bubble.left() - tail, ty + tail / 2)
-               << QPoint(bubble.left(), ty + tail);
-    } else {
-      int ty = bubble.top() + bubble.height() / 3;
-      tailPoly << QPoint(bubble.right(), ty) << QPoint(bubble.right() + tail, ty + tail / 2)
-               << QPoint(bubble.right(), ty + tail);
-    }
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(bg);
-    painter->drawPolygon(tailPoly);
-  }
 
   //  Body: a single QTextDocument chunk. drawContents paints in document
   //  coordinates, so translate the painter to docRect.
@@ -731,7 +718,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   if(index.row() == focusRow && !focusHref.isEmpty()) {
     QRect focusRect = anchorRect(focusHref, option, index);
     if(!focusRect.isEmpty()) {
-      painter->setPen(QPen(theme.resolveToken(QStringLiteral("link"), darkMode), 2));
+      painter->setPen(QPen(Theme::pick(theme.link, darkMode), 2));
       painter->setBrush(Qt::NoBrush);
       painter->drawRoundedRect(focusRect.adjusted(-2, -1, 2, 1), 3, 3);
     }

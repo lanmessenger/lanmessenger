@@ -1,19 +1,6 @@
 {
   "version": 1,
-  "_comment": "Classic Native Slate from Stitch spec (Variant 1). Single radius array: incoming corners kept, outgoing approximated by renderer (uniform radius[0] in S). Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body uses textInverse.",
-  "bubble": {
-    "radius": [12, 12, 12, 2],
-    "radiusFirstInGroup": [12, 12, 12, 2],
-    "radiusNextInGroup": [2, 12, 12, 2],
-    "tail": 2,
-    "tailStyle": "rounded",
-    "shadow": [0, 1, 2, 0.05],
-    "padding": [10, 12, 10, 12],
-    "margin": 8,
-    "marginFirstInGroup": 8,
-    "marginNextInGroup": 2,
-    "maxWidthPct": 84
-  },
+  "_comment": "Classic Native Slate from Stitch spec (Variant 1). Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body text is #FFFFFF both modes.",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 28,
@@ -23,73 +10,13 @@
   "header": {
     "senderBold": true,
     "timeFormat": "HH:mm",
-    "outgoingYouLabel": true
+    "outgoingYouLabel": true,
+    "senderColor": ["#64748B", "#94A3B8"],
+    "timeColor": ["#64748B", "#94A3B8"]
   },
-  "light": {
-    "bubbleIn": "#FFFFFF",
-    "bubbleIn2": "#F8F9FA",
-    "bubbleOut": "#2563EB",
-    "bubbleOut2": "#1D4ED8",
-    "text": "#1E293B",
-    "secondary": "#64748B",
-    "link": "#2563EB",
-    "border": "#CBD5E1",
-    "page": "#F4F5F7",
-    "accent": "#F59E0B",
-    "accentSoft": "#FEF3C7",
-    "textInverse": "#FFFFFF",
-    "pill": "#E8EDF2",
-    "pillBorder": "#E2E8F0"
-  },
-  "dark": {
-    "bubbleIn": "#1E293B",
-    "bubbleIn2": "#172033",
-    "bubbleOut": "#3B82F6",
-    "bubbleOut2": "#2563EB",
-    "text": "#F1F5F9",
-    "secondary": "#94A3B8",
-    "link": "#60A5FA",
-    "border": "#334155",
-    "page": "#0F172A",
-    "accent": "#B45309",
-    "accentSoft": "#451A03",
-    "textInverse": "#FFFFFF",
-    "pill": "#1E293B",
-    "pillBorder": "#334155"
-  },
-  "cards": {
-    "incoming": {
-      "bg": "$bubbleIn",
-      "bg2": "$bubbleIn2",
-      "tail": "left",
-      "avatar": true
-    },
-    "outgoing": {
-      "bg": "$bubbleOut",
-      "bg2": "$bubbleOut2",
-      "text": "$textInverse",
-      "tail": "right",
-      "avatar": false
-    },
-    "broadcast": {
-      "bg": "$accentSoft",
-      "bg2": "$accentSoft",
-      "border": "$accent",
-      "tail": "none"
-    },
-    "system": {
-      "bg": "$pill",
-      "border": "$pillBorder",
-      "align": "center",
-      "text": "$secondary"
-    },
-    "request": {
-      "bg": "$bubbleIn",
-      "bg2": "$bubbleIn2",
-      "border": "$border",
-      "tail": "left"
-    }
-  },
+  "text": ["#1E293B", "#F1F5F9"],
+  "link": ["#2563EB", "#60A5FA"],
+  "page": ["#F4F5F7", "#0F172A"],
   "layout_incoming": [
     {
       "type": "hbox",
@@ -106,17 +33,19 @@
             {
               "type": "header",
               "items": ["sender", "time"],
-              "senderColor": "$text",
+              "senderColor": ["#1E293B", "#F1F5F9"],
               "ifNot": "isGrouped"
             },
             {
-              "type": "bubble",
-              "card": "incoming",
-              "children": [
-                {
-                  "type": "body"
-                }
-              ]
+              "type": "body",
+              "corners": {
+                "default": [12, 12, 12, 2],
+                "next": [2, 12, 12, 2]
+              },
+              "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+              "padding": [10, 12, 10, 12],
+              "shadow": [0, 1, 2, 0.05],
+              "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
             },
             {
               "type": "status",
@@ -140,17 +69,20 @@
             {
               "type": "header",
               "items": ["time"],
-              "senderColor": "$text",
+              "senderColor": ["#1E293B", "#F1F5F9"],
               "ifNot": "isGrouped"
             },
             {
-              "type": "bubble",
-              "card": "outgoing",
-              "children": [
-                {
-                  "type": "body"
-                }
-              ]
+              "type": "body",
+              "corners": {
+                "default": [12, 12, 2, 12],
+                "next": [12, 2, 2, 12]
+              },
+              "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+              "textColor": "#FFFFFF",
+              "padding": [10, 12, 10, 12],
+              "shadow": [0, 1, 2, 0.05],
+              "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
             },
             {
               "type": "status",
@@ -167,13 +99,13 @@
       "gap": 0,
       "children": [
         {
-          "type": "bubble",
-          "card": "system",
-          "children": [
-            {
-              "type": "body"
-            }
-          ]
+          "type": "body",
+          "bg": ["#E8EDF2", "#1E293B"],
+          "textColor": ["#64748B", "#94A3B8"],
+          "border": ["#E2E8F0", "#334155"],
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
         }
       ]
     }
@@ -184,13 +116,12 @@
       "gap": 0,
       "children": [
         {
-          "type": "bubble",
-          "card": "broadcast",
-          "children": [
-            {
-              "type": "body"
-            }
-          ]
+          "type": "body",
+          "bg": ["#FEF3C7", "#451A03"],
+          "border": ["#F59E0B", "#B45309"],
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
         }
       ]
     }
@@ -201,13 +132,12 @@
       "gap": 0,
       "children": [
         {
-          "type": "bubble",
-              "card": "request",
-              "children": [
-                {
-                  "type": "fileCard"
-                }
-              ]
+          "type": "fileCard",
+          "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+          "border": ["#CBD5E1", "#334155"],
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
         }
       ]
     }

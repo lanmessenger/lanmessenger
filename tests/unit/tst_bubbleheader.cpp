@@ -7,8 +7,11 @@
 #include <QtTest>
 
 #include <QFile>
+#include <QImage>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPainter>
 #include <QStyleOptionViewItem>
 
 #include "core/definitions.h"
@@ -49,7 +52,9 @@ private slots:
   void shippedHeaderColorsResolve();
   void seriesTopMargins();
   void seriesCornerRadii();
+  void outgoingCornersReadVerbatim();
   void layoutResolvesRow();
+  void paintRowsOffscreen();
 };
 
 XmlMessage textMessage(const QString& text) {
@@ -101,22 +106,26 @@ void TstBubbleHeader::headerFollowsLocalSize() {
 }
 
 void TstBubbleHeader::shippedHeaderColorsResolve() {
-  const char* names[] = {"ClassicSlate", "MeshBlue", "NordicTerminal"};
+  //  Header colors are literals now: both modes resolve on every theme.
+  const char* names[] = {"Bubble", "ClassicSlate", "MeshBlue", "NordicTerminal"};
   for(const char* n : names) {
     QFile f(QString::fromLatin1(":/themes/%1/theme.json").arg(QString::fromLatin1(n)));
     QVERIFY(f.open(QIODevice::ReadOnly));
     Theme t = Theme::loadFromJson(f.readAll());
     QVERIFY2(t.isValid, qPrintable(t.errorString));
-    QVERIFY(t.resolve(t.header.senderColor, Theme::Mode::Light, false).isValid());
-    QVERIFY(t.resolve(t.header.senderColor, Theme::Mode::Dark, false).isValid());
-    QVERIFY(t.resolve(t.header.timeColor, Theme::Mode::Light, false).isValid());
-    QVERIFY(t.resolve(t.header.timeColor, Theme::Mode::Dark, false).isValid());
+    QVERIFY(Theme::pick(t.header.senderColor, false).isValid());
+    QVERIFY(Theme::pick(t.header.senderColor, true).isValid());
+    QVERIFY(Theme::pick(t.header.timeColor, false).isValid());
+    QVERIFY(Theme::pick(t.header.timeColor, true).isValid());
+    QVERIFY(Theme::pick(t.text, false).isValid());
+    QVERIFY(Theme::pick(t.link, true).isValid());
+    QVERIFY(Theme::pick(t.page, false).isValid());
   }
 }
 
 void TstBubbleHeader::seriesTopMargins() {
   //  Series of 3 + 1 other: inside the series the dense margin, outside the
-  //  series-start margin. MeshBlue ships margin 9 / first 9 / next 3.
+  //  series-start margin. MeshBlue ships margin default 9 / next 3.
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
   QString jackName = QStringLiteral("Jack");
@@ -132,8 +141,6 @@ void TstBubbleHeader::seriesTopMargins() {
 
   Theme t = Theme::loadFromJson(meshBlueBytes());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.bubble.marginFirstInGroup, 9);
-  QCOMPARE(t.bubble.marginNextInGroup, 3);
   BubbleDelegate d;
   d.setTheme(t);
   QCOMPARE(d.rowTopMargin(model.index(0, 0)), 9);
@@ -160,9 +167,9 @@ void TstBubbleHeader::seriesTopMargins() {
 }
 
 void TstBubbleHeader::seriesCornerRadii() {
-  //  Same series shape as seriesTopMargins; MeshBlue ships radius
-  //  [14, 14, 14, 3], next [3, 14, 14, 3] (window side flattened).
-  //  Outgoing rows mirror horizontally.
+  //  Same series shape as seriesTopMargins; MeshBlue ships corners on the
+  //  body nodes: incoming default [14, 14, 14, 3], next [3, 14, 14, 3]
+  //  (window side flattened); outgoing nodes carry hand-mirrored values.
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
   QString jackName = QStringLiteral("Jack");
@@ -208,8 +215,82 @@ void TstBubbleHeader::seriesCornerRadii() {
     QCOMPARE(third[i], wantNext[i]);
 }
 
+void TstBubbleHeader::outgoingCornersReadVerbatim() {
+  //  No code mirror exists: outgoing corners render exactly as written,
+  //  even when they are not the mirror of incoming.
+  QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
+  QJsonObject root = doc.object();
+  QJsonArray outgoing = root.value(QStringLiteral("layout_outgoing")).toArray();
+  QJsonObject hbox = outgoing.at(0).toObject();
+  QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
+  for(int i = 0; i < hboxKids.size(); i++) {
+    QJsonObject vbox = hboxKids.at(i).toObject();
+    if(vbox.value(QStringLiteral("type")).toString() != QStringLiteral("vbox"))
+      continue;
+    QJsonArray kids = vbox.value(QStringLiteral("children")).toArray();
+    for(int j = 0; j < kids.size(); j++) {
+      QJsonObject node = kids.at(j).toObject();
+      if(node.value(QStringLiteral("type")).toString() != QStringLiteral("body"))
+        continue;
+      QJsonArray def;
+      def.append(1);
+      def.append(2);
+      def.append(3);
+      def.append(4);
+      QJsonArray next;
+      next.append(5);
+      next.append(6);
+      next.append(7);
+      next.append(8);
+      QJsonObject corners;
+      corners.insert(QStringLiteral("default"), def);
+      corners.insert(QStringLiteral("next"), next);
+      node.insert(QStringLiteral("corners"), corners);
+      kids.replace(j, node);
+    }
+    vbox.insert(QStringLiteral("children"), kids);
+    hboxKids.replace(i, vbox);
+  }
+  hbox.insert(QStringLiteral("children"), hboxKids);
+  outgoing.replace(0, hbox);
+  root.insert(QStringLiteral("layout_outgoing"), outgoing);
+  doc.setObject(root);
+  Theme t = Theme::loadFromJson(doc.toJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  XmlMessage m1 = textMessage(QStringLiteral("one"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  for(const QString& text : {QStringLiteral("two"), QStringLiteral("three")}) {
+    XmlMessage m = textMessage(text);
+    model.appendMessageLog(MT_Message, &me, &meName, &m);
+  }
+  BubbleDelegate d;
+  d.setTheme(t);
+  int single[4] = {0, 0, 0, 0};
+  int next[4] = {0, 0, 0, 0};
+  d.rowCornerRadii(model.index(1, 0), single);
+  d.rowCornerRadii(model.index(2, 0), next);
+  const int wantSingle[4] = {1, 2, 3, 4};
+  const int wantNext[4] = {5, 6, 7, 8};
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(single[i], wantSingle[i]);
+    QCOMPARE(next[i], wantNext[i]);
+  }
+}
+
 void TstBubbleHeader::layoutResolvesRow() {
-  //  Same series shape; MeshBlue nodes carry gaps 8/2 and $text senderColor.
+  //  Same series shape; MeshBlue nodes carry gaps 8/2, literal senderColor
+  //  pairs and gradient fills with hand-mirrored corners.
+  const QColor textLight(QStringLiteral("#0F172A"));
+  const QColor textDark(QStringLiteral("#E2E8F0"));
+  const QColor secondaryLight(QStringLiteral("#64748B"));
+  const QColor secondaryDark(QStringLiteral("#7DD3FC"));
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
   QString jackName = QStringLiteral("Jack");
@@ -235,9 +316,31 @@ void TstBubbleHeader::layoutResolvesRow() {
   QCOMPARE(first.headerItems, QStringList({QStringLiteral("sender"), QStringLiteral("time")}));
   QCOMPARE(first.hboxGap, 8);
   QCOMPARE(first.vboxGap, 2);
-  QCOMPARE(first.senderColor, QStringLiteral("$text"));
-  QVERIFY(first.timeColor.isEmpty());
-  QVERIFY(first.bubbleTextColor.isEmpty());
+  //  Node sender wins; time and body text fall back to theme defaults.
+  QCOMPARE(first.senderColor.light, textLight);
+  QCOMPARE(first.senderColor.dark, textDark);
+  QCOMPARE(first.timeColor.light, secondaryLight);
+  QCOMPARE(first.timeColor.dark, secondaryDark);
+  QCOMPARE(first.text.light, textLight);
+  QCOMPARE(first.text.dark, textDark);
+  //  Incoming gradient verbatim from the node, metrics ride the rect.
+  QCOMPARE(first.bg.kind, Theme::Bg::Kind::Gradient);
+  QCOMPARE(first.bg.lightFrom, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(first.bg.lightTo, QColor(QStringLiteral("#F0FDF4")));
+  QCOMPARE(first.bg.darkFrom, QColor(QStringLiteral("#162235")));
+  QCOMPARE(first.bg.darkTo, QColor(QStringLiteral("#111A29")));
+  QCOMPARE(first.padding[0], 10);
+  QCOMPARE(first.padding[1], 14);
+  QCOMPARE(first.padding[2], 10);
+  QCOMPARE(first.padding[3], 14);
+  QCOMPARE(first.shadowDx, 0.0);
+  QCOMPARE(first.shadowDy, 2.0);
+  QCOMPARE(first.shadowBlur, 4.0);
+  QCOMPARE(first.shadowOpacity, 0.08);
+  QCOMPARE(first.marginDefault, 9);
+  QCOMPARE(first.marginNext, 3);
+  QCOMPARE(first.maxWidthPct, 80);
+  QVERIFY(!first.hasBorder);
 
   BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(1, 0));
   //  Grouped rows hide the avatar (showOnGrouped is false in MeshBlue).
@@ -252,7 +355,15 @@ void TstBubbleHeader::layoutResolvesRow() {
   QCOMPARE(own.headerItems, QStringList({QStringLiteral("time")}));
   QCOMPARE(own.hboxGap, 8);
   QCOMPARE(own.vboxGap, 2);
-  QCOMPARE(own.senderColor, QStringLiteral("$text"));
+  QCOMPARE(own.senderColor.light, textLight);
+  //  Saturated outgoing bubble: bare-white text, own gradient.
+  QCOMPARE(own.text.light, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(own.text.dark, QColor(QStringLiteral("#FFFFFF")));
+  QCOMPARE(own.bg.kind, Theme::Bg::Kind::Gradient);
+  QCOMPARE(own.bg.lightFrom, QColor(QStringLiteral("#0284C7")));
+  QCOMPARE(own.bg.lightTo, QColor(QStringLiteral("#0369A1")));
+  QCOMPARE(own.bg.darkFrom, QColor(QStringLiteral("#0EA5E9")));
+  QCOMPARE(own.bg.darkTo, QColor(QStringLiteral("#0284C7")));
 
   //  Node gaps flow through: vbox gap 5 resolves into the row.
   QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
@@ -272,6 +383,68 @@ void TstBubbleHeader::layoutResolvesRow() {
   BubbleDelegate d2;
   d2.setTheme(t2);
   QCOMPARE(d2.resolveRow(model.index(0, 0)).vboxGap, 5);
+}
+
+void TstBubbleHeader::paintRowsOffscreen() {
+  //  End-to-end render smoke: every role paints without crashing, and the
+  //  mode actually changes the pixels (literal colors resolve per mode).
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  XmlMessage m1 = textMessage(QStringLiteral("one"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  XmlMessage m2 = textMessage(QStringLiteral("two"));
+  model.appendMessageLog(MT_Message, &me, &meName, &m2);
+  XmlMessage m3 = textMessage(QStringLiteral("sys"));
+  model.appendMessageLog(MT_Failed, &jack, &jackName, &m3);
+  XmlMessage m4 = textMessage(QStringLiteral("bc"));
+  model.appendMessageLog(MT_Broadcast, &jack, &jackName, &m4);
+  XmlMessage m5;
+  m5.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m5.addData(XN_FILEID, QStringLiteral("id1"));
+  m5.addData(XN_FILEOP, FileOpNames[FO_Request]);
+  m5.addData(XN_FILENAME, QStringLiteral("f.bin"));
+  m5.addData(XN_FILESIZE, QStringLiteral("800000"));
+  m5.addData(XN_FILEPATH, QStringLiteral("/tmp/f.bin"));
+  model.appendMessageLog(MT_File, &me, &meName, &m5);
+
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QImage light, dark;
+  for(int pass = 0; pass < 2; pass++) {
+    BubbleDelegate d;
+    d.setTheme(t);
+    d.setMode(pass == 0 ? Theme::Mode::Light : Theme::Mode::Dark, false);
+    int total = 0;
+    for(int row = 0; row < model.rowCount(); row++) {
+      QStyleOptionViewItem option;
+      option.rect = QRect(0, 0, 400, 10);
+      QSize size = d.sizeHint(option, model.index(row, 0));
+      QVERIFY(size.height() > 0);
+      total += size.height();
+    }
+    QImage img(400, total, QImage::Format_ARGB32);
+    img.fill(Qt::magenta); // any unpainted gap screams
+    QPainter p(&img);
+    int y = 0;
+    for(int row = 0; row < model.rowCount(); row++) {
+      QStyleOptionViewItem option;
+      option.rect = QRect(0, y, 400, 10);
+      QSize size = d.sizeHint(option, model.index(row, 0));
+      option.rect.setHeight(size.height());
+      d.paint(&p, option, model.index(row, 0));
+      y += size.height();
+    }
+    p.end();
+    if(pass == 0)
+      light = img;
+    else
+      dark = img;
+  }
+  QVERIFY(light != dark);
 }
 
 QTEST_MAIN(TstBubbleHeader)
