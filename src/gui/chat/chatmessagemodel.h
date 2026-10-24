@@ -54,7 +54,7 @@ public:
   QHash<int, QByteArray> roleNames() const override;
 
   //  Mirrors lmcMessageLog::appendMessageLog (no HTML). Returns row or -1
-  //  (ChatState/Error are not stored, as in messageLog).
+  //  (ChatState is an ephemeral extra row, never stored; Error is dropped).
   int appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
                        XmlMessage* pMessage, bool bReload = false);
   void updateFileMessage(FileMode mode, FileOp op, QString fileId);
@@ -69,6 +69,9 @@ public:
                          FileMode mode, XmlMessage* outMessage);
 
   const SingleMessage& messageAt(int row) const;
+  //  Ephemeral typing row: always last when present, never in messages().
+  bool isTypingRow(int row) const;
+  const SingleMessage& typingMessage() const;
   QList<SingleMessage> messages() const;
   void setMessages(const QList<SingleMessage>& messages);
   QString plainText() const;
@@ -82,8 +85,12 @@ private:
   QString fileTempId(FileMode mode, const QString& fileId) const;
   QString fileTempId(XmlMessage* pMessage) const;
   QString statusText(const SingleMessage& msg) const;
+  void clearTypingRow();
 
   QList<SingleMessage> messageLog;
+  //  Shown while the peer composes, dropped by any later append.
+  bool hasTyping = false;
+  SingleMessage typingMsg;
   QMap<QString, XmlMessage> sendFileMap;
   QMap<QString, XmlMessage> receiveFileMap;
   QString lastId;

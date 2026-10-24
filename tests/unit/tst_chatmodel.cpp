@@ -5,6 +5,7 @@
 #include <QtTest>
 
 #include "core/definitions.h"
+#include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "messaging/xmlmessage.h"
 
@@ -31,6 +32,12 @@ XmlMessage fileRequest(const QString& fileId, const QString& name) {
   return m;
 }
 
+XmlMessage chatState(const QString& state) {
+  XmlMessage m;
+  m.addData(XN_CHATSTATE, state);
+  return m;
+}
+
 } // namespace
 
 class TstChatModel : public QObject {
@@ -41,7 +48,13 @@ private slots:
   void plainTextJoins();
   void fileFlow();
   void folderKeepsType();
+  void typingRowShowsAndClears();
+  void typingPausedText();
+  void typingActiveClears();
+  void typingNotStored();
+  void typingDoesNotGroup();
 };
+
 
 void TstChatModel::grouping() {
   ChatMessageModel model;
@@ -104,6 +117,102 @@ void TstChatModel::folderKeepsType() {
   QVERIFY(model.plainText().contains(QStringLiteral("sends you a folder:")));
   model.updateFileMessage(FM_Receive, FO_Accept, QStringLiteral("fid9"));
   QVERIFY(model.plainText().contains(QStringLiteral("Accepted")));
+}
+
+void TstChatModel::typingRowShowsAndClears() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  QCOMPARE(model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing), 0);
+  QCOMPARE(model.rowCount(), 1);
+  QVERIFY(model.isTypingRow(0));
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::TypeRole).toInt(),
+           int(MT_ChatState));
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::UserNameRole).toString(),
+           jackName);
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::GroupedRole).toBool(), false);
+  QVERIFY(model.messageText(model.messageAt(0)).contains(jackName));
+  QVERIFY(model.messageText(model.messageAt(0)).contains(QStringLiteral("typing")));
+
+  //  Repeated composing reuses the row, no duplicate.
+  QCOMPARE(model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing), 0);
+  QCOMPARE(model.rowCount(), 1);
+
+  //  Any real message drops the typing row first.
+  XmlMessage m = textMessage(QStringLiteral("hi"));
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m), 0);
+  QCOMPARE(model.rowCount(), 1);
+  QVERIFY(!model.isTypingRow(0));
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::TypeRole).toInt(),
+           int(MT_Message));
+}
+
+void TstChatModel::typingPausedText() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage paused = chatState(ChatStateNames[CS_Paused]);
+  model.appendMessageLog(MT_ChatState, &jack, &jackName, &paused);
+  QCOMPARE(model.rowCount(), 1);
+  QVERIFY(model.messageText(model.messageAt(0)).contains(QStringLiteral("entered text")));
+
+  //  State flip on the same row: composing replaces paused.
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  QCOMPARE(model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing), 0);
+  QCOMPARE(model.rowCount(), 1);
+  QVERIFY(model.messageText(model.messageAt(0)).contains(QStringLiteral("typing")));
+}
+
+void TstChatModel::typingActiveClears() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing);
+  QCOMPARE(model.rowCount(), 1);
+  XmlMessage active = chatState(ChatStateNames[CS_Active]);
+  QCOMPARE(model.appendMessageLog(MT_ChatState, &jack, &jackName, &active), -1);
+  QCOMPARE(model.rowCount(), 0);
+
+  //  Unknown/blank state never shows a row.
+  XmlMessage blank = chatState(QString());
+  QCOMPARE(model.appendMessageLog(MT_ChatState, &jack, &jackName, &blank), -1);
+  QCOMPARE(model.rowCount(), 0);
+}
+
+void TstChatModel::typingNotStored() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  model.localId = QStringLiteral("me");
+
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing);
+  QVERIFY(model.messages().isEmpty());
+  QVERIFY(model.plainText().isEmpty());
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::OwnRole).toBool(), false);
+
+  model.clearLog();
+  QCOMPARE(model.rowCount(), 0);
+}
+
+void TstChatModel::typingDoesNotGroup() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage m1 = textMessage(QStringLiteral("hi"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing);
+  //  Typing leaves lastId alone: the next real message still groups.
+  XmlMessage m2 = textMessage(QStringLiteral("again"));
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m2), 1);
+  QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
 }
 
 QTEST_MAIN(TstChatModel)

@@ -140,6 +140,7 @@ QString BubbleDelegate::roleFor(const QModelIndex& index) const {
   case MT_Failed:
   case MT_Join:
   case MT_Leave:
+  case MT_ChatState:
     return QStringLiteral("system");
   default:
     break;

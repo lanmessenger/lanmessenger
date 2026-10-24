@@ -3,6 +3,7 @@
 #include "chatmessagemodel.h"
 
 #include "core/shared.h"
+#include "gui/chat/chatdefinitions.h"
 
 namespace {
 
@@ -36,13 +37,13 @@ ChatMessageModel::ChatMessageModel(QObject* parent)
 int ChatMessageModel::rowCount(const QModelIndex& parent) const {
   if(parent.isValid())
     return 0;
-  return messageLog.count();
+  return messageLog.count() + (hasTyping ? 1 : 0);
 }
 
 QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
-  if(!index.isValid() || index.row() < 0 || index.row() >= messageLog.count())
+  if(!index.isValid() || index.row() < 0 || index.row() >= rowCount())
     return QVariant();
-  const SingleMessage& msg = messageLog.at(index.row());
+  const SingleMessage& msg = isTypingRow(index.row()) ? typingMsg : messageLog.at(index.row());
   XmlMessage xml = msg.message;
   switch(role) {
   case Qt::DisplayRole:
@@ -113,6 +114,10 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
   if(!pMessage && type != MT_Error)
     return -1;
 
+  //  Any append drops a stale typing row (messagelog parity).
+  if(type != MT_ChatState)
+    clearTypingRow();
+
   QString userId = lpszUserId ? *lpszUserId : QString();
   QString userName = lpszUserName ? *lpszUserName : QString();
   QString id;
@@ -132,9 +137,28 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
   case MT_Broadcast:
     lastId = QString();
     break;
-  case MT_ChatState:
+  case MT_ChatState: {
+    //  Ephemeral typing row: shown, never stored.
+    if(!pMessage)
+      return -1;
+    ChatState state =
+      (ChatState)Helper::indexOf(ChatStateNames, CS_Max, pMessage->data(XN_CHATSTATE));
+    if(state != CS_Composing && state != CS_Paused) {
+      clearTypingRow();
+      return -1;
+    }
+    if(hasTyping && typingMsg.userId == userId &&
+       typingMsg.message.data(XN_CHATSTATE) == ChatStateNames[state])
+      return messageLog.count();
+    clearTypingRow();
+    typingMsg = SingleMessage(type, userId, userName, pMessage->clone(), QString());
+    beginInsertRows(QModelIndex(), messageLog.count(), messageLog.count());
+    hasTyping = true;
+    endInsertRows();
+    return messageLog.count();
+  }
   case MT_Error:
-    //  As in messageLog: typing indication and send errors are not stored.
+    //  As in messageLog: send errors are not stored.
     addToLog = false;
     break;
   case MT_Failed:
@@ -252,7 +276,7 @@ void ChatMessageModel::abortPendingFileOperations() {
 }
 
 void ChatMessageModel::clearLog() {
-  if(messageLog.isEmpty())
+  if(messageLog.isEmpty() && !hasTyping)
     return;
   beginResetModel();
   messageLog.clear();
@@ -261,6 +285,8 @@ void ChatMessageModel::clearLog() {
   lastId = QString();
   outStyle = false;
   hasData = false;
+  hasTyping = false;
+  typingMsg = SingleMessage();
   endResetModel();
 }
 
@@ -312,7 +338,26 @@ bool ChatMessageModel::requestFileAction(const QString& fileId, const QString& a
 }
 
 const SingleMessage& ChatMessageModel::messageAt(int row) const {
+  if(isTypingRow(row))
+    return typingMsg;
   return messageLog.at(row);
+}
+
+bool ChatMessageModel::isTypingRow(int row) const {
+  return hasTyping && row == messageLog.count();
+}
+
+const SingleMessage& ChatMessageModel::typingMessage() const {
+  return typingMsg;
+}
+
+void ChatMessageModel::clearTypingRow() {
+  if(!hasTyping)
+    return;
+  beginRemoveRows(QModelIndex(), messageLog.count(), messageLog.count());
+  hasTyping = false;
+  typingMsg = SingleMessage();
+  endRemoveRows();
 }
 
 QList<SingleMessage> ChatMessageModel::messages() const {
@@ -325,6 +370,8 @@ void ChatMessageModel::setMessages(const QList<SingleMessage>& messages) {
   lastId = QString();
   outStyle = false;
   hasData = !messageLog.isEmpty();
+  hasTyping = false;
+  typingMsg = SingleMessage();
   endResetModel();
 }
 QString ChatMessageModel::messageText(const SingleMessage& msg) const {
@@ -359,6 +406,15 @@ QString ChatMessageModel::messageText(const SingleMessage& msg) const {
     return tr("%1 has joined this conversation").arg(msg.userName);
   case MT_Leave:
     return tr("%1 has left this conversation").arg(msg.userName);
+  case MT_ChatState: {
+    ChatState state =
+      (ChatState)Helper::indexOf(ChatStateNames, CS_Max, xml.data(XN_CHATSTATE));
+    if(state == CS_Composing)
+      return tr("%1 is typing...").arg(msg.userName);
+    if(state == CS_Paused)
+      return tr("%1 has entered text").arg(msg.userName);
+    return QString();
+  }
   default:
     break;
   }
