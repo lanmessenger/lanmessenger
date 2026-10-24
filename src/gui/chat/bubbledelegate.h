@@ -9,10 +9,9 @@
 
 #include "core/theme.h"
 
-//  Native chat delegate: tree hardcoded 1:1 with the future
-//  layout_incoming/outgoing (S subset avatar/header/bubble/
-//  body/fileCard/status; the validator accepts linkPreview/quote/code/buttons,
-//  the delegate ignores them). Stage 2 reads layout_* from the same theme.json.
+//  Native chat delegate: resolves layout_* into a row (S subset
+//  avatar/header/bubble/body/fileCard/status; the validator accepts
+//  linkPreview/quote/buttons, the delegate ignores them).
 class BubbleDelegate : public QStyledItemDelegate {
   Q_OBJECT
 
@@ -57,6 +56,20 @@ public:
   //  Per-corner radii [TL, TR, BR, BL] resolved the same way.
   //  Public for tests.
   void rowCornerRadii(const QModelIndex& index, int out[4]) const;
+  //  Layout resolution for one row: compiled layout_* walked once per row
+  //  (inside entryFor), never touching QJson. Public for tests.
+  struct ResolvedRow {
+    QString card;
+    bool avatar = false;
+    bool header = false;
+    QStringList headerItems;
+    int hboxGap = 8;
+    int vboxGap = 2;
+    QString bubbleTextColor; // $token ref or empty = card default
+    QString senderColor;     // $token ref or empty = theme default
+    QString timeColor;       // $token ref or empty = theme default
+  };
+  ResolvedRow resolveRow(const QModelIndex& index) const;
 
   //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -84,6 +97,11 @@ private:
     QRect docRect;
     int topMargin = 0;
     int corner[4] = {0, 0, 0, 0};
+    bool hasHeader = false;
+    QStringList headerItems;
+    QString senderColorRef;
+    QString timeColorRef;
+    QString bubbleTextRef;
   };
 
   QString cardFor(const QModelIndex& index) const;
@@ -91,11 +109,12 @@ private:
   double localPointSize() const;
   QFont rowFont(const QModelIndex& index) const;
   QString rowTime(const QModelIndex& index) const;
-  QString rowHtml(const QModelIndex& index) const;
+  QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
   QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
-  int contentWidth(const QModelIndex& index, int viewportWidth) const;
-  QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH) const;
+  int contentWidth(const QModelIndex& index, int viewportWidth, const ResolvedRow& row) const;
+  QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
+                      const ResolvedRow& row) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, theme/mode, settings,
   //  contentRev). contentRev covers text/avatar/fileop of the same row.
   QString cacheKey(const QModelIndex& index, int viewportWidth) const;

@@ -17,12 +17,10 @@
   "avatar": {
     "size": 40,
     "shape": "circle",
-    "showOnGrouped": false,
-    "gap": 8
+    "showOnGrouped": false
   },
   "header": {
     "senderBold": true,
-    "gap": 2,
     "timeFormat": "HH:mm"
   },
   "light": {
@@ -94,6 +92,7 @@
         },
         {
           "type": "vbox",
+          "gap": 2,
           "stretch": 1,
           "children": [
             {
@@ -107,10 +106,6 @@
               "children": [
                 {
                   "type": "body"
-                },
-                {
-                  "type": "fileCard",
-                  "if": "isFile"
                 }
               ]
             },
@@ -130,6 +125,7 @@
       "children": [
         {
           "type": "vbox",
+          "gap": 2,
           "stretch": 1,
           "children": [
             {
@@ -143,10 +139,6 @@
               "children": [
                 {
                   "type": "body"
-                },
-                {
-                  "type": "fileCard",
-                  "if": "isFile"
                 }
               ]
             },
@@ -162,6 +154,7 @@
   "layout_system": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
@@ -178,6 +171,7 @@
   "layout_broadcast": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
@@ -194,19 +188,16 @@
   "layout_request": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
-          "card": "request",
-          "children": [
-            {
-              "type": "body"
-            },
-            {
-              "type": "fileCard",
-              "if": "isFile"
-            }
-          ]
+              "card": "request",
+              "children": [
+                {
+                  "type": "fileCard"
+                }
+              ]
         }
       ]
     }

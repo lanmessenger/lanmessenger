@@ -46,6 +46,30 @@ QPainterPath roundedCorners(const QRect& r, const int c[4]) {
   return path;
 }
 
+//  Layout flag gate: a node renders when its if-flag holds and its
+//  ifNot-flag does not. Only compiled structs here, no QJson.
+bool nodeVisible(const Theme::LayoutNode& n, bool grouped, bool own, bool ownLast, bool file,
+                 bool preview) {
+  auto on = [&](const QString& flag) {
+    if(flag == QLatin1String("isGrouped"))
+      return grouped;
+    if(flag == QLatin1String("isOwn"))
+      return own;
+    if(flag == QLatin1String("isOwnLast"))
+      return ownLast;
+    if(flag == QLatin1String("isFile"))
+      return file;
+    if(flag == QLatin1String("hasPreview"))
+      return preview;
+    return false;
+  };
+  if(!n.ifFlag.isEmpty() && !on(n.ifFlag))
+    return false;
+  if(!n.ifNotFlag.isEmpty() && on(n.ifNotFlag))
+    return false;
+  return true;
+}
+
 QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
                      bool fontExplicit) {
   QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
@@ -294,17 +318,95 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
   return html;
 }
 
-QString BubbleDelegate::rowHtml(const QModelIndex& index) const {
+BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
+  QString card = cardFor(index);
+  bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
+  bool own = index.data(ChatMessageModel::OwnRole).toBool();
+  bool ownLast = index.data(ChatMessageModel::OwnLastRole).toBool();
+  int type = index.data(ChatMessageModel::TypeRole).toInt();
+  bool file = (type == MT_File || type == MT_Folder);
+  bool preview = !index.data(ChatMessageModel::PreviewRole).toString().isEmpty();
+  ResolvedRow r;
+  r.card = card;
+  //  Legacy defaults: no compiled layout (built-in fallback theme).
+  r.avatar = reservesAvatar(card, grouped);
+  r.header =
+    !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
+  if(card == QLatin1String("incoming"))
+    r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
+  else if(card == QLatin1String("outgoing"))
+    r.headerItems = QStringList{QStringLiteral("time")};
+  QVector<Theme::LayoutNode> nodes =
+    theme.compiledLayout(QStringLiteral("layout_") + card);
+  const Theme::LayoutNode* root = nullptr;
+  for(const Theme::LayoutNode& n : nodes) {
+    if((n.type != Theme::LayoutNode::Type::HBox && n.type != Theme::LayoutNode::Type::VBox) ||
+       !nodeVisible(n, grouped, own, ownLast, file, preview))
+      continue;
+    root = &n;
+    break;
+  }
+  if(!root)
+    return r;
+  if(root->type == Theme::LayoutNode::Type::HBox) {
+    r.hboxGap = root->gap;
+    r.avatar = false;
+    const Theme::LayoutNode* column = nullptr;
+    for(const Theme::LayoutNode& c : root->children) {
+      if(!nodeVisible(c, grouped, own, ownLast, file, preview))
+        continue;
+      if(c.type == Theme::LayoutNode::Type::Avatar)
+        r.avatar = reservesAvatar(card, grouped);
+      else if(c.type == Theme::LayoutNode::Type::VBox && !column)
+        column = &c;
+    }
+    if(!column) {
+      r.header = false;
+      r.headerItems.clear();
+      return r;
+    }
+    root = column;
+  }
+  //  VBox level (root or the hbox column): header + bubble.
+  r.vboxGap = root->gap;
+  r.header = false;
+  r.headerItems.clear();
+  for(const Theme::LayoutNode& c : root->children) {
+    if(!nodeVisible(c, grouped, own, ownLast, file, preview))
+      continue;
+    if(c.type == Theme::LayoutNode::Type::Header) {
+      r.header = true;
+      r.headerItems = c.headerItems;
+      if(r.headerItems.isEmpty()) {
+        //  Bare header node: card default (incoming shows both).
+        if(card == QLatin1String("incoming"))
+          r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
+        else if(card == QLatin1String("outgoing"))
+          r.headerItems = QStringList{QStringLiteral("time")};
+      }
+      r.senderColor = c.senderColor;
+      r.timeColor = c.timeColor;
+    } else if(c.type == Theme::LayoutNode::Type::Bubble) {
+      if(!c.card.isEmpty())
+        r.card = c.card;
+      r.bubbleTextColor = c.textColor;
+    }
+    //  status and L-reserved blocks stay ignored like before.
+  }
+  return r;
+}
+
+QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row) const {
   int type = index.data(ChatMessageModel::TypeRole).toInt();
   bool isFile = (type == MT_File || type == MT_Folder);
   QFont font = rowFont(index);
   QColor color = index.data(ChatMessageModel::ColorRole).value<QColor>();
   if(!color.isValid()) {
-    //  Per-card text (e.g. light text on a saturated outgoing bubble),
-    //  then the global text token. Cards without text keep legacy behavior.
-    QString card = cardFor(index);
-    QString ref;
-    if(theme.cards.contains(card))
+    //  Explicit message color wins, then the layout bubble node, then the
+    //  card (e.g. light text on a saturated outgoing bubble), then global.
+    QString card = row.card;
+    QString ref = row.bubbleTextColor;
+    if(ref.isEmpty() && theme.cards.contains(card))
       ref = theme.cards.value(card).text;
     if(!ref.isEmpty())
       color = theme.resolve(ref, mode, systemDark);
@@ -327,12 +429,13 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index) const {
          QStringLiteral("<style>a { color: %1; }</style>").arg(linkColorName);
 }
 
-int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth) const {
-  QString card = cardFor(index);
-  bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
+int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
+                                 const ResolvedRow& row) const {
+  Q_UNUSED(index);
+  QString card = row.card;
   int avail = viewportWidth;
-  if(reservesAvatar(card, grouped))
-    avail -= theme.avatar.size + theme.avatar.gap;
+  if(row.avatar)
+    avail -= theme.avatar.size + row.hboxGap;
   if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
      card == QLatin1String("request"))
     avail = avail * theme.bubble.maxWidthPct / 100;
@@ -364,26 +467,23 @@ void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const 
   }
 }
 
-QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
-                                    int contentH) const {
-  QString card = cardFor(index);
-  int bubbleW = contentWidth(index, viewportWidth) + theme.bubble.padding[1] +
+QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
+                                    const ResolvedRow& row) const {
+  QString card = row.card;
+  int bubbleW = contentWidth(index, viewportWidth, row) + theme.bubble.padding[1] +
                 theme.bubble.padding[3];
   int bubbleH = contentH + theme.bubble.padding[0] + theme.bubble.padding[2];
   int x = 0;
-  bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
-  bool hasHeader =
-    !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
   int top = rowTopMargin(index);
   int headerH = 0;
-  if(hasHeader) {
+  if(row.header) {
     QFont nf = headerNameFont();
     QFont tf = headerTimeFont();
-    headerH = qMax(QFontMetrics(nf).height(), QFontMetrics(tf).height()) + theme.header.gap;
+    headerH = qMax(QFontMetrics(nf).height(), QFontMetrics(tf).height()) + row.vboxGap;
   }
   int avatarW = 0;
-  if(reservesAvatar(card, grouped))
-    avatarW = theme.avatar.size + theme.avatar.gap;
+  if(row.avatar)
+    avatarW = theme.avatar.size + row.hboxGap;
   if(card == QLatin1String("outgoing"))
     x = viewportWidth - bubbleW;
   else if(card == QLatin1String("system"))
@@ -445,15 +545,21 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
     if(avatars.contains(key))
       e.doc->addResource(QTextDocument::ImageResource, QUrl(key), avatars.value(key));
   }
-  e.doc->setHtml(rowHtml(index));
-  e.doc->setTextWidth(contentWidth(index, viewportWidth));
+  ResolvedRow row = resolveRow(index);
+  e.doc->setHtml(rowHtml(index, row));
+  e.doc->setTextWidth(contentWidth(index, viewportWidth, row));
   QSizeF docSize = e.doc->size();
-  e.bubbleRect = rowBubbleRect(index, viewportWidth, qCeil(docSize.height()));
+  e.bubbleRect = rowBubbleRect(index, viewportWidth, qCeil(docSize.height()), row);
   e.docRect = QRect(e.bubbleRect.left() + theme.bubble.padding[3],
                     e.bubbleRect.top() + theme.bubble.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
   e.topMargin = rowTopMargin(index);
   rowCornerRadii(index, e.corner);
+  e.hasHeader = row.header;
+  e.headerItems = row.headerItems;
+  e.senderColorRef = row.senderColor;
+  e.timeColorRef = row.timeColor;
+  e.bubbleTextRef = row.bubbleTextColor;
   //  +1: QRect::bottom() is the last pixel, size needs one past it.
   e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
   cache.insert(key, e);
@@ -507,37 +613,42 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 
   painter->fillRect(option.rect, theme.resolveToken(QStringLiteral("page"), darkMode));
 
-  //  Header (sender + time). Incoming/outgoing only: layout_system/
-  //  broadcast/request have no header (stage 1 tree is hardcoded 1:1 with layout_*).
-  //  incoming: sender + time; outgoing: time only.
+  //  Header runs come from the layout header node (items + color
+  //  overrides); the theme header holds defaults. Name run is senderColor,
+  //  time run is timeColor and always regular.
   bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
-  bool hasHeader =
-    !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
-  if(hasHeader) {
-    //  Name run (senderColor) + time run (timeColor, always regular).
+  if(e.hasHeader) {
     QFont nf = headerNameFont();
     QFont tf = headerTimeFont();
     QString time = rowTime(index);
+    bool wantSender = e.headerItems.contains(QStringLiteral("sender"));
+    bool wantTime = e.headerItems.contains(QStringLiteral("time"));
     QString namePart;
-    QString timePart = time;
+    QString timePart = wantTime ? time : QString();
     bool nameBold = theme.header.senderBold;
     if(card == QLatin1String("incoming")) {
-      namePart = index.data(ChatMessageModel::UserNameRole).toString();
+      if(wantSender)
+        namePart = index.data(ChatMessageModel::UserNameRole).toString();
       if(!namePart.isEmpty() && !timePart.isEmpty())
         timePart = QStringLiteral("  ") + timePart;
-    } else if(theme.header.outgoingYouLabel) {
-      if(timePart.isEmpty()) {
-        namePart = tr("You");
-      } else {
-        //: Outgoing header prefix, always regular (see header.outgoingYouLabel).
-        namePart = tr("You ·");
+    } else if(card == QLatin1String("outgoing")) {
+      if(theme.header.outgoingYouLabel) {
+        if(timePart.isEmpty()) {
+          namePart = tr("You");
+        } else {
+          //: Outgoing header prefix, always regular (see header.outgoingYouLabel).
+          namePart = tr("You ·");
+        }
       }
       nameBold = false;
     }
     if(!nameBold)
       nf.setBold(false);
-    QColor nameColor = theme.resolve(theme.header.senderColor, mode, systemDark);
-    QColor timeColor = theme.resolve(theme.header.timeColor, mode, systemDark);
+    QString senderRef =
+      e.senderColorRef.isEmpty() ? theme.header.senderColor : e.senderColorRef;
+    QString timeRef = e.timeColorRef.isEmpty() ? theme.header.timeColor : e.timeColorRef;
+    QColor nameColor = theme.resolve(senderRef, mode, systemDark);
+    QColor timeColor = theme.resolve(timeRef, mode, systemDark);
     QFontMetrics nfm(nf);
     QFontMetrics tfm(tf);
     int hx = e.bubbleRect.left();

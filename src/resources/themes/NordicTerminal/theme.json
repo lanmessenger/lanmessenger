@@ -18,13 +18,10 @@
   "avatar": {
     "size": 20,
     "shape": "square",
-    "showOnGrouped": false,
-    "gap": 8
+    "showOnGrouped": false
   },
   "header": {
     "senderBold": true,
-    "gap": 2,
-    "senderColor": "$text",
     "timeFormat": "HH:mm:ss",
     "outgoingYouLabel": true
   },
@@ -103,11 +100,13 @@
         },
         {
           "type": "vbox",
+          "gap": 2,
           "stretch": 1,
           "children": [
             {
               "type": "header",
               "items": ["sender", "time"],
+              "senderColor": "$text",
               "ifNot": "isGrouped"
             },
             {
@@ -116,10 +115,6 @@
               "children": [
                 {
                   "type": "body"
-                },
-                {
-                  "type": "fileCard",
-                  "if": "isFile"
                 }
               ]
             },
@@ -139,11 +134,13 @@
       "children": [
         {
           "type": "vbox",
+          "gap": 2,
           "stretch": 1,
           "children": [
             {
               "type": "header",
               "items": ["time"],
+              "senderColor": "$text",
               "ifNot": "isGrouped"
             },
             {
@@ -152,10 +149,6 @@
               "children": [
                 {
                   "type": "body"
-                },
-                {
-                  "type": "fileCard",
-                  "if": "isFile"
                 }
               ]
             },
@@ -171,6 +164,7 @@
   "layout_system": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
@@ -187,6 +181,7 @@
   "layout_broadcast": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
@@ -203,19 +198,16 @@
   "layout_request": [
     {
       "type": "vbox",
+      "gap": 0,
       "children": [
         {
           "type": "bubble",
-          "card": "request",
-          "children": [
-            {
-              "type": "body"
-            },
-            {
-              "type": "fileCard",
-              "if": "isFile"
-            }
-          ]
+              "card": "request",
+              "children": [
+                {
+                  "type": "fileCard"
+                }
+              ]
         }
       ]
     }

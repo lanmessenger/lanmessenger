@@ -49,6 +49,7 @@ private slots:
   void shippedHeaderColorsResolve();
   void seriesTopMargins();
   void seriesCornerRadii();
+  void layoutResolvesRow();
 };
 
 XmlMessage textMessage(const QString& text) {
@@ -205,6 +206,72 @@ void TstBubbleHeader::seriesCornerRadii() {
   d.rowCornerRadii(model.index(2, 0), third);
   for(int i = 0; i < 4; i++)
     QCOMPARE(third[i], wantNext[i]);
+}
+
+void TstBubbleHeader::layoutResolvesRow() {
+  //  Same series shape; MeshBlue nodes carry gaps 8/2 and $text senderColor.
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  for(const QString& text : {QStringLiteral("one"), QStringLiteral("two")}) {
+    XmlMessage m = textMessage(text);
+    model.appendMessageLog(MT_Message, &jack, &jackName, &m);
+  }
+  XmlMessage m3 = textMessage(QStringLiteral("three"));
+  model.appendMessageLog(MT_Message, &me, &meName, &m3);
+
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  BubbleDelegate d;
+  d.setTheme(t);
+
+  BubbleDelegate::ResolvedRow first = d.resolveRow(model.index(0, 0));
+  QCOMPARE(first.card, QStringLiteral("incoming"));
+  QVERIFY(first.avatar);
+  QVERIFY(first.header);
+  QCOMPARE(first.headerItems, QStringList({QStringLiteral("sender"), QStringLiteral("time")}));
+  QCOMPARE(first.hboxGap, 8);
+  QCOMPARE(first.vboxGap, 2);
+  QCOMPARE(first.senderColor, QStringLiteral("$text"));
+  QVERIFY(first.timeColor.isEmpty());
+  QVERIFY(first.bubbleTextColor.isEmpty());
+
+  BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(1, 0));
+  //  Grouped rows hide the avatar (showOnGrouped is false in MeshBlue).
+  QVERIFY(!next.avatar);
+  QVERIFY(!next.header);
+  QVERIFY(next.headerItems.isEmpty());
+
+  BubbleDelegate::ResolvedRow own = d.resolveRow(model.index(2, 0));
+  QCOMPARE(own.card, QStringLiteral("outgoing"));
+  QVERIFY(!own.avatar);
+  QVERIFY(own.header);
+  QCOMPARE(own.headerItems, QStringList({QStringLiteral("time")}));
+  QCOMPARE(own.hboxGap, 8);
+  QCOMPARE(own.vboxGap, 2);
+  QCOMPARE(own.senderColor, QStringLiteral("$text"));
+
+  //  Node gaps flow through: vbox gap 5 resolves into the row.
+  QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
+  QJsonObject root = doc.object();
+  QJsonArray incoming = root.value(QStringLiteral("layout_incoming")).toArray();
+  QJsonObject hbox = incoming.at(0).toObject();
+  QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
+  QJsonObject vbox = hboxKids.at(1).toObject();
+  vbox.insert(QStringLiteral("gap"), 5);
+  hboxKids.replace(1, vbox);
+  hbox.insert(QStringLiteral("children"), hboxKids);
+  incoming.replace(0, hbox);
+  root.insert(QStringLiteral("layout_incoming"), incoming);
+  doc.setObject(root);
+  Theme t2 = Theme::loadFromJson(doc.toJson());
+  QVERIFY2(t2.isValid, qPrintable(t2.errorString));
+  BubbleDelegate d2;
+  d2.setTheme(t2);
+  QCOMPARE(d2.resolveRow(model.index(0, 0)).vboxGap, 5);
 }
 
 QTEST_MAIN(TstBubbleHeader)

@@ -6,10 +6,12 @@
 #include <QJsonArray>
 #include <QMap>
 #include <QString>
+#include <QVector>
 
 //  Native chat render (Bubble): tokens + light/dark + layout_*.
-//  Stage 1 parses and validates layout_* but ignores them (delegate tree is
-//  hardcoded 1:1 with them). Stage 2 reads the same file.
+//  Stage 2 resolves every layout_* into a row: incoming/outgoing take
+//  gaps/header/colors from nodes; system/broadcast/request resolve to the
+//  same hardcoded look (their layouts carry no header/avatar).
 class Theme {
 public:
   enum class Mode {
@@ -47,12 +49,38 @@ public:
     int size = 40;
     QString shape = QStringLiteral("circle");
     bool showOnGrouped = false;
-    int gap = 8;
+  };
+
+  //  Compiled layout node: validated JSON frozen into structs once per theme,
+  //  so the per-row path never touches QJson.
+  struct LayoutNode {
+    enum class Type {
+      HBox,
+      VBox,
+      Avatar,
+      Header,
+      Bubble,
+      Body,
+      FileCard,
+      Status,
+      Reserved
+    };
+    Type type = Type::Reserved;
+    int gap = 0;             // containers only, required in JSON
+    QString card;            // bubble only
+    QStringList headerItems; // header only, subset of sender/time
+    QString ifFlag;          // visibility condition, empty = always
+    QString ifNotFlag;
+    //  $token overrides, empty = theme/card default.
+    QString senderColor; // header only
+    QString timeColor;   // header only
+    QString textColor;   // bubble only
+    QVector<LayoutNode> children;
   };
 
   struct Header {
     bool senderBold = true;
-    int gap = 2;
+    //  Theme-level header colors are defaults; layout header nodes override.
     QString timeFormat = QStringLiteral("HH:mm");
     bool outgoingYouLabel = false;
     //  Sizes scale the local display size, colors are $token refs like cards.
@@ -83,8 +111,9 @@ public:
   QMap<QString, QColor> light;
   QMap<QString, QColor> dark;
   QMap<QString, Card> cards;
-  //  Raw layout trees for stage 2 (stage 1 only validates them).
+  //  Raw layout trees (kept for L) and the compiled engine input.
   QMap<QString, QJsonArray> layouts;
+  QMap<QString, QVector<LayoutNode>> compiled;
 
   static Theme loadFromJson(const QByteArray& data);
   static Theme loadFromFile(const QString& filePath);
@@ -101,4 +130,7 @@ public:
   QColor resolveToken(const QString& token, bool darkMode) const;
   bool isDark(Mode mode, bool systemDark) const;
   QJsonArray layoutFor(const QString& name) const;
+  //  Compiled nodes for layout_name (empty when the theme has none:
+  //  the delegate falls back to legacy defaults).
+  QVector<LayoutNode> compiledLayout(const QString& name) const;
 };

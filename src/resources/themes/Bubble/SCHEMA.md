@@ -1,4 +1,4 @@
-# Bubble theme.json — schema (stage 1, forward-compatible with stage 2)
+# Bubble theme.json — schema (stage 2: the delegate resolves layout_*)
 
 One dir per theme: `src/resources/themes/<Name>/theme.json`, UTF-8, strict JSON
 (no comments; explanations go in `_comment` fields). Parser is `QJsonDocument`.
@@ -14,7 +14,7 @@ One dir per theme: `src/resources/themes/<Name>/theme.json`, UTF-8, strict JSON
 | `header` | object | see below |
 | `light` / `dark` | object | both palettes must contain the same required token set (12); values are hex `#RRGGBB` / `#AARRGGBB` |
 | `cards` | object | all 5 required: `incoming/outgoing/broadcast/system/request` |
-| `layout_incoming/outgoing/system/broadcast/request` | array | all 5 required; a missing one falls back to `layout_incoming` with a swapped `card` + a log line. In stage 1 they are parsed and validated but ignored (delegate tree is hardcoded 1:1). Stage 2 reads them from the same file with no theme changes. |
+| `layout_incoming/outgoing/system/broadcast/request` | array | all 5 required and non-empty; a missing one falls back to `layout_incoming` with a swapped `card` + a log line. The delegate resolves every layout into a row: `incoming`/`outgoing` take gaps/header/colors from nodes; `system`/`broadcast`/`request` resolve to the same hardcoded look (their layouts carry no header/avatar). |
 
 Palette tokens (both): `bubbleIn, bubbleIn2, bubbleOut, bubbleOut2, text,
 secondary, link, border, page, accent, accentSoft, textInverse`.
@@ -53,8 +53,6 @@ cards referencing a missing optional token invalidate the theme.
 
 - `avatar.size`: int > 0; `shape`: `circle|rounded|square`; `showOnGrouped`: bool
   (sugar over `isGrouped`; duplicating `header.ifNot=isGrouped` is allowed).
-  `avatar.gap`: optional int ≥ 0 (default `8`), avatar-to-bubble gap.
-- `header.gap`: optional int ≥ 0 (default `2`), header-to-bubble gap.
 - `header.senderBold`: bool; `header.timeFormat`: non-empty `QDateTime::toString`
   format, locale-independent (breaking change vs `QLocale::ShortFormat`).
   Shipped themes use `HH:mm`; `NordicTerminal` uses `HH:mm:ss` as a seconds example.
@@ -68,9 +66,10 @@ cards referencing a missing optional token invalidate the theme.
   (default `1.0`), multipliers of the local display size from the user's own
   font-size setting — never absolute pt, so the setting keeps working. The
   sender-chosen message font never leaks into the header.
-- `header.senderColor` / `header.timeColor`: optional `$token` refs
-  (default `$secondary`), must exist in both palettes like card colors; hex is
-  forbidden here. Shipped Stitch themes use `$text` for the name.
+- `header.senderColor` / `header.timeColor`: optional `$token` defaults
+  (`$secondary`); `header` layout nodes override them per row (see below).
+  Must exist in both palettes like card colors; hex is forbidden here.
+  Shipped themes set `$text` for the name in the layout nodes.
 
 ## `cards`
 
@@ -81,25 +80,41 @@ cards referencing a missing optional token invalidate the theme.
   `$pillBorder`). Omitted `border` keeps the old borderless system line.
 - `tail`: `left|right|none`; `avatar`: bool; `align`: `left|center|right`;
   `border`/`text`: `$token`.
-- Body text fallback chain: explicit per-message color, then the card's `text`
-  (when present), then the global `text` token. `system.text` defaults to
-  `$secondary` in the shipped themes.
+- Body text fallback chain: explicit per-message color, then the layout bubble
+  node's `textColor` (when present), then the card's `text` (when present),
+  then the global `text` token. `system.text` defaults to `$secondary` in the
+  shipped themes.
+- `request` styles file transfer rows: file messages select this card
+  regardless of direction; see `layout_request` above.
 
 ## `layout_*` (L-MVP boundary, do not extend without a separate decision)
 
 - Node: `{ "type": ..., "if": <flag>, "ifNot": <flag>, ... }`.
-- Containers are `vbox/hbox` only (`gap, align, stretch`), depth ≤ 4 from the root
-  (`hbox=1, vbox=2, bubble=3, body/fileCard=4`; `body` counts as a level).
+- Containers are `vbox/hbox` only; every container carries a required
+  `gap: int ≥ 0` — the only spacing source between siblings (no theme-level
+  gaps exist). Depth ≤ 4 from the root
+  (`hbox=1, vbox=2, bubble=3, body=4`; `body` counts as a level).
 - Blocks are only: `avatar, header, bubble, body, linkPreview, fileCard, quote,
   code, status, buttons`.
 - S implements the `avatar/header/bubble/body/fileCard/status` subset;
   `linkPreview` (no link previews at all), `quote/code/buttons` are
   reserved for L: the validator accepts, the S delegate ignores.
+- A bubble holds exactly one content node: `body` xor `fileCard` — message
+  and file never stack in one bubble.
+- `layout_request` is the file layout: its bubble holds `fileCard` with no
+  conditions (row selection already guarantees a file row) and no `body`.
+  `fileCard` anywhere else, or `body` in `layout_request`, invalidates the theme.
+  `layout_incoming`/`layout_outgoing` carry no `fileCard` branches.
 - Flag sources: `SingleMessage`, `sendFileMap/receiveFileMap` for `fileCard`,
   model flags. `if`/`ifNot` only on model flags:
   `isGrouped, hasPreview, isFile, isOwn, isOwnLast`.
-- `header.items`: a subset of `["sender", "time"]`.
+- `header.items`: a subset of `["sender", "time"]` (empty = card default:
+  `incoming` shows both, `outgoing` shows time).
 - `bubble.card`: one of the 5 `cards` keys.
+- Node color overrides name the element: `header` nodes accept `senderColor` /
+  `timeColor`, `bubble` nodes accept `textColor`. `$token` refs only, must exist
+  in both palettes like card colors; hex is forbidden. A node override beats
+  the theme/card value; an explicit per-message color still beats the node.
 
 ## Errors
 
