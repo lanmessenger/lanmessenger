@@ -21,25 +21,42 @@ public:
   struct Bubble {
     int radius[4] = {12, 12, 12, 4};
     int tail = 8;
+    QString tailStyle = QStringLiteral("polygon");
     double shadowDx = 0.0;
     double shadowDy = 2.0;
     double shadowBlur = 8.0;
     double shadowOpacity = 0.18;
     int padding[4] = {8, 10, 8, 10};
-    int spacing = 6;
-    int groupedSpacing = 2;
+    //  Top gap of a row: series start (or single) vs inside a series.
+    //  marginFirstInGroup/marginNextInGroup default to margin.
+    int margin = 6;
+    int marginFirstInGroup = 6;
+    int marginNextInGroup = 2;
     int maxWidthPct = 75;
+  };
+
+  struct View {
+    int padding[4] = {0, 8, 8, 8};
   };
 
   struct Avatar {
     int size = 40;
     QString shape = QStringLiteral("circle");
     bool showOnGrouped = false;
+    int gap = 8;
   };
 
   struct Header {
     bool senderBold = true;
+    int gap = 2;
     QString timeFormat = QStringLiteral("HH:mm");
+    bool outgoingYouLabel = false;
+    //  Sizes scale the local display size, colors are $token refs like cards.
+    //  senderBold styles the incoming name only ("You" and time are regular).
+    double senderSize = 1.0;
+    double timeSize = 1.0;
+    QString senderColor = QStringLiteral("$secondary");
+    QString timeColor = QStringLiteral("$secondary");
   };
 
   struct Card {
@@ -55,6 +72,7 @@ public:
 
   bool isValid = false;
   QString errorString;
+  View view;
   Bubble bubble;
   Avatar avatar;
   Header header;

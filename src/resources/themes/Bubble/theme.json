@@ -1,22 +1,26 @@
 {
   "version": 1,
-  "_comment": "layout_* зарезервированы с этапа 1, читаются с этапа 2; ship все 5 layout_*. S-пример только из существующих блоков (linkPreview/quote/code/buttons зарезервированы для L)",
+  "_comment": "layout_* reserved since stage 1, read from stage 2; ship all 5 layout_*. The S example uses existing blocks only (linkPreview/quote/code/buttons are reserved for L)",
   "bubble": {
     "radius": [12, 12, 12, 4],
     "tail": 8,
     "shadow": [0, 2, 8, 0.18],
     "padding": [8, 10, 8, 10],
-    "spacing": 6,
-    "groupedSpacing": 2,
+    "margin": 6,
+    "marginFirstInGroup": 6,
+    "marginNextInGroup": 2,
     "maxWidthPct": 75
   },
+  "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 40,
     "shape": "circle",
-    "showOnGrouped": false
+    "showOnGrouped": false,
+    "gap": 8
   },
   "header": {
     "senderBold": true,
+    "gap": 2,
     "timeFormat": "HH:mm"
   },
   "light": {

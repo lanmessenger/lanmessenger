@@ -107,7 +107,7 @@ set_target_properties(tst_theme PROPERTIES
 add_test(NAME theme COMMAND tst_theme)
 set_tests_properties(theme PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ChatMessageModel: группировка/plainText/файлы, без сети.
+# ChatMessageModel: grouping/plainText/files, no network.
 add_executable(tst_chatmodel
     unit/tst_chatmodel.cpp
     ../src/resource.qrc
@@ -144,3 +144,23 @@ set_target_properties(tst_chatnav PROPERTIES
 
 add_test(NAME chatnav COMMAND tst_chatnav)
 set_tests_properties(chatnav PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# BubbleDelegate header typography (theme + local size, no message font leak),
+# offscreen.
+add_executable(tst_bubbleheader
+    unit/tst_bubbleheader.cpp
+    ../src/resource.qrc
+)
+
+target_link_libraries(tst_bubbleheader PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_bubbleheader PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME bubbleheader COMMAND tst_bubbleheader)
+set_tests_properties(bubbleheader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

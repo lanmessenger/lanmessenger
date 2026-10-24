@@ -19,6 +19,10 @@ const char* kTokens[] = {"bubbleIn", "bubbleIn2", "bubbleOut", "bubbleOut2", "te
                          "link", "border", "page", "accent", "accentSoft", "textInverse"};
 const int kTokenCount = 12;
 
+//  Optional tokens (system pill): present in both palettes or in neither.
+const char* kOptionalTokens[] = {"pill", "pillBorder"};
+const int kOptionalTokenCount = 2;
+
 const char* kCards[] = {"incoming", "outgoing", "broadcast", "system", "request"};
 const int kCardCount = 5;
 
@@ -298,19 +302,53 @@ Theme Theme::loadFromJson(const QByteArray& data) {
     }
   }
   t.bubble.tail = b.value(QStringLiteral("tail")).toInt(-1);
-  t.bubble.spacing = b.value(QStringLiteral("spacing")).toInt(-1);
-  t.bubble.groupedSpacing = b.value(QStringLiteral("groupedSpacing")).toInt(-1);
-  t.bubble.maxWidthPct = b.value(QStringLiteral("maxWidthPct")).toInt(-1);
+  t.bubble.margin = b.value(QStringLiteral("margin")).toInt(-1);
+  //  Positional margins default to margin only when absent; an explicit
+  //  non-number falls back to -1 and invalidates the theme below.
+  t.bubble.marginFirstInGroup = t.bubble.margin;
+  t.bubble.marginNextInGroup = t.bubble.margin;
+  QJsonValue marginFirst = b.value(QStringLiteral("marginFirstInGroup"));
+  if(!marginFirst.isUndefined() && !marginFirst.isNull())
+    t.bubble.marginFirstInGroup = marginFirst.toInt(-1);
+  QJsonValue marginNext = b.value(QStringLiteral("marginNextInGroup"));
+  if(!marginNext.isUndefined() && !marginNext.isNull())
+    t.bubble.marginNextInGroup = marginNext.toInt(-1);
   t.bubble.shadowDx = shadow.at(0).toDouble();
   t.bubble.shadowDy = shadow.at(1).toDouble();
   t.bubble.shadowBlur = shadow.at(2).toDouble();
   t.bubble.shadowOpacity = shadow.at(3).toDouble();
-  if(t.bubble.tail < 0 || t.bubble.spacing < 0 || t.bubble.groupedSpacing < 0 ||
-     t.bubble.maxWidthPct < 1 || t.bubble.maxWidthPct > 100 ||
+  if(t.bubble.tail < 0 || t.bubble.margin < 0 || t.bubble.marginFirstInGroup < 0 ||
+     t.bubble.marginNextInGroup < 0 || t.bubble.maxWidthPct < 1 || t.bubble.maxWidthPct > 100 ||
      t.bubble.shadowOpacity < 0.0 || t.bubble.shadowOpacity > 1.0) {
     t.errorString = QStringLiteral("bad bubble numbers");
     qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
+  }
+  t.bubble.tailStyle = b.value(QStringLiteral("tailStyle")).toString(QStringLiteral("polygon"));
+  if(t.bubble.tailStyle != QLatin1String("polygon") && t.bubble.tailStyle != QLatin1String("rounded") &&
+     t.bubble.tailStyle != QLatin1String("none")) {
+    t.errorString = QStringLiteral("bad bubble.tailStyle (want polygon|rounded|none)");
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    return t;
+  }
+
+  //  view padding: optional root key, defaults keep the current look.
+  QJsonValue viewPadding = root.value(QStringLiteral("viewPadding"));
+  if(!viewPadding.isUndefined() && !viewPadding.isNull()) {
+    if(!checkIntArray(viewPadding, 4, err, "viewPadding")) {
+      t.errorString = err;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    QJsonArray vp = viewPadding.toArray();
+    for(int i = 0; i < 4; i++) {
+      t.view.padding[i] = vp.at(i).toInt();
+      if(t.view.padding[i] < 0) {
+        t.errorString = QStringLiteral("viewPadding must be >= 0");
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
+        return t;
+      }
+    }
   }
 
   //  avatar / header
@@ -318,21 +356,60 @@ Theme Theme::loadFromJson(const QByteArray& data) {
   t.avatar.size = a.value(QStringLiteral("size")).toInt(-1);
   t.avatar.shape = a.value(QStringLiteral("shape")).toString();
   t.avatar.showOnGrouped = a.value(QStringLiteral("showOnGrouped")).toBool(false);
-  if(t.avatar.size <= 0 || (t.avatar.shape != QLatin1String("circle") &&
-                            t.avatar.shape != QLatin1String("rounded") &&
-                            t.avatar.shape != QLatin1String("square"))) {
+  QJsonValue avatarGap = a.value(QStringLiteral("gap"));
+  if(!avatarGap.isUndefined() && !avatarGap.isNull())
+    t.avatar.gap = avatarGap.toInt(-1);
+  if(t.avatar.size <= 0 || t.avatar.gap < 0 ||
+     (t.avatar.shape != QLatin1String("circle") && t.avatar.shape != QLatin1String("rounded") &&
+      t.avatar.shape != QLatin1String("square"))) {
     t.errorString = QStringLiteral("bad avatar");
     qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
   QJsonObject h = root.value(QStringLiteral("header")).toObject();
   t.header.senderBold = h.value(QStringLiteral("senderBold")).toBool(true);
+  QJsonValue headerGap = h.value(QStringLiteral("gap"));
+  if(!headerGap.isUndefined() && !headerGap.isNull())
+    t.header.gap = headerGap.toInt(-1);
+  if(t.header.gap < 0) {
+    t.errorString = QStringLiteral("bad header.gap");
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    return t;
+  }
   t.header.timeFormat = h.value(QStringLiteral("timeFormat")).toString();
   if(t.header.timeFormat.isEmpty()) {
     t.errorString = QStringLiteral("bad header.timeFormat");
     qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
+  //  The label text itself is not theme data: when true, the delegate renders
+  //  the translated "You" prefix (tr() in BubbleDelegate, .ts/.qm workflow).
+  t.header.outgoingYouLabel = h.value(QStringLiteral("outgoingYouLabel")).toBool(false);
+  for(auto key : {QStringLiteral("senderSize"), QStringLiteral("timeSize")}) {
+    if(h.contains(key) && !h.value(key).isDouble()) {
+      t.errorString = QStringLiteral("bad header size %1 (want number)").arg(key);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+  }
+  t.header.senderSize = h.value(QStringLiteral("senderSize")).toDouble(1.0);
+  t.header.timeSize = h.value(QStringLiteral("timeSize")).toDouble(1.0);
+  if(t.header.senderSize < 0.5 || t.header.senderSize > 2.0 || t.header.timeSize < 0.5 ||
+     t.header.timeSize > 2.0) {
+    t.errorString = QStringLiteral("bad header size (want 0.5..2.0)");
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    return t;
+  }
+  for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
+    if(h.contains(key) && !h.value(key).isString()) {
+      t.errorString = QStringLiteral("bad header color %1 (want $token)").arg(key);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+  }
+  t.header.senderColor =
+    h.value(QStringLiteral("senderColor")).toString(QStringLiteral("$secondary"));
+  t.header.timeColor = h.value(QStringLiteral("timeColor")).toString(QStringLiteral("$secondary"));
 
   //  palettes
   for(auto palName : {QStringLiteral("light"), QStringLiteral("dark")}) {
@@ -354,6 +431,36 @@ Theme Theme::loadFromJson(const QByteArray& data) {
         t.light.insert(key, QColor(pal.value(key).toString()));
       else
         t.dark.insert(key, QColor(pal.value(key).toString()));
+    }
+  }
+
+  //  Optional tokens: both palettes or neither, hex-validated like required ones.
+  QJsonObject lightPal = root.value(QStringLiteral("light")).toObject();
+  QJsonObject darkPal = root.value(QStringLiteral("dark")).toObject();
+  for(int i = 0; i < kOptionalTokenCount; i++) {
+    QString key = QLatin1String(kOptionalTokens[i]);
+    bool hasLight = lightPal.contains(key);
+    bool hasDark = darkPal.contains(key);
+    if(!hasLight && !hasDark)
+      continue;
+    if(hasLight != hasDark || !lightPal.value(key).isString() || !darkPal.value(key).isString() ||
+       !isHexColor(lightPal.value(key).toString()) ||
+       !isHexColor(darkPal.value(key).toString())) {
+      t.errorString = QStringLiteral("bad optional token %1").arg(key);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    t.light.insert(key, QColor(lightPal.value(key).toString()));
+    t.dark.insert(key, QColor(darkPal.value(key).toString()));
+  }
+
+  for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
+    const QString& v =
+      (key == QLatin1String("senderColor")) ? t.header.senderColor : t.header.timeColor;
+    if(!isTokenRef(v) || !t.hasToken(tokenName(v))) {
+      t.errorString = QStringLiteral("bad header color %1 (want $token)").arg(key);
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
     }
   }
 

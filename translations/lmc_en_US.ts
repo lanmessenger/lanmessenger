@@ -79,6 +79,19 @@
     </message>
 </context>
 <context>
+    <name>BubbleDelegate</name>
+    <message>
+        <location filename="bubbledelegate.cpp" line="465"/>
+        <source>You</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bubbledelegate.cpp" line="465"/>
+        <source>You · %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>

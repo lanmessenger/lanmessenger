@@ -99,6 +99,8 @@ void ChatMessageView::reloadTheme() {
     theme = Theme::builtInDefault();
   bubbleDelegate->setTheme(theme);
   bubbleDelegate->setMode(appearanceMode, systemDark);
+  setViewportMargins(theme.view.padding[3], theme.view.padding[0], theme.view.padding[1],
+                     theme.view.padding[2]);
   syncBackground();
   viewport()->update();
 }

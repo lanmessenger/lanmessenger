@@ -48,6 +48,12 @@ public:
   void paint(QPainter* painter, const QStyleOptionViewItem& option,
              const QModelIndex& index) const override;
   QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+  //  Theme + local display size only (never the message font). Public for tests.
+  QFont headerNameFont() const;
+  QFont headerTimeFont() const;
+  //  Top gap of the row: series start (or single) vs inside a series.
+  //  Public for tests.
+  int rowTopMargin(const QModelIndex& index) const;
 
   //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -73,10 +79,12 @@ private:
     QSize size;
     QRect bubbleRect;
     QRect docRect;
+    int topMargin = 0;
   };
 
   QString cardFor(const QModelIndex& index) const;
   QColor cardColor(const QString& cardName, bool bg2, bool darkMode) const;
+  double localPointSize() const;
   QFont rowFont(const QModelIndex& index) const;
   QString rowTime(const QModelIndex& index) const;
   QString rowHtml(const QModelIndex& index) const;

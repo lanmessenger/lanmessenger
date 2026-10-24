@@ -19,9 +19,6 @@
 
 namespace {
 
-const int kAvatarGap = 8;
-const int kRowMargin = 8;
-const int kHeaderGap = 2;
 const int kMaxCacheEntries = 150;
 
 QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
@@ -113,9 +110,28 @@ QColor BubbleDelegate::cardColor(const QString& cardName, bool bg2, bool darkMod
   return c;
 }
 
-QFont BubbleDelegate::rowFont(const QModelIndex& index) const {
+double BubbleDelegate::localPointSize() const {
   static const double sizes[] = {8.25, 9.0, 10.5};
-  double themeSize = sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
+  return sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
+}
+
+QFont BubbleDelegate::headerNameFont() const {
+  //  No index: the message font cannot leak into the header.
+  QFont f;
+  f.setPointSizeF(localPointSize() * theme.header.senderSize);
+  if(theme.header.senderBold)
+    f.setBold(true);
+  return f;
+}
+
+QFont BubbleDelegate::headerTimeFont() const {
+  QFont f;
+  f.setPointSizeF(localPointSize() * theme.header.timeSize);
+  return f;
+}
+
+QFont BubbleDelegate::rowFont(const QModelIndex& index) const {
+  double themeSize = localPointSize();
   QVariant v = index.data(ChatMessageModel::FontRole);
   if(v.isValid()) {
     //  Sender chose a font: honor family and size (like color).
@@ -289,14 +305,19 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index) const {
 int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth) const {
   QString card = cardFor(index);
   bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
-  int avail = viewportWidth - 2 * kRowMargin;
+  int avail = viewportWidth;
   if(reservesAvatar(card, grouped))
-    avail -= theme.avatar.size + kAvatarGap;
+    avail -= theme.avatar.size + theme.avatar.gap;
   if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
      card == QLatin1String("request"))
     avail = avail * theme.bubble.maxWidthPct / 100;
   int padH = theme.bubble.padding[1] + theme.bubble.padding[3];
   return qMax(80, avail - padH);
+}
+
+int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
+  return index.data(ChatMessageModel::GroupedRole).toBool() ? theme.bubble.marginNextInGroup
+                                                            : theme.bubble.marginFirstInGroup;
 }
 
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
@@ -305,27 +326,27 @@ QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
   int bubbleW = contentWidth(index, viewportWidth) + theme.bubble.padding[1] +
                 theme.bubble.padding[3];
   int bubbleH = contentH + theme.bubble.padding[0] + theme.bubble.padding[2];
-  int x = kRowMargin;
+  int x = 0;
   bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
   bool hasHeader =
     !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
+  int top = rowTopMargin(index);
   int headerH = 0;
   if(hasHeader) {
-    QFont hf = rowFont(index);
-    if(theme.header.senderBold)
-      hf.setBold(true);
-    headerH = QFontMetrics(hf).height() + kHeaderGap;
+    QFont nf = headerNameFont();
+    QFont tf = headerTimeFont();
+    headerH = qMax(QFontMetrics(nf).height(), QFontMetrics(tf).height()) + theme.header.gap;
   }
   int avatarW = 0;
   if(reservesAvatar(card, grouped))
-    avatarW = theme.avatar.size + kAvatarGap;
+    avatarW = theme.avatar.size + theme.avatar.gap;
   if(card == QLatin1String("outgoing"))
-    x = viewportWidth - kRowMargin - bubbleW;
+    x = viewportWidth - bubbleW;
   else if(card == QLatin1String("system"))
     x = (viewportWidth - bubbleW) / 2;
   else
-    x = kRowMargin + avatarW;
-  return QRect(x, headerH, bubbleW, bubbleH);
+    x = avatarW;
+  return QRect(x, top + headerH, bubbleW, bubbleH);
 }
 
 QString BubbleDelegate::contentRev(const QModelIndex& index) const {
@@ -387,10 +408,9 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.docRect = QRect(e.bubbleRect.left() + theme.bubble.padding[3],
                     e.bubbleRect.top() + theme.bubble.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
-  e.size = QSize(viewportWidth, e.bubbleRect.bottom() +
-                                  (index.data(ChatMessageModel::GroupedRole).toBool()
-                                     ? theme.bubble.groupedSpacing
-                                     : theme.bubble.spacing));
+  e.topMargin = rowTopMargin(index);
+  //  +1: QRect::bottom() is the last pixel, size needs one past it.
+  e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
   cache.insert(key, e);
   return cache.constFind(key).value();
 }
@@ -449,22 +469,48 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   bool hasHeader =
     !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
   if(hasHeader) {
-    QFont hf = rowFont(index);
-    if(theme.header.senderBold)
-      hf.setBold(true);
-    painter->setFont(hf);
-    painter->setPen(theme.resolveToken(QStringLiteral("secondary"), darkMode));
+    //  Name run (senderColor) + time run (timeColor, always regular).
+    QFont nf = headerNameFont();
+    QFont tf = headerTimeFont();
     QString time = rowTime(index);
-    //  layout_incoming: items=[sender, time]; layout_outgoing: items=[time].
-    QString header = time;
+    QString namePart;
+    QString timePart = time;
+    bool nameBold = theme.header.senderBold;
     if(card == QLatin1String("incoming")) {
-      QString sender = index.data(ChatMessageModel::UserNameRole).toString();
-      header = time.isEmpty() ? sender : sender + QStringLiteral("  ") + time;
+      namePart = index.data(ChatMessageModel::UserNameRole).toString();
+      if(!namePart.isEmpty() && !timePart.isEmpty())
+        timePart = QStringLiteral("  ") + timePart;
+    } else if(theme.header.outgoingYouLabel) {
+      if(timePart.isEmpty()) {
+        namePart = tr("You");
+      } else {
+        //: Outgoing header prefix, always regular (see header.outgoingYouLabel).
+        namePart = tr("You ·");
+      }
+      nameBold = false;
     }
+    if(!nameBold)
+      nf.setBold(false);
+    QColor nameColor = theme.resolve(theme.header.senderColor, mode, systemDark);
+    QColor timeColor = theme.resolve(theme.header.timeColor, mode, systemDark);
+    QFontMetrics nfm(nf);
+    QFontMetrics tfm(tf);
     int hx = e.bubbleRect.left();
     if(card == QLatin1String("outgoing"))
-      hx = e.bubbleRect.right() - QFontMetrics(hf).horizontalAdvance(header);
-    painter->drawText(hx, top + QFontMetrics(hf).ascent(), header);
+      hx = e.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
+           tfm.horizontalAdvance(timePart);
+    int baseline = top + e.topMargin + qMax(nfm.ascent(), tfm.ascent());
+    if(!namePart.isEmpty()) {
+      painter->setFont(nf);
+      painter->setPen(nameColor);
+      painter->drawText(hx, baseline, namePart);
+      hx += nfm.horizontalAdvance(namePart);
+    }
+    if(!timePart.isEmpty()) {
+      painter->setFont(tf);
+      painter->setPen(timeColor);
+      painter->drawText(hx, baseline, timePart);
+    }
   }
 
   QRect bubble = e.bubbleRect.translated(0, top);
@@ -474,7 +520,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     QString avatarPath = index.data(ChatMessageModel::AvatarRole).toString();
     QPixmap pm = avatarPixmap(avatarPath, theme.avatar.size);
     int ay = bubble.top() + qMax(0, (bubble.height() - theme.avatar.size) / 2);
-    painter->drawPixmap(kRowMargin, ay, pm);
+    painter->drawPixmap(0, ay, pm);
   }
 
   {
@@ -504,7 +550,8 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   path.addRoundedRect(bubble, theme.bubble.radius[0], theme.bubble.radius[0]);
   painter->drawPath(path);
 
-  if(theme.bubble.tail > 0 && cardDef.tail != QLatin1String("none")) {
+  if(theme.bubble.tail > 0 && cardDef.tail != QLatin1String("none") &&
+     theme.bubble.tailStyle == QLatin1String("polygon")) {
     int tail = theme.bubble.tail;
     QPolygon tailPoly;
     if(cardDef.tail == QLatin1String("left")) {

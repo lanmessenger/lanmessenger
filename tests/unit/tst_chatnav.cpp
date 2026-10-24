@@ -33,6 +33,9 @@ public:
   bool sendKey(QKeyEvent* event) {
     return ChatMessageView::event(event);
   }
+  QMargins probeViewportMargins() const {
+    return viewportMargins();
+  }
 };
 
 class TstChatNav : public QObject {
@@ -46,6 +49,7 @@ private slots:
   void horizontalBarStaysOff();
   void loopbackEchoSenderRemap();
   void loopbackEchoRendersAsIncoming();
+  void viewportMarginsFollowTheme();
 };
 
 void TstChatNav::tabReturnAccepts() {
@@ -228,6 +232,17 @@ void TstChatNav::loopbackEchoRendersAsIncoming() {
   QVERIFY(view.isOwnRow(0));
   QVERIFY(!view.isOwnRow(1));
   QCOMPARE(view.plainText().count(QStringLiteral("loopback ping")), 2);
+}
+
+void TstChatNav::viewportMarginsFollowTheme() {
+  NavProbe view;
+  view.reloadTheme();
+  //  Bubble ships viewPadding [0, 8, 8, 8] (top, right, bottom, left).
+  QMargins margins = view.probeViewportMargins();
+  QCOMPARE(margins.left(), 8);
+  QCOMPARE(margins.top(), 0);
+  QCOMPARE(margins.right(), 8);
+  QCOMPARE(margins.bottom(), 8);
 }
 
 QTEST_MAIN(TstChatNav)

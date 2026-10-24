@@ -4,20 +4,27 @@
   "bubble": {
     "radius": [6, 6, 6, 6],
     "tail": 0,
+    "tailStyle": "none",
     "shadow": [0, 0, 0, 0],
     "padding": [8, 10, 8, 10],
-    "spacing": 5,
-    "groupedSpacing": 2,
+    "margin": 5,
+    "marginFirstInGroup": 5,
+    "marginNextInGroup": 2,
     "maxWidthPct": 88
   },
+  "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 20,
     "shape": "square",
-    "showOnGrouped": false
+    "showOnGrouped": false,
+    "gap": 8
   },
   "header": {
     "senderBold": true,
-    "timeFormat": "HH:mm:ss"
+    "gap": 2,
+    "senderColor": "$text",
+    "timeFormat": "HH:mm:ss",
+    "outgoingYouLabel": true
   },
   "light": {
     "bubbleIn": "#F8FAFC",
@@ -31,7 +38,9 @@
     "page": "#FFFFFF",
     "accent": "#EF4444",
     "accentSoft": "#FEF2F2",
-    "textInverse": "#F8FAFC"
+    "textInverse": "#F8FAFC",
+    "pill": "#F1F5F9",
+    "pillBorder": "#CBD5E1"
   },
   "dark": {
     "bubbleIn": "#1C2127",
@@ -45,7 +54,9 @@
     "page": "#121417",
     "accent": "#DC2626",
     "accentSoft": "#450A0A",
-    "textInverse": "#FFFFFF"
+    "textInverse": "#FFFFFF",
+    "pill": "#111827",
+    "pillBorder": "#1F2937"
   },
   "cards": {
     "incoming": {
@@ -68,7 +79,8 @@
       "tail": "none"
     },
     "system": {
-      "bg": "transparent",
+      "bg": "$pill",
+      "border": "$pillBorder",
       "align": "center",
       "text": "$secondary"
     },
