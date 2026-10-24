@@ -524,62 +524,48 @@ const char kFallbackThemeJson[] = R"JSON({
   "text": ["#1A1D21", "#E8EAED"],
   "link": ["#0B5FFF", "#8AB4F8"],
   "page": ["#EDEFF2", "#131518"],
-  "layout_incoming": [
-    {"type": "hbox", "gap": 8, "children": [
+  "layout_incoming": {"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
         {"type": "header", "items": ["sender", "time"]},
         {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                                "gradient(#1F242B, #262D36)"],
+                                 "gradient(#1F242B, #262D36)"],
          "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}
-  ],
-  "layout_incoming_next": [
-    {"type": "vbox", "gap": 0, "children": [
+         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]},
+  "layout_incoming_next": {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                              "gradient(#1F242B, #262D36)"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}
-  ],
-  "layout_outgoing": [
-    {"type": "vbox", "gap": 2, "children": [
+                               "gradient(#1F242B, #262D36)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
+  "layout_outgoing": {"type": "vbox", "gap": 2, "children": [
       {"type": "header", "items": ["time"]},
       {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                              "gradient(#1D4D2B, #1A4527)"],
-       "textColor": ["#1A1D21", "#E8EAED"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
-  ],
-  "layout_outgoing_next": [
-    {"type": "vbox", "gap": 0, "children": [
+                               "gradient(#1D4D2B, #1A4527)"],
+        "textColor": ["#1A1D21", "#E8EAED"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+  "layout_outgoing_next": {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                              "gradient(#1D4D2B, #1A4527)"],
-       "textColor": ["#1A1D21", "#E8EAED"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}
-  ],
-  "layout_system": [
-    {"type": "vbox", "gap": 0, "children": [
+                               "gradient(#1D4D2B, #1A4527)"],
+        "textColor": ["#1A1D21", "#E8EAED"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
+  "layout_system": {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": "transparent",
-       "textColor": ["#6B7280", "#9AA0A6"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
-  ],
-  "layout_broadcast": [
-    {"type": "vbox", "gap": 0, "children": [
+        "textColor": ["#6B7280", "#9AA0A6"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+  "layout_broadcast": {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": ["#E6F4EA", "#1A2E22"],
-       "border": ["#2F9E44", "#3FB950"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
-  ],
-  "layout_request": [
-    {"type": "vbox", "gap": 0, "children": [
+        "border": ["#2F9E44", "#3FB950"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+  "layout_request": {"type": "vbox", "gap": 0, "children": [
       {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                                  "gradient(#1F242B, #262D36)"],
-       "border": ["#D8DEE5", "#3A424C"],
-       "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
-  ]
+                                   "gradient(#1F242B, #262D36)"],
+        "border": ["#D8DEE5", "#3A424C"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
 })JSON";
 
 QByteArray Theme::fallbackJsonText() {
@@ -711,34 +697,23 @@ Theme Theme::loadFromJson(const QByteArray& data) {
       t.page = c;
   }
 
-  //  layouts: all 7 are required, non-empty, each holding exactly
-  //  one rect (the delegate always paints one); validate depth/types/if.
+  //  layouts: all 7 are required single root objects, each holding
+  //  exactly one rect (the delegate always paints one); validate depth/types/if.
   for(int i = 0; i < kLayoutCount; i++) {
     QString name = QLatin1String(kLayouts[i]);
-    if(!root.contains(name) || !root.value(name).isArray() ||
-       root.value(name).toArray().isEmpty()) {
-      t.errorString = QStringLiteral("missing %1").arg(name);
+    if(!root.contains(name) || !root.value(name).isObject()) {
+      t.errorString = QStringLiteral("bad %1 (want object)").arg(name);
       qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
-    QJsonArray arr = root.value(name).toArray();
-    QVector<Theme::LayoutNode> done;
-    int content = 0;
-    for(const QJsonValue& v : arr) {
-      if(!v.isObject()) {
-        t.errorString = QStringLiteral("bad node in %1").arg(name);
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-      if(!validateNode(v.toObject(), 1, name, t.errorString)) {
-        t.errorString = name + QStringLiteral(": ") + t.errorString;
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-      Theme::LayoutNode n = compileNode(v.toObject());
-      content += treeContentCount(n);
-      done.append(n);
+    QJsonObject obj = root.value(name).toObject();
+    if(!validateNode(obj, 1, name, t.errorString)) {
+      t.errorString = name + QStringLiteral(": ") + t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
     }
+    Theme::LayoutNode node = compileNode(obj);
+    int content = treeContentCount(node);
     if(content == 0) {
       t.errorString = QStringLiteral("%1 without body/fileCard").arg(name);
       qCWarning(lmcUi) << "Theme:" << t.errorString;
@@ -749,8 +724,8 @@ Theme Theme::loadFromJson(const QByteArray& data) {
       qCWarning(lmcUi) << "Theme:" << t.errorString;
       return t;
     }
-    t.layouts.insert(name, arr);
-    t.compiled.insert(name, done);
+    t.layouts.insert(name, obj);
+    t.compiled.insert(name, node);
   }
 
   t.isValid = true;
@@ -862,11 +837,20 @@ bool Theme::isDark(Mode mode, bool systemDark) {
   return systemDark;
 }
 
-QVector<Theme::LayoutNode> Theme::compiledLayout(const QString& name) const {
-  return compiled.value(name);
+const Theme::LayoutNode& Theme::compiledLayout(const QString& name) const {
+  auto it = compiled.constFind(name);
+  if(it != compiled.constEnd())
+    return *it;
+  //  Fall back to layout_incoming + a log line (kept for L).
+  qCWarning(lmcUi) << "Theme: missing" << name << "- fallback to layout_incoming";
+  auto incoming = compiled.constFind(QStringLiteral("layout_incoming"));
+  if(incoming != compiled.constEnd())
+    return *incoming;
+  static const LayoutNode kEmpty;
+  return kEmpty;
 }
 
-QJsonArray Theme::layoutFor(const QString& name) const {
+QJsonObject Theme::layoutFor(const QString& name) const {
   if(layouts.contains(name))
     return layouts.value(name);
   //  Fall back to layout_incoming + a log line (kept for L).

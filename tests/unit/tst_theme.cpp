@@ -23,24 +23,24 @@ QByteArray validJson() {
     "text": ["#1A1D21", "#E8EAED"],
     "link": ["#0B5FFF", "#8AB4F8"],
     "page": ["#EDEFF2", "#131518"],
-    "layout_incoming": [{"type": "hbox", "gap": 8, "children": [
+    "layout_incoming": {"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
         {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"]},
-        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}],
-    "layout_incoming_next": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}],
-    "layout_outgoing": [{"type": "vbox", "gap": 2, "children": [
+        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]},
+    "layout_incoming_next": {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
+    "layout_outgoing": {"type": "vbox", "gap": 2, "children": [
       {"type": "header", "items": ["time"]},
-      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
-    "layout_outgoing_next": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}],
-    "layout_system": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
-    "layout_broadcast": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
-    "layout_request": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]
+      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+    "layout_outgoing_next": {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
+    "layout_system": {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+    "layout_broadcast": {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
+    "layout_request": {"type": "vbox", "gap": 0, "children": [
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
   })JSON");
 }
 
@@ -51,13 +51,11 @@ QByteArray withReplaced(const QByteArray& base, const QByteArray& from, const QB
 }
 
 Theme::LayoutNode incomingBody(const Theme& t) {
-  return t.compiledLayout(QStringLiteral("layout_incoming")).at(0).children.at(1).children.at(1);
+  return t.compiledLayout(QStringLiteral("layout_incoming")).children.at(1).children.at(1);
 }
 
 Theme::LayoutNode incomingNextBody(const Theme& t) {
-  return t.compiledLayout(QStringLiteral("layout_incoming_next"))
-    .at(0)
-    .children.at(0);
+  return t.compiledLayout(QStringLiteral("layout_incoming_next")).children.at(0);
 }
 
 } // namespace
@@ -144,8 +142,8 @@ void TstTheme::optionalKeysDefaulted() {
   QVERIFY(!t.header.outgoingYouLabel);
   QCOMPARE(t.header.senderSize, 1.0);
   QCOMPARE(t.header.timeSize, 1.0);
-  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& header = outgoing.at(0).children.at(0);
+  const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& header = outgoing.children.at(0);
   QVERIFY(!header.hasSenderColor);
   QVERIFY(!header.hasTimeColor);
 }
@@ -326,14 +324,14 @@ void TstTheme::cornerRadiiParsed() {
     QCOMPARE(inNext.corners[i], inNextWant[i]);
   //  Outgoing carries hand-mirrored values, read verbatim (no code mirror).
   //  The outgoing vbox holds header and body directly (no avatar child).
-  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& out = outgoing.at(0).children.at(1);
+  const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& out = outgoing.children.at(1);
   const int outDef[4] = {12, 12, 4, 12};
   for(int i = 0; i < 4; i++)
     QCOMPARE(out.corners[i], outDef[i]);
-  QVector<Theme::LayoutNode> outgoingNext =
+  const Theme::LayoutNode& outgoingNext =
     t.compiledLayout(QStringLiteral("layout_outgoing_next"));
-  const Theme::LayoutNode& outNext = outgoingNext.at(0).children.at(0);
+  const Theme::LayoutNode& outNext = outgoingNext.children.at(0);
   const int outNextWant[4] = {12, 4, 4, 12};
   for(int i = 0; i < 4; i++)
     QCOMPARE(outNext.corners[i], outNextWant[i]);
@@ -344,8 +342,8 @@ void TstTheme::cornersAbsentDefaulted() {
   //  default; system/broadcast/request ship no corners.
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
-  const Theme::LayoutNode& rect = system.at(0).children.at(0);
+  const Theme::LayoutNode& system = t.compiledLayout(QStringLiteral("layout_system"));
+  const Theme::LayoutNode& rect = system.children.at(0);
   QVERIFY(!rect.hasCorners);
   const int def[4] = {12, 12, 12, 4};
   for(int i = 0; i < 4; i++)
@@ -420,40 +418,38 @@ void TstTheme::containerGapRequired() {
 void TstTheme::containerGapParsed() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
-  QCOMPARE(incoming.size(), 1);
-  QCOMPARE(incoming.at(0).type, Theme::LayoutNode::Type::HBox);
-  QCOMPARE(incoming.at(0).gap, 8);
-  QCOMPARE(incoming.at(0).children.size(), 2);
-  QCOMPARE(incoming.at(0).children.at(0).type, Theme::LayoutNode::Type::Avatar);
-  QCOMPARE(incoming.at(0).children.at(1).type, Theme::LayoutNode::Type::VBox);
-  QCOMPARE(incoming.at(0).children.at(1).gap, 2);
-  QCOMPARE(incoming.at(0).children.at(1).children.size(), 2);
-  QCOMPARE(incoming.at(0).children.at(1).children.at(0).type,
+  const Theme::LayoutNode& incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
+  QCOMPARE(incoming.type, Theme::LayoutNode::Type::HBox);
+  QCOMPARE(incoming.gap, 8);
+  QCOMPARE(incoming.children.size(), 2);
+  QCOMPARE(incoming.children.at(0).type, Theme::LayoutNode::Type::Avatar);
+  QCOMPARE(incoming.children.at(1).type, Theme::LayoutNode::Type::VBox);
+  QCOMPARE(incoming.children.at(1).gap, 2);
+  QCOMPARE(incoming.children.at(1).children.size(), 2);
+  QCOMPARE(incoming.children.at(1).children.at(0).type,
            Theme::LayoutNode::Type::Header);
   //  Series position never gates a node: the header carries no flags.
-  QVERIFY(incoming.at(0).children.at(1).children.at(0).ifFlag.isEmpty());
-  QVERIFY(incoming.at(0).children.at(1).children.at(0).ifNotFlag.isEmpty());
-  QCOMPARE(incoming.at(0).children.at(1).children.at(1).type,
+  QVERIFY(incoming.children.at(1).children.at(0).ifFlag.isEmpty());
+  QVERIFY(incoming.children.at(1).children.at(0).ifNotFlag.isEmpty());
+  QCOMPARE(incoming.children.at(1).children.at(1).type,
            Theme::LayoutNode::Type::Body);
-  const Theme::LayoutNode& inBody = incoming.at(0).children.at(1).children.at(1);
+  const Theme::LayoutNode& inBody = incoming.children.at(1).children.at(1);
   QVERIFY(inBody.hasCorners);
   QCOMPARE(inBody.corners[3], 4);
   QCOMPARE(inBody.children.size(), 0);
   //  The in-series tree omits header/avatar and carries its own shape:
   //  a vbox root holding the body directly.
-  QVector<Theme::LayoutNode> incomingNext =
+  const Theme::LayoutNode& incomingNext =
     t.compiledLayout(QStringLiteral("layout_incoming_next"));
-  QCOMPARE(incomingNext.at(0).type, Theme::LayoutNode::Type::VBox);
-  QCOMPARE(incomingNext.at(0).gap, 0);
-  QCOMPARE(incomingNext.at(0).children.size(), 1);
-  QCOMPARE(incomingNext.at(0).children.at(0).type,
+  QCOMPARE(incomingNext.type, Theme::LayoutNode::Type::VBox);
+  QCOMPARE(incomingNext.gap, 0);
+  QCOMPARE(incomingNext.children.size(), 1);
+  QCOMPARE(incomingNext.children.at(0).type,
            Theme::LayoutNode::Type::Body);
-  QCOMPARE(incomingNext.at(0).children.at(0).margin, 2);
-  QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
-  QCOMPARE(system.size(), 1);
-  QCOMPARE(system.at(0).type, Theme::LayoutNode::Type::VBox);
-  QCOMPARE(system.at(0).gap, 0);
+  QCOMPARE(incomingNext.children.at(0).margin, 2);
+  const Theme::LayoutNode& system = t.compiledLayout(QStringLiteral("layout_system"));
+  QCOMPARE(system.type, Theme::LayoutNode::Type::VBox);
+  QCOMPARE(system.gap, 0);
 }
 
 void TstTheme::badContainerGapRejected() {
@@ -472,7 +468,7 @@ void TstTheme::staleThemeGapKeysIgnored() {
   base = withReplaced(base, "\"senderBold\": true", "\"senderBold\": true, \"gap\": 4");
   Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.compiledLayout(QStringLiteral("layout_incoming")).at(0).gap, 8);
+  QCOMPARE(t.compiledLayout(QStringLiteral("layout_incoming")).gap, 8);
 }
 
 void TstTheme::fileCardOutsideRequestRejected() {
@@ -510,10 +506,9 @@ void TstTheme::requestFileCardAccepted() {
   //  The file layout holds an unconditional fileCard rect, no body.
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> request = t.compiledLayout(QStringLiteral("layout_request"));
-  QCOMPARE(request.size(), 1);
-  QCOMPARE(request.at(0).children.size(), 1);
-  const Theme::LayoutNode& rect = request.at(0).children.at(0);
+  const Theme::LayoutNode& request = t.compiledLayout(QStringLiteral("layout_request"));
+  QCOMPARE(request.children.size(), 1);
+  const Theme::LayoutNode& rect = request.children.at(0);
   QCOMPARE(rect.type, Theme::LayoutNode::Type::FileCard);
   QCOMPARE(rect.children.size(), 0);
   QVERIFY(rect.ifFlag.isEmpty());
@@ -530,8 +525,8 @@ void TstTheme::bareHexBothModes() {
   //  Form 1: one hex paints both modes (outgoing text ships bare).
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& rect = outgoing.at(0).children.at(1);
+  const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& rect = outgoing.children.at(1);
   QVERIFY(rect.hasTextColor);
   QCOMPARE(rect.textColor.light, QColor(QStringLiteral("#1A1D21")));
   QCOMPARE(rect.textColor.dark, QColor(QStringLiteral("#1A1D21")));
@@ -541,8 +536,8 @@ void TstTheme::pairParsed() {
   //  Form 2: [light, dark] splits the modes (incoming sender ships paired).
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
-  const Theme::LayoutNode& header = incoming.at(0).children.at(1).children.at(0);
+  const Theme::LayoutNode& incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
+  const Theme::LayoutNode& header = incoming.children.at(1).children.at(0);
   QVERIFY(header.hasSenderColor);
   QCOMPARE(header.senderColor.light, QColor(QStringLiteral("#1A1D21")));
   QCOMPARE(header.senderColor.dark, QColor(QStringLiteral("#E8EAED")));
@@ -569,8 +564,8 @@ void TstTheme::solidKindsParsed() {
   //  broadcast bg is a pair of plain hexes).
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
-  const Theme::LayoutNode& rect = broadcast.at(0).children.at(0);
+  const Theme::LayoutNode& broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
+  const Theme::LayoutNode& rect = broadcast.children.at(0);
   QCOMPARE(rect.bg.kind, Theme::Bg::Kind::Solid);
   QCOMPARE(rect.bg.solid.light, QColor(QStringLiteral("#E6F4EA")));
   QCOMPARE(rect.bg.solid.dark, QColor(QStringLiteral("#1A2E22")));
@@ -583,8 +578,8 @@ void TstTheme::transparentAccepted() {
   //  "transparent" survives only as a body/fileCard bg (system look).
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
-  const Theme::LayoutNode& rect = system.at(0).children.at(0);
+  const Theme::LayoutNode& system = t.compiledLayout(QStringLiteral("layout_system"));
+  const Theme::LayoutNode& rect = system.children.at(0);
   QCOMPARE(rect.bg.kind, Theme::Bg::Kind::Transparent);
   QColor first, second;
   Theme::pickBg(rect.bg, false, first, second);
@@ -792,8 +787,8 @@ void TstTheme::pickHelpers() {
   QCOMPARE(first, QColor(QStringLiteral("#1F242B")));
   QCOMPARE(second, QColor(QStringLiteral("#262D36")));
   //  Solid: both stops coincide.
-  QVector<Theme::LayoutNode> broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
-  Theme::pickBg(broadcast.at(0).children.at(0).bg, true, first, second);
+  const Theme::LayoutNode& broadcast = t.compiledLayout(QStringLiteral("layout_broadcast"));
+  Theme::pickBg(broadcast.children.at(0).bg, true, first, second);
   QCOMPARE(first, second);
   QCOMPARE(first, QColor(QStringLiteral("#1A2E22")));
 }
@@ -806,15 +801,15 @@ void TstTheme::shippedMeshBlueSpotCheck() {
   QVERIFY(f.open(QIODevice::ReadOnly));
   Theme t = Theme::loadFromJson(f.readAll());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVector<Theme::LayoutNode> incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
-  const Theme::LayoutNode& in = incoming.at(0).children.at(1).children.at(1);
+  const Theme::LayoutNode& incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
+  const Theme::LayoutNode& in = incoming.children.at(1).children.at(1);
   QCOMPARE(in.bg.kind, Theme::Bg::Kind::Gradient);
   QCOMPARE(in.bg.lightFrom, QColor(QStringLiteral("#FFFFFF")));
   QCOMPARE(in.bg.lightTo, QColor(QStringLiteral("#F0FDF4")));
   QCOMPARE(in.bg.darkFrom, QColor(QStringLiteral("#162235")));
   QCOMPARE(in.bg.darkTo, QColor(QStringLiteral("#111A29")));
-  QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& out = outgoing.at(0).children.at(1);
+  const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& out = outgoing.children.at(1);
   QVERIFY(out.hasTextColor);
   QCOMPARE(out.textColor.light, QColor(QStringLiteral("#FFFFFF")));
   QCOMPARE(out.textColor.dark, QColor(QStringLiteral("#FFFFFF")));

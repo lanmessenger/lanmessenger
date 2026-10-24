@@ -4,6 +4,7 @@
 
 #include <QColor>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QMap>
 #include <QString>
 #include <QVector>
@@ -125,8 +126,9 @@ public:
   DualColor link;
   DualColor page;
   //  Raw layout trees (kept for L) and the compiled engine input.
-  QMap<QString, QJsonArray> layouts;
-  QMap<QString, QVector<LayoutNode>> compiled;
+  //  Each layout_* is a single root object (hbox/vbox), not an array.
+  QMap<QString, QJsonObject> layouts;
+  QMap<QString, LayoutNode> compiled;
 
   static Theme loadFromJson(const QByteArray& data);
   static Theme loadFromFile(const QString& filePath);
@@ -147,7 +149,7 @@ public:
   static void pickBg(const Bg& bg, bool darkMode, QColor& first, QColor& second);
   //  Mode::System resolves via systemDark; Light/Dark ignore it.
   static bool isDark(Mode mode, bool systemDark);
-  QJsonArray layoutFor(const QString& name) const;
-  //  Compiled nodes for layout_name (every valid theme carries all seven).
-  QVector<LayoutNode> compiledLayout(const QString& name) const;
+  QJsonObject layoutFor(const QString& name) const;
+  //  Compiled node for layout_name (every valid theme carries all seven).
+  const LayoutNode& compiledLayout(const QString& name) const;
 };

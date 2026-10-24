@@ -15,141 +15,127 @@
   "text": ["#1A1D21", "#E8EAED"],
   "link": ["#0B5FFF", "#8AB4F8"],
   "page": ["#EDEFF2", "#131518"],
-  "layout_incoming": [
-    {
-      "type": "hbox",
-      "gap": 8,
-      "children": [
-        {
-          "type": "avatar"
-        },
-        {
-          "type": "vbox",
-          "gap": 2,
-          "stretch": 1,
-          "children": [
-            {
-              "type": "header",
-              "items": ["sender", "time"]
-            },
-            {
-              "type": "body",
-              "corners": [12, 12, 12, 4],
-              "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
-              "padding": [8, 10, 8, 10],
-              "shadow": [0, 2, 8, 0.18],
-              "margin": 6,
-              "maxWidthPct": 75
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "layout_incoming_next": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "corners": [4, 12, 12, 4],
-          "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 2,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ],
-  "layout_outgoing": [
-    {
-      "type": "vbox",
-      "gap": 2,
-      "children": [
-        {
-          "type": "header",
-          "items": ["time"]
-        },
-        {
-          "type": "body",
-          "corners": [12, 12, 4, 12],
-          "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 6,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ],
-  "layout_outgoing_next": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "corners": [12, 4, 4, 12],
-          "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 2,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ],
-  "layout_system": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "bg": "transparent",
-          "textColor": ["#6B7280", "#9AA0A6"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 6,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ],
-  "layout_broadcast": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "bg": ["#E6F4EA", "#1A2E22"],
-          "border": ["#2F9E44", "#3FB950"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 6,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ],
-  "layout_request": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "fileCard",
-          "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
-          "border": ["#D8DEE5", "#3A424C"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 2, 8, 0.18],
-          "margin": 6,
-          "maxWidthPct": 75
-        }
-      ]
-    }
-  ]
+  "layout_incoming": {
+    "type": "hbox",
+    "gap": 8,
+    "children": [
+      {
+        "type": "avatar"
+      },
+      {
+        "type": "vbox",
+        "gap": 2,
+        "stretch": 1,
+        "children": [
+          {
+            "type": "header",
+            "items": ["sender", "time"]
+          },
+          {
+            "type": "body",
+            "corners": [12, 12, 12, 4],
+            "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
+            "padding": [8, 10, 8, 10],
+            "shadow": [0, 2, 8, 0.18],
+            "margin": 6,
+            "maxWidthPct": 75
+          }
+        ]
+      }
+    ]
+  },
+  "layout_incoming_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [4, 12, 12, 4],
+        "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 2,
+        "maxWidthPct": 75
+      }
+    ]
+  },
+  "layout_outgoing": {
+    "type": "vbox",
+    "gap": 2,
+    "children": [
+      {
+        "type": "header",
+        "items": ["time"]
+      },
+      {
+        "type": "body",
+        "corners": [12, 12, 4, 12],
+        "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 6,
+        "maxWidthPct": 75
+      }
+    ]
+  },
+  "layout_outgoing_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [12, 4, 4, 12],
+        "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 2,
+        "maxWidthPct": 75
+      }
+    ]
+  },
+  "layout_system": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "bg": "transparent",
+        "textColor": ["#6B7280", "#9AA0A6"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 6,
+        "maxWidthPct": 75
+      }
+    ]
+  },
+  "layout_broadcast": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "bg": ["#E6F4EA", "#1A2E22"],
+        "border": ["#2F9E44", "#3FB950"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 6,
+        "maxWidthPct": 75
+      }
+    ]
+  },
+  "layout_request": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "fileCard",
+        "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
+        "border": ["#D8DEE5", "#3A424C"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 2, 8, 0.18],
+        "margin": 6,
+        "maxWidthPct": 75
+      }
+    ]
+  }
 }

@@ -237,8 +237,7 @@ void TstBubbleHeader::outgoingCornersReadVerbatim() {
       column.insert(QStringLiteral("children"), kids);
       return column;
     };
-    QJsonArray tree = root.value(layout).toArray();
-    QJsonObject node = tree.at(0).toObject();
+    QJsonObject node = root.value(layout).toObject();
     if(node.value(QStringLiteral("type")).toString() == QStringLiteral("hbox")) {
       QJsonArray hboxKids = node.value(QStringLiteral("children")).toArray();
       for(int i = 0; i < hboxKids.size(); i++) {
@@ -251,8 +250,7 @@ void TstBubbleHeader::outgoingCornersReadVerbatim() {
     } else {
       node = paintColumn(node);
     }
-    tree.replace(0, node);
-    root.insert(layout, tree);
+    root.insert(layout, node);
   };
   QJsonArray singleCorners;
   singleCorners.append(1);
@@ -380,15 +378,13 @@ void TstBubbleHeader::layoutResolvesRow() {
   //  Node gaps flow through: vbox gap 5 resolves into the row.
   QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
   QJsonObject root = doc.object();
-  QJsonArray incoming = root.value(QStringLiteral("layout_incoming")).toArray();
-  QJsonObject hbox = incoming.at(0).toObject();
+  QJsonObject hbox = root.value(QStringLiteral("layout_incoming")).toObject();
   QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
   QJsonObject vbox = hboxKids.at(1).toObject();
   vbox.insert(QStringLiteral("gap"), 5);
   hboxKids.replace(1, vbox);
   hbox.insert(QStringLiteral("children"), hboxKids);
-  incoming.replace(0, hbox);
-  root.insert(QStringLiteral("layout_incoming"), incoming);
+  root.insert(QStringLiteral("layout_incoming"), hbox);
   doc.setObject(root);
   Theme t2 = Theme::loadFromJson(doc.toJson());
   QVERIFY2(t2.isValid, qPrintable(t2.errorString));

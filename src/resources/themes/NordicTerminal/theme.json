@@ -16,146 +16,132 @@
   "text": ["#0F172A", "#E5E7EB"],
   "link": ["#0284C7", "#38BDF8"],
   "page": ["#FFFFFF", "#121417"],
-  "layout_incoming": [
-    {
-      "type": "hbox",
-      "gap": 8,
-      "children": [
-        {
-          "type": "avatar"
-        },
-        {
-          "type": "vbox",
-          "gap": 2,
-          "stretch": 1,
-          "children": [
-            {
-              "type": "header",
-              "items": ["sender", "time"],
-              "senderColor": ["#0F172A", "#E5E7EB"]
-            },
-            {
-              "type": "body",
-              "corners": [6, 6, 6, 6],
-              "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
-              "padding": [8, 10, 8, 10],
-              "shadow": [0, 0, 0, 0],
-              "margin": 5,
-              "maxWidthPct": 88
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "layout_incoming_next": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "corners": [2, 6, 6, 6],
-          "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 2,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ],
-  "layout_outgoing": [
-    {
-      "type": "vbox",
-      "gap": 2,
-      "children": [
-        {
-          "type": "header",
-          "items": ["time"],
-          "senderColor": ["#0F172A", "#E5E7EB"]
-        },
-        {
-          "type": "body",
-          "corners": [6, 6, 6, 6],
-          "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
-          "textColor": ["#F8FAFC", "#FFFFFF"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 5,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ],
-  "layout_outgoing_next": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "corners": [6, 2, 6, 6],
-          "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
-          "textColor": ["#F8FAFC", "#FFFFFF"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 2,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ],
-  "layout_system": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "bg": ["#F1F5F9", "#111827"],
-          "textColor": ["#64748B", "#9CA3AF"],
-          "border": ["#CBD5E1", "#1F2937"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 5,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ],
-  "layout_broadcast": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "body",
-          "bg": ["#FEF2F2", "#450A0A"],
-          "border": ["#EF4444", "#DC2626"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 5,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ],
-  "layout_request": [
-    {
-      "type": "vbox",
-      "gap": 0,
-      "children": [
-        {
-          "type": "fileCard",
-          "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
-          "border": ["#CBD5E1", "#2D3748"],
-          "padding": [8, 10, 8, 10],
-          "shadow": [0, 0, 0, 0],
-          "margin": 5,
-          "maxWidthPct": 88
-        }
-      ]
-    }
-  ]
+  "layout_incoming": {
+    "type": "hbox",
+    "gap": 8,
+    "children": [
+      {
+        "type": "avatar"
+      },
+      {
+        "type": "vbox",
+        "gap": 2,
+        "stretch": 1,
+        "children": [
+          {
+            "type": "header",
+            "items": ["sender", "time"],
+            "senderColor": ["#0F172A", "#E5E7EB"]
+          },
+          {
+            "type": "body",
+            "corners": [6, 6, 6, 6],
+            "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+            "padding": [8, 10, 8, 10],
+            "shadow": [0, 0, 0, 0],
+            "margin": 5,
+            "maxWidthPct": 88
+          }
+        ]
+      }
+    ]
+  },
+  "layout_incoming_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [2, 6, 6, 6],
+        "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 2,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_outgoing": {
+    "type": "vbox",
+    "gap": 2,
+    "children": [
+      {
+        "type": "header",
+        "items": ["time"],
+        "senderColor": ["#0F172A", "#E5E7EB"]
+      },
+      {
+        "type": "body",
+        "corners": [6, 6, 6, 6],
+        "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
+        "textColor": ["#F8FAFC", "#FFFFFF"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_outgoing_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [6, 2, 6, 6],
+        "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
+        "textColor": ["#F8FAFC", "#FFFFFF"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 2,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_system": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "bg": ["#F1F5F9", "#111827"],
+        "textColor": ["#64748B", "#9CA3AF"],
+        "border": ["#CBD5E1", "#1F2937"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_broadcast": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "bg": ["#FEF2F2", "#450A0A"],
+        "border": ["#EF4444", "#DC2626"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_request": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "fileCard",
+        "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+        "border": ["#CBD5E1", "#2D3748"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "margin": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  }
 }

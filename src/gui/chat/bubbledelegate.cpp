@@ -333,17 +333,12 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
   if(index.data(ChatMessageModel::GroupedRole).toBool() &&
      (card == QLatin1String("incoming") || card == QLatin1String("outgoing")))
     layoutName += QStringLiteral("_next");
-  QVector<Theme::LayoutNode> nodes = theme.compiledLayout(layoutName);
-  const Theme::LayoutNode* root = nullptr;
-  for(const Theme::LayoutNode& n : nodes) {
-    if((n.type != Theme::LayoutNode::Type::HBox && n.type != Theme::LayoutNode::Type::VBox) ||
-       !nodeVisible(n, own, file, preview))
-      continue;
-    root = &n;
-    break;
-  }
-  if(!root)
+  const Theme::LayoutNode& rootNode = theme.compiledLayout(layoutName);
+  if((rootNode.type != Theme::LayoutNode::Type::HBox &&
+      rootNode.type != Theme::LayoutNode::Type::VBox) ||
+     !nodeVisible(rootNode, own, file, preview))
     return r;
+  const Theme::LayoutNode* root = &rootNode;
   if(root->type == Theme::LayoutNode::Type::HBox) {
     r.hboxGap = root->gap;
     r.avatar = false;

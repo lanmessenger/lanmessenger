@@ -35,7 +35,7 @@ Three forms, everywhere a color is accepted:
 | `text` | color | default body text, both forms |
 | `link` | color | links and the focus ring, both forms |
 | `page` | color | view fill, both forms |
-| `layout_incoming/outgoing[/_next]/system/broadcast/request` | array | all 7 required and non-empty; every layout holds exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
+| `layout_incoming/outgoing[/_next]/system/broadcast/request` | object | all 7 required; each layout is a single root object holding exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
 
 Key rule: structural keys (`type`, layout name, `gap`, rect `bg`,
 rect `padding`/`shadow`/`margin`/`maxWidthPct`, `corners`,
@@ -125,7 +125,7 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 
 ## Errors
 
-Invalid JSON, `version != 1`, missing layout, layout without a rect,
+Invalid JSON, `version != 1`, missing layout, layout as array, layout without a rect,
 bad color form, mixed solid/gradient pair, `transparent` outside rect `bg`,
 gradient outside `bg`, color/metric keys on the wrong node, `tail` keys
 present, bad rect numbers, depth > 4, unknown `type`/`if`, bad `corners` —
