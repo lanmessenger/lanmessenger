@@ -71,8 +71,10 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 - Node: `{ "type": ..., "if": <flag>, "ifNot": <flag>, ... }`.
 - Containers are `vbox/hbox` only; every container carries a required
   `gap: int ≥ 0` — the only spacing source between siblings (no theme-level
-  gaps exist). Depth ≤ 4 from the root
-  (`hbox=1, vbox=2, body=3`).
+  gaps exist). Depth ≤ 4 from the root. Only `layout_incoming` is
+  `hbox`-rooted (the avatar sits beside the column); every other layout
+  is `vbox`-rooted (`vbox=1, body=2`, with `header` alongside for
+  series-start trees).
 - Blocks are only: `avatar, header, body, linkPreview, fileCard, quote,
   code, buttons`.
 - S implements the `avatar/header/body/fileCard` subset;

@@ -50,79 +50,58 @@
   ],
   "layout_incoming_next": [
     {
-      "type": "hbox",
-      "gap": 8,
+      "type": "vbox",
+      "gap": 0,
       "children": [
         {
-          "type": "vbox",
-          "gap": 2,
-          "stretch": 1,
-          "children": [
-            {
-              "type": "body",
-              "corners": [2, 12, 12, 2],
-              "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
-              "padding": [10, 12, 10, 12],
-              "shadow": [0, 1, 2, 0.05],
-              "margin": 2,
-              "maxWidthPct": 84
-            }
-          ]
+          "type": "body",
+          "corners": [2, 12, 12, 2],
+          "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": 2,
+          "maxWidthPct": 84
         }
       ]
     }
   ],
   "layout_outgoing": [
     {
-      "type": "hbox",
-      "gap": 8,
+      "type": "vbox",
+      "gap": 2,
       "children": [
         {
-          "type": "vbox",
-          "gap": 2,
-          "stretch": 1,
-          "children": [
-            {
-              "type": "header",
-              "items": ["time"],
-              "senderColor": ["#1E293B", "#F1F5F9"]
-            },
-            {
-              "type": "body",
-              "corners": [12, 12, 2, 12],
-              "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
-              "textColor": "#FFFFFF",
-              "padding": [10, 12, 10, 12],
-              "shadow": [0, 1, 2, 0.05],
-              "margin": 8,
-              "maxWidthPct": 84
-            }
-          ]
+          "type": "header",
+          "items": ["time"],
+          "senderColor": ["#1E293B", "#F1F5F9"]
+        },
+        {
+          "type": "body",
+          "corners": [12, 12, 2, 12],
+          "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+          "textColor": "#FFFFFF",
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": 8,
+          "maxWidthPct": 84
         }
       ]
     }
   ],
   "layout_outgoing_next": [
     {
-      "type": "hbox",
-      "gap": 8,
+      "type": "vbox",
+      "gap": 0,
       "children": [
         {
-          "type": "vbox",
-          "gap": 2,
-          "stretch": 1,
-          "children": [
-            {
-              "type": "body",
-              "corners": [12, 2, 2, 12],
-              "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
-              "textColor": "#FFFFFF",
-              "padding": [10, 12, 10, 12],
-              "shadow": [0, 1, 2, 0.05],
-              "margin": 2,
-              "maxWidthPct": 84
-            }
-          ]
+          "type": "body",
+          "corners": [12, 2, 2, 12],
+          "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+          "textColor": "#FFFFFF",
+          "padding": [10, 12, 10, 12],
+          "shadow": [0, 1, 2, 0.05],
+          "margin": 2,
+          "maxWidthPct": 84
         }
       ]
     }

@@ -223,14 +223,10 @@ void TstBubbleHeader::outgoingCornersReadVerbatim() {
   QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
   QJsonObject root = doc.object();
   auto setBodyCorners = [&](const QString& layout, const QJsonArray& corners) {
-    QJsonArray tree = root.value(layout).toArray();
-    QJsonObject hbox = tree.at(0).toObject();
-    QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
-    for(int i = 0; i < hboxKids.size(); i++) {
-      QJsonObject vbox = hboxKids.at(i).toObject();
-      if(vbox.value(QStringLiteral("type")).toString() != QStringLiteral("vbox"))
-        continue;
-      QJsonArray kids = vbox.value(QStringLiteral("children")).toArray();
+    //  Roots vary: hbox (incoming) holds the vbox column, vbox roots
+    //  (outgoing, in-series) hold the rects directly.
+    auto paintColumn = [&](QJsonObject column) {
+      QJsonArray kids = column.value(QStringLiteral("children")).toArray();
       for(int j = 0; j < kids.size(); j++) {
         QJsonObject node = kids.at(j).toObject();
         if(node.value(QStringLiteral("type")).toString() != QStringLiteral("body"))
@@ -238,11 +234,24 @@ void TstBubbleHeader::outgoingCornersReadVerbatim() {
         node.insert(QStringLiteral("corners"), corners);
         kids.replace(j, node);
       }
-      vbox.insert(QStringLiteral("children"), kids);
-      hboxKids.replace(i, vbox);
+      column.insert(QStringLiteral("children"), kids);
+      return column;
+    };
+    QJsonArray tree = root.value(layout).toArray();
+    QJsonObject node = tree.at(0).toObject();
+    if(node.value(QStringLiteral("type")).toString() == QStringLiteral("hbox")) {
+      QJsonArray hboxKids = node.value(QStringLiteral("children")).toArray();
+      for(int i = 0; i < hboxKids.size(); i++) {
+        QJsonObject kid = hboxKids.at(i).toObject();
+        if(kid.value(QStringLiteral("type")).toString() != QStringLiteral("vbox"))
+          continue;
+        hboxKids.replace(i, paintColumn(kid));
+      }
+      node.insert(QStringLiteral("children"), hboxKids);
+    } else {
+      node = paintColumn(node);
     }
-    hbox.insert(QStringLiteral("children"), hboxKids);
-    tree.replace(0, hbox);
+    tree.replace(0, node);
     root.insert(layout, tree);
   };
   QJsonArray singleCorners;

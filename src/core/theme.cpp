@@ -535,31 +535,28 @@ const char kFallbackThemeJson[] = R"JSON({
          "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}
   ],
   "layout_incoming_next": [
-    {"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                                "gradient(#1F242B, #262D36)"],
-         "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}
+    {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
+                              "gradient(#1F242B, #262D36)"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}
   ],
   "layout_outgoing": [
-    {"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["time"]},
-        {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                                "gradient(#1D4D2B, #1A4527)"],
-         "textColor": ["#1A1D21", "#E8EAED"],
-         "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}
+    {"type": "vbox", "gap": 2, "children": [
+      {"type": "header", "items": ["time"]},
+      {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
+                              "gradient(#1D4D2B, #1A4527)"],
+       "textColor": ["#1A1D21", "#E8EAED"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
   ],
   "layout_outgoing_next": [
-    {"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                                "gradient(#1D4D2B, #1A4527)"],
-         "textColor": ["#1A1D21", "#E8EAED"],
-         "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}
+    {"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
+                              "gradient(#1D4D2B, #1A4527)"],
+       "textColor": ["#1A1D21", "#E8EAED"],
+       "padding": [8, 10, 8, 10],
+       "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}
   ],
   "layout_system": [
     {"type": "vbox", "gap": 0, "children": [

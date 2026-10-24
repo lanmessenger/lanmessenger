@@ -362,6 +362,10 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
       return r;
     }
     root = column;
+  } else {
+    //  VBox root: no avatar column beside the row (avatar nodes live
+    //  in hbox roots only), so the card default is dropped here.
+    r.avatar = false;
   }
   //  VBox level (root or the hbox column): header + body/fileCard.
   r.vboxGap = root->gap;

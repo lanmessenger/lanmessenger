@@ -28,16 +28,13 @@ QByteArray validJson() {
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
         {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"]},
         {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}],
-    "layout_incoming_next": [{"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}],
-    "layout_outgoing": [{"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["time"]},
-        {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}],
-    "layout_outgoing_next": [{"type": "hbox", "gap": 8, "children": [
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}],
+    "layout_incoming_next": [{"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}],
+    "layout_outgoing": [{"type": "vbox", "gap": 2, "children": [
+      {"type": "header", "items": ["time"]},
+      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
+    "layout_outgoing_next": [{"type": "vbox", "gap": 0, "children": [
+      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}],
     "layout_system": [{"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
     "layout_broadcast": [{"type": "vbox", "gap": 0, "children": [
@@ -60,7 +57,6 @@ Theme::LayoutNode incomingBody(const Theme& t) {
 Theme::LayoutNode incomingNextBody(const Theme& t) {
   return t.compiledLayout(QStringLiteral("layout_incoming_next"))
     .at(0)
-    .children.at(0)
     .children.at(0);
 }
 
@@ -149,7 +145,7 @@ void TstTheme::optionalKeysDefaulted() {
   QCOMPARE(t.header.senderSize, 1.0);
   QCOMPARE(t.header.timeSize, 1.0);
   QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& header = outgoing.at(0).children.at(0).children.at(0);
+  const Theme::LayoutNode& header = outgoing.at(0).children.at(0);
   QVERIFY(!header.hasSenderColor);
   QVERIFY(!header.hasTimeColor);
 }
@@ -329,15 +325,15 @@ void TstTheme::cornerRadiiParsed() {
   for(int i = 0; i < 4; i++)
     QCOMPARE(inNext.corners[i], inNextWant[i]);
   //  Outgoing carries hand-mirrored values, read verbatim (no code mirror).
-  //  The outgoing hbox holds the vbox directly (no avatar child).
+  //  The outgoing vbox holds header and body directly (no avatar child).
   QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& out = outgoing.at(0).children.at(0).children.at(1);
+  const Theme::LayoutNode& out = outgoing.at(0).children.at(1);
   const int outDef[4] = {12, 12, 4, 12};
   for(int i = 0; i < 4; i++)
     QCOMPARE(out.corners[i], outDef[i]);
   QVector<Theme::LayoutNode> outgoingNext =
     t.compiledLayout(QStringLiteral("layout_outgoing_next"));
-  const Theme::LayoutNode& outNext = outgoingNext.at(0).children.at(0).children.at(0);
+  const Theme::LayoutNode& outNext = outgoingNext.at(0).children.at(0);
   const int outNextWant[4] = {12, 4, 4, 12};
   for(int i = 0; i < 4; i++)
     QCOMPARE(outNext.corners[i], outNextWant[i]);
@@ -444,15 +440,16 @@ void TstTheme::containerGapParsed() {
   QVERIFY(inBody.hasCorners);
   QCOMPARE(inBody.corners[3], 4);
   QCOMPARE(inBody.children.size(), 0);
-  //  The in-series tree omits header/avatar and carries its own shape.
+  //  The in-series tree omits header/avatar and carries its own shape:
+  //  a vbox root holding the body directly.
   QVector<Theme::LayoutNode> incomingNext =
     t.compiledLayout(QStringLiteral("layout_incoming_next"));
+  QCOMPARE(incomingNext.at(0).type, Theme::LayoutNode::Type::VBox);
+  QCOMPARE(incomingNext.at(0).gap, 0);
   QCOMPARE(incomingNext.at(0).children.size(), 1);
-  QCOMPARE(incomingNext.at(0).children.at(0).type, Theme::LayoutNode::Type::VBox);
-  QCOMPARE(incomingNext.at(0).children.at(0).children.size(), 1);
-  QCOMPARE(incomingNext.at(0).children.at(0).children.at(0).type,
+  QCOMPARE(incomingNext.at(0).children.at(0).type,
            Theme::LayoutNode::Type::Body);
-  QCOMPARE(incomingNext.at(0).children.at(0).children.at(0).margin, 2);
+  QCOMPARE(incomingNext.at(0).children.at(0).margin, 2);
   QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
   QCOMPARE(system.size(), 1);
   QCOMPARE(system.at(0).type, Theme::LayoutNode::Type::VBox);
@@ -534,7 +531,7 @@ void TstTheme::bareHexBothModes() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& rect = outgoing.at(0).children.at(0).children.at(1);
+  const Theme::LayoutNode& rect = outgoing.at(0).children.at(1);
   QVERIFY(rect.hasTextColor);
   QCOMPARE(rect.textColor.light, QColor(QStringLiteral("#1A1D21")));
   QCOMPARE(rect.textColor.dark, QColor(QStringLiteral("#1A1D21")));
@@ -817,7 +814,7 @@ void TstTheme::shippedMeshBlueSpotCheck() {
   QCOMPARE(in.bg.darkFrom, QColor(QStringLiteral("#162235")));
   QCOMPARE(in.bg.darkTo, QColor(QStringLiteral("#111A29")));
   QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
-  const Theme::LayoutNode& out = outgoing.at(0).children.at(0).children.at(1);
+  const Theme::LayoutNode& out = outgoing.at(0).children.at(1);
   QVERIFY(out.hasTextColor);
   QCOMPARE(out.textColor.light, QColor(QStringLiteral("#FFFFFF")));
   QCOMPARE(out.textColor.dark, QColor(QStringLiteral("#FFFFFF")));
