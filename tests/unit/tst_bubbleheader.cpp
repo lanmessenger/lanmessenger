@@ -48,6 +48,7 @@ private slots:
   void headerFollowsLocalSize();
   void shippedHeaderColorsResolve();
   void seriesTopMargins();
+  void seriesCornerRadii();
 };
 
 XmlMessage textMessage(const QString& text) {
@@ -155,6 +156,55 @@ void TstBubbleHeader::seriesTopMargins() {
            d2.sizeHint(option, model2.index(2, 0)).height());
   QVERIFY(d2.sizeHint(option, model2.index(0, 0)).height() >
           d2.sizeHint(option, model2.index(1, 0)).height());
+}
+
+void TstBubbleHeader::seriesCornerRadii() {
+  //  Same series shape as seriesTopMargins; MeshBlue ships radius
+  //  [14, 14, 14, 3], next [3, 14, 14, 3] (window side flattened).
+  //  Outgoing rows mirror horizontally.
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  for(const QString& text : {QStringLiteral("one"), QStringLiteral("two"), QStringLiteral("three")}) {
+    XmlMessage m = textMessage(text);
+    model.appendMessageLog(MT_Message, &jack, &jackName, &m);
+  }
+  XmlMessage m4 = textMessage(QStringLiteral("four"));
+  model.appendMessageLog(MT_Message, &me, &meName, &m4);
+  XmlMessage m5 = textMessage(QStringLiteral("five"));
+  model.appendMessageLog(MT_Message, &me, &meName, &m5);
+
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  BubbleDelegate d;
+  d.setTheme(t);
+  int first[4] = {0, 0, 0, 0};
+  int next[4] = {0, 0, 0, 0};
+  int single[4] = {0, 0, 0, 0};
+  int ownNext[4] = {0, 0, 0, 0};
+  d.rowCornerRadii(model.index(0, 0), first);
+  d.rowCornerRadii(model.index(1, 0), next);
+  d.rowCornerRadii(model.index(3, 0), single);
+  d.rowCornerRadii(model.index(4, 0), ownNext);
+  const int wantBase[4] = {14, 14, 14, 3};
+  const int wantNext[4] = {3, 14, 14, 3};
+  //  Own rows mirror the base too: tail side is right.
+  const int wantOwnSingle[4] = {14, 14, 3, 14};
+  const int wantOwnNext[4] = {14, 3, 3, 14};
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(first[i], wantBase[i]);
+    QCOMPARE(next[i], wantNext[i]);
+    QCOMPARE(single[i], wantOwnSingle[i]);
+    QCOMPARE(ownNext[i], wantOwnNext[i]);
+  }
+  //  Third row is grouped too: same radii as the second.
+  int third[4] = {0, 0, 0, 0};
+  d.rowCornerRadii(model.index(2, 0), third);
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(third[i], wantNext[i]);
 }
 
 QTEST_MAIN(TstBubbleHeader)

@@ -3,6 +3,8 @@
   "_comment": "Modern Mesh Blue from Stitch spec (Variant 2). Single radius array: incoming corners kept, outgoing approximated by renderer (uniform radius[0] in S). Cyan shadow tint is not supported by the renderer (black shadow); opacity is shared for light/dark. Outgoing body uses textInverse.",
   "bubble": {
     "radius": [14, 14, 14, 3],
+    "radiusFirstInGroup": [14, 14, 14, 3],
+    "radiusNextInGroup": [3, 14, 14, 3],
     "tail": 3,
     "tailStyle": "rounded",
     "shadow": [0, 2, 4, 0.08],

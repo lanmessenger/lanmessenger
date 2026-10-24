@@ -21,6 +21,31 @@ namespace {
 
 const int kMaxCacheEntries = 150;
 
+//  Per-corner rounded rect: c is [TL, TR, BR, BL] in px, clamped to the rect.
+QPainterPath roundedCorners(const QRect& r, const int c[4]) {
+  int lim = qMin(r.width(), r.height()) / 2;
+  int tl = qBound(0, c[0], lim);
+  int tr = qBound(0, c[1], lim);
+  int br = qBound(0, c[2], lim);
+  int bl = qBound(0, c[3], lim);
+  QPainterPath path;
+  path.moveTo(r.left() + tl, r.top());
+  path.lineTo(r.right() - tr, r.top());
+  if(tr > 0)
+    path.arcTo(r.right() - 2 * tr, r.top(), 2 * tr, 2 * tr, 90, -90);
+  path.lineTo(r.right(), r.bottom() - br);
+  if(br > 0)
+    path.arcTo(r.right() - 2 * br, r.bottom() - 2 * br, 2 * br, 2 * br, 0, -90);
+  path.lineTo(r.left() + bl, r.bottom());
+  if(bl > 0)
+    path.arcTo(r.left(), r.bottom() - 2 * bl, 2 * bl, 2 * bl, 270, -90);
+  path.lineTo(r.left(), r.top() + tl);
+  if(tl > 0)
+    path.arcTo(r.left(), r.top(), 2 * tl, 2 * tl, 180, -90);
+  path.closeSubpath();
+  return path;
+}
+
 QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
                      bool fontExplicit) {
   QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
@@ -320,6 +345,25 @@ int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
                                                             : theme.bubble.marginFirstInGroup;
 }
 
+void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const {
+  //  radiusFirstInGroup stays parsed but unused: ungrouped rows use radius.
+  const int* src = index.data(ChatMessageModel::GroupedRole).toBool()
+                     ? theme.bubble.radiusNextInGroup
+                     : theme.bubble.radius;
+  for(int i = 0; i < 4; i++)
+    out[i] = src[i];
+  //  Arrays are written in incoming orientation (tail left); outgoing bubbles
+  //  (tail right) mirror them horizontally: [TL,TR,BR,BL] -> [TR,TL,BL,BR].
+  if(cardFor(index) == QLatin1String("outgoing")) {
+    int tl = out[0];
+    out[0] = out[1];
+    out[1] = tl;
+    int br = out[2];
+    out[2] = out[3];
+    out[3] = br;
+  }
+}
+
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
                                     int contentH) const {
   QString card = cardFor(index);
@@ -409,6 +453,7 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
                     e.bubbleRect.top() + theme.bubble.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
   e.topMargin = rowTopMargin(index);
+  rowCornerRadii(index, e.corner);
   //  +1: QRect::bottom() is the last pixel, size needs one past it.
   e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
   cache.insert(key, e);
@@ -529,7 +574,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     painter->setPen(Qt::NoPen);
     painter->setBrush(shadow);
     QRect shadowRect = bubble.translated(int(theme.bubble.shadowDx), int(theme.bubble.shadowDy));
-    painter->drawRoundedRect(shadowRect, theme.bubble.radius[0], theme.bubble.radius[0]);
+    painter->drawPath(roundedCorners(shadowRect, e.corner));
   }
 
   QColor bg = cardColor(card, false, darkMode);
@@ -544,11 +589,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   } else {
     painter->setPen(Qt::NoPen);
   }
-  QPainterPath path;
-  //  QPainterPath::roundedRect only does uniform rounding; per-corner radius
-  //  is an approximation (fine-tune in stage 2).
-  path.addRoundedRect(bubble, theme.bubble.radius[0], theme.bubble.radius[0]);
-  painter->drawPath(path);
+  painter->drawPath(roundedCorners(bubble, e.corner));
 
   if(theme.bubble.tail > 0 && cardDef.tail != QLatin1String("none") &&
      theme.bubble.tailStyle == QLatin1String("polygon")) {

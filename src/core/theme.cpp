@@ -301,6 +301,33 @@ Theme Theme::loadFromJson(const QByteArray& data) {
       return t;
     }
   }
+  //  Positional corner radii default to radius; explicit arrays must be valid.
+  for(int i = 0; i < 4; i++) {
+    t.bubble.radiusFirstInGroup[i] = t.bubble.radius[i];
+    t.bubble.radiusNextInGroup[i] = t.bubble.radius[i];
+  }
+  const char* posKeys[2] = {"radiusFirstInGroup", "radiusNextInGroup"};
+  int* posTargets[2] = {t.bubble.radiusFirstInGroup, t.bubble.radiusNextInGroup};
+  for(int k = 0; k < 2; k++) {
+    QJsonValue pos = b.value(QLatin1String(posKeys[k]));
+    if(pos.isUndefined() || pos.isNull())
+      continue;
+    if(!checkIntArray(pos, 4, err, QByteArray("bubble.") + posKeys[k])) {
+      t.errorString = err;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    QJsonArray arr = pos.toArray();
+    for(int i = 0; i < 4; i++) {
+      posTargets[k][i] = arr.at(i).toInt();
+      if(posTargets[k][i] < 0) {
+        t.errorString =
+          QStringLiteral("bubble.%1 must be >= 0").arg(QLatin1String(posKeys[k]));
+        qCWarning(lmcUi) << "Theme:" << t.errorString;
+        return t;
+      }
+    }
+  }
   t.bubble.tail = b.value(QStringLiteral("tail")).toInt(-1);
   t.bubble.margin = b.value(QStringLiteral("margin")).toInt(-1);
   //  Positional margins default to margin only when absent; an explicit

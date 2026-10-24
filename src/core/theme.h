@@ -19,7 +19,11 @@ public:
   };
 
   struct Bubble {
+    //  Per-corner radii [TL, TR, BR, BL]; Next defaults to radius.
+    //  First is parsed but unused (ungrouped rows use radius).
     int radius[4] = {12, 12, 12, 4};
+    int radiusFirstInGroup[4] = {12, 12, 12, 4};
+    int radiusNextInGroup[4] = {12, 12, 12, 4};
     int tail = 8;
     QString tailStyle = QStringLiteral("polygon");
     double shadowDx = 0.0;

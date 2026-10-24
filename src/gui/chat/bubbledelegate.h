@@ -54,6 +54,9 @@ public:
   //  Top gap of the row: series start (or single) vs inside a series.
   //  Public for tests.
   int rowTopMargin(const QModelIndex& index) const;
+  //  Per-corner radii [TL, TR, BR, BL] resolved the same way.
+  //  Public for tests.
+  void rowCornerRadii(const QModelIndex& index, int out[4]) const;
 
   //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -80,6 +83,7 @@ private:
     QRect bubbleRect;
     QRect docRect;
     int topMargin = 0;
+    int corner[4] = {0, 0, 0, 0};
   };
 
   QString cardFor(const QModelIndex& index) const;

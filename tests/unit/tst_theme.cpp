@@ -82,6 +82,9 @@ private slots:
   void bubbleMarginsParsed();
   void badMarginRejected();
   void legacySpacingRejected();
+  void cornerRadiiDefaulted();
+  void cornerRadiiParsed();
+  void badCornerRadiiRejected();
   void viewChromeDefaulted();
   void viewChromeParsed();
   void badViewChromeRejected();
@@ -233,6 +236,42 @@ void TstTheme::legacySpacingRejected() {
     "\"spacing\": 6, \"groupedSpacing\": 2");
   Theme t = Theme::loadFromJson(legacy);
   QVERIFY(!t.isValid);
+}
+
+void TstTheme::cornerRadiiDefaulted() {
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(t.bubble.radiusFirstInGroup[i], t.bubble.radius[i]);
+    QCOMPARE(t.bubble.radiusNextInGroup[i], t.bubble.radius[i]);
+  }
+}
+
+void TstTheme::cornerRadiiParsed() {
+  QByteArray corners =
+    withReplaced(validJson(), "\"radius\": [12, 12, 12, 4],",
+                 "\"radius\": [12, 12, 12, 4], \"radiusFirstInGroup\": [10, 10, 10, 2], "
+                 "\"radiusNextInGroup\": [2, 2, 10, 2],");
+  Theme t = Theme::loadFromJson(corners);
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const int first[4] = {10, 10, 10, 2};
+  const int next[4] = {2, 2, 10, 2};
+  for(int i = 0; i < 4; i++) {
+    QCOMPARE(t.bubble.radiusFirstInGroup[i], first[i]);
+    QCOMPARE(t.bubble.radiusNextInGroup[i], next[i]);
+  }
+}
+
+void TstTheme::badCornerRadiiRejected() {
+  for(const char* key : {"radiusFirstInGroup", "radiusNextInGroup"}) {
+    for(const char* bad : {"[12, 12]", "[-1, 12, 12, 4]", "\"big\"", "true"}) {
+      QByteArray sized = withReplaced(
+        validJson(), "\"radius\": [12, 12, 12, 4],",
+        QByteArray("\"radius\": [12, 12, 12, 4], \"") + key + "\": " + bad + ",");
+      Theme t = Theme::loadFromJson(sized);
+      QVERIFY2(!t.isValid, (QByteArray(key) + "=" + bad).constData());
+    }
+  }
 }
 
 void TstTheme::viewChromeDefaulted() {

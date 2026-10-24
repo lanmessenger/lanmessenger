@@ -3,6 +3,8 @@
   "_comment": "layout_* reserved since stage 1, read from stage 2; ship all 5 layout_*. The S example uses existing blocks only (linkPreview/quote/code/buttons are reserved for L)",
   "bubble": {
     "radius": [12, 12, 12, 4],
+    "radiusFirstInGroup": [12, 12, 12, 4],
+    "radiusNextInGroup": [4, 12, 12, 4],
     "tail": 8,
     "shadow": [0, 2, 8, 0.18],
     "padding": [8, 10, 8, 10],

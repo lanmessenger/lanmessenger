@@ -3,6 +3,8 @@
   "_comment": "Compact Nordic Terminal from Stitch spec (Variant 3). Flat cards: no tail, no shadow. Spec series gap 1.5px rounded to 2 (schema requires ints). Avatar 20px from the geometry table (header strip says 22px). Time with seconds per mock. Outgoing body uses textInverse.",
   "bubble": {
     "radius": [6, 6, 6, 6],
+    "radiusFirstInGroup": [6, 6, 6, 6],
+    "radiusNextInGroup": [2, 6, 6, 6],
     "tail": 0,
     "tailStyle": "none",
     "shadow": [0, 0, 0, 0],

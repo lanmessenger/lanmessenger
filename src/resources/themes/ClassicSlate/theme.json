@@ -3,6 +3,8 @@
   "_comment": "Classic Native Slate from Stitch spec (Variant 1). Single radius array: incoming corners kept, outgoing approximated by renderer (uniform radius[0] in S). Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body uses textInverse.",
   "bubble": {
     "radius": [12, 12, 12, 2],
+    "radiusFirstInGroup": [12, 12, 12, 2],
+    "radiusNextInGroup": [2, 12, 12, 2],
     "tail": 2,
     "tailStyle": "rounded",
     "shadow": [0, 1, 2, 0.05],

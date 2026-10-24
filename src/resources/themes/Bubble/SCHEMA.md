@@ -28,11 +28,17 @@ cards referencing a missing optional token invalidate the theme.
 ## `bubble`
 
 - `radius`: 4 ints ≥ 0 (order: top-left, top-right, bottom-right, bottom-left).
+  `radiusNextInGroup`: optional 4-int array overriding `radius` inside a series
+  (grouped rows), same technique as the positional margins. `radiusFirstInGroup`
+  is parsed but reserved: ungrouped rows use `radius`. Arrays are written in
+  incoming orientation (tail left); `outgoing` rows mirror them horizontally.
+  A missing key falls back to `radius`; an explicit non-number array invalidates
+  the theme.
 - `tail`: int ≥ 0 (tail length).
 - `tailStyle`: `polygon|rounded|none` (default `polygon`). `polygon` draws the
   triangle; `rounded` implies the tail via the small corner in `radius` (no
-  polygon, per the Stitch spec); `none` draws no tail. In stage 1 `rounded`
-  and `none` render the same (per-corner radii land in stage 2).
+  polygon, per the Stitch spec); `none` draws no tail. `rounded` and `none`
+  render the same path: per-corner radii apply to the bubble in both cases.
 - `shadow`: 4 numbers `[dx, dy, blur, opacity]`, opacity 0..1.
 - `padding`: 4 ints ≥ 0 `[top, right, bottom, left]`.
 - `margin`: int ≥ 0, top gap of a row. `marginFirstInGroup` /
