@@ -85,13 +85,6 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
     return msg.type == MT_File || msg.type == MT_Folder;
   case OwnRole:
     return msg.userId == localId;
-  case OwnLastRole: {
-    if(msg.userId != localId)
-      return false;
-    if(index.row() + 1 >= messageLog.count())
-      return true;
-    return messageLog.at(index.row() + 1).userId != msg.userId;
-  }
   case PreviewRole:
     //  No link previews at all (stage 1): always false.
     return false;
@@ -112,7 +105,7 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
 }
 
 QHash<int, QByteArray> ChatMessageModel::roleNames() const {
-  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {OwnLastRole, "isOwnLast"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}};
+  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}};
 }
 
 int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
@@ -178,15 +171,11 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
     return -1;
 
   int row = messageLog.count();
-  //  Tail dataChanged: the previous row's isOwnLast may have changed.
-  bool tailMayChange = row > 0 && messageLog.at(row - 1).userId == localId;
   beginInsertRows(QModelIndex(), row, row);
   XmlMessage clone = pMessage ? pMessage->clone() : XmlMessage();
   messageLog.append(SingleMessage(storeType, userId, userName, clone, id));
   hasData = true;
   endInsertRows();
-  if(tailMayChange)
-    recomputeTail(row - 1);
   if(!bReload) {
     //  bReload is used on reload (as messagelog bReload=true): no extra logic.
   }
@@ -426,11 +415,4 @@ QString ChatMessageModel::statusText(const SingleMessage& msg) const {
     break;
   }
   return QString();
-}
-
-void ChatMessageModel::recomputeTail(int row) {
-  if(row < 0 || row >= messageLog.count())
-    return;
-  QModelIndex idx = index(row, 0);
-  emit dataChanged(idx, idx, {OwnLastRole});
 }

@@ -35,20 +35,19 @@ Three forms, everywhere a color is accepted:
 | `text` | color | default body text, both forms |
 | `link` | color | links and the focus ring, both forms |
 | `page` | color | view fill, both forms |
-| `layout_incoming/outgoing/system/broadcast/request` | array | all 5 required and non-empty; every layout holds exactly one rect: one `body` or `fileCard` node (the delegate always paints one). Missing layout falls back to `layout_incoming` + a log line. |
+| `layout_incoming/outgoing[/_next]/system/broadcast/request` | array | all 7 required and non-empty; every layout holds exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
 
 Key rule: structural keys (`type`, layout name, `gap`, rect `bg`,
-rect `padding`/`shadow`/`margin`/`maxWidthPct`, `corners.default`,
+rect `padding`/`shadow`/`margin`/`maxWidthPct`, `corners`,
 global `text`/`link`/`page`, `header.senderColor`/`header.timeColor`)
-are required; overrides (`corners.next`, `margin.next`, node
+are required; overrides (node
 `senderColor`/`timeColor`/`textColor`/`border`) are
 optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 `tailStyle` key invalidates the theme.
 
 ## `avatar` / `header`
 
-- `avatar.size`: int > 0; `shape`: `circle|rounded|square`; `showOnGrouped`: bool
-  (sugar over `isGrouped`; duplicating `header.ifNot=isGrouped` is allowed).
+- `avatar.size`: int > 0; `shape`: `circle|rounded|square`.
 - `header.senderBold`: bool; `header.timeFormat`: non-empty `QDateTime::toString`
   format, locale-independent (breaking change vs `QLocale::ShortFormat`).
   Shipped themes use `HH:mm`; `NordicTerminal` uses `HH:mm:ss` as a seconds example.
@@ -75,10 +74,10 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
   gaps exist). Depth ≤ 4 from the root
   (`hbox=1, vbox=2, body=3`).
 - Blocks are only: `avatar, header, body, linkPreview, fileCard, quote,
-  code, status, buttons`.
-- S implements the `avatar/header/body/fileCard/status` subset;
+  code, buttons`.
+- S implements the `avatar/header/body/fileCard` subset;
   `linkPreview` (no link previews at all), `quote/code/buttons` are
-  reserved for L: the validator accepts, the S delegate ignores.
+  reserved: the validator accepts, the S delegate ignores them.
 - One rect per layout: exactly one `body` xor `fileCard` node — message
   and file never stack in one layout. `body`/`fileCard` are leaves and
   must not carry `children`.
@@ -86,9 +85,16 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
   conditions (row selection already guarantees a file row) and no `body`.
   `fileCard` anywhere else, or `body` in `layout_request`, invalidates the theme.
   `layout_incoming`/`layout_outgoing` carry no `fileCard` branches.
+- Series position selects the tree, never a node flag: a series-start
+  (or single/ungrouped) row walks `layout_incoming`/`layout_outgoing`,
+  an in-series row walks `layout_incoming_next`/`layout_outgoing_next`.
+  The `_next` trees omit the header/avatar nodes and carry the dense
+  `margin` and in-series `corners`; any other per-tree property may
+  diverge too (no new code needed).
 - Flag sources: `SingleMessage`, `sendFileMap/receiveFileMap` for `fileCard`,
   model flags. `if`/`ifNot` only on model flags:
-  `isGrouped, hasPreview, isFile, isOwn, isOwnLast`.
+  `hasPreview, isFile, isOwn` (`isGrouped` is gone: series
+  position selects the tree, it never gates a node).
 - `header.items`: a subset of `["sender", "time"]` (empty = role default:
   `incoming` shows both, `outgoing` shows time).
 - Rect (`body`/`fileCard`) `bg`: required — solid, transparent, or
@@ -97,22 +103,20 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 - Rect metrics, required: `padding` (4 ints ≥ 0 `[top, right, bottom,
   left]`), `shadow` (`[dx, dy, blur, opacity]`, opacity 0..1; black
   shadow, tinted shadows are not supported by the renderer), `margin`
-  (`{default, next?}` — ints ≥ 0, top gap of a row: `default` at a
-  series start (single and ungrouped rows included), `next` inside a
-  series; `next` absent means `next == default`), `maxWidthPct`
+  (int ≥ 0, top gap of a row; series-start trees carry the wide gap,
+  `_next` trees the dense in-series one), `maxWidthPct`
   (int 1..100; window width change reflows word-wrap → `sizeHint`
   invalidation). The gap after a series end is the next row's top
-  margin, so no "last in group" key exists. A non-object `margin`, a
-  missing `default`, or a non-number anywhere invalidates the theme.
+  margin, so no "last in group" key exists. A non-int `margin`
+  or a non-number anywhere invalidates the theme.
 - Rows are tailless: no tail triangle is drawn; any `tail`/`tailSize`/
   `tailStyle` key on any node invalidates the theme.
 - `header` node `senderColor` / `timeColor`: optional literal overrides
   of the theme header defaults.
 - Color keys on any other node type invalidate the theme.
-- Rect `corners`: `{default: [...], next?: [...]}` — 4 ints ≥ 0
-  `[TL, TR, BR, BL]` per role (single/series-start vs inside a series;
-  `next` absent means `next == default`). A rect without `corners` uses the
-  built-in default; `corners` on any other node invalidates the theme.
+- Rect `corners`: 4 ints ≥ 0 `[TL, TR, BR, BL]`. A rect without
+  `corners` uses the built-in default; `corners` on any other node
+  or a short/negative/fractional array invalidates the theme.
   Outgoing nodes carry hand-mirrored values — no code mirror exists, what is
   written is what renders. Each layout's rect node may carry its own corners
   (e.g. a system pill); node corners never inherit across layouts.

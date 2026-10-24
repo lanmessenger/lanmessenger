@@ -15,12 +15,13 @@
 
 namespace {
 
-const char* kLayouts[] = {"layout_incoming", "layout_outgoing", "layout_system", "layout_broadcast",
+const char* kLayouts[] = {"layout_incoming", "layout_incoming_next", "layout_outgoing",
+                          "layout_outgoing_next", "layout_system", "layout_broadcast",
                           "layout_request"};
-const int kLayoutCount = 5;
+const int kLayoutCount = 7;
 
-const char* kFlags[] = {"isGrouped", "isFile", "isOwn", "isOwnLast", "hasPreview"};
-const int kFlagCount = 5;
+const char* kFlags[] = {"isFile", "isOwn", "hasPreview"};
+const int kFlagCount = 3;
 
 bool isHexColor(const QString& s) {
   if(s.length() != 7 && s.length() != 9)
@@ -53,7 +54,7 @@ bool isKnownLayout(const QString& s) {
 //  The S subset is rendered; L-reserved blocks validate but are ignored.
 bool isKnownBlock(const QString& s) {
   static const char* blocks[] = {"hbox", "vbox", "avatar", "header", "body", "linkPreview",
-                                 "fileCard", "quote", "code", "status", "buttons"};
+                                 "fileCard", "quote", "code", "buttons"};
   for(auto* b : blocks)
     if(s == QLatin1String(b))
       return true;
@@ -305,9 +306,9 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
           return false;
       }
     }
-    //  Rect metrics, required: pixel padding, shadow, row top gap, width cap.
-    //  Margin is an object like corners: {default, next?}, both ints >= 0;
-    //  an absent next falls back to default.
+    //  Rect metrics, required: pixel padding, shadow, row top gap, width
+    //  cap. The gap is per tree now: series-start trees carry the wide
+    //  gap, _next trees the dense in-series one, so margin is a scalar.
     QByteArray padWhat = type.toLatin1() + QByteArray(" padding");
     QByteArray shadowWhat = type.toLatin1() + QByteArray(" shadow");
     if(!checkIntArray(node.value(QStringLiteral("padding")), 4, error, padWhat.constData()) ||
@@ -322,32 +323,24 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
         return false;
       }
     }
+    //  Reject the split-era object shape: a stale {default, next?}
+    //  margin reads as a missing scalar below.
     QJsonValue marginValue = node.value(QStringLiteral("margin"));
-    if(!marginValue.isObject()) {
-      error = QStringLiteral("bad %1 margin (want {default, next?})").arg(type);
+    if(!marginValue.isDouble() || std::floor(marginValue.toDouble()) != marginValue.toDouble() ||
+       marginValue.toInt(-1) < 0) {
+      error = QStringLiteral("bad %1 margin (want int >= 0)").arg(type);
       return false;
     }
-    QJsonObject marginObj = marginValue.toObject();
-    for(const QString& key : marginObj.keys()) {
-      if(key != QLatin1String("default") && key != QLatin1String("next")) {
-        error = QStringLiteral("bad %1 margin key %2").arg(type, key);
+    //  Hard split: stale pre-split keys fail loudly instead of
+    //  being ignored (a stale margin next to a scalar one would
+    //  silently keep the scalar).
+    for(auto key : {QStringLiteral("marginFirstInGroup"),
+                    QStringLiteral("marginNextInGroup"), QStringLiteral("spacing"),
+                    QStringLiteral("groupedSpacing")}) {
+      if(node.contains(key)) {
+        error = QStringLiteral("bad %1: stale key %2").arg(type, key);
         return false;
       }
-    }
-    QJsonValue marginDefault = marginObj.value(QStringLiteral("default"));
-    if(!marginDefault.isDouble() ||
-       std::floor(marginDefault.toDouble()) != marginDefault.toDouble() ||
-       marginDefault.toInt() < 0) {
-      error = QStringLiteral("bad %1 margin.default (want int >= 0)").arg(type);
-      return false;
-    }
-    QJsonValue marginNextValue = marginObj.value(QStringLiteral("next"));
-    if(!marginNextValue.isUndefined() && !marginNextValue.isNull() &&
-       (!marginNextValue.isDouble() ||
-        std::floor(marginNextValue.toDouble()) != marginNextValue.toDouble() ||
-        marginNextValue.toInt() < 0)) {
-      error = QStringLiteral("bad %1 margin.next (want int >= 0)").arg(type);
-      return false;
     }
     int maxWidthPct = node.value(QStringLiteral("maxWidthPct")).toInt(-1);
     if(maxWidthPct < 1 || maxWidthPct > 100 || shadow.at(3).toDouble(-1.0) < 0.0 ||
@@ -385,34 +378,20 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
       }
     }
   }
-  //  Corners live on body/fileCard nodes only: {default, next?}, [TL, TR, BR, BL].
+  //  Corners live on body/fileCard nodes only: [TL, TR, BR, BL].
   //  Outgoing nodes carry hand-mirrored values; no code mirror exists.
+  //  The split-era {default, next?} object reads as a missing array below.
   if(node.contains(QStringLiteral("corners"))) {
     if(type != QLatin1String("body") && type != QLatin1String("fileCard")) {
       error = QStringLiteral("corners only on body/fileCard");
       return false;
     }
-    QJsonValue corners = node.value(QStringLiteral("corners"));
-    if(!corners.isObject()) {
-      error = QStringLiteral("bad corners (want {default, next?})");
+    if(!checkIntArray(node.value(QStringLiteral("corners")), 4, error, "corners"))
       return false;
-    }
-    QJsonObject c = corners.toObject();
-    for(const QString& key : c.keys()) {
-      if(key != QLatin1String("default") && key != QLatin1String("next")) {
-        error = QStringLiteral("bad corners key %1").arg(key);
-        return false;
-      }
-    }
-    QJsonArray def = c.value(QStringLiteral("default")).toArray();
-    QJsonArray next =
-      c.contains(QStringLiteral("next")) ? c.value(QStringLiteral("next")).toArray() : def;
-    if(!checkIntArray(def, 4, error, "corners.default") ||
-       !checkIntArray(next, 4, error, "corners.next"))
-      return false;
+    QJsonArray corners = node.value(QStringLiteral("corners")).toArray();
     for(int i = 0; i < 4; i++) {
-      if(def.at(i).toInt() < 0 || next.at(i).toInt() < 0) {
-        error = QStringLiteral("corners.default/next must be >= 0");
+      if(corners.at(i).toInt() < 0) {
+        error = QStringLiteral("corners must be >= 0");
         return false;
       }
     }
@@ -455,8 +434,6 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
     n.type = Theme::LayoutNode::Type::Body;
   else if(type == QLatin1String("fileCard"))
     n.type = Theme::LayoutNode::Type::FileCard;
-  else if(type == QLatin1String("status"))
-    n.type = Theme::LayoutNode::Type::Status;
   n.gap = obj.value(QStringLiteral("gap")).toInt(0);
   for(const QJsonValue& v : obj.value(QStringLiteral("items")).toArray())
     n.headerItems.append(v.toString());
@@ -498,27 +475,16 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
   n.shadowDy = sh.at(1).toDouble();
   n.shadowBlur = sh.at(2).toDouble();
   n.shadowOpacity = sh.at(3).toDouble();
-  //  Validator guarantees the shape; an absent next falls back to default.
-  QJsonObject marginObj = obj.value(QStringLiteral("margin")).toObject();
-  n.marginDefault = marginObj.value(QStringLiteral("default")).toInt(0);
-  QJsonValue marginNext = marginObj.value(QStringLiteral("next"));
-  n.marginNext = (!marginNext.isUndefined() && !marginNext.isNull())
-                   ? marginNext.toInt(n.marginDefault)
-                   : n.marginDefault;
+  //  Validator guarantees ints; margin is a per-tree scalar.
+  n.margin = obj.value(QStringLiteral("margin")).toInt(0);
   n.maxWidthPct = obj.value(QStringLiteral("maxWidthPct")).toInt(75);
   //  Validator guarantees the shape; a node without corners keeps
-  //  the built-in default, next falls back to default.
-  QJsonObject corners = obj.value(QStringLiteral("corners")).toObject();
+  //  the built-in default.
+  QJsonArray corners = obj.value(QStringLiteral("corners")).toArray();
   if(obj.contains(QStringLiteral("corners")) && !corners.isEmpty()) {
     n.hasCorners = true;
-    QJsonArray def = corners.value(QStringLiteral("default")).toArray();
-    QJsonArray next =
-      corners.contains(QStringLiteral("next")) ? corners.value(QStringLiteral("next")).toArray()
-                                               : def;
-    for(int i = 0; i < 4; i++) {
-      n.cornersDefault[i] = def.at(i).toInt();
-      n.cornersNext[i] = next.at(i).toInt();
-    }
+    for(int i = 0; i < 4; i++)
+      n.corners[i] = corners.at(i).toInt();
   }
   for(const QJsonValue& c : obj.value(QStringLiteral("children")).toArray()) {
     if(c.isObject())
@@ -550,7 +516,7 @@ QString Theme::defaultJsonText() {
 //  Only runs when even the compiled-in Bubble resource is unreadable.
 const char kFallbackThemeJson[] = R"JSON({
   "version": 1,
-  "avatar": {"size": 40, "shape": "circle", "showOnGrouped": false},
+  "avatar": {"size": 40, "shape": "circle"},
   "header": {
     "senderBold": true, "timeFormat": "HH:mm", "outgoingYouLabel": false,
     "senderColor": ["#1A1D21", "#E8EAED"], "timeColor": ["#6B7280", "#9AA0A6"]
@@ -562,41 +528,52 @@ const char kFallbackThemeJson[] = R"JSON({
     {"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["sender", "time"], "ifNot": "isGrouped"},
+        {"type": "header", "items": ["sender", "time"]},
         {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
                                 "gradient(#1F242B, #262D36)"],
          "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
-         "next": 2}, "maxWidthPct": 75},
-        {"type": "status", "if": "isOwnLast"}]}]}
+         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}
+  ],
+  "layout_incoming_next": [
+    {"type": "hbox", "gap": 8, "children": [
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
+                                "gradient(#1F242B, #262D36)"],
+         "padding": [8, 10, 8, 10],
+         "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}
   ],
   "layout_outgoing": [
     {"type": "hbox", "gap": 8, "children": [
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["time"], "ifNot": "isGrouped"},
+        {"type": "header", "items": ["time"]},
         {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
                                 "gradient(#1D4D2B, #1A4527)"],
          "textColor": ["#1A1D21", "#E8EAED"],
          "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
-         "next": 2}, "maxWidthPct": 75},
-        {"type": "status", "if": "isOwnLast"}]}]}
+         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}
+  ],
+  "layout_outgoing_next": [
+    {"type": "hbox", "gap": 8, "children": [
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
+                                "gradient(#1D4D2B, #1A4527)"],
+         "textColor": ["#1A1D21", "#E8EAED"],
+         "padding": [8, 10, 8, 10],
+         "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}
   ],
   "layout_system": [
     {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": "transparent",
        "textColor": ["#6B7280", "#9AA0A6"],
        "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
-       "next": 2}, "maxWidthPct": 75}]}
+       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
   ],
   "layout_broadcast": [
     {"type": "vbox", "gap": 0, "children": [
       {"type": "body", "bg": ["#E6F4EA", "#1A2E22"],
        "border": ["#2F9E44", "#3FB950"],
        "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
-       "next": 2}, "maxWidthPct": 75}]}
+       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
   ],
   "layout_request": [
     {"type": "vbox", "gap": 0, "children": [
@@ -604,10 +581,13 @@ const char kFallbackThemeJson[] = R"JSON({
                                   "gradient(#1F242B, #262D36)"],
        "border": ["#D8DEE5", "#3A424C"],
        "padding": [8, 10, 8, 10],
-       "shadow": [0, 2, 8, 0.18], "margin": {"default": 6,
-       "next": 2}, "maxWidthPct": 75}]}
+       "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
   ]
 })JSON";
+
+QByteArray Theme::fallbackJsonText() {
+  return QByteArray(kFallbackThemeJson);
+}
 
 Theme Theme::builtInDefault() {
   //  Primary fallback: the compiled-in Bubble theme, same file the
@@ -616,7 +596,7 @@ Theme Theme::builtInDefault() {
   if(t.isValid)
     return t;
   qCWarning(lmcUi) << "Theme: built-in resource broken, using minimal fallback";
-  return loadFromJson(QByteArray(kFallbackThemeJson));
+  return loadFromJson(fallbackJsonText());
 }
 
 Theme Theme::loadFromJson(const QByteArray& data) {
@@ -658,10 +638,16 @@ Theme Theme::loadFromJson(const QByteArray& data) {
 
   //  avatar / header (gaps live on layout containers now; stale
   //  theme-level "gap" keys are ignored, not rejected).
+  //  avatar: size/shape required; showOnGrouped is gone (avatar space
+  //  is structural now: the node sits in series-start trees only).
   QJsonObject a = root.value(QStringLiteral("avatar")).toObject();
+  if(a.contains(QStringLiteral("showOnGrouped"))) {
+    t.errorString = QStringLiteral("showOnGrouped removed (avatar is structural)");
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    return t;
+  }
   t.avatar.size = a.value(QStringLiteral("size")).toInt(-1);
   t.avatar.shape = a.value(QStringLiteral("shape")).toString();
-  t.avatar.showOnGrouped = a.value(QStringLiteral("showOnGrouped")).toBool(false);
   if(t.avatar.size <= 0 ||
      (t.avatar.shape != QLatin1String("circle") && t.avatar.shape != QLatin1String("rounded") &&
       t.avatar.shape != QLatin1String("square"))) {
@@ -728,7 +714,7 @@ Theme Theme::loadFromJson(const QByteArray& data) {
       t.page = c;
   }
 
-  //  layouts: all 5 are required, non-empty, each holding exactly
+  //  layouts: all 7 are required, non-empty, each holding exactly
   //  one rect (the delegate always paints one); validate depth/types/if.
   for(int i = 0; i < kLayoutCount; i++) {
     QString name = QLatin1String(kLayouts[i]);

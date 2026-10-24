@@ -1,11 +1,10 @@
 {
   "version": 1,
-  "_comment": "Classic Native Slate from Stitch spec (Variant 1). Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body text is #FFFFFF both modes.",
+  "_comment": "Classic Native Slate from Stitch spec (Variant 1). Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 28,
-    "shape": "circle",
-    "showOnGrouped": false
+    "shape": "circle"
   },
   "header": {
     "senderBold": true,
@@ -33,23 +32,40 @@
             {
               "type": "header",
               "items": ["sender", "time"],
-              "senderColor": ["#1E293B", "#F1F5F9"],
-              "ifNot": "isGrouped"
+              "senderColor": ["#1E293B", "#F1F5F9"]
             },
             {
               "type": "body",
-              "corners": {
-                "default": [12, 12, 12, 2],
-                "next": [2, 12, 12, 2]
-              },
+              "corners": [12, 12, 12, 2],
               "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
               "padding": [10, 12, 10, 12],
               "shadow": [0, 1, 2, 0.05],
-              "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
-            },
+              "margin": 8,
+              "maxWidthPct": 84
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_incoming_next": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "vbox",
+          "gap": 2,
+          "stretch": 1,
+          "children": [
             {
-              "type": "status",
-              "if": "isOwnLast"
+              "type": "body",
+              "corners": [2, 12, 12, 2],
+              "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+              "padding": [10, 12, 10, 12],
+              "shadow": [0, 1, 2, 0.05],
+              "margin": 2,
+              "maxWidthPct": 84
             }
           ]
         }
@@ -69,24 +85,42 @@
             {
               "type": "header",
               "items": ["time"],
-              "senderColor": ["#1E293B", "#F1F5F9"],
-              "ifNot": "isGrouped"
+              "senderColor": ["#1E293B", "#F1F5F9"]
             },
             {
               "type": "body",
-              "corners": {
-                "default": [12, 12, 2, 12],
-                "next": [12, 2, 2, 12]
-              },
+              "corners": [12, 12, 2, 12],
               "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
               "textColor": "#FFFFFF",
               "padding": [10, 12, 10, 12],
               "shadow": [0, 1, 2, 0.05],
-              "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
-            },
+              "margin": 8,
+              "maxWidthPct": 84
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_outgoing_next": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "vbox",
+          "gap": 2,
+          "stretch": 1,
+          "children": [
             {
-              "type": "status",
-              "if": "isOwnLast"
+              "type": "body",
+              "corners": [12, 2, 2, 12],
+              "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+              "textColor": "#FFFFFF",
+              "padding": [10, 12, 10, 12],
+              "shadow": [0, 1, 2, 0.05],
+              "margin": 2,
+              "maxWidthPct": 84
             }
           ]
         }
@@ -105,7 +139,8 @@
           "border": ["#E2E8F0", "#334155"],
           "padding": [10, 12, 10, 12],
           "shadow": [0, 1, 2, 0.05],
-          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
+          "margin": 8,
+          "maxWidthPct": 84
         }
       ]
     }
@@ -121,7 +156,8 @@
           "border": ["#F59E0B", "#B45309"],
           "padding": [10, 12, 10, 12],
           "shadow": [0, 1, 2, 0.05],
-          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
+          "margin": 8,
+          "maxWidthPct": 84
         }
       ]
     }
@@ -137,7 +173,8 @@
           "border": ["#CBD5E1", "#334155"],
           "padding": [10, 12, 10, 12],
           "shadow": [0, 1, 2, 0.05],
-          "margin": {"default": 8, "next": 2}, "maxWidthPct": 84
+          "margin": 8,
+          "maxWidthPct": 84
         }
       ]
     }

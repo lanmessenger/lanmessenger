@@ -47,16 +47,13 @@ QPainterPath roundedCorners(const QRect& r, const int c[4]) {
 }
 
 //  Layout flag gate: a node renders when its if-flag holds and its
-//  ifNot-flag does not. Only compiled structs here, no QJson.
-bool nodeVisible(const Theme::LayoutNode& n, bool grouped, bool own, bool ownLast, bool file,
-                 bool preview) {
+//  ifNot-flag does not. Series position never gates nodes: first and
+//  subsequent rows walk different trees. Only compiled structs here,
+//  no QJson.
+bool nodeVisible(const Theme::LayoutNode& n, bool own, bool file, bool preview) {
   auto on = [&](const QString& flag) {
-    if(flag == QLatin1String("isGrouped"))
-      return grouped;
     if(flag == QLatin1String("isOwn"))
       return own;
-    if(flag == QLatin1String("isOwnLast"))
-      return ownLast;
     if(flag == QLatin1String("isFile"))
       return file;
     if(flag == QLatin1String("hasPreview"))
@@ -311,9 +308,7 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
 
 BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
   QString card = roleFor(index);
-  bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  bool ownLast = index.data(ChatMessageModel::OwnLastRole).toBool();
   int type = index.data(ChatMessageModel::TypeRole).toInt();
   bool file = (type == MT_File || type == MT_Folder);
   bool preview = !index.data(ChatMessageModel::PreviewRole).toString().isEmpty();
@@ -327,19 +322,22 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
   r.timeColor = theme.header.timeColor;
   r.bg.kind = Theme::Bg::Kind::Solid;
   r.bg.solid = theme.page;
-  r.avatar = reservesAvatar(card, grouped);
-  r.header =
-    !grouped && (card == QLatin1String("incoming") || card == QLatin1String("outgoing"));
+  r.avatar = reservesAvatar(card);
+  r.header = false;
   if(card == QLatin1String("incoming"))
     r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
   else if(card == QLatin1String("outgoing"))
     r.headerItems = QStringList{QStringLiteral("time")};
-  QVector<Theme::LayoutNode> nodes =
-    theme.compiledLayout(QStringLiteral("layout_") + card);
+  //  In-series rows walk their own tree: no per-node grouped gate.
+  QString layoutName = QStringLiteral("layout_") + card;
+  if(index.data(ChatMessageModel::GroupedRole).toBool() &&
+     (card == QLatin1String("incoming") || card == QLatin1String("outgoing")))
+    layoutName += QStringLiteral("_next");
+  QVector<Theme::LayoutNode> nodes = theme.compiledLayout(layoutName);
   const Theme::LayoutNode* root = nullptr;
   for(const Theme::LayoutNode& n : nodes) {
     if((n.type != Theme::LayoutNode::Type::HBox && n.type != Theme::LayoutNode::Type::VBox) ||
-       !nodeVisible(n, grouped, own, ownLast, file, preview))
+       !nodeVisible(n, own, file, preview))
       continue;
     root = &n;
     break;
@@ -351,10 +349,10 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
     r.avatar = false;
     const Theme::LayoutNode* column = nullptr;
     for(const Theme::LayoutNode& c : root->children) {
-      if(!nodeVisible(c, grouped, own, ownLast, file, preview))
+      if(!nodeVisible(c, own, file, preview))
         continue;
       if(c.type == Theme::LayoutNode::Type::Avatar)
-        r.avatar = reservesAvatar(card, grouped);
+        r.avatar = reservesAvatar(card);
       else if(c.type == Theme::LayoutNode::Type::VBox && !column)
         column = &c;
     }
@@ -370,7 +368,7 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
   r.header = false;
   r.headerItems.clear();
   for(const Theme::LayoutNode& c : root->children) {
-    if(!nodeVisible(c, grouped, own, ownLast, file, preview))
+    if(!nodeVisible(c, own, file, preview))
       continue;
     if(c.type == Theme::LayoutNode::Type::Header) {
       r.header = true;
@@ -394,17 +392,14 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
       r.shadowDy = c.shadowDy;
       r.shadowBlur = c.shadowBlur;
       r.shadowOpacity = c.shadowOpacity;
-      r.marginDefault = c.marginDefault;
-      r.marginNext = c.marginNext;
+      r.margin = c.margin;
       r.maxWidthPct = c.maxWidthPct;
       r.hasBorder = c.hasBorder;
       r.border = c.border;
-      for(int i = 0; i < 4; i++) {
-        r.cornersDefault[i] = c.cornersDefault[i];
-        r.cornersNext[i] = c.cornersNext[i];
-      }
+      for(int i = 0; i < 4; i++)
+        r.corners[i] = c.corners[i];
     }
-    //  status and L-reserved blocks stay ignored like before.
+    //  L-reserved blocks stay ignored like before.
   }
   return r;
 }
@@ -450,19 +445,17 @@ int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
 }
 
 int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
-  ResolvedRow row = resolveRow(index);
-  return index.data(ChatMessageModel::GroupedRole).toBool() ? row.marginNext
-                                                            : row.marginDefault;
+  //  Per-tree scalar: series-start trees carry the wide gap, _next
+  //  trees the dense in-series one.
+  return resolveRow(index).margin;
 }
 
 void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const {
   //  Corners come from the layout body/fileCard node verbatim: outgoing nodes
   //  carry hand-mirrored values, no code mirror exists.
   ResolvedRow row = resolveRow(index);
-  const int* src = index.data(ChatMessageModel::GroupedRole).toBool() ? row.cornersNext
-                                                                      : row.cornersDefault;
   for(int i = 0; i < 4; i++)
-    out[i] = src[i];
+    out[i] = row.corners[i];
 }
 
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
@@ -554,10 +547,9 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.topMargin = rowTopMargin(index);
   //  Corners from the already-resolved row: no second tree walk.
   //  rowCornerRadii() stays for tests and external callers.
-  const int* src = index.data(ChatMessageModel::GroupedRole).toBool() ? row.cornersNext
-                                                                      : row.cornersDefault;
   for(int i = 0; i < 4; i++)
-    e.corner[i] = src[i];
+    e.corner[i] = row.corners[i];
+  e.hasAvatar = row.avatar;
   e.hasHeader = row.header;
   e.headerItems = row.headerItems;
   e.senderColor = row.senderColor;
@@ -575,9 +567,10 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   return cache.constFind(key).value();
 }
 
-bool BubbleDelegate::reservesAvatar(const QString& card, bool grouped) const {
-  return card == QLatin1String("incoming") && theme.avatar.size > 0 &&
-         (!grouped || theme.avatar.showOnGrouped);
+bool BubbleDelegate::reservesAvatar(const QString& card) const {
+  //  Avatar space is structural: the node sits in series-start trees
+  //  only, so a resolved row either carries it or not.
+  return card == QLatin1String("incoming") && theme.avatar.size > 0;
 }
 
 QPixmap BubbleDelegate::avatarPixmap(const QString& path, int size) const {
@@ -623,9 +616,9 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
 
   //  Header runs come from the layout header node (items + color
-  //  overrides); the theme header holds defaults. Name run is senderColor,
+  //  overrides); series-start trees carry it, _next trees omit it.
+  //  The theme header holds defaults. Name run is senderColor,
   //  time run is timeColor and always regular.
-  bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
   if(e.hasHeader) {
     QFont nf = headerNameFont();
     QFont tf = headerTimeFont();
@@ -678,7 +671,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   QRect bubble = e.bubbleRect.translated(0, top);
   QRect docRect = e.docRect.translated(0, top);
 
-  if(reservesAvatar(card, grouped)) {
+  if(e.hasAvatar) {
     QString avatarPath = index.data(ChatMessageModel::AvatarRole).toString();
     QPixmap pm = avatarPixmap(avatarPath, theme.avatar.size);
     int ay = bubble.top() + qMax(0, (bubble.height() - theme.avatar.size) / 2);

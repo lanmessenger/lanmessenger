@@ -10,8 +10,10 @@
 #include "core/theme.h"
 
 //  Native chat delegate: resolves layout_* into a row (S subset
-//  avatar/header/bubble/body/fileCard/status; the validator accepts
-//  linkPreview/quote/buttons, the delegate ignores them).
+//  avatar/header/body/fileCard; the validator accepts linkPreview/quote/
+//  code/buttons, the delegate ignores them).
+//  In-series rows walk layout_incoming_next/layout_outgoing_next:
+//  header and avatar are structural, never flag-gated.
 class BubbleDelegate : public QStyledItemDelegate {
   Q_OBJECT
 
@@ -50,10 +52,11 @@ public:
   //  Theme + local display size only (never the message font). Public for tests.
   QFont headerNameFont() const;
   QFont headerTimeFont() const;
-  //  Top gap of the row: series start (or single) vs inside a series.
+  //  Top gap of the row: a per-tree scalar (series-start trees carry
+  //  the wide gap, _next trees the dense in-series one).
   //  Public for tests.
   int rowTopMargin(const QModelIndex& index) const;
-  //  Per-corner radii [TL, TR, BR, BL] resolved the same way.
+  //  Per-corner radii [TL, TR, BR, BL] from the walked tree.
   //  Public for tests.
   void rowCornerRadii(const QModelIndex& index, int out[4]) const;
   //  Layout resolution for one row: compiled layout_* walked once per row
@@ -77,13 +80,11 @@ public:
     double shadowDy = 0.0;
     double shadowBlur = 0.0;
     double shadowOpacity = 0.0;
-    int marginDefault = 0; // series-start top gap (single rows included)
-    int marginNext = 0;    // in-series top gap (absent next = default)
+    int margin = 0; // row top gap, per walked tree
     int maxWidthPct = 75;
     //  Per-corner radii [TL, TR, BR, BL] from the layout body/fileCard node
     //  (hand-mirrored by the theme author for outgoing; no code mirror).
-    int cornersDefault[4] = {12, 12, 12, 4};
-    int cornersNext[4] = {12, 12, 12, 4};
+    int corners[4] = {12, 12, 12, 4};
   };
   ResolvedRow resolveRow(const QModelIndex& index) const;
 
@@ -113,6 +114,7 @@ private:
     QRect docRect;
     int topMargin = 0;
     int corner[4] = {0, 0, 0, 0};
+    bool hasAvatar = false;
     bool hasHeader = false;
     QStringList headerItems;
     Theme::DualColor senderColor;
@@ -142,9 +144,9 @@ private:
   QString contentRev(const QModelIndex& index) const;
   const CacheEntry& entryFor(const QModelIndex& index, int viewportWidth) const;
   QPixmap avatarPixmap(const QString& path, int size) const;
-  //  Avatar space is reserved only when the avatar is actually painted:
-  //  grouped rows hide it unless the theme opts in via showOnGrouped.
-  bool reservesAvatar(const QString& card, bool grouped) const;
+  //  Avatar space is reserved only when the avatar node is walked:
+  //  series-start trees carry it, _next trees omit it.
+  bool reservesAvatar(const QString& card) const;
 
   Theme theme;
   Theme::Mode mode = Theme::Mode::System;

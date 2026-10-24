@@ -1,11 +1,10 @@
 {
   "version": 1,
-  "_comment": "layout_* reserved since stage 1, read from stage 2; ship all 5 layout_*. The S example uses existing blocks only (linkPreview/quote/code/buttons are reserved for L)",
+  "_comment": "layout_* reserved since stage 1, read from stage 2; ship all 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees. The S example uses existing blocks only (linkPreview/quote/code/buttons are reserved for L)",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 40,
-    "shape": "circle",
-    "showOnGrouped": false
+    "shape": "circle"
   },
   "header": {
     "senderBold": true,
@@ -31,23 +30,40 @@
           "children": [
             {
               "type": "header",
-              "items": ["sender", "time"],
-              "ifNot": "isGrouped"
+              "items": ["sender", "time"]
             },
             {
               "type": "body",
-              "corners": {
-                "default": [12, 12, 12, 4],
-                "next": [4, 12, 12, 4]
-              },
+              "corners": [12, 12, 12, 4],
               "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
               "padding": [8, 10, 8, 10],
               "shadow": [0, 2, 8, 0.18],
-              "margin": {"default": 6, "next": 2}, "maxWidthPct": 75
-            },
+              "margin": 6,
+              "maxWidthPct": 75
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_incoming_next": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "vbox",
+          "gap": 2,
+          "stretch": 1,
+          "children": [
             {
-              "type": "status",
-              "if": "isOwnLast"
+              "type": "body",
+              "corners": [4, 12, 12, 4],
+              "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"],
+              "padding": [8, 10, 8, 10],
+              "shadow": [0, 2, 8, 0.18],
+              "margin": 2,
+              "maxWidthPct": 75
             }
           ]
         }
@@ -66,23 +82,40 @@
           "children": [
             {
               "type": "header",
-              "items": ["time"],
-              "ifNot": "isGrouped"
+              "items": ["time"]
             },
             {
               "type": "body",
-              "corners": {
-                "default": [12, 12, 4, 12],
-                "next": [12, 4, 4, 12]
-              },
+              "corners": [12, 12, 4, 12],
               "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
               "padding": [8, 10, 8, 10],
               "shadow": [0, 2, 8, 0.18],
-              "margin": {"default": 6, "next": 2}, "maxWidthPct": 75
-            },
+              "margin": 6,
+              "maxWidthPct": 75
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layout_outgoing_next": [
+    {
+      "type": "hbox",
+      "gap": 8,
+      "children": [
+        {
+          "type": "vbox",
+          "gap": 2,
+          "stretch": 1,
+          "children": [
             {
-              "type": "status",
-              "if": "isOwnLast"
+              "type": "body",
+              "corners": [12, 4, 4, 12],
+              "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"],
+              "padding": [8, 10, 8, 10],
+              "shadow": [0, 2, 8, 0.18],
+              "margin": 2,
+              "maxWidthPct": 75
             }
           ]
         }
@@ -100,7 +133,8 @@
           "textColor": ["#6B7280", "#9AA0A6"],
           "padding": [8, 10, 8, 10],
           "shadow": [0, 2, 8, 0.18],
-          "margin": {"default": 6, "next": 2}, "maxWidthPct": 75
+          "margin": 6,
+          "maxWidthPct": 75
         }
       ]
     }
@@ -116,7 +150,8 @@
           "border": ["#2F9E44", "#3FB950"],
           "padding": [8, 10, 8, 10],
           "shadow": [0, 2, 8, 0.18],
-          "margin": {"default": 6, "next": 2}, "maxWidthPct": 75
+          "margin": 6,
+          "maxWidthPct": 75
         }
       ]
     }
@@ -132,7 +167,8 @@
           "border": ["#D8DEE5", "#3A424C"],
           "padding": [8, 10, 8, 10],
           "shadow": [0, 2, 8, 0.18],
-          "margin": {"default": 6, "next": 2}, "maxWidthPct": 75
+          "margin": 6,
+          "maxWidthPct": 75
         }
       ]
     }

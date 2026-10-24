@@ -10,9 +10,10 @@
 
 //  Native chat render (Bubble): literal colors and rect metrics on
 //  layout_* body/fileCard nodes. Every layout_* resolves into a row:
-//  incoming/outgoing take gaps/header/colors/corners/metrics from nodes;
-//  system/broadcast/request resolve to the same look from their own nodes
-//  (no header/avatar there).
+//  incoming/outgoing take gaps/header/colors/corners/metrics from nodes,
+//  with layout_incoming_next/layout_outgoing_next carrying the in-series
+//  look (no header/avatar, dense gaps); system/broadcast/request resolve
+//  to the same look from their own nodes (no header/avatar there).
 //  Colors are literals in three forms: "#hex" (both modes),
 //  ["light", "dark"], ["gradient(#from, #to)", "gradient(#from, #to)"].
 class Theme {
@@ -25,8 +26,8 @@ public:
 
   //  Rect metrics live on layout body/fileCard nodes; no theme-level
   //  metrics section exists. Per-node keys: padding [T,R,B,L],
-  //  shadow [dx,dy,blur,opacity],
-  //  margin {default, next?}, maxWidthPct. Rows are tailless: no tail
+  //  shadow [dx,dy,blur,opacity], margin (row top gap, int >= 0),
+  //  maxWidthPct. Rows are tailless: no tail
   //  triangle is drawn.
   struct View {
     int padding[4] = {0, 8, 8, 8};
@@ -35,7 +36,6 @@ public:
   struct Avatar {
     int size = 40;
     QString shape = QStringLiteral("circle");
-    bool showOnGrouped = false;
   };
 
   //  Per-mode color pair, resolved at paint time so a mode switch
@@ -68,7 +68,6 @@ public:
       Header,
       Body,
       FileCard,
-      Status,
       Reserved
     };
     Type type = Type::Reserved;
@@ -86,23 +85,19 @@ public:
     DualColor border; // body/fileCard only
     bool hasBorder = false;
     Bg bg; // body/fileCard only, required in JSON
-    //  Per-corner radii [TL, TR, BR, BL], body/fileCard only. Next defaults
-    //  to Default; a node without corners uses the built-in default.
+    //  Per-corner radii [TL, TR, BR, BL], body/fileCard only.
     //  Outgoing nodes carry hand-mirrored values, no code mirror exists.
-    int cornersDefault[4] = {12, 12, 12, 4};
-    int cornersNext[4] = {12, 12, 12, 4};
+    int corners[4] = {12, 12, 12, 4};
     bool hasCorners = false;
     //  Rect metrics, body/fileCard only, required in JSON. The row top gap
-    //  depends on series position: margin.default at a series start
-    //  (single and ungrouped rows included), margin.next inside a series;
-    //  an absent next falls back to default (same shape as corners).
+    //  is per tree: series-start trees carry the wide gap, _next trees
+    //  the dense in-series one.
     int padding[4] = {0, 0, 0, 0}; // [T, R, B, L]
     double shadowDx = 0.0;
     double shadowDy = 0.0;
     double shadowBlur = 0.0;
     double shadowOpacity = 0.0;
-    int marginDefault = 0;
-    int marginNext = 0;
+    int margin = 0;
     int maxWidthPct = 75;
     QVector<LayoutNode> children;
   };
@@ -137,6 +132,10 @@ public:
   static Theme loadFromFile(const QString& filePath);
   static Theme builtInDefault();
   static QString defaultJsonText();
+  //  The last-resort literal (used when even the compiled-in resource
+  //  is unreadable). Exposed so tests cover it: an untested fallback
+  //  once shipped stale nodes failing its own validator.
+  static QByteArray fallbackJsonText();
   //  Theme discovery: validated names, user dir overrides built-in qrc.
   static QStringList availableThemes();
   //  Resolve a theme name to its theme.json (empty when unknown).
@@ -149,6 +148,6 @@ public:
   //  Mode::System resolves via systemDark; Light/Dark ignore it.
   static bool isDark(Mode mode, bool systemDark);
   QJsonArray layoutFor(const QString& name) const;
-  //  Compiled nodes for layout_name (every valid theme carries all five).
+  //  Compiled nodes for layout_name (every valid theme carries all seven).
   QVector<LayoutNode> compiledLayout(const QString& name) const;
 };

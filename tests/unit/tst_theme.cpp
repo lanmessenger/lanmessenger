@@ -16,7 +16,7 @@ namespace {
 QByteArray validJson() {
   return QByteArray(R"JSON({
     "version": 1,
-    "avatar": {"size": 40, "shape": "circle", "showOnGrouped": false},
+    "avatar": {"size": 40, "shape": "circle"},
     "header": {"senderBold": true, "timeFormat": "HH:mm",
                "senderColor": ["#6B7280", "#9AA0A6"],
                "timeColor": ["#6B7280", "#9AA0A6"]},
@@ -26,20 +26,24 @@ QByteArray validJson() {
     "layout_incoming": [{"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"], "ifNot": "isGrouped"},
-        {"type": "body", "corners": {"default": [12, 12, 12, 4], "next": [4, 12, 12, 4]}, "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75},
-        {"type": "status", "if": "isOwnLast"}]}]}],
+        {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"]},
+        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}],
+    "layout_incoming_next": [{"type": "hbox", "gap": 8, "children": [
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}],
     "layout_outgoing": [{"type": "hbox", "gap": 8, "children": [
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["time"], "ifNot": "isGrouped"},
-        {"type": "body", "corners": {"default": [12, 12, 4, 12], "next": [12, 4, 4, 12]}, "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75},
-        {"type": "status", "if": "isOwnLast"}]}]}],
+        {"type": "header", "items": ["time"]},
+        {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]}],
+    "layout_outgoing_next": [{"type": "hbox", "gap": 8, "children": [
+      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
+        {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]}]}],
     "layout_system": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}],
+      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
     "layout_broadcast": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}],
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}],
     "layout_request": [{"type": "vbox", "gap": 0, "children": [
-      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": {"default": 6, "next": 2}, "maxWidthPct": 75}]}]
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]
   })JSON");
 }
 
@@ -51,6 +55,13 @@ QByteArray withReplaced(const QByteArray& base, const QByteArray& from, const QB
 
 Theme::LayoutNode incomingBody(const Theme& t) {
   return t.compiledLayout(QStringLiteral("layout_incoming")).at(0).children.at(1).children.at(1);
+}
+
+Theme::LayoutNode incomingNextBody(const Theme& t) {
+  return t.compiledLayout(QStringLiteral("layout_incoming_next"))
+    .at(0)
+    .children.at(0)
+    .children.at(0);
 }
 
 } // namespace
@@ -72,11 +83,9 @@ private slots:
   void globalColorsParsed();
   void missingGlobalColorRejected();
   void badGlobalColorRejected();
-  void rectMarginsDefaulted();
-  void rectMarginsParsed();
+  void rectMarginParsed();
   void badMarginRejected();
-  void legacySpacingRejected();
-  void cornerRadiiDefaulted();
+  void splitEraShapesRejected();
   void cornerRadiiParsed();
   void cornersAbsentDefaulted();
   void badCornerRadiiRejected();
@@ -109,6 +118,7 @@ private slots:
   void dollarRefsRejected();
   void layoutWithoutRectRejected();
   void missingLayoutRejected();
+  void fallbackLiteralValid();
   void builtInDefaultValid();
   void pickHelpers();
   void shippedMeshBlueSpotCheck();
@@ -122,8 +132,8 @@ void TstTheme::validTheme() {
   QCOMPARE(incomingBody(t).maxWidthPct, 75);
   QCOMPARE(t.avatar.size, 40);
   QCOMPARE(t.header.timeFormat, QStringLiteral("HH:mm"));
-  QCOMPARE(t.layouts.size(), 5);
-  QCOMPARE(t.compiled.size(), 5);
+  QCOMPARE(t.layouts.size(), 7);
+  QCOMPARE(t.compiled.size(), 7);
 }
 
 void TstTheme::badVersion() {
@@ -255,100 +265,82 @@ void TstTheme::badGlobalColorRejected() {
   }
 }
 
-void TstTheme::rectMarginsDefaulted() {
-  //  An absent next falls back to default (every node).
-  QByteArray base = withReplaced(validJson(), ", \"next\": 2", "");
-  Theme t = Theme::loadFromJson(base);
+void TstTheme::rectMarginParsed() {
+  //  Margin is a per-tree scalar: series-start trees carry the wide gap,
+  //  _next trees the dense in-series one.
+  Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  const Theme::LayoutNode& rect = incomingBody(t);
-  QCOMPARE(rect.marginDefault, 6);
-  QCOMPARE(rect.marginNext, 6);
-}
-
-void TstTheme::rectMarginsParsed() {
-  QByteArray explicitMargins = withReplaced(
-    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
-    "\"margin\": {\"default\": 8, \"next\": 3}");
-  Theme t = Theme::loadFromJson(explicitMargins);
-  QVERIFY2(t.isValid, qPrintable(t.errorString));
-  const Theme::LayoutNode& rect = incomingBody(t);
-  QCOMPARE(rect.marginDefault, 8);
-  QCOMPARE(rect.marginNext, 3);
+  QCOMPARE(incomingBody(t).margin, 6);
+  QCOMPARE(incomingNextBody(t).margin, 2);
 }
 
 void TstTheme::badMarginRejected() {
-  //  default and next take ints >= 0; anything else invalidates.
-  struct KeyValue {
-    const char* key;
-    const char* value;
-  };
-  const KeyValue keys[] = {{"default", "6"}, {"next", "2"}};
-  for(KeyValue kv : keys) {
-    for(const char* bad : {"-1", "\"big\"", "true"}) {
-      QByteArray sized = withReplaced(validJson(), QByteArray("\"") + kv.key + "\": " + kv.value,
-                                      QByteArray("\"") + kv.key + "\": " + bad);
-      Theme t = Theme::loadFromJson(sized);
-      QVERIFY2(!t.isValid, (QByteArray(kv.key) + "=" + bad).constData());
-    }
+  //  Margin takes ints >= 0: negative, fractional, non-number fail.
+  for(const char* bad : {"-1", "1.5", "\"big\"", "true"}) {
+    QByteArray sized = withReplaced(validJson(), "\"margin\": 6",
+                                    QByteArray("\"margin\": ") + bad);
+    Theme t = Theme::loadFromJson(sized);
+    QVERIFY2(!t.isValid, bad);
   }
-  //  Margin is an object: scalar, unknown keys, and the flat legacy
-  //  keys no longer parse.
-  QByteArray scalar = withReplaced(validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
-                                   "\"margin\": 6");
-  QVERIFY(!Theme::loadFromJson(scalar).isValid);
-  QByteArray badKey = withReplaced(validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
-                                   "\"margin\": {\"default\": 6, \"next\": 2, \"first\": 1}");
-  QVERIFY(!Theme::loadFromJson(badKey).isValid);
 }
 
-void TstTheme::legacySpacingRejected() {
-  //  Hard rename: spacing/groupedSpacing and the flat margin keys no
-  //  longer parse, the margin object is required.
-  QByteArray legacy = withReplaced(
-    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
-    "\"spacing\": 6, \"groupedSpacing\": 2");
-  Theme t = Theme::loadFromJson(legacy);
-  QVERIFY(!t.isValid);
+void TstTheme::splitEraShapesRejected() {
+  //  Hard split: the {default, next?} margin/corners objects no longer
+  //  parse, and neither do the flat legacy keys or isGrouped/showOnGrouped.
+  QByteArray marginObj =
+    withReplaced(validJson(), "\"margin\": 6",
+                 "\"margin\": {\"default\": 6, \"next\": 2}");
+  QVERIFY(!Theme::loadFromJson(marginObj).isValid);
+  QByteArray legacy = withReplaced(validJson(), "\"margin\": 6",
+                                   "\"spacing\": 6, \"groupedSpacing\": 2");
+  QVERIFY(!Theme::loadFromJson(legacy).isValid);
   QByteArray flat = withReplaced(
-    validJson(), "\"margin\": {\"default\": 6, \"next\": 2}",
+    validJson(), "\"margin\": 6",
     "\"margin\": 6, \"marginFirstInGroup\": 6, \"marginNextInGroup\": 2");
   QVERIFY(!Theme::loadFromJson(flat).isValid);
-}
-
-void TstTheme::cornerRadiiDefaulted() {
-  //  next falls back to default when absent; compiled nodes carry both.
-  QByteArray noNext = withReplaced(validJson(), ", \"next\": [4, 12, 12, 4]", "");
-  Theme t = Theme::loadFromJson(noNext);
-  QVERIFY2(t.isValid, qPrintable(t.errorString));
-  const Theme::LayoutNode& rect = incomingBody(t);
-  QVERIFY(rect.hasCorners);
-  const int def[4] = {12, 12, 12, 4};
-  for(int i = 0; i < 4; i++) {
-    QCOMPARE(rect.cornersDefault[i], def[i]);
-    QCOMPARE(rect.cornersNext[i], def[i]);
-  }
+  QByteArray cornersObj = withReplaced(
+    validJson(), "\"corners\": [12, 12, 12, 4]",
+    "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": [4, 12, 12, 4]}");
+  QVERIFY(!Theme::loadFromJson(cornersObj).isValid);
+  QByteArray groupedFlag = withReplaced(validJson(), "{\"type\": \"body\",",
+                                        "{\"type\": \"body\", \"if\": \"isGrouped\",");
+  QVERIFY(!Theme::loadFromJson(groupedFlag).isValid);
+  QByteArray groupedNotFlag = withReplaced(
+    validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
+    "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"ifNot\": \"isGrouped\"}");
+  QVERIFY(!Theme::loadFromJson(groupedNotFlag).isValid);
+  QByteArray showGrouped = withReplaced(validJson(), "\"shape\": \"circle\"",
+                                        "\"shape\": \"circle\", \"showOnGrouped\": false");
+  QVERIFY(!Theme::loadFromJson(showGrouped).isValid);
 }
 
 void TstTheme::cornerRadiiParsed() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   const Theme::LayoutNode& in = incomingBody(t);
+  QVERIFY(in.hasCorners);
   const int inDef[4] = {12, 12, 12, 4};
-  const int inNext[4] = {4, 12, 12, 4};
-  for(int i = 0; i < 4; i++) {
-    QCOMPARE(in.cornersDefault[i], inDef[i]);
-    QCOMPARE(in.cornersNext[i], inNext[i]);
-  }
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(in.corners[i], inDef[i]);
+  //  The in-series tree carries its own shape: window side flattened.
+  const Theme::LayoutNode& inNext = incomingNextBody(t);
+  QVERIFY(inNext.hasCorners);
+  const int inNextWant[4] = {4, 12, 12, 4};
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(inNext.corners[i], inNextWant[i]);
   //  Outgoing carries hand-mirrored values, read verbatim (no code mirror).
   //  The outgoing hbox holds the vbox directly (no avatar child).
   QVector<Theme::LayoutNode> outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
   const Theme::LayoutNode& out = outgoing.at(0).children.at(0).children.at(1);
   const int outDef[4] = {12, 12, 4, 12};
-  const int outNext[4] = {12, 4, 4, 12};
-  for(int i = 0; i < 4; i++) {
-    QCOMPARE(out.cornersDefault[i], outDef[i]);
-    QCOMPARE(out.cornersNext[i], outNext[i]);
-  }
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(out.corners[i], outDef[i]);
+  QVector<Theme::LayoutNode> outgoingNext =
+    t.compiledLayout(QStringLiteral("layout_outgoing_next"));
+  const Theme::LayoutNode& outNext = outgoingNext.at(0).children.at(0).children.at(0);
+  const int outNextWant[4] = {12, 4, 4, 12};
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(outNext.corners[i], outNextWant[i]);
 }
 
 void TstTheme::cornersAbsentDefaulted() {
@@ -360,28 +352,22 @@ void TstTheme::cornersAbsentDefaulted() {
   const Theme::LayoutNode& rect = system.at(0).children.at(0);
   QVERIFY(!rect.hasCorners);
   const int def[4] = {12, 12, 12, 4};
-  for(int i = 0; i < 4; i++) {
-    QCOMPARE(rect.cornersDefault[i], def[i]);
-    QCOMPARE(rect.cornersNext[i], def[i]);
-  }
+  for(int i = 0; i < 4; i++)
+    QCOMPARE(rect.corners[i], def[i]);
 }
 
 void TstTheme::badCornerRadiiRejected() {
-  //  Short, negative, fractional, non-array, non-object corners;
-  //  missing default and unknown keys all invalidate the theme.
+  //  Short, negative, fractional, non-array corners invalidate the theme.
   const char* cases[] = {
-    "\"corners\": {\"default\": [12, 12], \"next\": [4, 12, 12, 4]}",
-    "\"corners\": {\"default\": [-1, 12, 12, 4], \"next\": [4, 12, 12, 4]}",
-    "\"corners\": {\"default\": [12, 12, 12, 4.5], \"next\": [4, 12, 12, 4]}",
-    "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": \"round\"}",
-    "\"corners\": [12, 12, 12, 4]",
-    "\"corners\": {\"next\": [4, 12, 12, 4]}",
-    "\"corners\": {\"default\": [12, 12, 12, 4], \"first\": [12, 12, 12, 4]}",
+    "\"corners\": [12, 12]",
+    "\"corners\": [-1, 12, 12, 4]",
+    "\"corners\": [12, 12, 12, 4.5]",
+    "\"corners\": \"round\"",
+    "\"corners\": {\"default\": [12, 12, 12, 4]}",
   };
   for(const char* bad : cases) {
-    QByteArray sized = withReplaced(
-      validJson(),
-      "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": [4, 12, 12, 4]}", bad);
+    QByteArray sized =
+      withReplaced(validJson(), "\"corners\": [12, 12, 12, 4]", bad);
     Theme t = Theme::loadFromJson(sized);
     QVERIFY2(!t.isValid, bad);
   }
@@ -391,7 +377,7 @@ void TstTheme::cornersOnNonRectRejected() {
   //  Corners paint the rect only: a header carrying them invalidates.
   QByteArray bad = withReplaced(validJson(), "{\"type\": \"avatar\"}",
                                 "{\"type\": \"avatar\", "
-                                "\"corners\": {\"default\": [1, 1, 1, 1]}}");
+                                "\"corners\": [1, 1, 1, 1]}");
   QVERIFY(!Theme::loadFromJson(bad).isValid);
 }
 
@@ -446,18 +432,27 @@ void TstTheme::containerGapParsed() {
   QCOMPARE(incoming.at(0).children.at(0).type, Theme::LayoutNode::Type::Avatar);
   QCOMPARE(incoming.at(0).children.at(1).type, Theme::LayoutNode::Type::VBox);
   QCOMPARE(incoming.at(0).children.at(1).gap, 2);
-  QCOMPARE(incoming.at(0).children.at(1).children.size(), 3);
+  QCOMPARE(incoming.at(0).children.at(1).children.size(), 2);
   QCOMPARE(incoming.at(0).children.at(1).children.at(0).type,
            Theme::LayoutNode::Type::Header);
-  QCOMPARE(incoming.at(0).children.at(1).children.at(0).ifNotFlag,
-           QStringLiteral("isGrouped"));
+  //  Series position never gates a node: the header carries no flags.
+  QVERIFY(incoming.at(0).children.at(1).children.at(0).ifFlag.isEmpty());
+  QVERIFY(incoming.at(0).children.at(1).children.at(0).ifNotFlag.isEmpty());
   QCOMPARE(incoming.at(0).children.at(1).children.at(1).type,
            Theme::LayoutNode::Type::Body);
   const Theme::LayoutNode& inBody = incoming.at(0).children.at(1).children.at(1);
   QVERIFY(inBody.hasCorners);
-  QCOMPARE(inBody.cornersDefault[3], 4);
-  QCOMPARE(inBody.cornersNext[0], 4);
+  QCOMPARE(inBody.corners[3], 4);
   QCOMPARE(inBody.children.size(), 0);
+  //  The in-series tree omits header/avatar and carries its own shape.
+  QVector<Theme::LayoutNode> incomingNext =
+    t.compiledLayout(QStringLiteral("layout_incoming_next"));
+  QCOMPARE(incomingNext.at(0).children.size(), 1);
+  QCOMPARE(incomingNext.at(0).children.at(0).type, Theme::LayoutNode::Type::VBox);
+  QCOMPARE(incomingNext.at(0).children.at(0).children.size(), 1);
+  QCOMPARE(incomingNext.at(0).children.at(0).children.at(0).type,
+           Theme::LayoutNode::Type::Body);
+  QCOMPARE(incomingNext.at(0).children.at(0).children.at(0).margin, 2);
   QVector<Theme::LayoutNode> system = t.compiledLayout(QStringLiteral("layout_system"));
   QCOMPARE(system.size(), 1);
   QCOMPARE(system.at(0).type, Theme::LayoutNode::Type::VBox);
@@ -475,8 +470,8 @@ void TstTheme::badContainerGapRejected() {
 
 void TstTheme::staleThemeGapKeysIgnored() {
   //  Old files with theme-level gap keys stay valid; gaps come from nodes now.
-  QByteArray base = withReplaced(validJson(), "\"showOnGrouped\": false",
-                                 "\"showOnGrouped\": false, \"gap\": 10");
+  QByteArray base = withReplaced(validJson(), "\"size\": 40",
+                                 "\"size\": 40, \"gap\": 10");
   base = withReplaced(base, "\"senderBold\": true", "\"senderBold\": true, \"gap\": 4");
   Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
@@ -486,8 +481,8 @@ void TstTheme::staleThemeGapKeysIgnored() {
 void TstTheme::fileCardOutsideRequestRejected() {
   //  fileCard lives in layout_request only: an incoming fileCard invalidates.
   QByteArray bad = withReplaced(
-    validJson(), "{\"type\": \"body\", \"corners\": {\"default\": [12, 12, 12, 4]",
-    "{\"type\": \"fileCard\", \"corners\": {\"default\": [12, 12, 12, 4]");
+    validJson(), "{\"type\": \"body\", \"corners\": [12, 12, 12, 4]",
+    "{\"type\": \"fileCard\", \"corners\": [12, 12, 12, 4]");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
 }
@@ -503,8 +498,8 @@ void TstTheme::twoRectsInLayoutRejected() {
   //  One rect per layout: a second body/fileCard invalidates the theme,
   //  even in the file layout.
   QByteArray bad = withReplaced(
-    validJson(), "\"next\": 2}, \"maxWidthPct\": 75},\n        {\"type\": \"status\"",
-    "\"next\": 2}, \"maxWidthPct\": 75}, {\"type\": \"body\", \"bg\": \"#FFFFFF\", \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": {\"default\": 6, \"next\": 2}, \"maxWidthPct\": 75},\n        {\"type\": \"status\"");
+    validJson(), "\"margin\": 6, \"maxWidthPct\": 75}",
+    "\"margin\": 6, \"maxWidthPct\": 75}, {\"type\": \"body\", \"bg\": \"#FFFFFF\", \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": 6, \"maxWidthPct\": 75}");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
   QByteArray bad2 = withReplaced(
@@ -530,8 +525,7 @@ void TstTheme::requestFileCardAccepted() {
   QCOMPARE(rect.padding[0], 8);
   QCOMPARE(rect.padding[1], 10);
   QCOMPARE(rect.shadowOpacity, 0.18);
-  QCOMPARE(rect.marginDefault, 6);
-  QCOMPARE(rect.marginNext, 2);
+  QCOMPARE(rect.margin, 6);
   QCOMPARE(rect.maxWidthPct, 75);
 }
 
@@ -696,8 +690,7 @@ void TstTheme::rectMetricsParsed() {
   QCOMPARE(rect.shadowDy, 2.0);
   QCOMPARE(rect.shadowBlur, 8.0);
   QCOMPARE(rect.shadowOpacity, 0.18);
-  QCOMPARE(rect.marginDefault, 6);
-  QCOMPARE(rect.marginNext, 2);
+  QCOMPARE(rect.margin, 6);
   QCOMPARE(rect.maxWidthPct, 75);
 }
 
@@ -747,24 +740,37 @@ void TstTheme::layoutWithoutRectRejected() {
   //  The delegate always paints one rect: a layout without body/fileCard
   //  is invalid.
   QByteArray noRect = withReplaced(
-    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": {\"default\": 6, \"next\": 2}, \"maxWidthPct\": 75}",
-    "{\"type\": \"status\"}");
+    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"margin\": 6, \"maxWidthPct\": 75}",
+    "{\"type\": \"header\", \"items\": [\"time\"]}");
   Theme t = Theme::loadFromJson(noRect);
   QVERIFY(!t.isValid);
 }
 
 void TstTheme::missingLayoutRejected() {
-  //  Renaming a layout key reads as a missing layout: all 5 are required.
+  //  Renaming a layout key reads as a missing layout: all 7 are required.
   Theme t = Theme::loadFromJson(withReplaced(validJson(), "\"layout_request\":",
                                              "\"layout_nope\":"));
   QVERIFY(!t.isValid);
+  //  The in-series trees are required too: no silent single-tree fallback.
+  Theme t2 = Theme::loadFromJson(withReplaced(validJson(), "\"layout_incoming_next\":",
+                                              "\"layout_nope\":"));
+  QVERIFY(!t2.isValid);
+}
+
+void TstTheme::fallbackLiteralValid() {
+  //  The last-resort literal parses on its own: stale nodes once shipped
+  //  here failing the validator, masked because builtInDefault takes
+  //  the resource path first.
+  Theme t = Theme::loadFromJson(Theme::fallbackJsonText());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QCOMPARE(t.compiled.size(), 7);
 }
 
 void TstTheme::builtInDefaultValid() {
   //  Covers the compiled-in resource path and the minimal fallback literal.
   Theme t = Theme::builtInDefault();
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.compiled.size(), 5);
+  QCOMPARE(t.compiled.size(), 7);
   QVERIFY(t.text.light.isValid());
   QVERIFY(t.page.dark.isValid());
 }

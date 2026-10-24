@@ -125,7 +125,8 @@ void TstBubbleHeader::shippedHeaderColorsResolve() {
 
 void TstBubbleHeader::seriesTopMargins() {
   //  Series of 3 + 1 other: inside the series the dense margin, outside the
-  //  series-start margin. MeshBlue ships margin default 9 / next 3.
+  //  series-start margin. MeshBlue ships margin 9 on series-start trees,
+  //  3 on the _next trees.
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
   QString jackName = QStringLiteral("Jack");
@@ -168,7 +169,7 @@ void TstBubbleHeader::seriesTopMargins() {
 
 void TstBubbleHeader::seriesCornerRadii() {
   //  Same series shape as seriesTopMargins; MeshBlue ships corners on the
-  //  body nodes: incoming default [14, 14, 14, 3], next [3, 14, 14, 3]
+  //  body nodes: series-start [14, 14, 14, 3], in-series [3, 14, 14, 3]
   //  (window side flattened); outgoing nodes carry hand-mirrored values.
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
@@ -217,43 +218,45 @@ void TstBubbleHeader::seriesCornerRadii() {
 
 void TstBubbleHeader::outgoingCornersReadVerbatim() {
   //  No code mirror exists: outgoing corners render exactly as written,
-  //  even when they are not the mirror of incoming.
+  //  even when they are not the mirror of incoming. The in-series tree
+  //  carries its own scalar corners.
   QJsonDocument doc = QJsonDocument::fromJson(meshBlueBytes());
   QJsonObject root = doc.object();
-  QJsonArray outgoing = root.value(QStringLiteral("layout_outgoing")).toArray();
-  QJsonObject hbox = outgoing.at(0).toObject();
-  QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
-  for(int i = 0; i < hboxKids.size(); i++) {
-    QJsonObject vbox = hboxKids.at(i).toObject();
-    if(vbox.value(QStringLiteral("type")).toString() != QStringLiteral("vbox"))
-      continue;
-    QJsonArray kids = vbox.value(QStringLiteral("children")).toArray();
-    for(int j = 0; j < kids.size(); j++) {
-      QJsonObject node = kids.at(j).toObject();
-      if(node.value(QStringLiteral("type")).toString() != QStringLiteral("body"))
+  auto setBodyCorners = [&](const QString& layout, const QJsonArray& corners) {
+    QJsonArray tree = root.value(layout).toArray();
+    QJsonObject hbox = tree.at(0).toObject();
+    QJsonArray hboxKids = hbox.value(QStringLiteral("children")).toArray();
+    for(int i = 0; i < hboxKids.size(); i++) {
+      QJsonObject vbox = hboxKids.at(i).toObject();
+      if(vbox.value(QStringLiteral("type")).toString() != QStringLiteral("vbox"))
         continue;
-      QJsonArray def;
-      def.append(1);
-      def.append(2);
-      def.append(3);
-      def.append(4);
-      QJsonArray next;
-      next.append(5);
-      next.append(6);
-      next.append(7);
-      next.append(8);
-      QJsonObject corners;
-      corners.insert(QStringLiteral("default"), def);
-      corners.insert(QStringLiteral("next"), next);
-      node.insert(QStringLiteral("corners"), corners);
-      kids.replace(j, node);
+      QJsonArray kids = vbox.value(QStringLiteral("children")).toArray();
+      for(int j = 0; j < kids.size(); j++) {
+        QJsonObject node = kids.at(j).toObject();
+        if(node.value(QStringLiteral("type")).toString() != QStringLiteral("body"))
+          continue;
+        node.insert(QStringLiteral("corners"), corners);
+        kids.replace(j, node);
+      }
+      vbox.insert(QStringLiteral("children"), kids);
+      hboxKids.replace(i, vbox);
     }
-    vbox.insert(QStringLiteral("children"), kids);
-    hboxKids.replace(i, vbox);
-  }
-  hbox.insert(QStringLiteral("children"), hboxKids);
-  outgoing.replace(0, hbox);
-  root.insert(QStringLiteral("layout_outgoing"), outgoing);
+    hbox.insert(QStringLiteral("children"), hboxKids);
+    tree.replace(0, hbox);
+    root.insert(layout, tree);
+  };
+  QJsonArray singleCorners;
+  singleCorners.append(1);
+  singleCorners.append(2);
+  singleCorners.append(3);
+  singleCorners.append(4);
+  QJsonArray nextCorners;
+  nextCorners.append(5);
+  nextCorners.append(6);
+  nextCorners.append(7);
+  nextCorners.append(8);
+  setBodyCorners(QStringLiteral("layout_outgoing"), singleCorners);
+  setBodyCorners(QStringLiteral("layout_outgoing_next"), nextCorners);
   doc.setObject(root);
   Theme t = Theme::loadFromJson(doc.toJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
@@ -337,16 +340,16 @@ void TstBubbleHeader::layoutResolvesRow() {
   QCOMPARE(first.shadowDy, 2.0);
   QCOMPARE(first.shadowBlur, 4.0);
   QCOMPARE(first.shadowOpacity, 0.08);
-  QCOMPARE(first.marginDefault, 9);
-  QCOMPARE(first.marginNext, 3);
+  QCOMPARE(first.margin, 9);
   QCOMPARE(first.maxWidthPct, 80);
   QVERIFY(!first.hasBorder);
 
   BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(1, 0));
-  //  Grouped rows hide the avatar (showOnGrouped is false in MeshBlue).
+  //  In-series rows walk layout_incoming_next: no avatar, no header.
   QVERIFY(!next.avatar);
   QVERIFY(!next.header);
   QVERIFY(next.headerItems.isEmpty());
+  QCOMPARE(next.margin, 3);
 
   BubbleDelegate::ResolvedRow own = d.resolveRow(model.index(2, 0));
   QCOMPARE(own.card, QStringLiteral("outgoing"));

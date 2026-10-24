@@ -62,7 +62,6 @@ void TstChatModel::grouping() {
   QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
   QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::GroupedRole).toBool(), false);
   QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::OwnRole).toBool(), true);
-  QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::OwnLastRole).toBool(), true);
   QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::OwnRole).toBool(), false);
 }
 

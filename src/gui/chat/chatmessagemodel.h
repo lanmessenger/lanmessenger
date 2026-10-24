@@ -39,7 +39,6 @@ public:
     GroupedRole,
     FileRole,
     OwnRole,
-    OwnLastRole,
     PreviewRole,
     IdRole,
     FileOpRole,
@@ -83,7 +82,6 @@ private:
   QString fileTempId(FileMode mode, const QString& fileId) const;
   QString fileTempId(XmlMessage* pMessage) const;
   QString statusText(const SingleMessage& msg) const;
-  void recomputeTail(int row);
 
   QList<SingleMessage> messageLog;
   QMap<QString, XmlMessage> sendFileMap;
