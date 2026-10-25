@@ -389,11 +389,9 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
     //  a saturated outgoing bubble).
     color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
   } else {
-    //  Contrast guard: unreadable peer color falls back to theme text.
-    //  Worst bg stop decides; transparent stops are skipped. Runs on the
-    //  local echo too (same model data).
+    bool darkMode = Theme::isDark(mode, systemDark);
     QColor bg1, bg2;
-    Theme::pickBg(row.bg, Theme::isDark(mode, systemDark), bg1, bg2);
+    Theme::pickBg(row.bg, darkMode, bg1, bg2);
     double worst = -1.0;
     if(bg1.alpha() != 0)
       worst = ChatTextGuard::contrastRatio(color, bg1);
@@ -401,8 +399,13 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
       double r = ChatTextGuard::contrastRatio(color, bg2);
       worst = (worst < 0.0) ? r : qMin(worst, r);
     }
+    if(worst < 0.0) {
+      QColor page = Theme::pick(theme.page, darkMode);
+      if(page.alpha() != 0)
+        worst = ChatTextGuard::contrastRatio(color, page);
+    }
     if(worst >= 0.0 && worst < ChatTextGuard::kMinContrast)
-      color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
+      color = Theme::pick(row.text, darkMode);
   }
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();

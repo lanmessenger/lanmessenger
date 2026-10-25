@@ -209,7 +209,7 @@ void TstChatModel::typingDoesNotGroup() {
   model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
   XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
   model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing);
-  //  Typing leaves lastId alone: the next real message still groups.
+  //  Typing row is ephemeral: the next real message still groups.
   XmlMessage m2 = textMessage(QStringLiteral("again"));
   QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m2), 1);
   QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);

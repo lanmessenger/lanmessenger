@@ -270,6 +270,8 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     if(loopbackMode && senderId.compare(localId) == 0 && peerNames.contains(loopbackEchoId))
       peerNames.insert(loopbackEchoId, data);
     pMessageLog->updateUserName(&senderId, &data);
+    if(loopbackMode && senderId.compare(localId) == 0)
+      pMessageLog->updateUserName(&loopbackEchoId, &data);
     break;
   case MT_Failed:
     appendMessageLog(type, pLogId, &senderName, pMessage);

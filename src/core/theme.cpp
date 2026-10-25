@@ -35,13 +35,6 @@ bool isHexColor(const QString& s) {
   return true;
 }
 
-bool isKnownLayout(const QString& s) {
-  for(int i = 0; i < kLayoutCount; i++)
-    if(s == QLatin1String(kLayouts[i]))
-      return true;
-  return false;
-}
-
 //  The S subset is rendered; L-reserved blocks validate but are ignored.
 bool isKnownBlock(const QString& s) {
   static const char* blocks[] = {"hbox", "vbox", "avatar", "header", "body", "linkPreview",

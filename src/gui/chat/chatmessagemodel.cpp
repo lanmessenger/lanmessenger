@@ -30,9 +30,7 @@ ChatMessageModel::ChatMessageModel(QObject* parent)
   messageLog.clear();
   sendFileMap.clear();
   receiveFileMap.clear();
-  lastId = QString();
   hasData = false;
-  outStyle = false;
 }
 
 int ChatMessageModel::rowCount(const QModelIndex& parent) const {
@@ -131,14 +129,7 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
   case MT_Message:
   case MT_PublicMessage:
   case MT_GroupMessage:
-    if(type == MT_PublicMessage || type == MT_GroupMessage) {
-      if(userId != lastId)
-        outStyle = !outStyle;
-    }
-    lastId = userId;
-    break;
   case MT_Broadcast:
-    lastId = QString();
     break;
   case MT_ChatState: {
     //  Ephemeral typing row: shown, never stored.
@@ -165,7 +156,6 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
     addToLog = false;
     break;
   case MT_Failed:
-    lastId = QString();
     break;
   case MT_File:
   case MT_Folder: {
@@ -177,18 +167,11 @@ int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QS
       sendFileMap.insert(fileId, *pMessage);
     else
       receiveFileMap.insert(fileId, *pMessage);
-    if(pMessage->data(XN_MODE) == QLatin1String("receive") && op == FO_Request) {
-      bool autoFile = false;
-      //  autoFile is decided by the window (as messagelog autoFile): model only stores.
-      Q_UNUSED(autoFile);
-    }
-    //  storeType keeps the incoming type: MT_Folder renders its own caption.
-    lastId = QString();
+    Q_UNUSED(op);
     break;
   }
   case MT_Join:
   case MT_Leave:
-    lastId = QString();
     break;
   default:
     return -1;
@@ -285,8 +268,6 @@ void ChatMessageModel::clearLog() {
   messageLog.clear();
   sendFileMap.clear();
   receiveFileMap.clear();
-  lastId = QString();
-  outStyle = false;
   hasData = false;
   hasTyping = false;
   typingMsg = SingleMessage();
@@ -370,8 +351,6 @@ QList<SingleMessage> ChatMessageModel::messages() const {
 void ChatMessageModel::setMessages(const QList<SingleMessage>& messages) {
   beginResetModel();
   messageLog = messages;
-  lastId = QString();
-  outStyle = false;
   hasData = !messageLog.isEmpty();
   hasTyping = false;
   typingMsg = SingleMessage();

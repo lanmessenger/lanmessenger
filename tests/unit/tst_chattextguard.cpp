@@ -65,7 +65,7 @@ private slots:
   void rowHtmlIncomingDarkFallback();
   void rowHtmlIncomingRedStays();
   void rowHtmlTransparentSystemStays();
-  void rowHtmlExplicitTransparentStays();
+  void rowHtmlExplicitTransparentFallback();
 };
 
 void TstChatTextGuard::contrastBlackWhite() {
@@ -231,7 +231,7 @@ void TstChatTextGuard::rowHtmlTransparentSystemStays() {
   QVERIFY(!html.contains(QStringLiteral("#ffff00")));
 }
 
-void TstChatTextGuard::rowHtmlExplicitTransparentStays() {
+void TstChatTextGuard::rowHtmlExplicitTransparentFallback() {
   ChatMessageModel model;
   QString peer = QStringLiteral("peer");
   QString peerName = QStringLiteral("Peer");
@@ -250,7 +250,8 @@ void TstChatTextGuard::rowHtmlExplicitTransparentStays() {
   row.bg.kind = Theme::Bg::Kind::Transparent;
   QModelIndex idx = model.index(0, 0);
   QString html = d.rowHtml(idx, row);
-  QVERIFY(html.contains(QStringLiteral("color:#ffff00")));
+  QVERIFY(html.contains(QStringLiteral("color:#0f172a")));
+  QVERIFY(!html.contains(QStringLiteral("#ffff00")));
 }
 
 QTEST_MAIN(TstChatTextGuard)

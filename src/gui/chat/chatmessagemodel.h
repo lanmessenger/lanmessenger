@@ -21,8 +21,7 @@ enum OutputFormat {
 
 //  Native chat log: a projection of SingleMessage/sendFileMap/receiveFileMap
 //  for QListView + BubbleDelegate. Network, XmlMessage and QDataStream
-//  save/restore are untouched. Grouping rule mirrors lmcMessageLog: only
-//  userId == lastId (messagelog.cpp:546,581), no time window.
+//  save/restore are untouched. Grouping rule: same sender as previous row.
 class ChatMessageModel : public QAbstractListModel {
   Q_OBJECT
 
@@ -93,6 +92,4 @@ private:
   SingleMessage typingMsg;
   QMap<QString, XmlMessage> sendFileMap;
   QMap<QString, XmlMessage> receiveFileMap;
-  QString lastId;
-  bool outStyle = false;
 };
