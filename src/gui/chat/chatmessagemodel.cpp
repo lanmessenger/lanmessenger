@@ -364,13 +364,18 @@ QString ChatMessageModel::messageText(const SingleMessage& msg) const {
   case MT_GroupMessage:
     return bodyText(xml);
   case MT_Broadcast:
-    return tr("Broadcast message from %1: %2").arg(msg.userName, bodyText(xml));
+    return tr("Broadcast message from %1:").arg(msg.userName) + QStringLiteral("\n") +
+           bodyText(xml);
   case MT_File:
   case MT_Folder: {
-    QString kind = (msg.type == MT_File) ? tr("file") : tr("folder");
     bool incoming = xml.data(XN_MODE) == QLatin1String("receive");
-    QString head = incoming ? tr("%1 sends you a %2:").arg(msg.userName, kind)
-                            : tr("Sending '%1' to %2.").arg(xml.data(XN_FILENAME), msg.userName);
+    QString head;
+    if(!incoming)
+      head = tr("Sending '%1' to %2.").arg(xml.data(XN_FILENAME), msg.userName);
+    else if(msg.type == MT_File)
+      head = tr("%1 sends you a file:").arg(msg.userName);
+    else
+      head = tr("%1 sends you a folder:").arg(msg.userName);
     QString fileLine = xml.data(XN_FILENAME);
     QString size = xml.data(XN_FILESIZE);
     if(!size.isEmpty())
@@ -382,8 +387,8 @@ QString ChatMessageModel::messageText(const SingleMessage& msg) const {
     return head + QStringLiteral("\n") + fileLine;
   }
   case MT_Failed:
-    return tr("This message was not delivered to %1:\n%2")
-      .arg(msg.userName, bodyText(xml));
+    return tr("This message was not delivered to %1:").arg(msg.userName) +
+           QStringLiteral("\n") + bodyText(xml);
   case MT_Join:
     return tr("%1 has joined this conversation").arg(msg.userName);
   case MT_Leave:

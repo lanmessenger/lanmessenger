@@ -83,6 +83,144 @@
     </message>
 </context>
 <context>
+    <name>BubbleDelegate</name>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="248"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 wysyła Ci folder:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="249"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 wysyła Ci plik:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="251"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Wysyłam &apos;%1&apos; do %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="259"/>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="273"/>
+        <source>Accepted</source>
+        <translation>Zaakceptowano</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Accept</source>
+        <translation>Akceptuj</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Decline</source>
+        <translation>Odrzuć</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="267"/>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="276"/>
+        <source>Declined</source>
+        <translation>Odrzucone</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="279"/>
+        <source>Canceled</source>
+        <translation>Anulowano</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="283"/>
+        <source>Interrupted</source>
+        <translation>Przerwane</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="286"/>
+        <source>Completed</source>
+        <translation>Zakończono</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="655"/>
+        <source>You</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatMessageModel</name>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="367"/>
+        <source>Broadcast message from %1:</source>
+        <translation>Ogłoszenie od %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="374"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 wysyła Ci plik:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="375"/>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="378"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Wysyłam &apos;%1&apos; do %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="377"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 wysyła Ci folder:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="390"/>
+        <source>This message was not delivered to %1:</source>
+        <translation>Ta wiadomość nie została dostarczona do %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="393"/>
+        <source>%1 has joined this conversation</source>
+        <translation>%1 dołączył do konwersacji</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="395"/>
+        <source>%1 has left this conversation</source>
+        <translation>%1 opuścił konwersacje</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="400"/>
+        <source>%1 is typing...</source>
+        <translation>%1 pisze....</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="402"/>
+        <source>%1 has entered text</source>
+        <translation>%1 napisał</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="441"/>
+        <source>Accepted</source>
+        <translation>Zaakceptowano</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="443"/>
+        <source>Declined</source>
+        <translation>Odrzucone</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="445"/>
+        <source>Canceled</source>
+        <translation>Anulowano</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="448"/>
+        <source>Interrupted</source>
+        <translation>Przerwane</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="450"/>
+        <source>Completed</source>
+        <translation>Zakończono</translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>

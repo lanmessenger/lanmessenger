@@ -84,6 +84,144 @@
     </message>
 </context>
 <context>
+    <name>BubbleDelegate</name>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="248"/>
+        <source>%1 sends you a folder:</source>
+        <translation>Ο/Η %1 σου στέλνει ένα φάκελο:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="249"/>
+        <source>%1 sends you a file:</source>
+        <translation>Ο/Η %1 σου στέλνει ένα αρχείο:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="251"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Αποστολή &apos;%1&apos; σε %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="259"/>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="273"/>
+        <source>Accepted</source>
+        <translation>Έγινε αποδοχή</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Accept</source>
+        <translation>Αποδοχή</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Decline</source>
+        <translation>Απόρριψη</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="267"/>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="276"/>
+        <source>Declined</source>
+        <translation>Απορρίφθηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="279"/>
+        <source>Canceled</source>
+        <translation>Ακυρώθηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="283"/>
+        <source>Interrupted</source>
+        <translation>Διακόπηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="286"/>
+        <source>Completed</source>
+        <translation>Ολοκληρώθηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="655"/>
+        <source>You</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatMessageModel</name>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="367"/>
+        <source>Broadcast message from %1:</source>
+        <translation>Μήνυμα εκπομπής από %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="374"/>
+        <source>%1 sends you a file:</source>
+        <translation>Ο/Η %1 σου στέλνει ένα αρχείο:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="375"/>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="378"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Αποστολή &apos;%1&apos; σε %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="377"/>
+        <source>%1 sends you a folder:</source>
+        <translation>Ο/Η %1 σου στέλνει ένα φάκελο:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="390"/>
+        <source>This message was not delivered to %1:</source>
+        <translation>Αυτό το μήνυμα δεν παραδώθηκε σε %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="393"/>
+        <source>%1 has joined this conversation</source>
+        <translation>Ο/Η %1 συνδέθηκε σε αυτή τη συνομιλία</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="395"/>
+        <source>%1 has left this conversation</source>
+        <translation>Ο/Η %1 έφυγε από την συνομιλία</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="400"/>
+        <source>%1 is typing...</source>
+        <translation>Ο/Η %1 πληκτρολογεί...</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="402"/>
+        <source>%1 has entered text</source>
+        <translation>Ο/Η %1 έγραψε κείμενο</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="441"/>
+        <source>Accepted</source>
+        <translation>Έγινε αποδοχή</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="443"/>
+        <source>Declined</source>
+        <translation>Απορρίφθηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="445"/>
+        <source>Canceled</source>
+        <translation>Ακυρώθηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="448"/>
+        <source>Interrupted</source>
+        <translation>Διακόπηκε</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="450"/>
+        <source>Completed</source>
+        <translation>Ολοκληρώθηκε</translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>

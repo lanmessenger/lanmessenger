@@ -79,6 +79,144 @@
     </message>
 </context>
 <context>
+    <name>BubbleDelegate</name>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="248"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 Vám posiela priečinok:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="249"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 Vám posiela súbor:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="251"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Pokus o odoslanie &apos;%1&apos; používateľovi %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="259"/>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="273"/>
+        <source>Accepted</source>
+        <translation>Prenos prijatý</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Accept</source>
+        <translation>Prijať</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Decline</source>
+        <translation>Odmietnuť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="267"/>
+        <source>Cancel</source>
+        <translation>Zrušiť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="276"/>
+        <source>Declined</source>
+        <translation>Prenos odmietnutý</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="279"/>
+        <source>Canceled</source>
+        <translation>Prenos zrušený</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="283"/>
+        <source>Interrupted</source>
+        <translation>Prenos prerušený</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="286"/>
+        <source>Completed</source>
+        <translation>Prenos dokončený</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="655"/>
+        <source>You</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatMessageModel</name>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="367"/>
+        <source>Broadcast message from %1:</source>
+        <translation>Hromadná správa od %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="374"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 Vám posiela súbor:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="375"/>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="378"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>Pokus o odoslanie &apos;%1&apos; používateľovi %2.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="377"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 Vám posiela priečinok:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="390"/>
+        <source>This message was not delivered to %1:</source>
+        <translation>Táto správa nebola doručená používateľovi %1:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="393"/>
+        <source>%1 has joined this conversation</source>
+        <translation>%1 sa pripojil(a) do tejto konverzácie</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="395"/>
+        <source>%1 has left this conversation</source>
+        <translation>%1 sa odpojil(a) z tejto konverzácie</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="400"/>
+        <source>%1 is typing...</source>
+        <translation>%1 píše správu...</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="402"/>
+        <source>%1 has entered text</source>
+        <translation>%1 má rozpísanú správu</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="441"/>
+        <source>Accepted</source>
+        <translation>Prenos prijatý</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="443"/>
+        <source>Declined</source>
+        <translation>Prenos odmietnutý</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="445"/>
+        <source>Canceled</source>
+        <translation>Prenos zrušený</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="448"/>
+        <source>Interrupted</source>
+        <translation>Prenos prerušený</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="450"/>
+        <source>Completed</source>
+        <translation>Prenos dokončený</translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>

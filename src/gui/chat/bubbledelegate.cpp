@@ -241,10 +241,14 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
       fileId = tempId.mid(7);
   }
   int type = index.data(ChatMessageModel::TypeRole).toInt();
-  QString kind = (type == MT_Folder) ? tr("folder") : tr("file");
-  QString caption = (fileMode == QLatin1String("receive"))
-                      ? tr("%1 sends you a %2:").arg(userName, kind)
-                      : tr("Sending '%1' to %2.").arg(fileName, userName);
+  //  URL token, never translated (compared against literals in activateHref).
+  QString kind = (type == MT_Folder) ? QStringLiteral("folder") : QStringLiteral("file");
+  QString caption;
+  if(fileMode == QLatin1String("receive"))
+    caption = (type == MT_Folder) ? tr("%1 sends you a folder:").arg(userName)
+                                  : tr("%1 sends you a file:").arg(userName);
+  else
+    caption = tr("Sending '%1' to %2.").arg(fileName, userName);
   QString html = QStringLiteral("<b>") + caption.toHtmlEscaped() + QStringLiteral("</b><br/>") +
                  fileName.toHtmlEscaped() + QStringLiteral(" (") +
                  Helper::formatSize(fileSize) + QStringLiteral(")<br/>");
