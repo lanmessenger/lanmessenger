@@ -9,6 +9,10 @@ on:
         description: Build even if master has no new commits since the last nightly
         type: boolean
         default: false
+      ref:
+        description: Branch or SHA to build (default master; schedule always builds master)
+        type: string
+        default: master
 
 permissions:
   contents: read
@@ -26,10 +30,11 @@ jobs:
       sha: ${{ steps.ver.outputs.sha }}
       date: ${{ steps.ver.outputs.date }}
       should_build: ${{ steps.ver.outputs.should_build }}
+      branch: ${{ steps.ver.outputs.branch }}
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: master
+          ref: ${{ inputs.ref || 'master' }}
           fetch-depth: 0
 
       - id: ver
@@ -37,6 +42,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           FORCE: ${{ inputs.force || false }}
+          REF: ${{ inputs.ref || 'master' }}
         run: |
           set -euo pipefail
 
@@ -82,9 +88,10 @@ jobs:
             echo "sha=$sha"
             echo "date=$date"
             echo "should_build=$should_build"
+            echo "branch=$REF"
           } >> "$GITHUB_OUTPUT"
 
-          echo "base=$base -> $base_next, version=$version, sha=$sha, prev=${prev:-none}, force=$FORCE, should_build=$should_build"
+          echo "base=$base -> $base_next, version=$version, sha=$sha, ref=$REF, prev=${prev:-none}, force=$FORCE, should_build=$should_build"
 
   build:
     needs: [plan]
@@ -177,7 +184,7 @@ jobs:
           make_latest: false
           target_commitish: ${{ needs.plan.outputs.sha }}
           body: |
-            Nightly build of `master` (${{ needs.plan.outputs.date }}).
+            Nightly build of `${{ needs.plan.outputs.branch }}` (${{ needs.plan.outputs.date }}).
             Version: `${{ needs.plan.outputs.version }}`
             Commit: ${{ needs.plan.outputs.sha }}
             <!-- nightly-commit: ${{ needs.plan.outputs.sha }} -->
