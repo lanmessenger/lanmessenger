@@ -55,6 +55,8 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   connect(ui.btnReset, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnReset_clicked);
   connect(ui.cboTheme, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::refreshPreview);
   connect(ui.cboMode, &QComboBox::currentIndexChanged, this, &lmcSettingsDialog::refreshPreview);
+  connect(ui.cboFontSize, &QComboBox::currentIndexChanged, this,
+          &lmcSettingsDialog::refreshPreview);
   connect(ui.lvBroadcasts, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvBroadcasts_currentRowChanged);
   connect(ui.txtBroadcast, &QLineEdit::textEdited, this, &lmcSettingsDialog::txtBroadcast_textEdited);
   connect(ui.txtBroadcast, &QLineEdit::returnPressed, this, &lmcSettingsDialog::btnAddBroadcast_clicked);
@@ -85,8 +87,10 @@ void lmcSettingsDialog::init(void) {
   for(int index = 0; index < languages.count(); index++)
     ui.cboLanguage->addItem(languages.keys().value(index), languages.values().value(index));
 
+  ui.cboFontSize->blockSignals(true);
   for(int index = 0; index < FS_COUNT; index++)
     ui.cboFontSize->addItem(lmcStrings::fontSize()[index], index);
+  ui.cboFontSize->blockSignals(false);
 
   for(int index = 0; index < SE_Max; index++) {
     QListWidgetItem* pListItem = new QListWidgetItem(ui.lvSounds);
@@ -170,9 +174,7 @@ void lmcSettingsDialog::changeEvent(QEvent* pEvent) {
 void lmcSettingsDialog::timerEvent(QTimerEvent* event) {
   if(event->timerId() == statusTimerId) {
     XmlMessage msg;
-    msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
-    msg.addData(XN_FONT, QFont().toString());
-    msg.addData(XN_COLOR, QColor::fromRgb(96, 96, 96).name());
+    msg.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
     QString userId = "Jack";
     QString userName = "Jack";
     msg.removeData(XN_MESSAGE);
@@ -283,15 +285,22 @@ void lmcSettingsDialog::btnReset_clicked(void) {
 
 void lmcSettingsDialog::refreshPreview(void) {
   //  The preview renders mock messages with the selected theme and mode.
-  pMessageLog->fontSizeVal = FS_SMALL;
+  int sizeFromUi = ui.cboFontSize->currentIndex();
+  if(sizeFromUi >= FS_SMALL && sizeFromUi < FS_COUNT)
+    pMessageLog->fontSizeVal = sizeFromUi;
+  else if(pSettings)
+    pMessageLog->fontSizeVal =
+      qBound(FS_SMALL, pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt(), FS_LARGE);
+  else
+    pMessageLog->fontSizeVal = FS_MEDIUM;
   pMessageLog->localId = "Myself";
   pMessageLog->peerId = "Jack";
   pMessageLog->messageTime = true;
   QString themeName = ui.cboTheme->currentData().toString();
-  if(themeName.isEmpty())
+  if(themeName.isEmpty() && pSettings)
     themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
   QString appearanceMode = ui.cboMode->currentData().toString();
-  if(appearanceMode.isEmpty())
+  if(appearanceMode.isEmpty() && pSettings)
     appearanceMode =
       pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
   pMessageLog->setThemeName(themeName);
@@ -299,9 +308,7 @@ void lmcSettingsDialog::refreshPreview(void) {
   pMessageLog->initChat();
 
   XmlMessage msg;
-  msg.addData(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
-  msg.addData(XN_FONT, QFont().toString());
-  msg.addData(XN_COLOR, QColor::fromRgb(96, 96, 96).name());
+  msg.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
 
   QString userId = "Jack";
   QString userName = "Jack";

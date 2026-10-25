@@ -1885,6 +1885,12 @@
              </item>
              <item>
               <widget class="QFrame" name="fraMessageLog">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>341</width>
@@ -1961,20 +1967,7 @@
             </item>
            </layout>
           </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>313</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
+          </item>
         </layout>
        </widget>
        <widget class="QWidget" name="pageHotkeys">
