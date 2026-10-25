@@ -55,6 +55,8 @@ void lmcHistoryWindow::init(void) {
   pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
   pMessageLog->setAppearanceMode(
     pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  //  Structured history keys own rows on this sentinel (right side).
+  pMessageLog->localId = ChatMessageView::historyLocalId();
   pMessageLog->initChat();
   restoreGeometry(pSettings->value(IDS_WINDOWHISTORY).toByteArray());
   ui.splitter->restoreState(pSettings->value(IDS_SPLITTERHISTORY).toByteArray());
@@ -117,9 +119,11 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
     QString data = History::getMessage(offset);
     QString name = current->text(0);
     QDateTime date = current->data(1, DataRole).toDateTime();
-    //  S1.5: stored blobs (legacy HTML or new-model HTML) render as one
-    //  read-only body row; stored history is never migrated.
-    pMessageLog->showLegacyHtml(&name, &date, &data);
+    //  Envelope "2": one row per message; legacy: one row, never migrated.
+    if(ChatMessageView::isStructuredHistory(&data))
+      pMessageLog->showHistoryMessages(&name, &date, &data);
+    else
+      pMessageLog->showLegacyHtml(&name, &date, &data);
   }
 }
 

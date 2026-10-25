@@ -158,7 +158,7 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
   const QList<SingleMessage> messages = chatModel->messages();
   if(format == HtmlFormat) {
     QString html =
-      QStringLiteral("<html><head><style type='text/css'>"
+      QStringLiteral("<html data-lmc-history=\"2\"><head><style type='text/css'>"
                      "*{font-size: 9pt;} body {-webkit-nbsp-mode: space; word-wrap: break-word;}"
                      "span.salutation {float:left; font-weight: bold;} span.time {float: right;}"
                      "span.message {clear: both; display: block;} p {border-bottom: 1px solid #CCC;}"
@@ -167,16 +167,23 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
       if(msg.type != MT_Message && msg.type != MT_GroupMessage)
         continue;
       XmlMessage xml = msg.message;
+      // Numeric timestamp: no raw peer string reaches the saved attribute.
+      const qint64 ts = xml.header(XN_TIME).toLongLong();
       QDateTime time;
-      time.setMSecsSinceEpoch(xml.header(XN_TIME).toLongLong());
+      time.setMSecsSinceEpoch(ts);
       QString messageText = xml.data(XN_MESSAGE);
       if(messageText.isEmpty())
         messageText = xml.data(XN_GROUPMESSAGE);
       decodeForSave(&messageText);
-      html += QStringLiteral("<p><span class='salutation'>%1:</span>"
-                             "<span class='time'>%2</span>"
-                             "<span class='message'>%3</span></p>")
-                .arg(msg.userName.toHtmlEscaped(),
+      //  Per-message own/time/type for history bubbles (.html export ignores it).
+      bool own = msg.userId == chatModel->localId;
+      html += QStringLiteral("<p data-own=\"%1\" data-ts=\"%2\" data-type=\"%3\">"
+                             "<span class='salutation'>%4:</span>"
+                             "<span class='time'>%5</span>"
+                             "<span class='message'>%6</span></p>")
+                .arg(own ? QStringLiteral("1") : QStringLiteral("0"),
+                     QString::number(ts), QString::number(int(msg.type)),
+                     msg.userName.toHtmlEscaped(),
                      QLocale::system().toString(time.time(), QLocale::ShortFormat),
                      messageText);
     }
@@ -239,11 +246,21 @@ void ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
     scrollToBottom();
 }
 
+namespace {
+// QTextDocument decodes &nbsp; to U+00A0 and blocks to U+2029;
+// the history model keeps plain spaces and '\n'.
+QString normalizeHistoryText(QString text) {
+  text.replace(QChar(0x00A0), QLatin1Char(' '));
+  text.replace(QChar(0x2029), QLatin1Char('\n'));
+  return text;
+}
+} // namespace
+
 void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString* html) {
   initChat();
   QTextDocument doc;
   doc.setHtml(html ? *html : QString());
-  QString text = doc.toPlainText().trimmed();
+  QString text = normalizeHistoryText(doc.toPlainText()).trimmed();
   //  Broken offset or wiped historyFile: no phantom empty bubble.
   if(text.isEmpty())
     return;
@@ -255,6 +272,99 @@ void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString
   //  (userId = userName never matches the empty history localId).
   QString userId = userName ? *userName : QString();
   appendMessageLog(MT_Message, &userId, userName, &xmlMessage);
+}
+
+namespace {
+
+struct HistoryRecord {
+  QString userName;
+  bool own = false;
+  qint64 ts = 0;
+  MessageType type = MT_Message;
+  QString body;
+};
+
+QString historyAttr(const QString& attrs, const char* name) {
+  QRegularExpression re(QStringLiteral("\\b") + QLatin1String(name) +
+                        QStringLiteral("=\"([^\"]*)\""));
+  QRegularExpressionMatch m = re.match(attrs);
+  return m.hasMatch() ? m.captured(1) : QString();
+}
+
+QString historySpan(const QString& inner, const char* cls) {
+  QRegularExpression re(
+    QStringLiteral("<span class=['\"]") + QLatin1String(cls) +
+      QStringLiteral("['\"]>(.*?)</span>"),
+    QRegularExpression::DotMatchesEverythingOption |
+      QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch m = re.match(inner);
+  if(!m.hasMatch())
+    return QString();
+  QTextDocument doc;
+  doc.setHtml(m.captured(1));
+  return normalizeHistoryText(doc.toPlainText());
+}
+
+//  Envelope "2": one <p> per message; false when legacy or empty.
+bool parseStructuredHistory(const QString& html, QList<HistoryRecord>* out) {
+  if(!html.contains(QStringLiteral("data-lmc-history=\"2\"")))
+    return false;
+  static const QRegularExpression pRe(
+    QStringLiteral("<p\\b([^>]*)>(.*?)</p>"),
+    QRegularExpression::DotMatchesEverythingOption |
+      QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatchIterator it = pRe.globalMatch(html);
+  while(it.hasNext()) {
+    QRegularExpressionMatch pm = it.next();
+    HistoryRecord rec;
+    rec.own = historyAttr(pm.captured(1), "data-own") == QLatin1String("1");
+    rec.ts = historyAttr(pm.captured(1), "data-ts").toLongLong();
+    rec.type = historyAttr(pm.captured(1), "data-type").toInt() == int(MT_GroupMessage)
+                 ? MT_GroupMessage
+                 : MT_Message;
+    QString name = historySpan(pm.captured(2), "salutation");
+    if(name.endsWith(QLatin1Char(':')))
+      name.chop(1);
+    rec.userName = name;
+    QString body = historySpan(pm.captured(2), "message");
+    while(body.endsWith(QLatin1Char('\n')))
+      body.chop(1);
+    rec.body = body;
+    if(rec.body.isEmpty() || rec.userName.isEmpty())
+      continue;
+    out->append(rec);
+  }
+  return !out->isEmpty();
+}
+
+} // namespace
+
+bool ChatMessageView::isStructuredHistory(const QString* html) {
+  return html && html->contains(QStringLiteral("data-lmc-history=\"2\""));
+}
+
+QString ChatMessageView::historyLocalId() {
+  return QStringLiteral("lmc-history-local");
+}
+
+void ChatMessageView::showHistoryMessages(QString* userName, QDateTime* when, QString* html) {
+  initChat();
+  QList<HistoryRecord> records;
+  if(html && parseStructuredHistory(*html, &records)) {
+    QString local = historyLocalId();
+    for(const HistoryRecord& rec : records) {
+      XmlMessage xmlMessage;
+      qint64 ts = rec.ts > 0 ? rec.ts : (when ? when->toMSecsSinceEpoch() : 0);
+      xmlMessage.addHeader(XN_TIME, QString::number(ts));
+      xmlMessage.addData(XN_MESSAGE, rec.body);
+      //  Own rows key on the sentinel (right); others on sender name (left).
+      QString userId = rec.own ? local : rec.userName;
+      QString name = rec.userName;
+      appendMessageLog(rec.type, &userId, &name, &xmlMessage);
+    }
+    return;
+  }
+  showLegacyHtml(userName, when, html);
 }
 
 bool ChatMessageView::isOwnRow(int row) const {

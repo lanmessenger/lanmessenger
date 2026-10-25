@@ -103,7 +103,8 @@ qint64 History::insertData(QDataStream* pStream, QString* lpszData) {
   QByteArray data = lpszData->toUtf8();
 
   *pStream << QString(HC_DTMARKER);
-  *pStream << data.length();
+  //  qint32: QByteArray::length() is 64-bit qsizetype since Qt6.
+  *pStream << static_cast<qint32>(data.size());
   *pStream << data;
 
   return lastPos;
@@ -186,13 +187,21 @@ QString History::getMessage(qint64 offset) {
   stream.setVersion(QDataStream::Qt_5_15);
 
   QString marker;
-  int length;
   QByteArray buffer;
 
   stream.device()->seek(offset);
   stream >> marker;
-  stream >> length;
-  stream >> buffer;
+  //  Pre-fix Qt6 wrote 64-bit length, classic is 32-bit.
+  qint64 afterMarker = stream.device()->pos();
+  quint32 first = 0;
+  quint32 second = 0;
+  stream >> first >> second;
+  if(first == 0 && second != 0) {
+    stream >> buffer;
+  } else {
+    stream.device()->seek(afterMarker + 4);
+    stream >> buffer;
+  }
 
   data = QString::fromUtf8(buffer, buffer.length());
 

@@ -37,9 +37,13 @@ public:
   void abortPendingFileOperations();
   void saveMessageLog(QString filePath);
   void restoreMessageLog(QString filePath, bool reload = true);
-  //  S1.5: legacy history (messenger.db) stores rendered HTML blobs.
-  //  No migration: show the blob as one read-only body row.
+  //  Legacy history blob: one read-only row, never migrated.
   void showLegacyHtml(QString* userName, QDateTime* when, QString* html);
+  //  Envelope data-lmc-history="2": one row per message (own right,
+  //  others left); needs localId == historyLocalId(), else legacy fallback.
+  static bool isStructuredHistory(const QString* html);
+  static QString historyLocalId();
+  void showHistoryMessages(QString* userName, QDateTime* when, QString* html);
   void setAppearanceMode(const QString& mode);
   QString appearanceModeString() const;
   //  Theme switch by name (user dir wins over built-in qrc); unknown names
