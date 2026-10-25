@@ -261,7 +261,7 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
     }
     for(auto key :
         {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
-         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("margin"),
+         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("marginTop"),
          QStringLiteral("maxWidthPct")}) {
       if(node.contains(key)) {
         error = QStringLiteral("%1 only on body/fileCard").arg(key);
@@ -270,17 +270,15 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
     }
   }
   if(type == QLatin1String("body") || type == QLatin1String("fileCard")) {
-    //  Fill is required: a rendered row always has one rect to paint.
     //  One rect per layout: body and fileCard never stack, fileCard
-    //  lives in layout_request only.
-    if(!node.contains(QStringLiteral("bg"))) {
-      error = QStringLiteral("%1 without bg").arg(type);
-      return false;
+    //  lives in layout_request only. Fill is optional (absent =
+    //  transparent, flat text on the page); a present bg is validated.
+    if(node.contains(QStringLiteral("bg"))) {
+      Theme::Bg unusedBg;
+      QByteArray what = type.toLatin1() + QByteArray(" bg");
+      if(!parseBg(node.value(QStringLiteral("bg")), what.constData(), error, unusedBg))
+        return false;
     }
-    Theme::Bg unusedBg;
-    QByteArray what = type.toLatin1() + QByteArray(" bg");
-    if(!parseBg(node.value(QStringLiteral("bg")), what.constData(), error, unusedBg))
-      return false;
     for(auto key : {QStringLiteral("textColor"), QStringLiteral("border")}) {
       if(node.contains(key)) {
         Theme::DualColor unused;
@@ -289,35 +287,52 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
           return false;
       }
     }
-    //  Rect metrics, required: pixel padding, shadow, row top gap, width
-    //  cap. The gap is per tree now: series-start trees carry the wide
-    //  gap, _next trees the dense in-series one, so margin is a scalar.
+    //  Rect metrics are all optional: absent bg = transparent, absent
+    //  padding/shadow/marginTop = flat zeros, absent maxWidthPct = full width.
+    //  The gap is per tree now: series-start trees carry the wide
+    //  gap, _next trees the dense in-series one, so marginTop is a scalar.
     QByteArray padWhat = type.toLatin1() + QByteArray(" padding");
     QByteArray shadowWhat = type.toLatin1() + QByteArray(" shadow");
-    if(!checkIntArray(node.value(QStringLiteral("padding")), 4, error, padWhat.constData()) ||
-       !checkDoubleArray(node.value(QStringLiteral("shadow")), 4, error,
-                         shadowWhat.constData()))
-      return false;
-    QJsonArray padding = node.value(QStringLiteral("padding")).toArray();
-    QJsonArray shadow = node.value(QStringLiteral("shadow")).toArray();
-    for(int i = 0; i < 4; i++) {
-      if(padding.at(i).toInt(-1) < 0) {
-        error = QStringLiteral("%1.padding must be >= 0").arg(type);
+    QJsonArray padding;
+    QJsonArray shadow;
+    if(node.contains(QStringLiteral("padding"))) {
+      if(!checkIntArray(node.value(QStringLiteral("padding")), 4, error, padWhat.constData()))
+        return false;
+      padding = node.value(QStringLiteral("padding")).toArray();
+      for(int i = 0; i < 4; i++) {
+        if(padding.at(i).toInt(-1) < 0) {
+          error = QStringLiteral("%1.padding must be >= 0").arg(type);
+          return false;
+        }
+      }
+    }
+    if(node.contains(QStringLiteral("shadow"))) {
+      if(!checkDoubleArray(node.value(QStringLiteral("shadow")), 4, error,
+                           shadowWhat.constData()))
+        return false;
+      shadow = node.value(QStringLiteral("shadow")).toArray();
+      if(shadow.at(3).toDouble(-1.0) < 0.0 || shadow.at(3).toDouble(2.0) > 1.0) {
+        error = QStringLiteral("bad %1 numbers (want shadow opacity)").arg(type);
         return false;
       }
     }
-    //  Reject the split-era object shape: a stale {default, next?}
-    //  margin reads as a missing scalar below.
-    QJsonValue marginValue = node.value(QStringLiteral("margin"));
-    if(!marginValue.isDouble() || std::floor(marginValue.toDouble()) != marginValue.toDouble() ||
-       marginValue.toInt(-1) < 0) {
-      error = QStringLiteral("bad %1 margin (want int >= 0)").arg(type);
-      return false;
+    //  MarginTop is optional (absent = no top gap); the split-era object
+    //  shape reads as a missing scalar, so an explicit object still fails
+    //  below.
+    if(node.contains(QStringLiteral("marginTop"))) {
+      QJsonValue marginTopValue = node.value(QStringLiteral("marginTop"));
+      if(!marginTopValue.isDouble() ||
+         std::floor(marginTopValue.toDouble()) != marginTopValue.toDouble() ||
+         marginTopValue.toInt(-1) < 0) {
+        error = QStringLiteral("bad %1 marginTop (want int >= 0)").arg(type);
+        return false;
+      }
     }
     //  Hard split: stale pre-split keys fail loudly instead of
     //  being ignored (a stale margin next to a scalar one would
-    //  silently keep the scalar).
-    for(auto key : {QStringLiteral("marginFirstInGroup"),
+    //  silently keep the scalar). Bare "margin" is the pre-rename key.
+    for(auto key : {QStringLiteral("margin"),
+                    QStringLiteral("marginFirstInGroup"),
                     QStringLiteral("marginNextInGroup"), QStringLiteral("spacing"),
                     QStringLiteral("groupedSpacing")}) {
       if(node.contains(key)) {
@@ -325,11 +340,16 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
         return false;
       }
     }
-    int maxWidthPct = node.value(QStringLiteral("maxWidthPct")).toInt(-1);
-    if(maxWidthPct < 1 || maxWidthPct > 100 || shadow.at(3).toDouble(-1.0) < 0.0 ||
-       shadow.at(3).toDouble(2.0) > 1.0) {
-      error = QStringLiteral("bad %1 numbers (want maxWidthPct/shadow opacity)").arg(type);
-      return false;
+    //  Width is optional (absent = full width); a present value
+    //  must be an int 1..100.
+    if(node.contains(QStringLiteral("maxWidthPct"))) {
+      QJsonValue maxWidthValue = node.value(QStringLiteral("maxWidthPct"));
+      if(!maxWidthValue.isDouble() ||
+         std::floor(maxWidthValue.toDouble()) != maxWidthValue.toDouble() ||
+         maxWidthValue.toInt(-1) < 1 || maxWidthValue.toInt(-1) > 100) {
+        error = QStringLiteral("bad %1 numbers (want maxWidthPct 1..100)").arg(type);
+        return false;
+      }
     }
     for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
       if(node.contains(key)) {
@@ -352,7 +372,7 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
      type != QLatin1String("fileCard")) {
     for(auto key :
         {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
-         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("margin"),
+         QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("marginTop"),
          QStringLiteral("maxWidthPct"), QStringLiteral("senderColor"),
          QStringLiteral("timeColor")}) {
       if(node.contains(key)) {
@@ -444,21 +464,33 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
     parseDualColor(obj.value(QStringLiteral("border")), "body/fileCard border", dummy, n.border);
     n.hasBorder = true;
   }
+  //  Absent bg keeps the transparent default (flat text on the page);
+  //  validator guarantees the shape when present.
+  n.bg.kind = Theme::Bg::Kind::Transparent;
   if(obj.contains(QStringLiteral("bg"))) {
     QString dummy;
     parseBg(obj.value(QStringLiteral("bg")), "body/fileCard bg", dummy, n.bg);
+    n.hasBg = true;
   }
-  QJsonArray pad = obj.value(QStringLiteral("padding")).toArray();
-  for(int i = 0; i < 4; i++)
-    n.padding[i] = pad.at(i).toInt();
-  QJsonArray sh = obj.value(QStringLiteral("shadow")).toArray();
-  n.shadowDx = sh.at(0).toDouble();
-  n.shadowDy = sh.at(1).toDouble();
-  n.shadowBlur = sh.at(2).toDouble();
-  n.shadowOpacity = sh.at(3).toDouble();
-  //  Validator guarantees ints; margin is a per-tree scalar.
-  n.margin = obj.value(QStringLiteral("margin")).toInt(0);
-  n.maxWidthPct = obj.value(QStringLiteral("maxWidthPct")).toInt(75);
+  //  Absent padding/shadow/marginTop keep struct zeros (flat, no gap);
+  //  validator guarantees the shape when present.
+  if(obj.contains(QStringLiteral("padding"))) {
+    QJsonArray pad = obj.value(QStringLiteral("padding")).toArray();
+    for(int i = 0; i < 4; i++)
+      n.padding[i] = pad.at(i).toInt();
+  }
+  if(obj.contains(QStringLiteral("shadow"))) {
+    QJsonArray sh = obj.value(QStringLiteral("shadow")).toArray();
+    n.shadowDx = sh.at(0).toDouble();
+    n.shadowDy = sh.at(1).toDouble();
+    n.shadowBlur = sh.at(2).toDouble();
+    n.shadowOpacity = sh.at(3).toDouble();
+  }
+  //  Validator guarantees ints; marginTop is a per-tree scalar, absent
+  //  maxWidthPct is full width.
+  if(obj.contains(QStringLiteral("marginTop")))
+    n.marginTop = obj.value(QStringLiteral("marginTop")).toInt(0);
+  n.maxWidthPct = obj.value(QStringLiteral("maxWidthPct")).toInt(100);
   //  Validator guarantees the shape; a node without corners stays square.
   QJsonArray corners = obj.value(QStringLiteral("corners")).toArray();
   if(obj.contains(QStringLiteral("corners")) && !corners.isEmpty()) {
@@ -486,7 +518,7 @@ int treeContentCount(const Theme::LayoutNode& n) {
 } // namespace
 
 QString Theme::defaultJsonText() {
-  QFile f(QStringLiteral(":/themes/Bubble.json"));
+  QFile f(QStringLiteral(":/themes/ClassicSlate.json"));
   if(f.open(QIODevice::ReadOnly))
     return QString::fromUtf8(f.readAll());
   return QString();
@@ -495,7 +527,7 @@ QString Theme::defaultJsonText() {
 Theme Theme::builtInDefault() {
   //  No fallback literal: a broken shipped theme must fail loudly.
   Theme t = loadFromJson(defaultJsonText().toUtf8());
-  Q_ASSERT_X(t.isValid, "Theme::builtInDefault", "broken built-in Bubble theme");
+  Q_ASSERT_X(t.isValid, "Theme::builtInDefault", "broken built-in ClassicSlate theme");
   if(!t.isValid)
     qCWarning(lmcUi) << "Theme: built-in resource broken:" << t.errorString;
   return t;
@@ -518,6 +550,24 @@ Theme Theme::loadFromJson(const QByteArray& data) {
   }
 
   QString err;
+
+  //  Optional UI label; absent = ID fallback.
+  QJsonValue displayNameValue = root.value(QStringLiteral("displayName"));
+  if(!displayNameValue.isUndefined() && !displayNameValue.isNull()) {
+    if(!displayNameValue.isString()) {
+      t.errorString = QStringLiteral("bad displayName (want string)");
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    QString label = displayNameValue.toString().trimmed();
+    if(label.isEmpty() || label.size() > 80 || label.contains(QLatin1Char('\n')) ||
+       label.contains(QLatin1Char('\r'))) {
+      t.errorString = QStringLiteral("bad displayName (want non-empty single line)");
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    t.displayName = label;
+  }
 
   //  view padding: optional root key, defaults keep the current look.
   QJsonValue viewPadding = root.value(QStringLiteral("viewPadding"));
@@ -692,7 +742,7 @@ QMap<QString, QString> scanThemeFiles() {
         consider(filePath);
     }
   };
-  QString builtIn = QStringLiteral(":/themes/Bubble.json");
+  QString builtIn = QStringLiteral(":/themes/ClassicSlate.json");
   if(QFile::exists(builtIn))
     consider(builtIn);
   else
@@ -710,6 +760,16 @@ QStringList Theme::availableThemes() {
 
 QString Theme::themeFileFor(const QString& name) {
   return scanThemeFiles().value(name);
+}
+
+QString Theme::displayNameFor(const QString& name) {
+  QString file = themeFileFor(name);
+  if(file.isEmpty())
+    return name;
+  Theme t = Theme::loadFromFile(file);
+  if(!t.isValid || t.displayName.isEmpty())
+    return name;
+  return t.displayName;
 }
 
 QColor Theme::pick(const DualColor& c, bool darkMode) {

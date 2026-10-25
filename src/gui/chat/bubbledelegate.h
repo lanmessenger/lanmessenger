@@ -80,14 +80,19 @@ public:
     double shadowDy = 0.0;
     double shadowBlur = 0.0;
     double shadowOpacity = 0.0;
-    int margin = 0; // row top gap, per walked tree
-    int maxWidthPct = 75;
+    int marginTop = 0;     // row top gap, per walked tree
+    int maxWidthPct = 100; // absent in JSON = full width
     //  Per-corner radii [TL, TR, BR, BL] from the layout body/fileCard node
     //  (hand-mirrored by the theme author for outgoing; no code mirror).
     //  Absent in JSON = square.
     int corners[4] = {0, 0, 0, 0};
   };
   ResolvedRow resolveRow(const QModelIndex& index) const;
+  //  Bubble geometry in viewport coordinates (no row offset): left/right
+  //  keep 1px off the viewport edge so the border stroke never clips.
+  //  Public for tests.
+  QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
+                      const ResolvedRow& row) const;
 
   //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -137,8 +142,6 @@ private:
   QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
   int contentWidth(const QModelIndex& index, int viewportWidth, const ResolvedRow& row) const;
-  QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
-                      const ResolvedRow& row) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, theme/mode, settings,
   //  contentRev). contentRev covers text/avatar/fileop of the same row.
   QString cacheKey(const QModelIndex& index, int viewportWidth) const;

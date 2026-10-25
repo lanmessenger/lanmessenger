@@ -539,7 +539,11 @@ void ChatMessageView::setThemeName(const QString& name) {
   if(name.isEmpty() || name == themeName)
     return;
   if(Theme::themeFileFor(name).isEmpty()) {
+    //  Stale INI (e.g. removed theme): fall back to the default
+    //  instead of keeping an unresolvable name.
     qCWarning(lmcUi) << "ChatMessageView: unknown theme" << name;
+    themeName = QStringLiteral("ClassicSlate");
+    reloadTheme();
     return;
   }
   themeName = name;
@@ -593,12 +597,15 @@ QString ChatMessageView::themeFilePath() const {
   QString file = Theme::themeFileFor(themeName);
   if(!file.isEmpty())
     return file;
-  return QStringLiteral(":/themes/Bubble.json");
+  return QStringLiteral(":/themes/ClassicSlate.json");
 }
 
 void ChatMessageView::syncBackground() {
   //  Empty viewport must match the per-row page fill in BubbleDelegate::paint:
   //  otherwise an empty chat is white (QPalette::Base) while rows sit on gray.
+  //  The viewPadding strip from setViewportMargins belongs to the view itself
+  //  (outside viewport()), so the view must autofill too — otherwise the
+  //  parent shows through and the padding reads as a foreign-color margin.
   bool darkMode = Theme::isDark(appearanceMode, systemDark);
   QColor page = Theme::pick(theme.page, darkMode);
   if(!page.isValid())
@@ -607,6 +614,7 @@ void ChatMessageView::syncBackground() {
   pal.setColor(QPalette::Base, page);
   pal.setColor(QPalette::Window, page);
   setPalette(pal);
+  setAutoFillBackground(true);
   QPalette vp = viewport()->palette();
   vp.setColor(QPalette::Base, page);
   vp.setColor(QPalette::Window, page);

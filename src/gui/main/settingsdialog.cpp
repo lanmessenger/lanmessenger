@@ -451,7 +451,7 @@ void lmcSettingsDialog::populateThemes(void) {
   ui.cboTheme->blockSignals(true);
   ui.cboTheme->clear();
   for(const QString& name : Theme::availableThemes())
-    ui.cboTheme->addItem(name, name);
+    ui.cboTheme->addItem(Theme::displayNameFor(name), name);
   QString saved = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
   int index = ui.cboTheme->findData(saved);
   ui.cboTheme->setCurrentIndex(index != -1 ? index : 0);

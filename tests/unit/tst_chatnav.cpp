@@ -125,12 +125,13 @@ void TstChatNav::viewportBackgroundMatchesPage() {
   view.initChat();
 
   view.setAppearanceMode(QStringLiteral("light"));
+  //  Default theme is ClassicSlate: viewport Base follows its page color.
   QCOMPARE(view.viewport()->palette().color(QPalette::Base),
-           QColor(QStringLiteral("#EDEFF2")));
+           QColor(QStringLiteral("#F4F5F7")));
 
   view.setAppearanceMode(QStringLiteral("dark"));
   QCOMPARE(view.viewport()->palette().color(QPalette::Base),
-           QColor(QStringLiteral("#131518")));
+           QColor(QStringLiteral("#0F172A")));
 }
 
 void TstChatNav::legacyHtmlShowsAsSingleRow() {
@@ -237,12 +238,15 @@ void TstChatNav::loopbackEchoRendersAsIncoming() {
 void TstChatNav::viewportMarginsFollowTheme() {
   NavProbe view;
   view.reloadTheme();
-  //  Bubble ships viewPadding [0, 8, 8, 8] (top, right, bottom, left).
+  //  ClassicSlate ships viewPadding [0, 8, 8, 8] (top, right, bottom, left).
   QMargins margins = view.probeViewportMargins();
   QCOMPARE(margins.left(), 8);
   QCOMPARE(margins.top(), 0);
   QCOMPARE(margins.right(), 8);
   QCOMPARE(margins.bottom(), 8);
+  //  The margin strip belongs to the view (outside viewport()): the view
+  //  must autofill with the page color, not show the parent through.
+  QVERIFY(view.autoFillBackground());
 }
 
 QTEST_MAIN(TstChatNav)

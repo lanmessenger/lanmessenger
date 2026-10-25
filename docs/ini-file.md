@@ -201,7 +201,7 @@ empty.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `Theme` | string, `Bubble` | Chat theme name: a built-in name (e.g. `Bubble`) or a custom `<Name>` with `<Name>.json` in the user themes folder. Preview it in Preferences before switching. |
+| `Theme` | string, `ClassicSlate` | Chat theme ID: a built-in name (e.g. `ClassicSlate`) or a custom `<Name>` with `<Name>.json` in the user themes folder. Preferences shows the `displayName` from the JSON, the INI keeps the ID. Preview it in Preferences before switching. |
 | `UserListView` | int, `0` | `0` Detailed, `1` Compact contact list. |
 | `StatusToolTip` | bool, `false` | Include presence status in contact tooltips. |
 

@@ -29,7 +29,8 @@ Three forms, everywhere a color is accepted:
 | Key | Type | Rule |
 |---|---|---|
 | `version` | int | must be `1`, otherwise the theme is invalid |
-| `viewPadding` | array | optional 4 ints ≥ 0 `[top, right, bottom, left]`, list chrome (default `[0, 8, 8, 8]`); rows lay out from the viewport origin, the view applies these as viewport margins |
+| `displayName` | string | optional UI label (single line, max 80 chars); absent = file basename |
+| `viewPadding` | array | optional 4 ints ≥ 0 `[top, right, bottom, left]`, list chrome (default `[0, 8, 8, 8]`); rows lay out from the viewport origin, the view applies these as viewport margins, filled with the `page` color |
 | `avatar` | object | see below |
 | `header` | object | see below |
 | `text` | color | default body text, both forms |
@@ -37,13 +38,16 @@ Three forms, everywhere a color is accepted:
 | `page` | color | view fill, both forms |
 | `layout_incoming/outgoing[/_next]/system/broadcast/request` | object | all 7 required; each layout is a single root object holding exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
 
-Key rule: structural keys (`type`, layout name, `gap`, rect `bg`,
-rect `padding`/`shadow`/`margin`/`maxWidthPct`,
-global `text`/`link`/`page`, `header.senderColor`/`header.timeColor`)
-are required; overrides (`viewPadding`, node
-`senderColor`/`timeColor`/`textColor`/`border`/`corners`) are
-optional-with-default. Rows are tailless: any `tail`/`tailSize`/
-`tailStyle` key invalidates the theme.
+Key rule: structural keys (`type`, layout name, `gap`,
+global `text`/`link`/`page`,
+`header.senderColor`/`header.timeColor`) are required; overrides
+(node `senderColor`/`timeColor`/`textColor`/`border`/`bg`/
+`corners`/`padding`/`shadow`/`marginTop`/`maxWidthPct`,
+`viewPadding`) are optional-with-default
+(absent `bg` = `transparent`; absent `padding`/`shadow`/`marginTop` =
+zeros: no padding, no shadow, no top gap; absent `maxWidthPct` =
+`100`: full width). Rows are tailless: any `tail`/`tailSize`/`tailStyle`
+key invalidates the theme.
 
 ## `avatar` / `header`
 
@@ -91,21 +95,23 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
   (or single/ungrouped) row walks `layout_incoming`/`layout_outgoing`,
   an in-series row walks `layout_incoming_next`/`layout_outgoing_next`.
   The `_next` trees omit the header/avatar nodes and carry the dense
-  `margin` and in-series `corners`; any other per-tree property may
+  `marginTop` and in-series `corners`; any other per-tree property may
   diverge too (no new code needed).
 - `header.items`: a subset of `["sender", "time"]` (empty = role default:
   `incoming` shows both, `outgoing` shows time).
-- Rect (`body`/`fileCard`) `bg`: required — solid, transparent, or
-  per-mode gradient pair.
+- Rect (`body`/`fileCard`) `bg`: optional — solid, transparent, or
+  per-mode gradient pair (default `transparent`: flat text on the page).
 - Rect `textColor` / `border`: optional literal overrides.
-- Rect metrics, required: `padding` (4 ints ≥ 0 `[top, right, bottom,
-  left]`), `shadow` (`[dx, dy, blur, opacity]`, opacity 0..1; black
-  shadow, tinted shadows are not supported by the renderer), `margin`
-  (int ≥ 0, top gap of a row; series-start trees carry the wide gap,
-  `_next` trees the dense in-series one), `maxWidthPct`
-  (int 1..100; window width change reflows word-wrap → `sizeHint`
+- Rect metrics: `padding` (4 ints ≥ 0 `[top, right, bottom,
+  left]`, default `[0, 0, 0, 0]`), `shadow` (`[dx, dy, blur, opacity]`,
+  opacity 0..1; black shadow, tinted shadows are not supported by the
+  renderer; default `[0, 0, 0, 0]` = no shadow), `marginTop`
+  (int ≥ 0, default `0`, top gap of a row; series-start trees carry the
+  wide gap, `_next` trees the dense in-series one), `maxWidthPct`
+  (optional int 1..100, default `100` = full width; window width change
+  reflows word-wrap → `sizeHint`
   invalidation). The gap after a series end is the next row's top
-  margin, so no "last in group" key exists. A non-int `margin`
+  margin, so no "last in group" key exists. A non-int `marginTop`
   or a non-number anywhere invalidates the theme.
 - Rows are tailless: no tail triangle is drawn; any `tail`/`tailSize`/
   `tailStyle` key on any node invalidates the theme.

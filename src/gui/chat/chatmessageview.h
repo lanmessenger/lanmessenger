@@ -105,7 +105,7 @@ private:
   ChatMessageModel* chatModel;
   BubbleDelegate* bubbleDelegate;
   Theme theme;
-  QString themeName = QStringLiteral("Bubble");
+  QString themeName = QStringLiteral("ClassicSlate");
   Theme::Mode appearanceMode = Theme::Mode::System;
   bool systemDark = false;
   bool autoScroll = true;

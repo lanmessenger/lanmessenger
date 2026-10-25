@@ -1,6 +1,7 @@
 {
   "version": 1,
-  "_comment": "Modern Mesh Blue from Stitch spec (Variant 2). Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Cyan shadow tint is not supported by the renderer (black shadow); opacity is shared for light/dark. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
+  "displayName": "Modern Mesh Blue",
+  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Cyan shadow tint is not supported by the renderer (black shadow); opacity is shared for light/dark. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 26,
@@ -39,7 +40,7 @@
             "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
             "padding": [10, 14, 10, 14],
             "shadow": [0, 2, 4, 0.08],
-            "margin": 9,
+            "marginTop": 9,
             "maxWidthPct": 80
           }
         ]
@@ -56,7 +57,7 @@
         "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
         "padding": [10, 14, 10, 14],
         "shadow": [0, 2, 4, 0.08],
-        "margin": 3,
+        "marginTop": 3,
         "maxWidthPct": 80
       }
     ]
@@ -77,7 +78,7 @@
         "textColor": "#FFFFFF",
         "padding": [10, 14, 10, 14],
         "shadow": [0, 2, 4, 0.08],
-        "margin": 9,
+        "marginTop": 9,
         "maxWidthPct": 80
       }
     ]
@@ -93,7 +94,7 @@
         "textColor": "#FFFFFF",
         "padding": [10, 14, 10, 14],
         "shadow": [0, 2, 4, 0.08],
-        "margin": 3,
+        "marginTop": 3,
         "maxWidthPct": 80
       }
     ]
@@ -104,13 +105,9 @@
     "children": [
       {
         "type": "body",
-        "bg": ["#E0F2FE", "#082F49"],
         "textColor": ["#64748B", "#7DD3FC"],
-        "border": ["#BAE6FD", "#075985"],
-        "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
-        "margin": 9,
-        "maxWidthPct": 80
+        "padding": [0, 4, 4, 4],
+        "marginTop": 0
       }
     ]
   },
@@ -120,12 +117,12 @@
     "children": [
       {
         "type": "body",
+        "corners": [12, 12, 12, 12],
         "bg": ["#EFF6FF", "#082F49"],
         "border": "#0284C7",
         "padding": [10, 14, 10, 14],
         "shadow": [0, 2, 4, 0.08],
-        "margin": 9,
-        "maxWidthPct": 80
+        "marginTop": 9
       }
     ]
   },
@@ -137,9 +134,10 @@
         "type": "fileCard",
         "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
         "border": ["#BAE6FD", "#1E3A5F"],
+        "corners": [12, 12, 12, 12],
         "padding": [10, 14, 10, 14],
         "shadow": [0, 2, 4, 0.08],
-        "margin": 9,
+        "marginTop": 9,
         "maxWidthPct": 80
       }
     ]

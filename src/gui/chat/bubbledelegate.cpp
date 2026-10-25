@@ -353,14 +353,16 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
     } else if(c.type == Theme::LayoutNode::Type::Body ||
               c.type == Theme::LayoutNode::Type::FileCard) {
       r.text = c.hasTextColor ? c.textColor : theme.text;
-      r.bg = c.bg;
+      //  Absent node bg keeps the page default (flat text on the page).
+      if(c.hasBg)
+        r.bg = c.bg;
       for(int i = 0; i < 4; i++)
         r.padding[i] = c.padding[i];
       r.shadowDx = c.shadowDx;
       r.shadowDy = c.shadowDy;
       r.shadowBlur = c.shadowBlur;
       r.shadowOpacity = c.shadowOpacity;
-      r.margin = c.margin;
+      r.marginTop = c.marginTop;
       r.maxWidthPct = c.maxWidthPct;
       r.hasBorder = c.hasBorder;
       r.border = c.border;
@@ -405,6 +407,12 @@ int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
   int avail = viewportWidth;
   if(row.avatar)
     avail -= theme.avatar.size + row.hboxGap;
+  //  Strip cards span the viewport edge to edge: reserve the symmetric 1px
+  //  gutters rowBubbleRect keeps, so the 1px border stroke survives viewport
+  //  clipping on both sides (a flush edge loses its outer half and reads as
+  //  thinner, e.g. the broadcast left edge).
+  if(card == QLatin1String("broadcast") || card == QLatin1String("system"))
+    avail -= 2;
   if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
      card == QLatin1String("request"))
     avail = avail * row.maxWidthPct / 100;
@@ -415,7 +423,7 @@ int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
 int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
   //  Per-tree scalar: series-start trees carry the wide gap, _next
   //  trees the dense in-series one.
-  return resolveRow(index).margin;
+  return resolveRow(index).marginTop;
 }
 
 void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const {
@@ -428,12 +436,13 @@ void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const 
 
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
                                     const ResolvedRow& row) const {
+  Q_UNUSED(index);
   QString card = row.card;
   int bubbleW = contentWidth(index, viewportWidth, row) + row.padding[1] +
                 row.padding[3];
   int bubbleH = contentH + row.padding[0] + row.padding[2];
   int x = 0;
-  int top = rowTopMargin(index);
+  int top = row.marginTop;
   int headerH = 0;
   if(row.header) {
     QFont nf = headerNameFont();
@@ -443,12 +452,27 @@ QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
   int avatarW = 0;
   if(row.avatar)
     avatarW = theme.avatar.size + row.hboxGap;
-  if(card == QLatin1String("outgoing"))
+  if(card == QLatin1String("outgoing")) {
     x = viewportWidth - bubbleW;
-  else if(card == QLatin1String("system"))
+    //  Full-width custom theme (maxWidthPct 100, unreachable in shipped
+    //  themes): keep the left stroke inside the viewport like below. The doc
+    //  may overflow 1px on lines that exactly fill the width.
+    if(x < 1) {
+      bubbleW -= 1 - x;
+      x = 1;
+    }
+  } else if(card == QLatin1String("system")) {
+    //  Full width centers on 1 through the contentWidth gutter above.
     x = (viewportWidth - bubbleW) / 2;
-  else
-    x = avatarW;
+  } else if(card == QLatin1String("broadcast")) {
+    //  Left gutter; the right one mirrors it through the avail cut above.
+    x = 1;
+  } else {
+    //  General guard (avatarless themes, request cards): never start left
+    //  of the 1px stroke clearance. The width is untouched, so the doc
+    //  still fits and only the bubble shifts right by a pixel.
+    x = qMax(avatarW, 1);
+  }
   return QRect(x, top + headerH, bubbleW, bubbleH);
 }
 
@@ -512,9 +536,9 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.docRect = QRect(e.bubbleRect.left() + row.padding[3],
                     e.bubbleRect.top() + row.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
-  e.topMargin = rowTopMargin(index);
-  //  Corners from the already-resolved row: no second tree walk.
-  //  rowCornerRadii() stays for tests and external callers.
+  e.topMargin = row.marginTop;
+  //  Margin and corners from the already-resolved row: no second tree walk.
+  //  rowTopMargin()/rowCornerRadii() stay for tests and external callers.
   for(int i = 0; i < 4; i++)
     e.corner[i] = row.corners[i];
   e.hasAvatar = row.avatar;
@@ -646,7 +670,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     painter->drawPixmap(0, ay, pm);
   }
 
-  {
+  if(e.shadowOpacity > 0.0) {
     QColor shadow(0, 0, 0);
     shadow.setAlphaF(e.shadowOpacity);
     painter->setPen(Qt::NoPen);

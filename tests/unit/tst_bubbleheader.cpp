@@ -54,6 +54,7 @@ private slots:
   void seriesCornerRadii();
   void outgoingCornersReadVerbatim();
   void layoutResolvesRow();
+  void broadcastRectClearsViewportEdge();
   void paintRowsOffscreen();
 };
 
@@ -107,7 +108,7 @@ void TstBubbleHeader::headerFollowsLocalSize() {
 
 void TstBubbleHeader::shippedHeaderColorsResolve() {
   //  Header colors are literals now: both modes resolve on every theme.
-  const char* names[] = {"Bubble", "ClassicSlate", "MeshBlue", "NordicTerminal"};
+  const char* names[] = {"ClassicSlate", "MeshBlue", "NordicTerminal"};
   for(const char* n : names) {
     QFile f(QString::fromLatin1(":/themes/%1.json").arg(QString::fromLatin1(n)));
     QVERIFY(f.open(QIODevice::ReadOnly));
@@ -124,9 +125,9 @@ void TstBubbleHeader::shippedHeaderColorsResolve() {
 }
 
 void TstBubbleHeader::seriesTopMargins() {
-  //  Series of 3 + 1 other: inside the series the dense margin, outside the
-  //  series-start margin. MeshBlue ships margin 9 on series-start trees,
-  //  3 on the _next trees.
+  //  Series of 3 + 1 other: inside the series the dense marginTop, outside
+  //  the series-start marginTop. MeshBlue ships marginTop 9 on
+  //  series-start trees, 3 on the _next trees.
   ChatMessageModel model;
   QString jack = QStringLiteral("jack");
   QString jackName = QStringLiteral("Jack");
@@ -347,7 +348,7 @@ void TstBubbleHeader::layoutResolvesRow() {
   QCOMPARE(first.shadowDy, 2.0);
   QCOMPARE(first.shadowBlur, 4.0);
   QCOMPARE(first.shadowOpacity, 0.08);
-  QCOMPARE(first.margin, 9);
+  QCOMPARE(first.marginTop, 9);
   QCOMPARE(first.maxWidthPct, 80);
   QVERIFY(!first.hasBorder);
 
@@ -356,7 +357,7 @@ void TstBubbleHeader::layoutResolvesRow() {
   QVERIFY(!next.avatar);
   QVERIFY(!next.header);
   QVERIFY(next.headerItems.isEmpty());
-  QCOMPARE(next.margin, 3);
+  QCOMPARE(next.marginTop, 3);
 
   BubbleDelegate::ResolvedRow own = d.resolveRow(model.index(2, 0));
   QCOMPARE(own.card, QStringLiteral("outgoing"));
@@ -391,6 +392,50 @@ void TstBubbleHeader::layoutResolvesRow() {
   BubbleDelegate d2;
   d2.setTheme(t2);
   QCOMPARE(d2.resolveRow(model.index(0, 0)).vboxGap, 5);
+}
+
+void TstBubbleHeader::broadcastRectClearsViewportEdge() {
+  //  The 1px border stroke is centered on the bubble path: an edge flush
+  //  with the viewport loses its outer half to clipping, so the broadcast
+  //  left edge rendered thinner than the other three sides. Strip cards
+  //  (broadcast/system) keep symmetric 1px gutters; led cards never touch
+  //  the edge and keep their geometry.
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  XmlMessage mIn = textMessage(QStringLiteral("hello"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &mIn);
+  XmlMessage mBc = textMessage(QStringLiteral("heads up"));
+  model.appendMessageLog(MT_Broadcast, &jack, &jackName, &mBc);
+  XmlMessage mSys = textMessage(QStringLiteral("oops"));
+  model.appendMessageLog(MT_Failed, &jack, &jackName, &mSys);
+  XmlMessage mOut = textMessage(QStringLiteral("reply"));
+  model.appendMessageLog(MT_Message, &me, &meName, &mOut);
+
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  BubbleDelegate d;
+  d.setTheme(t);
+  const int W = 400;
+  //  MeshBlue: avatar 26 + hbox gap 8, incoming padding 14/14,
+  //  maxWidthPct 80 -> bubble [34, 325].
+  QRect incoming = d.rowBubbleRect(model.index(0, 0), W, 20, d.resolveRow(model.index(0, 0)));
+  QCOMPARE(incoming.left(), 34);
+  QCOMPARE(incoming.right(), 325);
+  //  Strip cards: symmetric 1px gutters, full stroke on all sides.
+  QRect bc = d.rowBubbleRect(model.index(1, 0), W, 20, d.resolveRow(model.index(1, 0)));
+  QCOMPARE(bc.left(), 1);
+  QCOMPARE(bc.right(), W - 2);
+  QRect sys = d.rowBubbleRect(model.index(2, 0), W, 20, d.resolveRow(model.index(2, 0)));
+  QCOMPARE(sys.left(), 1);
+  QCOMPARE(sys.right(), W - 2);
+  //  Outgoing keeps its right-flush geometry (that edge renders fully).
+  QRect own = d.rowBubbleRect(model.index(3, 0), W, 20, d.resolveRow(model.index(3, 0)));
+  QCOMPARE(own.left(), 80);
+  QCOMPARE(own.right(), W - 1);
 }
 
 void TstBubbleHeader::paintRowsOffscreen() {
