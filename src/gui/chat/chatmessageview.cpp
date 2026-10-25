@@ -353,7 +353,7 @@ QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
   opt.initFrom(this);
   opt.rect = visualRect(idx);
   opt.widget = viewport();
-  QString found = bubbleDelegate->anchorAt(viewport()->mapFromParent(pos), opt, idx);
+  QString found = bubbleDelegate->anchorAt(pos, opt, idx);
   if(found.isEmpty())
     return QModelIndex();
   if(href)
@@ -387,7 +387,7 @@ void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
       tip = tr("Decline");
     else if(href.contains(QLatin1String("/cancel/")))
       tip = tr("Cancel");
-    QToolTip::showText(mapToGlobal(event->pos()), tip, this);
+    QToolTip::showText(viewport()->mapToGlobal(event->pos()), tip, this);
   } else {
     viewport()->unsetCursor();
     QToolTip::hideText();
