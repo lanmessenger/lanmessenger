@@ -21,9 +21,6 @@ const char* kLayouts[] = {"layout_incoming", "layout_incoming_next", "layout_out
                           "layout_request"};
 const int kLayoutCount = 7;
 
-const char* kFlags[] = {"isFile", "isOwn", "hasPreview"};
-const int kFlagCount = 3;
-
 bool isHexColor(const QString& s) {
   if(s.length() != 7 && s.length() != 9)
     return false;
@@ -36,13 +33,6 @@ bool isHexColor(const QString& s) {
       return false;
   }
   return true;
-}
-
-bool isKnownFlag(const QString& s) {
-  for(int i = 0; i < kFlagCount; i++)
-    if(s == QLatin1String(kFlags[i]))
-      return true;
-  return false;
 }
 
 bool isKnownLayout(const QString& s) {
@@ -246,14 +236,6 @@ bool validateNode(const QJsonObject& node, int depth, const QString& layoutName,
       return false;
     }
   }
-  for(auto key : {QStringLiteral("if"), QStringLiteral("ifNot")}) {
-    if(node.contains(key)) {
-      if(!node.value(key).isString() || !isKnownFlag(node.value(key).toString())) {
-        error = QStringLiteral("bad %1: %2").arg(key, node.value(key).toString());
-        return false;
-      }
-    }
-  }
   if(type == QLatin1String("header")) {
     if(node.contains(QStringLiteral("items"))) {
       if(!node.value(QStringLiteral("items")).isArray()) {
@@ -438,8 +420,6 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
   n.gap = obj.value(QStringLiteral("gap")).toInt(0);
   for(const QJsonValue& v : obj.value(QStringLiteral("items")).toArray())
     n.headerItems.append(v.toString());
-  n.ifFlag = obj.value(QStringLiteral("if")).toString();
-  n.ifNotFlag = obj.value(QStringLiteral("ifNot")).toString();
   //  Validator guarantees the shapes; absent optionals keep has-flags false.
   if(obj.contains(QStringLiteral("senderColor"))) {
     QString dummy;
@@ -479,8 +459,7 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
   //  Validator guarantees ints; margin is a per-tree scalar.
   n.margin = obj.value(QStringLiteral("margin")).toInt(0);
   n.maxWidthPct = obj.value(QStringLiteral("maxWidthPct")).toInt(75);
-  //  Validator guarantees the shape; a node without corners keeps
-  //  the built-in default.
+  //  Validator guarantees the shape; a node without corners stays square.
   QJsonArray corners = obj.value(QStringLiteral("corners")).toArray();
   if(obj.contains(QStringLiteral("corners")) && !corners.isEmpty()) {
     n.hasCorners = true;

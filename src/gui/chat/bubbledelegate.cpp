@@ -46,27 +46,6 @@ QPainterPath roundedCorners(const QRect& r, const int c[4]) {
   return path;
 }
 
-//  Layout flag gate: a node renders when its if-flag holds and its
-//  ifNot-flag does not. Series position never gates nodes: first and
-//  subsequent rows walk different trees. Only compiled structs here,
-//  no QJson.
-bool nodeVisible(const Theme::LayoutNode& n, bool own, bool file, bool preview) {
-  auto on = [&](const QString& flag) {
-    if(flag == QLatin1String("isOwn"))
-      return own;
-    if(flag == QLatin1String("isFile"))
-      return file;
-    if(flag == QLatin1String("hasPreview"))
-      return preview;
-    return false;
-  };
-  if(!n.ifFlag.isEmpty() && !on(n.ifFlag))
-    return false;
-  if(!n.ifNotFlag.isEmpty() && on(n.ifNotFlag))
-    return false;
-  return true;
-}
-
 QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
                      bool fontExplicit) {
   QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
@@ -309,15 +288,9 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
 
 BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
   QString card = roleFor(index);
-  bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  int type = index.data(ChatMessageModel::TypeRole).toInt();
-  bool file = (type == MT_File || type == MT_Folder);
-  bool preview = !index.data(ChatMessageModel::PreviewRole).toString().isEmpty();
   ResolvedRow r;
   r.card = card;
-  //  Theme defaults first; layout nodes override below. The bg default
-  //  blends with the page (unreachable with valid themes: every layout
-  //  carries a bubble, but a fully flag-gated row must still paint valid).
+  //  Theme defaults first; layout nodes override below.
   r.text = theme.text;
   r.senderColor = theme.header.senderColor;
   r.timeColor = theme.header.timeColor;
@@ -329,15 +302,14 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
     r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
   else if(card == QLatin1String("outgoing"))
     r.headerItems = QStringList{QStringLiteral("time")};
-  //  In-series rows walk their own tree: no per-node grouped gate.
+  //  In-series rows walk their own tree.
   QString layoutName = QStringLiteral("layout_") + card;
   if(index.data(ChatMessageModel::GroupedRole).toBool() &&
      (card == QLatin1String("incoming") || card == QLatin1String("outgoing")))
     layoutName += QStringLiteral("_next");
   const Theme::LayoutNode& rootNode = theme.compiledLayout(layoutName);
-  if((rootNode.type != Theme::LayoutNode::Type::HBox &&
-      rootNode.type != Theme::LayoutNode::Type::VBox) ||
-     !nodeVisible(rootNode, own, file, preview))
+  if(rootNode.type != Theme::LayoutNode::Type::HBox &&
+     rootNode.type != Theme::LayoutNode::Type::VBox)
     return r;
   const Theme::LayoutNode* root = &rootNode;
   if(root->type == Theme::LayoutNode::Type::HBox) {
@@ -345,8 +317,6 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
     r.avatar = false;
     const Theme::LayoutNode* column = nullptr;
     for(const Theme::LayoutNode& c : root->children) {
-      if(!nodeVisible(c, own, file, preview))
-        continue;
       if(c.type == Theme::LayoutNode::Type::Avatar)
         r.avatar = reservesAvatar(card);
       else if(c.type == Theme::LayoutNode::Type::VBox && !column)
@@ -368,8 +338,6 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
   r.header = false;
   r.headerItems.clear();
   for(const Theme::LayoutNode& c : root->children) {
-    if(!nodeVisible(c, own, file, preview))
-      continue;
     if(c.type == Theme::LayoutNode::Type::Header) {
       r.header = true;
       r.headerItems = c.headerItems;

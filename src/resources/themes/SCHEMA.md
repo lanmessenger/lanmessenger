@@ -38,10 +38,10 @@ Three forms, everywhere a color is accepted:
 | `layout_incoming/outgoing[/_next]/system/broadcast/request` | object | all 7 required; each layout is a single root object holding exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
 
 Key rule: structural keys (`type`, layout name, `gap`, rect `bg`,
-rect `padding`/`shadow`/`margin`/`maxWidthPct`, `corners`,
+rect `padding`/`shadow`/`margin`/`maxWidthPct`,
 global `text`/`link`/`page`, `header.senderColor`/`header.timeColor`)
-are required; overrides (node
-`senderColor`/`timeColor`/`textColor`/`border`) are
+are required; overrides (`viewPadding`, node
+`senderColor`/`timeColor`/`textColor`/`border`/`corners`) are
 optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 `tailStyle` key invalidates the theme.
 
@@ -68,7 +68,7 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 
 ## `layout_*` (L-MVP boundary, do not extend without a separate decision)
 
-- Node: `{ "type": ..., "if": <flag>, "ifNot": <flag>, ... }`.
+- Node: `{ "type": ... }`.
 - Containers are `vbox/hbox` only; every container carries a required
   `gap: int ≥ 0` — the only spacing source between siblings (no theme-level
   gaps exist). Depth ≤ 4 from the root. Only `layout_incoming` is
@@ -83,20 +83,16 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 - One rect per layout: exactly one `body` xor `fileCard` node — message
   and file never stack in one layout. `body`/`fileCard` are leaves and
   must not carry `children`.
-- `layout_request` is the file layout: its rect is a `fileCard` with no
-  conditions (row selection already guarantees a file row) and no `body`.
+- `layout_request` is the file layout: its rect is a `fileCard`
+  (row selection already guarantees a file row) and no `body`.
   `fileCard` anywhere else, or `body` in `layout_request`, invalidates the theme.
   `layout_incoming`/`layout_outgoing` carry no `fileCard` branches.
-- Series position selects the tree, never a node flag: a series-start
+- Series position selects the tree: a series-start
   (or single/ungrouped) row walks `layout_incoming`/`layout_outgoing`,
   an in-series row walks `layout_incoming_next`/`layout_outgoing_next`.
   The `_next` trees omit the header/avatar nodes and carry the dense
   `margin` and in-series `corners`; any other per-tree property may
   diverge too (no new code needed).
-- Flag sources: `SingleMessage`, `sendFileMap/receiveFileMap` for `fileCard`,
-  model flags. `if`/`ifNot` only on model flags:
-  `hasPreview, isFile, isOwn` (`isGrouped` is gone: series
-  position selects the tree, it never gates a node).
 - `header.items`: a subset of `["sender", "time"]` (empty = role default:
   `incoming` shows both, `outgoing` shows time).
 - Rect (`body`/`fileCard`) `bg`: required — solid, transparent, or
@@ -116,18 +112,18 @@ optional-with-default. Rows are tailless: any `tail`/`tailSize`/
 - `header` node `senderColor` / `timeColor`: optional literal overrides
   of the theme header defaults.
 - Color keys on any other node type invalidate the theme.
-- Rect `corners`: 4 ints ≥ 0 `[TL, TR, BR, BL]`. A rect without
-  `corners` uses the built-in default; `corners` on any other node
+- Rect `corners`: optional 4 ints ≥ 0 `[TL, TR, BR, BL]` (default
+  square `[0, 0, 0, 0]`); `corners` on any other node
   or a short/negative/fractional array invalidates the theme.
   Outgoing nodes carry hand-mirrored values — no code mirror exists, what is
-  written is what renders. Each layout's rect node may carry its own corners
-  (e.g. a system pill); node corners never inherit across layouts.
+  written is what renders. Each layout's rect node may carry its own corners;
+  node corners never inherit across layouts.
 
 ## Errors
 
 Invalid JSON, `version != 1`, missing layout, layout as array, layout without a rect,
 bad color form, mixed solid/gradient pair, `transparent` outside rect `bg`,
 gradient outside `bg`, color/metric keys on the wrong node, `tail` keys
-present, bad rect numbers, depth > 4, unknown `type`/`if`, bad `corners` —
+present, bad rect numbers, depth > 4, unknown `type`, bad `corners` —
 the theme is invalid: built-in default + a log line, chat stays up.
 Validator unit test lives in S (otherwise it drifts from L).

@@ -279,7 +279,7 @@ void TstTheme::badMarginRejected() {
 
 void TstTheme::splitEraShapesRejected() {
   //  Hard split: the {default, next?} margin/corners objects no longer
-  //  parse, and neither do the flat legacy keys or isGrouped/showOnGrouped.
+  //  parse, and neither do the flat legacy keys or showOnGrouped.
   QByteArray marginObj =
     withReplaced(validJson(), "\"margin\": 6",
                  "\"margin\": {\"default\": 6, \"next\": 2}");
@@ -295,13 +295,6 @@ void TstTheme::splitEraShapesRejected() {
     validJson(), "\"corners\": [12, 12, 12, 4]",
     "\"corners\": {\"default\": [12, 12, 12, 4], \"next\": [4, 12, 12, 4]}");
   QVERIFY(!Theme::loadFromJson(cornersObj).isValid);
-  QByteArray groupedFlag = withReplaced(validJson(), "{\"type\": \"body\",",
-                                        "{\"type\": \"body\", \"if\": \"isGrouped\",");
-  QVERIFY(!Theme::loadFromJson(groupedFlag).isValid);
-  QByteArray groupedNotFlag = withReplaced(
-    validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
-    "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"ifNot\": \"isGrouped\"}");
-  QVERIFY(!Theme::loadFromJson(groupedNotFlag).isValid);
   QByteArray showGrouped = withReplaced(validJson(), "\"shape\": \"circle\"",
                                         "\"shape\": \"circle\", \"showOnGrouped\": false");
   QVERIFY(!Theme::loadFromJson(showGrouped).isValid);
@@ -337,14 +330,14 @@ void TstTheme::cornerRadiiParsed() {
 }
 
 void TstTheme::cornersAbsentDefaulted() {
-  //  A body node without corners stays valid and uses the built-in
-  //  default; system/broadcast/request ship no corners.
+  //  A body node without corners stays valid and renders square;
+  //  system/broadcast/request ship no corners.
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   const Theme::LayoutNode& system = t.compiledLayout(QStringLiteral("layout_system"));
   const Theme::LayoutNode& rect = system.children.at(0);
   QVERIFY(!rect.hasCorners);
-  const int def[4] = {12, 12, 12, 4};
+  const int def[4] = {0, 0, 0, 0};
   for(int i = 0; i < 4; i++)
     QCOMPARE(rect.corners[i], def[i]);
 }
@@ -427,9 +420,6 @@ void TstTheme::containerGapParsed() {
   QCOMPARE(incoming.children.at(1).children.size(), 2);
   QCOMPARE(incoming.children.at(1).children.at(0).type,
            Theme::LayoutNode::Type::Header);
-  //  Series position never gates a node: the header carries no flags.
-  QVERIFY(incoming.children.at(1).children.at(0).ifFlag.isEmpty());
-  QVERIFY(incoming.children.at(1).children.at(0).ifNotFlag.isEmpty());
   QCOMPARE(incoming.children.at(1).children.at(1).type,
            Theme::LayoutNode::Type::Body);
   const Theme::LayoutNode& inBody = incoming.children.at(1).children.at(1);
@@ -510,8 +500,6 @@ void TstTheme::requestFileCardAccepted() {
   const Theme::LayoutNode& rect = request.children.at(0);
   QCOMPARE(rect.type, Theme::LayoutNode::Type::FileCard);
   QCOMPARE(rect.children.size(), 0);
-  QVERIFY(rect.ifFlag.isEmpty());
-  QVERIFY(rect.ifNotFlag.isEmpty());
   QVERIFY(rect.hasBorder);
   QCOMPARE(rect.padding[0], 8);
   QCOMPARE(rect.padding[1], 10);

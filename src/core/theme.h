@@ -74,8 +74,6 @@ public:
     Type type = Type::Reserved;
     int gap = 0;             // containers only, required in JSON
     QStringList headerItems; // header only, subset of sender/time
-    QString ifFlag;          // visibility condition, empty = always
-    QString ifNotFlag;
     //  Literal colors, empty/absent = theme default (see Header/text below).
     DualColor senderColor; // header only
     bool hasSenderColor = false;
@@ -86,9 +84,10 @@ public:
     DualColor border; // body/fileCard only
     bool hasBorder = false;
     Bg bg; // body/fileCard only, required in JSON
-    //  Per-corner radii [TL, TR, BR, BL], body/fileCard only.
-    //  Outgoing nodes carry hand-mirrored values, no code mirror exists.
-    int corners[4] = {12, 12, 12, 4};
+    //  Per-corner radii [TL, TR, BR, BL], body/fileCard only, optional.
+    //  Absent = square. Outgoing nodes carry hand-mirrored values,
+    //  no code mirror exists.
+    int corners[4] = {0, 0, 0, 0};
     bool hasCorners = false;
     //  Rect metrics, body/fileCard only, required in JSON. The row top gap
     //  is per tree: series-start trees carry the wide gap, _next trees

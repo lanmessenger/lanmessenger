@@ -13,7 +13,7 @@
 //  avatar/header/body/fileCard; the validator accepts linkPreview/quote/
 //  code/buttons, the delegate ignores them).
 //  In-series rows walk layout_incoming_next/layout_outgoing_next:
-//  header and avatar are structural, never flag-gated.
+//  header and avatar live in series-start trees only.
 class BubbleDelegate : public QStyledItemDelegate {
   Q_OBJECT
 
@@ -84,7 +84,8 @@ public:
     int maxWidthPct = 75;
     //  Per-corner radii [TL, TR, BR, BL] from the layout body/fileCard node
     //  (hand-mirrored by the theme author for outgoing; no code mirror).
-    int corners[4] = {12, 12, 12, 4};
+    //  Absent in JSON = square.
+    int corners[4] = {0, 0, 0, 0};
   };
   ResolvedRow resolveRow(const QModelIndex& index) const;
 
