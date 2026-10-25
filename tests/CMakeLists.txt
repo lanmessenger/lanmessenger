@@ -164,3 +164,23 @@ set_target_properties(tst_bubbleheader PROPERTIES
 
 add_test(NAME bubbleheader COMMAND tst_bubbleheader)
 set_tests_properties(bubbleheader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# Incoming XN_FONT/XN_COLOR guard (size clamp, opaque colors, contrast
+# floor), offscreen.
+add_executable(tst_chattextguard
+    unit/tst_chattextguard.cpp
+    ../src/resource.qrc
+)
+
+target_link_libraries(tst_chattextguard PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_chattextguard PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME chattextguard COMMAND tst_chattextguard)
+set_tests_properties(chattextguard PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

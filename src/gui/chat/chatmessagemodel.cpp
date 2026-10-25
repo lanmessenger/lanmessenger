@@ -4,6 +4,7 @@
 
 #include "core/shared.h"
 #include "gui/chat/chatdefinitions.h"
+#include "gui/chat/chattextguard.h"
 
 namespace {
 
@@ -58,19 +59,21 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   case TimeRole:
     return msgTime(xml);
   case FontRole: {
-    //  Absent XN_FONT means the sender did not choose a font: invalid marks
-    //  the theme fallback, a parsed font is honored as-is (like XN_COLOR).
+    //  Absent/unparsable XN_FONT: invalid marks the theme fallback.
+    //  Parsed sizes clamp to [kMinFontPt, kMaxFontPt]; <= 0 maps to the
+    //  theme size in rowFont.
     QString fontStr = xml.data(XN_FONT);
     if(fontStr.isEmpty())
       return QVariant();
     QFont f;
-    f.fromString(fontStr);
-    return f;
+    if(!f.fromString(fontStr))
+      return QVariant();
+    return ChatTextGuard::sanitizeIncomingFont(f);
   }
   case ColorRole: {
     QColor c;
     c.setNamedColor(xml.data(XN_COLOR));
-    return c;
+    return ChatTextGuard::sanitizeIncomingColor(c);
   }
   case AvatarRole:
     return participantAvatars.value(msg.userId, QString());

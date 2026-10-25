@@ -105,6 +105,8 @@ public:
   //  Tab-focused anchor highlight (view holds position, delegate paints).
   void setFocusAnchor(int row, const QString& href);
   void clearFocusAnchor();
+  //  Final row HTML (font/color guard + body). Public for tests.
+  QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
 
 private:
   struct RowDoc {
@@ -138,7 +140,6 @@ private:
   double localPointSize() const;
   QFont rowFont(const QModelIndex& index) const;
   QString rowTime(const QModelIndex& index) const;
-  QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
   QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
   int contentWidth(const QModelIndex& index, int viewportWidth, const ResolvedRow& row) const;

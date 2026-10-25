@@ -16,6 +16,7 @@
 #include "core/shared.h"
 #include "core/uidefinitions.h"
 #include "gui/chat/chatmessagemodel.h"
+#include "gui/chat/chattextguard.h"
 
 namespace {
 
@@ -154,6 +155,9 @@ QFont BubbleDelegate::rowFont(const QModelIndex& index) const {
     QFont f = v.value<QFont>();
     if(f.pointSizeF() <= 0)
       f.setPointSizeF(themeSize);
+    else
+      f.setPointSizeF(qBound(ChatTextGuard::kMinFontPt, f.pointSizeF(),
+                             ChatTextGuard::kMaxFontPt));
     return f;
   }
   //  Sender did not choose: theme fallback (app default family, local size).
@@ -378,11 +382,27 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
   bool isFile = (type == MT_File || type == MT_Folder);
   QFont font = rowFont(index);
   QColor color = index.data(ChatMessageModel::ColorRole).value<QColor>();
-  if(!color.isValid()) {
+  bool explicitColor = color.isValid();
+  if(!explicitColor) {
     //  Explicit message color wins, then the resolved row text
     //  (layout body/fileCard node or theme default, e.g. light text on
     //  a saturated outgoing bubble).
     color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
+  } else {
+    //  Contrast guard: unreadable peer color falls back to theme text.
+    //  Worst bg stop decides; transparent stops are skipped. Runs on the
+    //  local echo too (same model data).
+    QColor bg1, bg2;
+    Theme::pickBg(row.bg, Theme::isDark(mode, systemDark), bg1, bg2);
+    double worst = -1.0;
+    if(bg1.alpha() != 0)
+      worst = ChatTextGuard::contrastRatio(color, bg1);
+    if(bg2.alpha() != 0) {
+      double r = ChatTextGuard::contrastRatio(color, bg2);
+      worst = (worst < 0.0) ? r : qMin(worst, r);
+    }
+    if(worst >= 0.0 && worst < ChatTextGuard::kMinContrast)
+      color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
   }
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();

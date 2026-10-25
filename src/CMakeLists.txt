@@ -15,6 +15,7 @@ add_library(lmc_core STATIC
     gui/chat/bubbledelegate.cpp
     gui/chat/chathelper.cpp
     gui/chat/chatmessagemodel.cpp
+    gui/chat/chattextguard.cpp
     gui/chat/chatmessageview.cpp
     gui/chat/chatroomwindow.cpp
     gui/chat/chatwindow.cpp
@@ -60,6 +61,7 @@ add_library(lmc_core STATIC
     gui/chat/broadcastwindow.h
     gui/chat/bubbledelegate.h
     gui/chat/chatdefinitions.h
+    gui/chat/chattextguard.h
     gui/chat/chatwindow.h
     gui/chat/chatmessagemodel.h
     gui/chat/chatmessageview.h
