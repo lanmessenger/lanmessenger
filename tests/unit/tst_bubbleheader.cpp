@@ -23,7 +23,7 @@
 namespace {
 
 QByteArray meshBlueBytes() {
-  QFile f(QStringLiteral(":/themes/MeshBlue/theme.json"));
+  QFile f(QStringLiteral(":/themes/MeshBlue.json"));
   if(!f.open(QIODevice::ReadOnly))
     return QByteArray();
   return f.readAll();
@@ -109,7 +109,7 @@ void TstBubbleHeader::shippedHeaderColorsResolve() {
   //  Header colors are literals now: both modes resolve on every theme.
   const char* names[] = {"Bubble", "ClassicSlate", "MeshBlue", "NordicTerminal"};
   for(const char* n : names) {
-    QFile f(QString::fromLatin1(":/themes/%1/theme.json").arg(QString::fromLatin1(n)));
+    QFile f(QString::fromLatin1(":/themes/%1.json").arg(QString::fromLatin1(n)));
     QVERIFY(f.open(QIODevice::ReadOnly));
     Theme t = Theme::loadFromJson(f.readAll());
     QVERIFY2(t.isValid, qPrintable(t.errorString));

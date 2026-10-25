@@ -440,7 +440,7 @@ void lmcSettingsDialog::btnRefreshTheme_clicked(void) {
 }
 
 void lmcSettingsDialog::populateThemes(void) {
-  //  Re-reads the theme dirs: a new/edited theme.json shows up without restart.
+  //  Re-reads theme files (no restart needed).
   ui.cboTheme->blockSignals(true);
   ui.cboTheme->clear();
   for(const QString& name : Theme::availableThemes())

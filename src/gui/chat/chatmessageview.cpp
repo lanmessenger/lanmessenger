@@ -593,7 +593,7 @@ QString ChatMessageView::themeFilePath() const {
   QString file = Theme::themeFileFor(themeName);
   if(!file.isEmpty())
     return file;
-  return QStringLiteral(":/themes/Bubble/theme.json");
+  return QStringLiteral(":/themes/Bubble.json");
 }
 
 void ChatMessageView::syncBackground() {

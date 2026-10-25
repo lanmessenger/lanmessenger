@@ -368,11 +368,8 @@ install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
 # configure time from the Qt used for the build).
 install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
         FILES_MATCHING PATTERN "*.qm")
-# Themes without Classic (bundled into resource.qrc) and notification sounds.
-# SCHEMA.md is authoring docs, not a runtime asset.
-install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
-        PATTERN "Classic" EXCLUDE
-        PATTERN "*.md" EXCLUDE)
+# Notification sounds. Chat themes ship embedded (:/themes) + user dir,
+# not staged here.
 install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})

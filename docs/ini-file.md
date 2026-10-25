@@ -201,7 +201,7 @@ empty.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `Theme` | string, `:/themes/Classic` | Message theme: a bundled resource path or a directory on disk. Preview it in Preferences before switching. |
+| `Theme` | string, `Bubble` | Chat theme name: a built-in name (e.g. `Bubble`) or a custom `<Name>` with `<Name>.json` in the user themes folder. Preview it in Preferences before switching. |
 | `UserListView` | int, `0` | `0` Detailed, `1` Compact contact list. |
 | `StatusToolTip` | bool, `false` | Include presence status in contact tooltips. |
 

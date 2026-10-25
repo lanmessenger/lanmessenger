@@ -67,14 +67,6 @@ public:
                                     "/" SL_LANGDIR);
   }
 
-  static QString resThemeDir(void) {
-    return ":/" SL_THEMEDIR;
-  }
-
-  static QString sysThemeDir(void) {
-    return QDir::toNativeSeparators(QDir::currentPath() + "/" SL_THEMEDIR);
-  }
-
   static QString userThemeDir(void) {
     return QDir::toNativeSeparators(QStandardPaths::writableLocation(
                                       QStandardPaths::AppLocalDataLocation) +

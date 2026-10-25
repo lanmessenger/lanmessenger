@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocale>
+#include <QtGlobal>
 #include <cmath>
 
 #include "core/lmccategories.h"
@@ -506,80 +507,19 @@ int treeContentCount(const Theme::LayoutNode& n) {
 } // namespace
 
 QString Theme::defaultJsonText() {
-  QFile f(QStringLiteral(":/themes/Bubble/theme.json"));
+  QFile f(QStringLiteral(":/themes/Bubble.json"));
   if(f.open(QIODevice::ReadOnly))
     return QString::fromUtf8(f.readAll());
   return QString();
 }
 
-//  Last-resort theme: no resource dependency, minimal but complete.
-//  Only runs when even the compiled-in Bubble resource is unreadable.
-const char kFallbackThemeJson[] = R"JSON({
-  "version": 1,
-  "avatar": {"size": 40, "shape": "circle"},
-  "header": {
-    "senderBold": true, "timeFormat": "HH:mm", "outgoingYouLabel": false,
-    "senderColor": ["#1A1D21", "#E8EAED"], "timeColor": ["#6B7280", "#9AA0A6"]
-  },
-  "text": ["#1A1D21", "#E8EAED"],
-  "link": ["#0B5FFF", "#8AB4F8"],
-  "page": ["#EDEFF2", "#131518"],
-  "layout_incoming": {"type": "hbox", "gap": 8, "children": [
-      {"type": "avatar"},
-      {"type": "vbox", "gap": 2, "stretch": 1, "children": [
-        {"type": "header", "items": ["sender", "time"]},
-        {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                                 "gradient(#1F242B, #262D36)"],
-         "padding": [8, 10, 8, 10],
-         "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}]},
-  "layout_incoming_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                               "gradient(#1F242B, #262D36)"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
-  "layout_outgoing": {"type": "vbox", "gap": 2, "children": [
-      {"type": "header", "items": ["time"]},
-      {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                               "gradient(#1D4D2B, #1A4527)"],
-        "textColor": ["#1A1D21", "#E8EAED"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
-  "layout_outgoing_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["gradient(#D9F2C7, #C9E8B4)",
-                               "gradient(#1D4D2B, #1A4527)"],
-        "textColor": ["#1A1D21", "#E8EAED"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 2, "maxWidthPct": 75}]},
-  "layout_system": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": "transparent",
-        "textColor": ["#6B7280", "#9AA0A6"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
-  "layout_broadcast": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"],
-        "border": ["#2F9E44", "#3FB950"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]},
-  "layout_request": {"type": "vbox", "gap": 0, "children": [
-      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)",
-                                   "gradient(#1F242B, #262D36)"],
-        "border": ["#D8DEE5", "#3A424C"],
-        "padding": [8, 10, 8, 10],
-        "shadow": [0, 2, 8, 0.18], "margin": 6, "maxWidthPct": 75}]}
-})JSON";
-
-QByteArray Theme::fallbackJsonText() {
-  return QByteArray(kFallbackThemeJson);
-}
-
 Theme Theme::builtInDefault() {
-  //  Primary fallback: the compiled-in Bubble theme, same file the
-  //  theme list shows first.
+  //  No fallback literal: a broken shipped theme must fail loudly.
   Theme t = loadFromJson(defaultJsonText().toUtf8());
-  if(t.isValid)
-    return t;
-  qCWarning(lmcUi) << "Theme: built-in resource broken, using minimal fallback";
-  return loadFromJson(fallbackJsonText());
+  Q_ASSERT_X(t.isValid, "Theme::builtInDefault", "broken built-in Bubble theme");
+  if(!t.isValid)
+    qCWarning(lmcUi) << "Theme: built-in resource broken:" << t.errorString;
+  return t;
 }
 
 Theme Theme::loadFromJson(const QByteArray& data) {
@@ -735,30 +675,21 @@ Theme Theme::loadFromJson(const QByteArray& data) {
 Theme Theme::loadFromFile(const QString& filePath) {
   QFile f(filePath);
   if(!f.open(QIODevice::ReadOnly)) {
-    Theme t = builtInDefault();
-    t.isValid = false;
+    Theme t;
     t.errorString = QStringLiteral("cannot open %1").arg(filePath);
     qCWarning(lmcUi) << "Theme:" << t.errorString;
     return t;
   }
-  Theme t = loadFromJson(f.readAll());
-  if(!t.isValid) {
-    Theme fallback = builtInDefault();
-    fallback.isValid = false;
-    fallback.errorString = t.errorString;
-    return fallback;
-  }
-  return t;
+  return loadFromJson(f.readAll());
 }
 
 namespace {
 
-//  Name -> theme.json. Built-in qrc first, user dir last (wins on clash).
-//  Broken files are skipped with a log line, never fatal.
+//  Built-in qrc first, user dir last (wins); broken files skipped.
 QMap<QString, QString> scanThemeFiles() {
   QMap<QString, QString> found;
   auto consider = [&](const QString& filePath) {
-    QString name = QFileInfo(filePath).dir().dirName();
+    QString name = QFileInfo(filePath).baseName();
     if(name.isEmpty()) {
       qCWarning(lmcUi) << "Theme: skipping nameless" << filePath;
       return;
@@ -770,28 +701,25 @@ QMap<QString, QString> scanThemeFiles() {
     }
     found.insert(name, filePath);
   };
-  QString builtIn = QStringLiteral(":/themes/Bubble/theme.json");
+  auto scanDir = [&](const QDir& dir, const QString& skip = QString()) {
+    const QStringList files = dir.entryList(QDir::Files, QDir::Name);
+    for(const QString& file : files) {
+      if(!file.endsWith(QStringLiteral(".json"), Qt::CaseInsensitive))
+        continue;
+      QString filePath = dir.absoluteFilePath(file);
+      if(filePath == skip)
+        continue;
+      if(QFile::exists(filePath))
+        consider(filePath);
+    }
+  };
+  QString builtIn = QStringLiteral(":/themes/Bubble.json");
   if(QFile::exists(builtIn))
     consider(builtIn);
   else
     qCWarning(lmcUi) << "Theme: missing built-in" << builtIn;
-  //  Further built-in themes ship in the same qrc prefix; the user dir wins.
-  QDir builtInDir(QStringLiteral(":/themes"));
-  const QStringList builtInSubs = builtInDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-  for(const QString& sub : builtInSubs) {
-    QString filePath = builtInDir.absoluteFilePath(sub + QStringLiteral("/theme.json"));
-    if(filePath == builtIn)
-      continue;
-    if(QFile::exists(filePath))
-      consider(filePath);
-  }
-  QDir userDir(StdLocation::userThemeDir());
-  const QStringList subdirs = userDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-  for(const QString& sub : subdirs) {
-    QString filePath = userDir.absoluteFilePath(sub + QStringLiteral("/theme.json"));
-    if(QFile::exists(filePath))
-      consider(filePath);
-  }
+  scanDir(QDir(QStringLiteral(":/themes")), builtIn);
+  scanDir(QDir(StdLocation::userThemeDir()));
   return found;
 }
 

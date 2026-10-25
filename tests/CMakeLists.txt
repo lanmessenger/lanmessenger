@@ -84,7 +84,7 @@ add_test(NAME application COMMAND tst_application)
 set_tests_properties(application PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 # Theme validator (native chat render, Bubble): pure JSON validation,
-# no network, no GUI. Fixture dir is the source themes dir (Bubble/theme.json).
+# no network, no GUI. Fixture dir is the source themes dir (Bubble.json).
 add_executable(tst_theme
     unit/tst_theme.cpp
     ../src/resource.qrc

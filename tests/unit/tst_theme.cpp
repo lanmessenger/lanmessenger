@@ -112,7 +112,6 @@ private slots:
   void dollarRefsRejected();
   void layoutWithoutRectRejected();
   void missingLayoutRejected();
-  void fallbackLiteralValid();
   void builtInDefaultValid();
   void pickHelpers();
   void shippedMeshBlueSpotCheck();
@@ -749,17 +748,9 @@ void TstTheme::missingLayoutRejected() {
   QVERIFY(!t2.isValid);
 }
 
-void TstTheme::fallbackLiteralValid() {
-  //  The last-resort literal parses on its own: stale nodes once shipped
-  //  here failing the validator, masked because builtInDefault takes
-  //  the resource path first.
-  Theme t = Theme::loadFromJson(Theme::fallbackJsonText());
-  QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QCOMPARE(t.compiled.size(), 7);
-}
-
 void TstTheme::builtInDefaultValid() {
-  //  Covers the compiled-in resource path and the minimal fallback literal.
+  //  defaultJsonText pins the resource route (no silent fallback).
+  QVERIFY2(!Theme::defaultJsonText().isEmpty(), "built-in Bubble resource unreadable");
   Theme t = Theme::builtInDefault();
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QCOMPARE(t.compiled.size(), 7);
@@ -797,7 +788,7 @@ void TstTheme::shippedMeshBlueSpotCheck() {
   //  The migration expanded tokens 1:1: incoming gradient and outgoing
   //  bare-white text read back exactly.
   QDir themesDir(QString::fromLocal8Bit(LMC_THEME_DIR));
-  QFile f(themesDir.absoluteFilePath(QStringLiteral("MeshBlue/theme.json")));
+  QFile f(themesDir.absoluteFilePath(QStringLiteral("MeshBlue.json")));
   QVERIFY(f.open(QIODevice::ReadOnly));
   Theme t = Theme::loadFromJson(f.readAll());
   QVERIFY2(t.isValid, qPrintable(t.errorString));
@@ -818,13 +809,12 @@ void TstTheme::shippedMeshBlueSpotCheck() {
 void TstTheme::availableThemesListsUserAndSkipsBroken() {
   QStandardPaths::setTestModeEnabled(true);
   QString base = StdLocation::userThemeDir();
-  QVERIFY(QDir().mkpath(base + QStringLiteral("/Good")));
-  QVERIFY(QDir().mkpath(base + QStringLiteral("/Bad")));
-  QFile good(base + QStringLiteral("/Good/theme.json"));
+  QVERIFY(QDir().mkpath(base));
+  QFile good(base + QStringLiteral("/Good.json"));
   QVERIFY(good.open(QIODevice::WriteOnly));
   good.write(validJson());
   good.close();
-  QFile bad(base + QStringLiteral("/Bad/theme.json"));
+  QFile bad(base + QStringLiteral("/Bad.json"));
   QVERIFY(bad.open(QIODevice::WriteOnly));
   bad.write("{broken");
   bad.close();
@@ -834,25 +824,25 @@ void TstTheme::availableThemesListsUserAndSkipsBroken() {
   QVERIFY(themes.contains(QStringLiteral("Good")));
   QVERIFY(!themes.contains(QStringLiteral("Bad")));
   QCOMPARE(Theme::themeFileFor(QStringLiteral("Good")),
-           QDir(base).absoluteFilePath(QStringLiteral("Good/theme.json")));
+           QDir(base).absoluteFilePath(QStringLiteral("Good.json")));
   QVERIFY(Theme::themeFileFor(QStringLiteral("Nope")).isEmpty());
 
-  QVERIFY(QDir(base + QStringLiteral("/Good")).removeRecursively());
-  QVERIFY(QDir(base + QStringLiteral("/Bad")).removeRecursively());
+  QVERIFY(QFile::remove(base + QStringLiteral("/Good.json")));
+  QVERIFY(QFile::remove(base + QStringLiteral("/Bad.json")));
   QStandardPaths::setTestModeEnabled(false);
 }
 
 void TstTheme::realFileLoads() {
   QDir themesDir(QString::fromLocal8Bit(LMC_THEME_DIR));
-  const QStringList subdirs =
-    themesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
-  QVERIFY2(!subdirs.isEmpty(), "no themes found");
-  QVERIFY(subdirs.contains(QStringLiteral("Bubble")));
-  for(const QString& sub : subdirs) {
-    QFile f(themesDir.absoluteFilePath(sub + QStringLiteral("/theme.json")));
-    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QStringLiteral("cannot open ") + sub));
+  const QStringList files =
+    themesDir.entryList(QStringList(QStringLiteral("*.json")), QDir::Files, QDir::Name);
+  QVERIFY2(!files.isEmpty(), "no themes found");
+  QVERIFY(files.contains(QStringLiteral("Bubble.json")));
+  for(const QString& file : files) {
+    QFile f(themesDir.absoluteFilePath(file));
+    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QStringLiteral("cannot open ") + file));
     Theme t = Theme::loadFromJson(f.readAll());
-    QVERIFY2(t.isValid, qPrintable(sub + QStringLiteral(": ") + t.errorString));
+    QVERIFY2(t.isValid, qPrintable(file + QStringLiteral(": ") + t.errorString));
   }
 }
 

@@ -1,6 +1,6 @@
-# Bubble theme.json — schema (colors are literals on layout nodes)
+# theme.json — schema (colors are literals on layout nodes)
 
-One dir per theme: `src/resources/themes/<Name>/theme.json`, UTF-8, strict JSON
+One file per theme: `src/resources/themes/<Name>.json`, UTF-8, strict JSON
 (no comments; explanations go in `_comment` fields). Parser is `QJsonDocument`.
 
 To answer "what color is this row", open its `layout_*` and read the node:

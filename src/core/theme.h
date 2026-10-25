@@ -134,13 +134,9 @@ public:
   static Theme loadFromFile(const QString& filePath);
   static Theme builtInDefault();
   static QString defaultJsonText();
-  //  The last-resort literal (used when even the compiled-in resource
-  //  is unreadable). Exposed so tests cover it: an untested fallback
-  //  once shipped stale nodes failing its own validator.
-  static QByteArray fallbackJsonText();
   //  Theme discovery: validated names, user dir overrides built-in qrc.
   static QStringList availableThemes();
-  //  Resolve a theme name to its theme.json (empty when unknown).
+  //  Resolve a theme name to its <Name>.json (empty when unknown).
   static QString themeFileFor(const QString& name);
 
   //  Per-mode picks over compiled literals: a mode switch needs
