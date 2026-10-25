@@ -109,12 +109,12 @@ public:
   };
 
   struct Header {
-    bool senderBold = true;
+    int senderWeight = 600;
     //  Theme-level header colors are defaults; layout header nodes override.
     QString timeFormat = QStringLiteral("HH:mm");
     bool outgoingYouLabel = false;
     //  Sizes scale the local display size.
-    //  senderBold styles the incoming name only ("You" and time are regular).
+    //  senderWeight styles the incoming name only ("You" and time are regular).
     double senderSize = 1.0;
     double timeSize = 1.0;
     DualColor senderColor;

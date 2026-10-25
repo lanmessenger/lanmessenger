@@ -8,7 +8,7 @@
     "shape": "rounded"
   },
   "header": {
-    "senderBold": true,
+    "senderWeight": 600,
     "timeFormat": "HH:mm",
     "outgoingYouLabel": true,
     "senderColor": ["#64748B", "#7DD3FC"],

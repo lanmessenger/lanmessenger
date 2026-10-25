@@ -608,7 +608,24 @@ Theme Theme::loadFromJson(const QByteArray& data) {
     return t;
   }
   QJsonObject h = root.value(QStringLiteral("header")).toObject();
-  t.header.senderBold = h.value(QStringLiteral("senderBold")).toBool(true);
+  if(h.contains(QStringLiteral("senderBold"))) {
+    t.errorString = QStringLiteral("senderBold removed (use senderWeight 100..900)");
+    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    return t;
+  }
+  QJsonValue senderWeightValue = h.value(QStringLiteral("senderWeight"));
+  if(senderWeightValue.isUndefined() || senderWeightValue.isNull()) {
+    t.header.senderWeight = 600;
+  } else {
+    if(!senderWeightValue.isDouble() ||
+       std::floor(senderWeightValue.toDouble()) != senderWeightValue.toDouble() ||
+       senderWeightValue.toInt(-1) < 100 || senderWeightValue.toInt(-1) > 900) {
+      t.errorString = QStringLiteral("bad header senderWeight (want 100..900)");
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return t;
+    }
+    t.header.senderWeight = senderWeightValue.toInt();
+  }
   t.header.timeFormat = h.value(QStringLiteral("timeFormat")).toString();
   if(t.header.timeFormat.isEmpty()) {
     t.errorString = QStringLiteral("bad header.timeFormat");

@@ -52,15 +52,18 @@ key invalidates the theme.
 ## `avatar` / `header`
 
 - `avatar.size`: int > 0; `shape`: `circle|rounded|square`.
-- `header.senderBold`: bool; `header.timeFormat`: non-empty `QDateTime::toString`
+- `header.senderWeight`: optional int 100..900 (default `600`, semibold);
+  `header.timeFormat`: non-empty `QDateTime::toString`
   format, locale-independent (breaking change vs `QLocale::ShortFormat`).
   Shipped themes use `HH:mm`; `NordicTerminal` uses `HH:mm:ss` as a seconds example.
+  The legacy `header.senderBold` bool is removed: any theme carrying it is invalid.
 - `header.outgoingYouLabel`: optional bool (default `false`), prefix for the time
-  in the outgoing header with the translated "You" label (e.g. `"You · 10:43"`).
+  in the outgoing header with the translated "You" label (e.g. `"You 10:43"`).
   The word itself is not theme data: the delegate renders it via `tr()` in
   `BubbleDelegate`, so translators handle it through the `.ts`/`.qm` workflow.
+  The separator is a plain single space in code, not part of the translation.
   `false` keeps the old time-only header. The "You" prefix is always regular;
-  `senderBold` styles the incoming sender name only.
+  `senderWeight` styles the incoming sender name only.
 - `header.senderSize` / `header.timeSize`: optional numbers 0.5..2.0
   (default `1.0`), multipliers of the local display size from the user's own
   font-size setting — never absolute pt, so the setting keeps working. The

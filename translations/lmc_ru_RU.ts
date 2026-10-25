@@ -85,11 +85,6 @@
         <source>You</source>
         <translation>Вы</translation>
     </message>
-    <message>
-        <location filename="bubbledelegate.cpp" line="465"/>
-        <source>You · %1</source>
-        <translation>Вы · %1</translation>
-    </message>
 </context>
 <context>
     <name>ChatRoomWindow</name>

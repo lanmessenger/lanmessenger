@@ -17,7 +17,7 @@ QByteArray validJson() {
   return QByteArray(R"JSON({
     "version": 1,
     "avatar": {"size": 40, "shape": "circle"},
-    "header": {"senderBold": true, "timeFormat": "HH:mm",
+    "header": {"senderWeight": 600, "timeFormat": "HH:mm",
                "senderColor": ["#6B7280", "#9AA0A6"],
                "timeColor": ["#6B7280", "#9AA0A6"]},
     "text": ["#1A1D21", "#E8EAED"],
@@ -72,6 +72,7 @@ private slots:
   void headerTypographyDefaulted();
   void headerTypographyParsed();
   void badHeaderSizeRejected();
+  void badHeaderWeightRejected();
   void badHeaderColorRejected();
   void headerColorsRequired();
   void globalColorsParsed();
@@ -150,16 +151,16 @@ void TstTheme::optionalKeysDefaulted() {
 }
 
 void TstTheme::outgoingYouLabelParsed() {
-  QByteArray labeled = withReplaced(validJson(), "\"senderBold\": true",
-                                    "\"senderBold\": true, \"outgoingYouLabel\": true");
+  QByteArray labeled = withReplaced(validJson(), "\"senderWeight\": 600",
+                                    "\"senderWeight\": 600, \"outgoingYouLabel\": true");
   Theme t = Theme::loadFromJson(labeled);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVERIFY(t.header.outgoingYouLabel);
 }
 
 void TstTheme::outgoingYouLabelExplicitFalse() {
-  QByteArray base = withReplaced(validJson(), "\"senderBold\": true",
-                                 "\"senderBold\": true, \"outgoingYouLabel\": false");
+  QByteArray base = withReplaced(validJson(), "\"senderWeight\": 600",
+                                 "\"senderWeight\": 600, \"outgoingYouLabel\": false");
   Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QVERIFY(!t.header.outgoingYouLabel);
@@ -168,6 +169,7 @@ void TstTheme::outgoingYouLabelExplicitFalse() {
 void TstTheme::headerTypographyDefaulted() {
   Theme t = Theme::loadFromJson(validJson());
   QVERIFY(t.isValid);
+  QCOMPARE(t.header.senderWeight, 600);
   QCOMPARE(t.header.senderSize, 1.0);
   QCOMPARE(t.header.timeSize, 1.0);
   QCOMPARE(t.header.senderColor.light, QColor(QStringLiteral("#6B7280")));
@@ -177,7 +179,7 @@ void TstTheme::headerTypographyDefaulted() {
 }
 
 void TstTheme::headerTypographyParsed() {
-  QByteArray typed = withReplaced(validJson(), "\"senderBold\": true", "\"senderBold\": false");
+  QByteArray typed = withReplaced(validJson(), "\"senderWeight\": 600", "\"senderWeight\": 400");
   typed = withReplaced(typed, "\"timeFormat\": \"HH:mm\"",
                        "\"timeFormat\": \"HH:mm\", \"senderSize\": 1.25, \"timeSize\": 0.75");
   typed = withReplaced(typed, "\"senderColor\": [\"#6B7280\", \"#9AA0A6\"],\n"
@@ -186,7 +188,7 @@ void TstTheme::headerTypographyParsed() {
                        "               \"timeColor\": [\"#0B5FFF\", \"#8AB4F8\"]");
   Theme t = Theme::loadFromJson(typed);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
-  QVERIFY(!t.header.senderBold);
+  QCOMPARE(t.header.senderWeight, 400);
   QCOMPARE(t.header.senderSize, 1.25);
   QCOMPARE(t.header.timeSize, 0.75);
   //  Bare hex covers both modes; a pair splits them.
@@ -204,6 +206,20 @@ void TstTheme::badHeaderSizeRejected() {
     Theme t = Theme::loadFromJson(sized);
     QVERIFY2(!t.isValid, bad);
   }
+}
+
+void TstTheme::badHeaderWeightRejected() {
+  //  Weight is an int 100..900: out of range, non-numeric and fractional fail.
+  for(const char* bad : {"99", "1000", "\"semibold\"", "true", "600.5", "[600]"}) {
+    QByteArray weighted =
+      withReplaced(validJson(), "\"senderWeight\": 600",
+                   QByteArray("\"senderWeight\": ") + bad);
+    Theme t = Theme::loadFromJson(weighted);
+    QVERIFY2(!t.isValid, bad);
+  }
+  //  Legacy bool key is removed: a stale theme reads as invalid, not silent.
+  QByteArray legacy = withReplaced(validJson(), "\"senderWeight\": 600", "\"senderBold\": true");
+  QVERIFY(!Theme::loadFromJson(legacy).isValid);
 }
 
 void TstTheme::badHeaderColorRejected() {
@@ -460,7 +476,7 @@ void TstTheme::staleThemeGapKeysIgnored() {
   //  Old files with theme-level gap keys stay valid; gaps come from nodes now.
   QByteArray base = withReplaced(validJson(), "\"size\": 40",
                                  "\"size\": 40, \"gap\": 10");
-  base = withReplaced(base, "\"senderBold\": true", "\"senderBold\": true, \"gap\": 4");
+  base = withReplaced(base, "\"senderWeight\": 600", "\"senderWeight\": 600, \"gap\": 4");
   Theme t = Theme::loadFromJson(base);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QCOMPARE(t.compiledLayout(QStringLiteral("layout_incoming")).gap, 8);

@@ -136,8 +136,7 @@ QFont BubbleDelegate::headerNameFont() const {
   //  No index: the message font cannot leak into the header.
   QFont f;
   f.setPointSizeF(localPointSize() * theme.header.senderSize);
-  if(theme.header.senderBold)
-    f.setBold(true);
+  f.setWeight(static_cast<QFont::Weight>(theme.header.senderWeight));
   return f;
 }
 
@@ -619,25 +618,20 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     bool wantTime = e.headerItems.contains(QStringLiteral("time"));
     QString namePart;
     QString timePart = wantTime ? time : QString();
-    bool nameBold = theme.header.senderBold;
     if(card == QLatin1String("incoming")) {
       if(wantSender)
         namePart = index.data(ChatMessageModel::UserNameRole).toString();
       if(!namePart.isEmpty() && !timePart.isEmpty())
-        timePart = QStringLiteral("  ") + timePart;
+        timePart = QStringLiteral(" ") + timePart;
     } else if(card == QLatin1String("outgoing")) {
       if(theme.header.outgoingYouLabel) {
-        if(timePart.isEmpty()) {
-          namePart = tr("You");
-        } else {
-          //: Outgoing header prefix, always regular (see header.outgoingYouLabel).
-          namePart = tr("You ·");
-        }
+        namePart = tr("You");
+        if(!timePart.isEmpty())
+          timePart = QStringLiteral(" ") + timePart;
       }
-      nameBold = false;
+      //  The "You" prefix stays regular even when the incoming name is semibold.
+      nf.setWeight(QFont::Normal);
     }
-    if(!nameBold)
-      nf.setBold(false);
     QColor nameColor = Theme::pick(e.senderColor, darkMode);
     QColor timeColor = Theme::pick(e.timeColor, darkMode);
     QFontMetrics nfm(nf);

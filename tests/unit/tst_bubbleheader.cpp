@@ -79,8 +79,8 @@ void TstBubbleHeader::headerUsesThemeAndLocalSize() {
   QCOMPARE(time.pointSizeF(), 9.0);
   QCOMPARE(name.family(), QFont().family());
   QCOMPARE(time.family(), QFont().family());
-  QVERIFY(name.bold());
-  QVERIFY(!time.bold());
+  QCOMPARE(name.weight(), QFont::DemiBold);
+  QCOMPARE(time.weight(), QFont::Normal);
 }
 
 void TstBubbleHeader::headerScalesWithTheme() {
