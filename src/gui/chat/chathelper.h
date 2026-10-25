@@ -22,6 +22,13 @@ struct SingleMessage {
   QString userName;
   XmlMessage message;
   QString id; // secondary id for more efficient traversal
+  //  Lazy-once text signature (stored text is immutable); transient, not serialized.
+  //  Covers body text (XN_MESSAGE/GROUPMESSAGE/BROADCAST) or chat-state only.
+  //  File name/size are immutable after append and intentionally excluded:
+  //  file rows share qHash("") and are told apart by FileOpRole in contentRev.
+  mutable size_t textSigHash = 0;
+  mutable int textSigLen = 0;
+  mutable bool textSigOk = false;
 
   SingleMessage() {}
   SingleMessage(MessageType mType, QString szUserId, QString szUserName, XmlMessage xmlMessage, QString szId = QString()) {

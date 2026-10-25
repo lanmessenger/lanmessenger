@@ -68,6 +68,10 @@ public:
                          FileMode mode, XmlMessage* outMessage);
 
   const SingleMessage& messageAt(int row) const;
+  //  Lazy-once text signature, O(1) after the first call (stored text is immutable).
+  //  Covers body text / chat-state only; file name/size are immutable after
+  //  append and excluded by design (see SingleMessage::textSigHash).
+  size_t rowTextHash(int row, int* pLen = nullptr) const;
   //  Ephemeral typing row: always last when present, never in messages().
   bool isTypingRow(int row) const;
   const SingleMessage& typingMessage() const;

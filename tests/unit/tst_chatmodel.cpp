@@ -53,6 +53,7 @@ private slots:
   void typingActiveClears();
   void typingNotStored();
   void typingDoesNotGroup();
+  void textSigStable();
 };
 
 
@@ -213,6 +214,51 @@ void TstChatModel::typingDoesNotGroup() {
   XmlMessage m2 = textMessage(QStringLiteral("again"));
   QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m2), 1);
   QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
+}
+
+void TstChatModel::textSigStable() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage m1 = textMessage(QStringLiteral("hi there"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  int len = 0;
+  size_t h1 = model.rowTextHash(0, &len);
+  QCOMPARE(len, int(QStringLiteral("hi there").length()));
+  //  Second call serves the cache; non-text mutations keep the signature.
+  QCOMPARE(model.rowTextHash(0), h1);
+  QString newName = QStringLiteral("Jackson");
+  model.updateUserName(&jack, &newName);
+  QCOMPARE(model.rowTextHash(0), h1);
+
+  XmlMessage f = fileRequest(QStringLiteral("fid1"), QStringLiteral("a.txt"));
+  model.appendMessageLog(MT_File, &jack, &jackName, &f);
+  size_t fh1 = model.rowTextHash(1);
+  model.updateFileMessage(FM_Receive, FO_Accept, QStringLiteral("fid1"));
+  QCOMPARE(model.rowTextHash(1), fh1);
+
+  //  Distinct texts give distinct signatures; out-of-range is 0.
+  XmlMessage m2 = textMessage(QStringLiteral("something else entirely"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m2);
+  int len2 = 0;
+  size_t h2 = model.rowTextHash(2, &len2);
+  QCOMPARE(len2, int(QStringLiteral("something else entirely").length()));
+  QVERIFY(h2 != h1 || len2 != len);
+  QCOMPARE(model.rowTextHash(99), size_t(0));
+
+  //  Typing states share the row but render different text: the signature must differ.
+  ChatMessageModel typing;
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  QCOMPARE(typing.appendMessageLog(MT_ChatState, &jack, &jackName, &composing), 0);
+  int clen = 0;
+  size_t ch = typing.rowTextHash(0, &clen);
+  XmlMessage paused = chatState(ChatStateNames[CS_Paused]);
+  QCOMPARE(typing.appendMessageLog(MT_ChatState, &jack, &jackName, &paused), 0);
+  int plen = 0;
+  size_t ph = typing.rowTextHash(0, &plen);
+  QVERIFY(ch != ph);
+  QVERIFY(clen != plen);
 }
 
 QTEST_MAIN(TstChatModel)

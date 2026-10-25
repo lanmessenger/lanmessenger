@@ -2,6 +2,8 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "chatmessagemodel.h"
 
+#include <QHash>
+
 #include "core/shared.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chattextguard.h"
@@ -202,6 +204,7 @@ void ChatMessageModel::updateFileMessage(FileMode mode, FileOp op, QString fileI
     xml.removeData(XN_FILEOP);
     xml.addData(XN_FILEOP, FileOpNames[op]);
     msg.message = xml;
+    //  Text-preserving mutation: body/file name/size untouched, cached textSig stays valid.
     messageLog[i] = msg;
     if(mode == FM_Send && sendFileMap.contains(fileId)) {
       XmlMessage stored = sendFileMap.value(fileId);
@@ -229,6 +232,7 @@ void ChatMessageModel::updateUserName(QString* lpszUserId, QString* lpszUserName
       continue;
     SingleMessage msg = messageLog.at(i);
     msg.userName = *lpszUserName;
+    //  Text-preserving mutation: user name is part of contentRev, not of textSig.
     messageLog[i] = msg;
     QModelIndex idx = index(i, 0);
     emit dataChanged(idx, idx, {UserNameRole, TextRole, Qt::DisplayRole});
@@ -327,6 +331,33 @@ const SingleMessage& ChatMessageModel::messageAt(int row) const {
   return messageLog.at(row);
 }
 
+size_t ChatMessageModel::rowTextHash(int row, int* pLen) const {
+  const SingleMessage* pMsg = nullptr;
+  if(row >= 0 && row < messageLog.count())
+    pMsg = &messageLog.at(row);
+  else if(isTypingRow(row))
+    pMsg = &typingMsg;
+  if(!pMsg) {
+    if(pLen)
+      *pLen = 0;
+    return 0;
+  }
+  if(!pMsg->textSigOk) {
+    XmlMessage xml = pMsg->message;
+    //  ChatState rows carry no body text; their rendered text depends on the state.
+    //  File/folder rows carry no body text either (bodyText() is empty): their
+    //  name/size are immutable after append, so a shared qHash("") is by design.
+    QString text =
+      (pMsg->type == MT_ChatState) ? xml.data(XN_CHATSTATE) : bodyText(xml);
+    pMsg->textSigHash = qHash(text);
+    pMsg->textSigLen = text.length();
+    pMsg->textSigOk = true;
+  }
+  if(pLen)
+    *pLen = pMsg->textSigLen;
+  return pMsg->textSigHash;
+}
+
 bool ChatMessageModel::isTypingRow(int row) const {
   return hasTyping && row == messageLog.count();
 }
@@ -351,6 +382,8 @@ QList<SingleMessage> ChatMessageModel::messages() const {
 void ChatMessageModel::setMessages(const QList<SingleMessage>& messages) {
   beginResetModel();
   messageLog = messages;
+  for(auto& m : messageLog)
+    m.textSigOk = false;
   hasData = !messageLog.isEmpty();
   hasTyping = false;
   typingMsg = SingleMessage();

@@ -503,15 +503,25 @@ QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
 }
 
 QString BubbleDelegate::contentRev(const QModelIndex& index) const {
-  QString text = index.data(ChatMessageModel::TextRole).toString();
+  //  Text part is a lazy-once model signature; the rest is small fixed-size state.
+  int textLen = 0;
+  size_t textHash = 0;
+  if(const ChatMessageModel* model = qobject_cast<const ChatMessageModel*>(index.model())) {
+    textHash = model->rowTextHash(index.row(), &textLen);
+  } else {
+    //  Non-model/proxy path: full TextRole hash on purpose, may differ from body-only rev.
+    QString text = index.data(ChatMessageModel::TextRole).toString();
+    textLen = text.length();
+    textHash = qHash(text);
+  }
   QString avatar = index.data(ChatMessageModel::AvatarRole).toString();
   QString fileOp = index.data(ChatMessageModel::FileOpRole).toString();
   QString user = index.data(ChatMessageModel::UserNameRole).toString();
   QString time = index.data(ChatMessageModel::TimeRole).toDateTime().toString(Qt::ISODate);
   return QStringLiteral("%1|%2|%3|%4|%5|%6")
-    .arg(text.length())
-    .arg(qHash(text))
-    .arg(qHash(avatar + fileOp + user + time))
+    .arg(textLen)
+    .arg(static_cast<quint64>(textHash))
+    .arg(static_cast<quint64>(qHash(avatar + fileOp + user + time)))
     .arg(index.data(ChatMessageModel::GroupedRole).toBool())
     .arg(index.data(ChatMessageModel::OwnRole).toBool())
     .arg(index.data(ChatMessageModel::TypeRole).toInt());
