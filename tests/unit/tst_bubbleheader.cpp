@@ -444,18 +444,18 @@ void TstBubbleHeader::broadcastRectClearsViewportEdge() {
   const int W = 400;
   //  MeshBlue: avatar 26 + hbox gap 8, incoming padding 14/14,
   //  maxWidthPct 80 -> bubble [34, 325].
-  QRect incoming = d.rowBubbleRect(model.index(0, 0), W, 20, d.resolveRow(model.index(0, 0)));
+  QRect incoming = d.rowBubbleRect(W, 20, d.resolveRow(model.index(0, 0)));
   QCOMPARE(incoming.left(), 34);
   QCOMPARE(incoming.right(), 325);
   //  Strip cards: symmetric 1px gutters, full stroke on all sides.
-  QRect bc = d.rowBubbleRect(model.index(1, 0), W, 20, d.resolveRow(model.index(1, 0)));
+  QRect bc = d.rowBubbleRect(W, 20, d.resolveRow(model.index(1, 0)));
   QCOMPARE(bc.left(), 1);
   QCOMPARE(bc.right(), W - 2);
-  QRect sys = d.rowBubbleRect(model.index(2, 0), W, 20, d.resolveRow(model.index(2, 0)));
+  QRect sys = d.rowBubbleRect(W, 20, d.resolveRow(model.index(2, 0)));
   QCOMPARE(sys.left(), 1);
   QCOMPARE(sys.right(), W - 2);
   //  Outgoing keeps its right-flush geometry (that edge renders fully).
-  QRect own = d.rowBubbleRect(model.index(3, 0), W, 20, d.resolveRow(model.index(3, 0)));
+  QRect own = d.rowBubbleRect(W, 20, d.resolveRow(model.index(3, 0)));
   QCOMPARE(own.left(), 80);
   QCOMPARE(own.right(), W - 1);
 }

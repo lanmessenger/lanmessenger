@@ -60,9 +60,8 @@ public:
   //  Alias kept so tests use BubbleDelegate::ResolvedRow as before.
   using ResolvedRow = ::ResolvedRow;
   ResolvedRow resolveRow(const QModelIndex& index) const;
-  //  Public for tests.
-  QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
-                      const ResolvedRow& row) const;
+  //  Public for tests: geometry only, no model access.
+  QRect rowBubbleRect(int viewportWidth, int contentH, const ResolvedRow& row) const;
 
   //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -85,7 +84,6 @@ private:
     RowGeometry geo;
   };
 
-  QString roleFor(const QModelIndex& index) const;
   double localPointSize() const;
   QString rowTime(const QModelIndex& index) const;
   QString fileCardHtml(const QModelIndex& index) const;
@@ -95,9 +93,6 @@ private:
   QString contentRev(const QModelIndex& index) const;
   const CacheEntry& entryFor(const QModelIndex& index, int viewportWidth) const;
   QPixmap avatarPixmap(const QString& path, int size) const;
-  //  Avatar space is reserved only when the avatar node is walked:
-  //  series-start trees carry it, _next trees omit it.
-  bool reservesAvatar(const QString& card) const;
 
   Theme theme;
   Theme::Mode mode = Theme::Mode::System;

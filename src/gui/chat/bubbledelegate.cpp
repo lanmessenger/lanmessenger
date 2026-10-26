@@ -86,14 +86,6 @@ void BubbleDelegate::noteViewportWidth(int viewportWidth) {
   }
 }
 
-//  Row role from the message alone: layout name minus the prefix,
-//  so "layout_" + role always names the tree to walk.
-QString BubbleDelegate::roleFor(const QModelIndex& index) const {
-  int type = index.data(ChatMessageModel::TypeRole).toInt();
-  bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  return RowResolver::roleForCard(type, own);
-}
-
 double BubbleDelegate::localPointSize() const {
   static const double sizes[] = {8.25, 9.0, 10.5};
   return sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
@@ -197,9 +189,10 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
 }
 
 BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
-  const QString card = roleFor(index);
+  const int type = index.data(ChatMessageModel::TypeRole).toInt();
+  const bool own = index.data(ChatMessageModel::OwnRole).toBool();
   const bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
-  return RowResolver::resolve(theme, card, grouped);
+  return RowResolver::resolve(theme, RowResolver::roleForCard(type, own), grouped);
 }
 
 QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row) const {
@@ -234,9 +227,8 @@ int BubbleDelegate::viewWidth(const QStyleOptionViewItem& option) const {
   return option.rect.width();
 }
 
-QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
+QRect BubbleDelegate::rowBubbleRect(int viewportWidth, int contentH,
                                     const ResolvedRow& row) const {
-  Q_UNUSED(index);
   const int contentW =
     BubbleGeometry::contentWidth(row, viewportWidth, theme.avatar.size);
   RowGeometry geo = BubbleGeometry::buildLayout(row, viewportWidth, contentW, contentH,
@@ -318,10 +310,6 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
                                       headerNameFont(), headerTimeFont(), theme.avatar.size);
   cache.insert(key, e);
   return cache.constFind(key).value();
-}
-
-bool BubbleDelegate::reservesAvatar(const QString& card) const {
-  return RowResolver::reservesAvatar(card, theme.avatar.size);
 }
 
 QPixmap BubbleDelegate::avatarPixmap(const QString& path, int size) const {
