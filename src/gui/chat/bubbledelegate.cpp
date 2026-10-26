@@ -22,8 +22,6 @@
 namespace {
 
 const int kMaxCacheEntries = 150;
-const int kEdgeGutter = 1;
-const int kMinContentW = 80;
 
 //  Per-corner rounded rect: c is [TL, TR, BR, BL] in px, clamped to the rect.
 QPainterPath roundedCorners(const QRect& r, const int c[4]) {
@@ -347,94 +345,15 @@ int BubbleDelegate::viewWidth(const QStyleOptionViewItem& option) const {
   return option.rect.width();
 }
 
-int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
-                                 const ResolvedRow& row) const {
-  Q_UNUSED(index);
-  QString card = row.card;
-  int avail = viewportWidth;
-  if(row.avatar)
-    avail -= theme.avatar.size + row.hboxGap;
-  //  Strip cards span the viewport edge to edge: reserve the symmetric 1px
-  //  gutters placeBubble keeps, so the 1px border stroke survives viewport
-  //  clipping on both sides (a flush edge loses its outer half and reads as
-  //  thinner, e.g. the broadcast left edge).
-  if(card == QLatin1String("broadcast") || card == QLatin1String("system"))
-    avail -= 2 * kEdgeGutter;
-  if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
-     card == QLatin1String("request"))
-    avail = avail * row.maxWidthPct / 100;
-  int padH = row.padding[1] + row.padding[3];
-  return qMax(kMinContentW, avail - padH);
-}
-
-BubbleDelegate::HeaderMetrics BubbleDelegate::headerMetrics(const ResolvedRow& row) const {
-  HeaderMetrics m;
-  if(!row.header)
-    return m;
-  QFont nf = headerNameFont();
-  QFont tf = headerTimeFont();
-  QFontMetrics nfm(nf);
-  QFontMetrics tfm(tf);
-  m.height = qMax(nfm.height(), tfm.height()) + row.vboxGap;
-  m.ascent = qMax(nfm.ascent(), tfm.ascent());
-  return m;
-}
-
-QRect BubbleDelegate::placeBubble(int viewportWidth, int contentW, int contentH,
-                                  const ResolvedRow& row, int headerH) const {
-  QString card = row.card;
-  int bubbleW = contentW + row.padding[1] + row.padding[3];
-  int bubbleH = contentH + row.padding[0] + row.padding[2];
-  int x = 0;
-  int top = row.marginTop;
-  int avatarW = 0;
-  if(row.avatar)
-    avatarW = theme.avatar.size + row.hboxGap;
-  if(card == QLatin1String("outgoing")) {
-    x = viewportWidth - bubbleW;
-    //  Full-width custom theme (maxWidthPct 100, unreachable in shipped
-    //  themes): keep the left stroke inside the viewport like below. The doc
-    //  may overflow 1px on lines that exactly fill the width.
-    if(x < kEdgeGutter) {
-      bubbleW -= kEdgeGutter - x;
-      x = kEdgeGutter;
-    }
-  } else if(card == QLatin1String("system")) {
-    //  Full width centers on 1 through the contentWidth gutter above.
-    x = (viewportWidth - bubbleW) / 2;
-  } else if(card == QLatin1String("broadcast")) {
-    //  Left gutter; the right one mirrors it through the avail cut above.
-    x = kEdgeGutter;
-  } else {
-    //  General guard (avatarless themes, request cards): never start left
-    //  of the 1px stroke clearance. The width is untouched, so the doc
-    //  still fits and only the bubble shifts right by a pixel.
-    x = qMax(avatarW, kEdgeGutter);
-  }
-  return QRect(x, top + headerH, bubbleW, bubbleH);
-}
-
-BubbleDelegate::RowLayout BubbleDelegate::buildLayout(int viewportWidth, const ResolvedRow& row,
-                                                      int contentW, int contentH) const {
-  RowLayout l;
-  l.contentW = contentW;
-  l.contentH = contentH;
-  HeaderMetrics m = headerMetrics(row);
-  l.headerH = m.height;
-  l.headerAscent = m.ascent;
-  l.bubbleRect = placeBubble(viewportWidth, contentW, contentH, row, m.height);
-  l.docRect = QRect(l.bubbleRect.left() + row.padding[3], l.bubbleRect.top() + row.padding[0],
-                    contentW, contentH);
-  //  +1: QRect::bottom() is the last pixel, size needs one past it.
-  l.size = QSize(viewportWidth, l.bubbleRect.bottom() + 1);
-  return l;
-}
-
 QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
                                     const ResolvedRow& row) const {
-  const int contentW = contentWidth(index, viewportWidth, row);
-  const HeaderMetrics m = headerMetrics(row);
-  return placeBubble(viewportWidth, contentW, contentH, row, m.height);
+  Q_UNUSED(index);
+  const int contentW =
+    BubbleGeometry::contentWidth(row, viewportWidth, theme.avatar.size);
+  RowGeometry geo = BubbleGeometry::buildLayout(row, viewportWidth, contentW, contentH,
+                                                headerNameFont(), headerTimeFont(),
+                                                theme.avatar.size);
+  return geo.bubbleRect;
 }
 
 QString BubbleDelegate::contentRev(const QModelIndex& index) const {
@@ -501,16 +420,13 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   }
   ResolvedRow row = resolveRow(index);
   e.doc->setHtml(rowHtml(index, row));
-  const int contentW = contentWidth(index, viewportWidth, row);
+  const int contentW =
+    BubbleGeometry::contentWidth(row, viewportWidth, theme.avatar.size);
   e.doc->setTextWidth(contentW);
   QSizeF docSize = e.doc->size();
-  RowLayout l = buildLayout(viewportWidth, row, contentW, qCeil(docSize.height()));
   e.row = row;
-  e.headerH = l.headerH;
-  e.headerAscent = l.headerAscent;
-  e.bubbleRect = l.bubbleRect;
-  e.docRect = l.docRect;
-  e.size = l.size;
+  e.geo = BubbleGeometry::buildLayout(row, viewportWidth, contentW, qCeil(docSize.height()),
+                                      headerNameFont(), headerTimeFont(), theme.avatar.size);
   cache.insert(key, e);
   return cache.constFind(key).value();
 }
@@ -593,11 +509,11 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     QColor timeColor = Theme::pick(row.timeColor, darkMode);
     QFontMetrics nfm(nf);
     QFontMetrics tfm(tf);
-    int hx = e.bubbleRect.left();
+    int hx = e.geo.bubbleRect.left();
     if(card == QLatin1String("outgoing"))
-      hx = e.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
+      hx = e.geo.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
            tfm.horizontalAdvance(timePart);
-    int baseline = top + row.marginTop + e.headerAscent;
+    int baseline = top + row.marginTop + e.geo.headerAscent;
     if(!namePart.isEmpty()) {
       painter->setFont(nf);
       painter->setPen(nameColor);
@@ -611,8 +527,8 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     }
   }
 
-  QRect bubble = e.bubbleRect.translated(0, top);
-  QRect docRect = e.docRect.translated(0, top);
+  QRect bubble = e.geo.bubbleRect.translated(0, top);
+  QRect docRect = e.geo.docRect.translated(0, top);
 
   if(row.avatar) {
     QString avatarPath = index.data(ChatMessageModel::AvatarRole).toString();
@@ -665,13 +581,13 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 QSize BubbleDelegate::sizeHint(const QStyleOptionViewItem& option,
                                const QModelIndex& index) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  return e.size;
+  return e.geo.size;
 }
 
 QString BubbleDelegate::anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  QRect docRect = e.docRect.translated(0, option.rect.top());
+  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
   if(!docRect.contains(pos))
     return QString();
   QPointF docPos = QPointF(pos - docRect.topLeft());
@@ -682,7 +598,7 @@ QString BubbleDelegate::anchorAt(const QPoint& pos, const QStyleOptionViewItem& 
 QRect BubbleDelegate::anchorRect(const QString& href, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  QRect docRect = e.docRect.translated(0, option.rect.top());
+  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
   if(href.isEmpty() || !e.doc)
     return QRect();
   for(QTextBlock block = e.doc->begin(); block != e.doc->end(); block = block.next()) {

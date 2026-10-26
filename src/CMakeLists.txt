@@ -13,6 +13,7 @@ add_library(lmc_core STATIC
     gui/main/aboutdialog.cpp
     gui/chat/broadcastwindow.cpp
     gui/chat/bubbledelegate.cpp
+    gui/chat/bubblegeometry.cpp
     gui/chat/rowresolver.cpp
     gui/chat/chathelper.cpp
     gui/chat/chatmessagemodel.cpp
@@ -61,6 +62,7 @@ add_library(lmc_core STATIC
     gui/main/aboutdialog.h
     gui/chat/broadcastwindow.h
     gui/chat/bubbledelegate.h
+    gui/chat/bubblegeometry.h
     gui/chat/rowresolver.h
     gui/chat/chatdefinitions.h
     gui/chat/chattextguard.h

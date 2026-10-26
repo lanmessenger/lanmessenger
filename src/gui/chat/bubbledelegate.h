@@ -8,6 +8,7 @@
 #include <QTextDocument>
 
 #include "core/theme.h"
+#include "gui/chat/bubblegeometry.h"
 #include "gui/chat/rowresolver.h"
 
 //  Native chat delegate: renders rows resolved by RowResolver (S subset
@@ -77,41 +78,12 @@ public:
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
 
 private:
-  struct RowDoc {
-    QTextDocument* doc = nullptr;
-    QRect bubbleRect;
-    QRect docRect;
-  };
-
   struct CacheEntry {
     QTextDocument* doc = nullptr;
     int width = -1;
     ResolvedRow row;
-    int headerH = 0;
-    int headerAscent = 0;
-    QSize size;
-    QRect bubbleRect;
-    QRect docRect;
+    RowGeometry geo;
   };
-
-  struct HeaderMetrics {
-    int height = 0;
-    int ascent = 0;
-  };
-  HeaderMetrics headerMetrics(const ResolvedRow& row) const;
-  struct RowLayout {
-    int contentW = 0;
-    int contentH = 0;
-    int headerH = 0;
-    int headerAscent = 0;
-    QRect bubbleRect;
-    QRect docRect;
-    QSize size;
-  };
-  RowLayout buildLayout(int viewportWidth, const ResolvedRow& row, int contentW,
-                        int contentH) const;
-  QRect placeBubble(int viewportWidth, int contentW, int contentH, const ResolvedRow& row,
-                    int headerH) const;
 
   QString roleFor(const QModelIndex& index) const;
   double localPointSize() const;
@@ -119,7 +91,6 @@ private:
   QString rowTime(const QModelIndex& index) const;
   QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
-  int contentWidth(const QModelIndex& index, int viewportWidth, const ResolvedRow& row) const;
   int viewWidth(const QStyleOptionViewItem& option) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, contentRev).
   QString cacheKey(const QModelIndex& index, int viewportWidth) const;
