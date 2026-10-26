@@ -122,21 +122,7 @@ void BubbleDelegate::noteViewportWidth(int viewportWidth) {
 QString BubbleDelegate::roleFor(const QModelIndex& index) const {
   int type = index.data(ChatMessageModel::TypeRole).toInt();
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
-  switch(type) {
-  case MT_Broadcast:
-    return QStringLiteral("broadcast");
-  case MT_File:
-  case MT_Folder:
-    return QStringLiteral("request");
-  case MT_Failed:
-  case MT_Join:
-  case MT_Leave:
-  case MT_ChatState:
-    return QStringLiteral("system");
-  default:
-    break;
-  }
-  return own ? QStringLiteral("outgoing") : QStringLiteral("incoming");
+  return RowResolver::roleForCard(type, own);
 }
 
 double BubbleDelegate::localPointSize() const {
@@ -305,91 +291,9 @@ QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
 }
 
 BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index) const {
-  QString card = roleFor(index);
-  ResolvedRow r;
-  r.card = card;
-  //  Theme defaults first; layout nodes override below.
-  r.text = theme.text;
-  r.senderColor = theme.header.senderColor;
-  r.timeColor = theme.header.timeColor;
-  r.bg.kind = Theme::Bg::Kind::Solid;
-  r.bg.solid = theme.page;
-  r.avatar = reservesAvatar(card);
-  r.header = false;
-  if(card == QLatin1String("incoming"))
-    r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
-  else if(card == QLatin1String("outgoing"))
-    r.headerItems = QStringList{QStringLiteral("time")};
-  //  In-series rows walk their own tree.
-  QString layoutName = QStringLiteral("layout_") + card;
-  if(index.data(ChatMessageModel::GroupedRole).toBool() &&
-     (card == QLatin1String("incoming") || card == QLatin1String("outgoing")))
-    layoutName += QStringLiteral("_next");
-  const Theme::LayoutNode& rootNode = theme.compiledLayout(layoutName);
-  if(rootNode.type != Theme::LayoutNode::Type::HBox &&
-     rootNode.type != Theme::LayoutNode::Type::VBox)
-    return r;
-  const Theme::LayoutNode* root = &rootNode;
-  if(root->type == Theme::LayoutNode::Type::HBox) {
-    r.hboxGap = root->gap;
-    r.avatar = false;
-    const Theme::LayoutNode* column = nullptr;
-    for(const Theme::LayoutNode& c : root->children) {
-      if(c.type == Theme::LayoutNode::Type::Avatar)
-        r.avatar = reservesAvatar(card);
-      else if(c.type == Theme::LayoutNode::Type::VBox && !column)
-        column = &c;
-    }
-    if(!column) {
-      r.header = false;
-      r.headerItems.clear();
-      return r;
-    }
-    root = column;
-  } else {
-    //  VBox root: no avatar column beside the row (avatar nodes live
-    //  in hbox roots only), so the card default is dropped here.
-    r.avatar = false;
-  }
-  //  VBox level (root or the hbox column): header + body/fileCard.
-  r.vboxGap = root->gap;
-  r.header = false;
-  r.headerItems.clear();
-  for(const Theme::LayoutNode& c : root->children) {
-    if(c.type == Theme::LayoutNode::Type::Header) {
-      r.header = true;
-      r.headerItems = c.headerItems;
-      if(r.headerItems.isEmpty()) {
-        //  Bare header node: card default (incoming shows both).
-        if(card == QLatin1String("incoming"))
-          r.headerItems = QStringList{QStringLiteral("sender"), QStringLiteral("time")};
-        else if(card == QLatin1String("outgoing"))
-          r.headerItems = QStringList{QStringLiteral("time")};
-      }
-      r.senderColor = c.hasSenderColor ? c.senderColor : theme.header.senderColor;
-      r.timeColor = c.hasTimeColor ? c.timeColor : theme.header.timeColor;
-    } else if(c.type == Theme::LayoutNode::Type::Body ||
-              c.type == Theme::LayoutNode::Type::FileCard) {
-      r.text = c.hasTextColor ? c.textColor : theme.text;
-      //  Absent node bg keeps the page default (flat text on the page).
-      if(c.hasBg)
-        r.bg = c.bg;
-      for(int i = 0; i < 4; i++)
-        r.padding[i] = c.padding[i];
-      r.shadowDx = c.shadowDx;
-      r.shadowDy = c.shadowDy;
-      r.shadowBlur = c.shadowBlur;
-      r.shadowOpacity = c.shadowOpacity;
-      r.marginTop = c.marginTop;
-      r.maxWidthPct = c.maxWidthPct;
-      r.hasBorder = c.hasBorder;
-      r.border = c.border;
-      for(int i = 0; i < 4; i++)
-        r.corners[i] = c.corners[i];
-    }
-    //  L-reserved blocks stay ignored like before.
-  }
-  return r;
+  const QString card = roleFor(index);
+  const bool grouped = index.data(ChatMessageModel::GroupedRole).toBool();
+  return RowResolver::resolve(theme, card, grouped);
 }
 
 QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row) const {
@@ -612,9 +516,7 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
 }
 
 bool BubbleDelegate::reservesAvatar(const QString& card) const {
-  //  Avatar space is structural: the node sits in series-start trees
-  //  only, so a resolved row either carries it or not.
-  return card == QLatin1String("incoming") && theme.avatar.size > 0;
+  return RowResolver::reservesAvatar(card, theme.avatar.size);
 }
 
 QPixmap BubbleDelegate::avatarPixmap(const QString& path, int size) const {

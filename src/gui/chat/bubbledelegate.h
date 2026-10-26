@@ -8,8 +8,9 @@
 #include <QTextDocument>
 
 #include "core/theme.h"
+#include "gui/chat/rowresolver.h"
 
-//  Native chat delegate: resolves layout_* into a row (S subset
+//  Native chat delegate: renders rows resolved by RowResolver (S subset
 //  avatar/header/body/fileCard; the validator accepts linkPreview/quote/
 //  code/buttons, the delegate ignores them).
 //  In-series rows walk layout_incoming_next/layout_outgoing_next:
@@ -53,34 +54,10 @@ public:
   //  Theme + local display size only (never the message font). Public for tests.
   QFont headerNameFont() const;
   QFont headerTimeFont() const;
-  //  Layout resolution for one row: compiled layout_* walked once per row
-  //  (inside entryFor), never touching QJson. Public for tests.
-  struct ResolvedRow {
-    QString card;
-    bool avatar = false;
-    bool header = false;
-    QStringList headerItems;
-    int hboxGap = 8;
-    int vboxGap = 2;
-    Theme::DualColor text;        // body text: node value or theme default
-    Theme::DualColor senderColor; // header name: node value or theme default
-    Theme::DualColor timeColor;   // header time: node value or theme default
-    Theme::DualColor border;      // bubble outline
-    bool hasBorder = false;
-    Theme::Bg bg; // bubble fill
-    //  Rect metrics from the layout body/fileCard node. Rows are tailless.
-    int padding[4] = {0, 0, 0, 0}; // [T, R, B, L]
-    double shadowDx = 0.0;
-    double shadowDy = 0.0;
-    double shadowBlur = 0.0;
-    double shadowOpacity = 0.0;
-    int marginTop = 0;     // row top gap, per walked tree
-    int maxWidthPct = 100; // absent in JSON = full width
-    //  Per-corner radii [TL, TR, BR, BL] from the layout body/fileCard node
-    //  (hand-mirrored by the theme author for outgoing; no code mirror).
-    //  Absent in JSON = square.
-    int corners[4] = {0, 0, 0, 0};
-  };
+  //  Layout resolution for one row: RowResolver walks the compiled
+  //  layout_* once per row (inside entryFor), never touching QJson.
+  //  Alias kept so tests use BubbleDelegate::ResolvedRow as before.
+  using ResolvedRow = ::ResolvedRow;
   ResolvedRow resolveRow(const QModelIndex& index) const;
   //  Public for tests.
   QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
