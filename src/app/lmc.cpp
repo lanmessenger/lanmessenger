@@ -839,6 +839,8 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
   connect(pChatWindow, &lmcChatWindow::showTransfers, this, &lmcCore::showTransfers);
   connect(pChatWindow, &lmcChatWindow::closed, this, &lmcCore::chatWindow_closed);
   pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());
+  if(pMessaging->isLoopback() && pLocalUser->id.compare(pRemoteUser->id) == 0)
+    pChatWindow->enableLoopbackEcho();
 }
 
 void lmcCore::showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert) {

@@ -11,7 +11,7 @@ Distribution packages work too (see the [OpenSSL setup](build-prerequisites.md#l
 ## Build
 
 The build is driven by CMake. The `package-local` target stages the
-runtime layout (binary, `lmc.rcc`, `lang`, `themes`, `sounds` and the Qt
+runtime layout (binary, `lmc.rcc`, `lang`, `sounds` and the Qt
 imageformats/platforms/tls plugins) into the `LMC_RELEASE_DIR` directory
 (defaults to `<build-dir>/release`):
 

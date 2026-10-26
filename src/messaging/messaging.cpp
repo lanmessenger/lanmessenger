@@ -109,6 +109,10 @@ void lmcMessaging::setLoopback(bool on) {
   loopback = on;
 }
 
+bool lmcMessaging::isLoopback(void) {
+  return loopback;
+}
+
 User* lmcMessaging::getUser(QString* id) {
   for(int index = 0; index < userList.count(); index++)
     if(userList[index].id.compare(*id) == 0)

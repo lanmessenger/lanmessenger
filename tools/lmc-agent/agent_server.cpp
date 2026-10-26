@@ -184,7 +184,14 @@ private:
       // QTextEdit, only QLineEdit has "text".
       if(name == QStringLiteral("text") ||
          name == QStringLiteral("plainText")) {
-        if(auto* textEdit = qobject_cast<QTextEdit*>(widget))
+        if(widget->inherits("ChatMessageView")) {
+          //  Native chat view (stage 1): the app provides the canonical
+          //  plainText (model->data() joined), Q_PROPERTY — no lmc header link.
+          const QVariant value = widget->property("plainText");
+          if(!value.isValid())
+            return errorReply(id, QStringLiteral("ChatMessageView has no plainText"));
+          result[QStringLiteral("value")] = value.toString();
+        } else if(auto* textEdit = qobject_cast<QTextEdit*>(widget))
           result[QStringLiteral("value")] = textEdit->toPlainText();
         else if(auto* edit = qobject_cast<QPlainTextEdit*>(widget))
           result[QStringLiteral("value")] = edit->toPlainText();

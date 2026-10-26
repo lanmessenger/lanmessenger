@@ -122,10 +122,10 @@
 #define IDS_FILETOP_VAL false
 #define IDS_FILESTORAGEPATH "FileTransfer/StoragePath"
 #define IDS_FILESTORAGEPATH_VAL ""
-#define IDS_THEME_OLD "Themes/Theme"
-#define IDS_THEME_OLD_VAL ":/themes/Classic"
 #define IDS_THEME "Appearance/Theme"
-#define IDS_THEME_VAL ":/themes/Classic"
+#define IDS_THEME_VAL "ClassicSlate"
+#define IDS_APPEARANCE_MODE "Appearance/Mode"
+#define IDS_APPEARANCE_MODE_VAL "system"
 #define IDS_USERLISTVIEW "Appearance/UserListView"
 #define IDS_USERLISTVIEW_VAL ULV_Detailed
 #define IDS_STATUSTOOLTIP "Appearance/StatusToolTip"

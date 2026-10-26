@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "displayName": "Compact Nordic Terminal",
+  "_comment": "Flat cards: no tail, no shadow. Spec series gap 1.5px rounded to 2 (schema requires ints). Avatar 20px from the geometry table (header strip says 22px). Time with seconds per mock. Outgoing body text is near-white both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
+  "viewPadding": [0, 8, 8, 8],
+  "avatar": {
+    "size": 20,
+    "shape": "square"
+  },
+  "header": {
+    "senderWeight": 600,
+    "timeFormat": "HH:mm:ss",
+    "outgoingYouLabel": true,
+    "senderColor": ["#64748B", "#9CA3AF"],
+    "timeColor": ["#64748B", "#9CA3AF"]
+  },
+  "text": ["#0F172A", "#E5E7EB"],
+  "link": ["#0284C7", "#38BDF8"],
+  "page": ["#FFFFFF", "#121417"],
+  "layout_incoming": {
+    "type": "hbox",
+    "gap": 8,
+    "children": [
+      {
+        "type": "avatar"
+      },
+      {
+        "type": "vbox",
+        "gap": 2,
+        "stretch": 1,
+        "children": [
+          {
+            "type": "header",
+            "items": ["sender", "time"],
+            "senderColor": ["#0F172A", "#E5E7EB"]
+          },
+          {
+            "type": "body",
+            "corners": [6, 6, 6, 6],
+            "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+            "padding": [8, 10, 8, 10],
+            "shadow": [0, 0, 0, 0],
+            "marginTop": 5,
+            "maxWidthPct": 88
+          }
+        ]
+      }
+    ]
+  },
+  "layout_incoming_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [2, 6, 6, 6],
+        "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "marginTop": 2,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_outgoing": {
+    "type": "vbox",
+    "gap": 2,
+    "children": [
+      {
+        "type": "header",
+        "items": ["time"],
+        "senderColor": ["#0F172A", "#E5E7EB"]
+      },
+      {
+        "type": "body",
+        "corners": [6, 6, 6, 6],
+        "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
+        "textColor": ["#F8FAFC", "#FFFFFF"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "marginTop": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_outgoing_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [6, 2, 6, 6],
+        "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
+        "textColor": ["#F8FAFC", "#FFFFFF"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "marginTop": 2,
+        "maxWidthPct": 88
+      }
+    ]
+  },
+  "layout_system": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "textColor": ["#64748B", "#9CA3AF"],
+        "padding": [0, 4, 4, 4],
+        "marginTop": 0
+      }
+    ]
+  },
+  "layout_broadcast": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [6, 6, 6, 6],
+        "bg": ["#FEF2F2", "#450A0A"],
+        "border": ["#EF4444", "#DC2626"],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "marginTop": 5
+      }
+    ]
+  },
+  "layout_request": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "fileCard",
+        "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+        "border": ["#CBD5E1", "#2D3748"],
+        "corners": [6, 6, 6, 6],
+        "padding": [8, 10, 8, 10],
+        "shadow": [0, 0, 0, 0],
+        "marginTop": 5,
+        "maxWidthPct": 88
+      }
+    ]
+  }
+}

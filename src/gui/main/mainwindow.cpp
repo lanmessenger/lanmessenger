@@ -30,7 +30,7 @@
 #include "messaging/xmlmessage.h"
 #include "gui/widgets/actionhelper.h"
 #include "gui/widgets/imagepickeraction.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 #include "messaging/history.h"
 
 lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)
@@ -163,16 +163,19 @@ void lmcMainWindow::stop(void) {
   QDir::SortFlags sort = QDir::Name;
   //  save all cached conversations to history, then delete the files
   QString filter = "msg_*.tmp";
-  lmcMessageLog* pMessageLog = new lmcMessageLog();
+  //  S1.5: cached msg_*.tmp blobs are model QDataStream (SingleMessage
+  //  operators are shared with legacy), readable by the new view.
+  //  Stack object: deterministic destruction on scope exit, no deleteLater
+  //  lottery against the quitting event loop.
+  ChatMessageView messageLog;
   QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
   for(QString fileName : fileNames) {
     QString filePath = cacheDir.absoluteFilePath(fileName);
-    pMessageLog->restoreMessageLog(filePath, false);
-    QString szMessageLog = pMessageLog->prepareMessageLogForSave();
-    History::save(pMessageLog->peerName, QDateTime::currentDateTime(), &szMessageLog);
+    messageLog.restoreMessageLog(filePath, false);
+    QString szMessageLog = messageLog.prepareMessageLogForSave();
+    History::save(messageLog.peerName, QDateTime::currentDateTime(), &szMessageLog);
     QFile::remove(filePath);
   }
-  pMessageLog->deleteLater();
 
   //  delete all other temp files
   filter = "*.tmp";

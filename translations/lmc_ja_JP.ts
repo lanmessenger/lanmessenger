@@ -79,6 +79,144 @@
     </message>
 </context>
 <context>
+    <name>BubbleDelegate</name>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="248"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 からフォルダの送信:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="249"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 からファイルの送信:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="251"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>%2へ送信: %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="259"/>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="273"/>
+        <source>Accepted</source>
+        <translation type="unfinished">承認しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Accept</source>
+        <translation>承認</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
+        <source>Decline</source>
+        <translation>拒否</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="267"/>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="276"/>
+        <source>Declined</source>
+        <translation type="unfinished">拒否しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="279"/>
+        <source>Canceled</source>
+        <translation>キャンセルされました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="283"/>
+        <source>Interrupted</source>
+        <translation type="unfinished">中断されました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="286"/>
+        <source>Completed</source>
+        <translation>完了しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/bubbledelegate.cpp" line="655"/>
+        <source>You</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatMessageModel</name>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="367"/>
+        <source>Broadcast message from %1:</source>
+        <translation>%1 からブロードキャストでメッセージ:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="374"/>
+        <source>%1 sends you a file:</source>
+        <translation>%1 からファイルの送信:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="375"/>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="378"/>
+        <source>Sending &apos;%1&apos; to %2.</source>
+        <translation>%2へ送信: %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="377"/>
+        <source>%1 sends you a folder:</source>
+        <translation>%1 からフォルダの送信:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="390"/>
+        <source>This message was not delivered to %1:</source>
+        <translation>このメッセージは %1 に送信されませんでした:</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="393"/>
+        <source>%1 has joined this conversation</source>
+        <translation>%1が会話に参加しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="395"/>
+        <source>%1 has left this conversation</source>
+        <translation>%1は会話から離脱しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="400"/>
+        <source>%1 is typing...</source>
+        <translation>%1 入力中...</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="402"/>
+        <source>%1 has entered text</source>
+        <translation type="unfinished">%1 が入力しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="441"/>
+        <source>Accepted</source>
+        <translation type="unfinished">承認しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="443"/>
+        <source>Declined</source>
+        <translation type="unfinished">拒否しました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="445"/>
+        <source>Canceled</source>
+        <translation>キャンセルされました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="448"/>
+        <source>Interrupted</source>
+        <translation type="unfinished">中断されました</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="450"/>
+        <source>Completed</source>
+        <translation>完了しました</translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <location filename="chatroomwindow.ui" line="14"/>

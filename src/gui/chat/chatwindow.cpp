@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QKeyEvent>
 #include <QCloseEvent>
@@ -32,7 +33,7 @@
 #include "core/uidefinitions.h"
 #include "messaging/history.h"
 #include "messaging/xmlmessage.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
 #include "gui/widgets/imagepickeraction.h"
@@ -41,6 +42,19 @@
 
 const qint64 pauseTime = 5000;
 
+static void mergeFormatOverDocument(QTextEdit* edit, const QTextCharFormat& format) {
+  QTextCursor saved = edit->textCursor();
+  int anchor = saved.anchor();
+  int position = saved.position();
+  QTextCursor cursor(edit->document());
+  cursor.select(QTextCursor::Document);
+  cursor.mergeCharFormat(format);
+  QTextCursor restore(edit->document());
+  restore.setPosition(anchor);
+  restore.setPosition(position, QTextCursor::KeepAnchor);
+  edit->setTextCursor(restore);
+}
+
 lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
   ui.setupUi(this);
@@ -48,10 +62,9 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   setAttribute(Qt::WA_DeleteOnClose, true);
   setAcceptDrops(true);
 
-  pMessageLog = new lmcMessageLog(ui.wgtLog);
+  pMessageLog = new ChatMessageView(ui.wgtLog);
   ui.logLayout->addWidget(pMessageLog);
-  pMessageLog->setAcceptDrops(false);
-  connect(pMessageLog, &lmcMessageLog::messageSent, this, &lmcChatWindow::log_sendMessage);
+  connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatWindow::log_sendMessage);
 
   int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
                           ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
@@ -78,6 +91,8 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   peerCaps.clear();
   threadId = QString();
   groupMode = false;
+  loopbackMode = false;
+  loopbackEchoId = QString();
   dataSaved = false;
 
   chatState = CS_Blank;
@@ -152,10 +167,29 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   ui.txtMessage->setFocus();
 
-  QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  pMessageLog->initMessageLog(themePath);
+  //  Theme by name (user dir wins over built-in qrc), mode is Appearance/Mode.
+  pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
+  pMessageLog->setAppearanceMode(
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  pMessageLog->initChat();
   if(!clearOnClose)
     pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
+}
+
+void lmcChatWindow::enableLoopbackEcho(void) {
+  loopbackMode = true;
+  loopbackEchoId = localId + QStringLiteral("/echo");
+  peerNames.insert(loopbackEchoId, peerNames.value(peerId));
+  pMessageLog->participantAvatars.insert(loopbackEchoId,
+                                         pMessageLog->participantAvatars.value(peerId));
+}
+
+QString* lmcChatWindow::loopbackEchoSender(bool loopbackMode, QString* lpszUserId,
+                                           const QString& localId, QString* pEchoId) {
+  if(loopbackMode && lpszUserId && pEchoId && !pEchoId->isEmpty() &&
+     lpszUserId->compare(localId) == 0)
+    return pEchoId;
+  return lpszUserId;
 }
 
 void lmcChatWindow::stop(void) {
@@ -182,10 +216,15 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
   QString senderId = lpszUserId ? *lpszUserId : localId;
   QString senderName = lpszUserId ? peerNames.value(senderId) : localName;
   QString data;
+  //  Status/name/avatar updates below keep addressing the real self id.
+  QString* pLogId =
+    lmcChatWindow::loopbackEchoSender(loopbackMode, lpszUserId, localId, &loopbackEchoId);
+  if(pLogId != lpszUserId)
+    senderName = peerNames.value(*pLogId);
 
   switch(type) {
   case MT_Message:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     if(isHidden() || !isActiveWindow()) {
       pSoundPlayer->play(SE_NewMessage);
       title = tr("%1 says...");
@@ -193,7 +232,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     }
     break;
   case MT_Broadcast:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     if(isHidden() || !isActiveWindow()) {
       pSoundPlayer->play(SE_NewMessage);
       title = tr("Broadcast from %1");
@@ -201,7 +240,7 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     }
     break;
   case MT_ChatState:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     break;
   case MT_Status:
     data = pMessage->data(XN_STATUS);
@@ -219,6 +258,8 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
     // this message may come with or without user id. NULL user id means avatar change
     // by local user, while non NULL user id means avatar change by a peer.
     pMessageLog->updateAvatar(&senderId, &data);
+    if(loopbackMode && senderId.compare(localId) == 0)
+      pMessageLog->updateAvatar(&loopbackEchoId, &data);
     break;
   case MT_UserName:
     data = pMessage->data(XN_NAME);
@@ -226,16 +267,20 @@ void lmcChatWindow::receiveMessage(MessageType type, QString* lpszUserId, XmlMes
       peerNames.insert(senderId, data);
       pMessageLog->peerName = data;
     }
+    if(loopbackMode && senderId.compare(localId) == 0 && peerNames.contains(loopbackEchoId))
+      peerNames.insert(loopbackEchoId, data);
     pMessageLog->updateUserName(&senderId, &data);
+    if(loopbackMode && senderId.compare(localId) == 0)
+      pMessageLog->updateUserName(&loopbackEchoId, &data);
     break;
   case MT_Failed:
-    appendMessageLog(type, lpszUserId, &senderName, pMessage);
+    appendMessageLog(type, pLogId, &senderName, pMessage);
     break;
   case MT_File:
   case MT_Folder:
     if(pMessage->data(XN_FILEOP) == FileOpNames[FO_Request]) {
       //	a file request has been received
-      appendMessageLog(type, lpszUserId, &senderName, pMessage);
+      appendMessageLog(type, pLogId, &senderName, pMessage);
       if(pMessage->data(XN_MODE) == FileModeNames[FM_Receive] && (isHidden() || !isActiveWindow())) {
         pSoundPlayer->play(SE_NewFile);
         if(type == MT_File)
@@ -275,6 +320,8 @@ void lmcChatWindow::settingsChanged(void) {
   if(localName.compare(pLocalUser->name) != 0) {
     localName = pLocalUser->name;
     pMessageLog->updateUserName(&localId, &localName);
+    if(loopbackMode && !loopbackEchoId.isEmpty())
+      pMessageLog->updateUserName(&loopbackEchoId, &localName);
   }
 
   bool msgTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
@@ -282,18 +329,37 @@ void lmcChatWindow::settingsChanged(void) {
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
-  QString theme = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  bool lookChanged = false;
+  if(themeName.compare(pMessageLog->themeNameString()) != 0) {
+    //  Theme switch alone: setThemeName repaints with the new theme,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setThemeName(themeName);
+    lookChanged = true;
+  }
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0) {
+    //  Mode switch alone: setAppearanceMode repaints with the new palette,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setAppearanceMode(appearanceMode);
+    lookChanged = true;
+  }
   if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
      allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
-     trim != pMessageLog->trimMessage || theme.compare(pMessageLog->themePath) != 0) {
+     trim != pMessageLog->trimMessage) {
     pMessageLog->messageTime = msgTime;
     pMessageLog->messageDate = msgDate;
     pMessageLog->allowLinks = allowLinks;
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;
-    pMessageLog->themePath = theme;
     pMessageLog->reloadMessageLog();
+    lookChanged = true;
   }
+  //  The view repaints only its viewport: siblings (toolbar, input)
+  //  need a window-wide update or keep transition artifacts.
+  if(lookChanged)
+    update();
 }
 
 bool lmcChatWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
@@ -397,15 +463,21 @@ void lmcChatWindow::btnFont_clicked(void) {
   QFont font = ui.txtMessage->font();
   font.setPointSize(ui.txtMessage->fontPointSize());
   QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
-  if(ok)
+  if(ok) {
     setMessageFont(newFont);
+    messageFontSet = true;
+  }
 }
 
 void lmcChatWindow::btnFontColor_clicked(void) {
   QColor color = QColorDialog::getColor(messageColor, this, tr("Select Color"));
   if(color.isValid()) {
     messageColor = color;
+    messageColorSet = true;
     ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    QTextCharFormat format;
+    format.setForeground(color);
+    mergeFormatOverDocument(ui.txtMessage, format);
   }
 }
 
@@ -606,8 +678,10 @@ void lmcChatWindow::sendMessage(void) {
     MessageType type = groupMode ? MT_GroupMessage : MT_Message;
     XmlMessage xmlMessage;
     xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-    xmlMessage.addData(XN_FONT, font.toString());
-    xmlMessage.addData(XN_COLOR, messageColor.name());
+    if(messageFontSet)
+      xmlMessage.addData(XN_FONT, font.toString());
+    if(messageColorSet)
+      xmlMessage.addData(XN_COLOR, messageColor.name());
     if(groupMode) {
       xmlMessage.addData(XN_THREAD, threadId);
       xmlMessage.addData(XN_GROUPMESSAGE, szMessage);
@@ -621,6 +695,19 @@ void lmcChatWindow::sendMessage(void) {
       QString userId = index.value();
       emit messageSent(type, &userId, &xmlMessage);
       index++;
+    }
+
+    //  One-shot override: an explicitly chosen font/color applies to this
+    //  message only, then the composer falls back to the settings defaults.
+    if(messageFontSet || messageColorSet) {
+      QFont defaultFont = QApplication::font();
+      defaultFont.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
+      setMessageFont(defaultFont);
+      messageFontSet = false;
+      messageColor = QApplication::palette().text().color();
+      messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
+      messageColorSet = false;
+      ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
     }
   } else
     appendMessageLog(MT_Error, NULL, NULL, NULL);
@@ -736,7 +823,11 @@ QString lmcChatWindow::getWindowTitle(void) {
 
 void lmcChatWindow::setMessageFont(QFont& font) {
   ui.txtMessage->setFont(font);
-  ui.txtMessage->setFontPointSize(font.pointSize());
+  QTextCharFormat format;
+  format.setFontFamily(font.family());
+  if(font.pointSize() > 0)
+    format.setFontPointSize(font.pointSize());
+  mergeFormatOverDocument(ui.txtMessage, format);
 }
 
 void lmcChatWindow::setChatState(ChatState newChatState) {

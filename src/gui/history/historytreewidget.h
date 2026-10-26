@@ -15,7 +15,7 @@ public:
   bool operator<(const QTreeWidgetItem& other) const {
     int column = treeWidget()->sortColumn();
     if(column == 1)
-      return data(column, IdRole).toDateTime() < other.data(column, DataRole).toDateTime();
+      return data(column, DataRole).toDateTime() < other.data(column, DataRole).toDateTime();
     else
       return text(column).toLower() < other.text(column).toLower();
   }

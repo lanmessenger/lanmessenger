@@ -13,7 +13,7 @@
 struct User;
 class XmlMessage;
 class lmcSettings;
-class lmcMessageLog;
+class ChatMessageView;
 class lmcSoundPlayer;
 class lmcToolButton;
 class lmcImagePickerAction;
@@ -96,7 +96,7 @@ private:
 
   Ui::ChatRoomWindow ui;
   lmcSettings* pSettings;
-  lmcMessageLog* pMessageLog;
+  ChatMessageView* pMessageLog;
   QMenu* pUserMenu;
   QAction* userChatAction;
   QAction* userFileAction;
@@ -116,6 +116,8 @@ private:
   bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
+  bool messageColorSet = false;
+  bool messageFontSet = false;
   bool dataSaved;
   bool windowLoaded;
 };

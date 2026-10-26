@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QKeyEvent>
 #include <QCloseEvent>
@@ -27,7 +28,7 @@
 #include "core/uidefinitions.h"
 #include "messaging/history.h"
 #include "messaging/xmlmessage.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
@@ -36,6 +37,19 @@
 #include "core/soundplayer.h"
 
 QString GroupId = "PARTICIPANTS";
+
+static void mergeFormatOverDocument(QTextEdit* edit, const QTextCharFormat& format) {
+  QTextCursor saved = edit->textCursor();
+  int anchor = saved.anchor();
+  int position = saved.position();
+  QTextCursor cursor(edit->document());
+  cursor.select(QTextCursor::Document);
+  cursor.mergeCharFormat(format);
+  QTextCursor restore(edit->document());
+  restore.setPosition(anchor);
+  restore.setPosition(position, QTextCursor::KeepAnchor);
+  edit->setTextCursor(restore);
+}
 
 lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
     : QWidget(parent) {
@@ -46,10 +60,9 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
           this, &lmcChatRoomWindow::tvUserList_itemActivated);
   connect(ui.tvUserList, &lmcUserTreeWidget::itemContextMenu, this, &lmcChatRoomWindow::tvUserList_itemContextMenu);
 
-  pMessageLog = new lmcMessageLog(ui.wgtLog);
+  pMessageLog = new ChatMessageView(ui.wgtLog);
   ui.logLayout->addWidget(pMessageLog);
-  pMessageLog->setAcceptDrops(false);
-  connect(pMessageLog, &lmcMessageLog::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
+  connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
 
   int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
                           ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
@@ -150,8 +163,11 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   ui.txtMessage->setFocus();
 
-  QString themePath = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
-  pMessageLog->initMessageLog(themePath);
+  //  Theme by name (user dir wins over built-in qrc), mode is Appearance/Mode.
+  pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
+  pMessageLog->setAppearanceMode(
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  pMessageLog->initChat();
 
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
@@ -166,6 +182,9 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 void lmcChatRoomWindow::show(void) {
   windowLoaded = true;
   QWidget::show();
+  //  Re-assert theme palette after show: the view otherwise keeps
+  //  the default style colors instead of theme.page.
+  pMessageLog->syncBackground();
 }
 
 void lmcChatRoomWindow::stop(void) {
@@ -359,21 +378,40 @@ void lmcChatRoomWindow::settingsChanged(void) {
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
-  QString theme = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  bool lookChanged = false;
+  if(themeName.compare(pMessageLog->themeNameString()) != 0) {
+    //  Theme switch alone: setThemeName repaints with the new theme,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setThemeName(themeName);
+    lookChanged = true;
+  }
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0) {
+    //  Mode switch alone: setAppearanceMode repaints with the new palette,
+    //  the log stays (no reloadMessageLog needed).
+    pMessageLog->setAppearanceMode(appearanceMode);
+    lookChanged = true;
+  }
   if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
      allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
-     trim != pMessageLog->trimMessage || theme.compare(pMessageLog->themePath) != 0) {
+     trim != pMessageLog->trimMessage) {
     pMessageLog->messageTime = msgTime;
     pMessageLog->messageDate = msgDate;
     pMessageLog->allowLinks = allowLinks;
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;
-    pMessageLog->themePath = theme;
     pMessageLog->reloadMessageLog();
+    lookChanged = true;
   }
 
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
+  //  The view repaints only its viewport: siblings (toolbar, input)
+  //  need a window-wide update or keep transition artifacts.
+  if(lookChanged)
+    update();
 }
 
 void lmcChatRoomWindow::selectContacts(QStringList* selectedContacts) {
@@ -478,15 +516,21 @@ void lmcChatRoomWindow::btnFont_clicked(void) {
   QFont font = ui.txtMessage->font();
   font.setPointSize(ui.txtMessage->fontPointSize());
   QFont newFont = QFontDialog::getFont(&ok, font, this, tr("Select Font"));
-  if(ok)
+  if(ok) {
     setMessageFont(newFont);
+    messageFontSet = true;
+  }
 }
 
 void lmcChatRoomWindow::btnFontColor_clicked(void) {
   QColor color = QColorDialog::getColor(messageColor, this, tr("Select Color"));
   if(color.isValid()) {
     messageColor = color;
+    messageColorSet = true;
     ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    QTextCharFormat format;
+    format.setForeground(color);
+    mergeFormatOverDocument(ui.txtMessage, format);
   }
 }
 
@@ -679,8 +723,10 @@ void lmcChatRoomWindow::sendMessage(void) {
     MessageType type = groupMode ? MT_GroupMessage : MT_PublicMessage;
     XmlMessage xmlMessage;
     xmlMessage.addHeader(XN_TIME, QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-    xmlMessage.addData(XN_FONT, font.toString());
-    xmlMessage.addData(XN_COLOR, messageColor.name());
+    if(messageFontSet)
+      xmlMessage.addData(XN_FONT, font.toString());
+    if(messageColorSet)
+      xmlMessage.addData(XN_COLOR, messageColor.name());
     xmlMessage.addData(XN_MESSAGE, szMessage);
     if(groupMode) {
       xmlMessage.addData(XN_THREAD, threadId);
@@ -698,6 +744,19 @@ void lmcChatRoomWindow::sendMessage(void) {
       }
     } else
       emit messageSent(type, NULL, &xmlMessage);
+
+    //  One-shot override: an explicitly chosen font/color applies to this
+    //  message only, then the composer falls back to the settings defaults.
+    if(messageFontSet || messageColorSet) {
+      QFont defaultFont = QApplication::font();
+      defaultFont.fromString(pSettings->value(IDS_FONT, IDS_FONT_VAL).toString());
+      setMessageFont(defaultFont);
+      messageFontSet = false;
+      messageColor = QApplication::palette().text().color();
+      messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
+      messageColorSet = false;
+      ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    }
   } else
     appendMessageLog(MT_Error, NULL, NULL, NULL);
 
@@ -760,7 +819,11 @@ QString lmcChatRoomWindow::getWindowTitle(void) {
 
 void lmcChatRoomWindow::setMessageFont(QFont& font) {
   ui.txtMessage->setFont(font);
-  ui.txtMessage->setFontPointSize(font.pointSize());
+  QTextCharFormat format;
+  format.setFontFamily(font.family());
+  if(font.pointSize() > 0)
+    format.setFontPointSize(font.pointSize());
+  mergeFormatOverDocument(ui.txtMessage, format);
 }
 
 void lmcChatRoomWindow::updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus) {

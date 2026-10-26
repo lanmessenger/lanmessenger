@@ -202,10 +202,6 @@ bool lmcSettings::loadFromConfig(const QString& configFile) {
   value = extSettings.value(IDS_FILETOP);
   if(value.isValid())
     setValue(IDS_FILETOP, value);
-
-  value = extSettings.value(IDS_THEME);
-  if(value.isValid())
-    setValue(IDS_THEME, value);
   value = extSettings.value(IDS_USERLISTVIEW);
   if(value.isValid())
     setValue(IDS_USERLISTVIEW, value);
@@ -354,12 +350,6 @@ bool lmcSettings::migrateSettings(const QString& configFile) {
 
   //	Migrate settings if version less than 1.2.25
   if(Helper::compareVersions(version, "1.2.25") < 0) {
-    //	Theme is now saved under the "Appearance" section
-    //	Prior to 1.2.25, it was under "Themes" section which is no longer used
-    QString theme = settings.value(IDS_THEME_OLD).toString();
-    if(!theme.isEmpty())
-      settings.setValue(IDS_THEME, theme, IDS_THEME_VAL);
-
     //	Change the refresh interval to reduce network load
     int refreshTime = settings.value(IDS_REFRESHTIME, IDS_REFRESHTIME_VAL).toInt();
     if(refreshTime < IDS_REFRESHTIME_VAL)

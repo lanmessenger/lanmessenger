@@ -12,7 +12,15 @@ set(LMC_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 add_library(lmc_core STATIC
     gui/main/aboutdialog.cpp
     gui/chat/broadcastwindow.cpp
+    gui/chat/bubbledelegate.cpp
+    gui/chat/anchornavigator.cpp
+    gui/chat/bubblegeometry.cpp
+    gui/chat/rowhtmlbuilder.cpp
+    gui/chat/rowresolver.cpp
     gui/chat/chathelper.cpp
+    gui/chat/chatmessagemodel.cpp
+    gui/chat/chattextguard.cpp
+    gui/chat/chatmessageview.cpp
     gui/chat/chatroomwindow.cpp
     gui/chat/chatwindow.cpp
     core/crypto.cpp
@@ -31,12 +39,10 @@ add_library(lmc_core STATIC
     core/lmcstrings.cpp
     gui/main/mainwindow.cpp
     messaging/message.cpp
-    gui/chat/messagelog.cpp
     messaging/messaging.cpp
     messaging/messagingproc.cpp
     network/netstreamer.cpp
     network/network.cpp
-    gui/widgets/qmessagebrowser.cpp
     core/settings.cpp
     gui/main/settingsdialog.cpp
     core/shared.cpp
@@ -57,9 +63,16 @@ add_library(lmc_core STATIC
     gui/widgets/actionhelper.h
     gui/main/aboutdialog.h
     gui/chat/broadcastwindow.h
+    gui/chat/bubbledelegate.h
+    gui/chat/anchornavigator.h
+    gui/chat/bubblegeometry.h
+    gui/chat/rowhtmlbuilder.h
+    gui/chat/rowresolver.h
     gui/chat/chatdefinitions.h
+    gui/chat/chattextguard.h
     gui/chat/chatwindow.h
-    gui/chat/chathelper.h
+    gui/chat/chatmessagemodel.h
+    gui/chat/chatmessageview.h
     gui/chat/chatroomwindow.h
     core/crypto.h
     network/datagram.h
@@ -78,11 +91,9 @@ add_library(lmc_core STATIC
     core/lmcstrings.h
     gui/main/mainwindow.h
     messaging/message.h
-    gui/chat/messagelog.h
     messaging/messaging.h
     network/netstreamer.h
     network/network.h
-    gui/widgets/qmessagebrowser.h
     app/resource.h
     core/settings.h
     gui/main/settingsdialog.h
@@ -367,9 +378,8 @@ install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
 # configure time from the Qt used for the build).
 install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
         FILES_MATCHING PATTERN "*.qm")
-# Themes without Classic (bundled into resource.qrc) and notification sounds.
-install(DIRECTORY ${LMC_RES_DIR}/themes DESTINATION ${LMC_LAYOUT_BIN_DIR}
-        PATTERN "Classic" EXCLUDE)
+# Notification sounds. Chat themes ship embedded (:/themes) + user dir,
+# not staged here.
 install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})

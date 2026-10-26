@@ -9,7 +9,7 @@
 #include "messaging/history.h"
 
 class lmcSettings;
-class lmcMessageLog;
+class ChatMessageView;
 class QTreeWidgetItem;
 class QEvent;
 
@@ -39,6 +39,6 @@ private:
 
   Ui::HistoryWindow ui;
   lmcSettings* pSettings;
-  lmcMessageLog* pMessageLog;
+  ChatMessageView* pMessageLog;
   QList<MsgInfo> msgList;
 };

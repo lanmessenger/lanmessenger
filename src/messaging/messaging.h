@@ -129,6 +129,7 @@ public:
   bool isConnected(void);
   bool canReceive(void);
   void setLoopback(bool on);
+  bool isLoopback(void);
   User* getUser(QString* lpszUserId);
   bool isPeerReady(QString* lpszUserId);
   void sendBroadcast(MessageType type, XmlMessage* pMessage);

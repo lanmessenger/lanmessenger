@@ -31,7 +31,6 @@ sudo cp -v ../../release/lan-messenger ./package/usr/lib/lmc/lan-messenger
 sudo cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING
 sudo cp -v -r ../../release/lang ./package/usr/lib/lmc
 sudo cp -v -r ../../release/sounds ./package/usr/lib/lmc
-sudo cp -v -r ../../release/themes ./package/usr/lib/lmc
 
 echo "BUILDING PACKAGE..."
 DEB_BUILD_ARCH=$(dpkg-architecture -qDEB_BUILD_ARCH)

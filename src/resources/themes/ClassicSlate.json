@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "displayName": "Classic Native Slate",
+  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
+  "viewPadding": [0, 8, 8, 8],
+  "avatar": {
+    "size": 28,
+    "shape": "circle"
+  },
+  "header": {
+    "senderWeight": 600,
+    "timeFormat": "HH:mm",
+    "outgoingYouLabel": true,
+    "senderColor": ["#64748B", "#94A3B8"],
+    "timeColor": ["#64748B", "#94A3B8"]
+  },
+  "text": ["#1E293B", "#F1F5F9"],
+  "link": ["#2563EB", "#60A5FA"],
+  "page": ["#F4F5F7", "#0F172A"],
+  "layout_incoming": {
+    "type": "hbox",
+    "gap": 8,
+    "children": [
+      {
+        "type": "avatar"
+      },
+      {
+        "type": "vbox",
+        "gap": 2,
+        "stretch": 1,
+        "children": [
+          {
+            "type": "header",
+            "items": ["sender", "time"],
+            "senderColor": ["#1E293B", "#F1F5F9"]
+          },
+          {
+            "type": "body",
+            "corners": [12, 12, 12, 2],
+            "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+            "padding": [10, 12, 10, 12],
+            "shadow": [0, 1, 2, 0.05],
+            "marginTop": 8,
+            "maxWidthPct": 84
+          }
+        ]
+      }
+    ]
+  },
+  "layout_incoming_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [2, 12, 12, 2],
+        "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+        "padding": [10, 12, 10, 12],
+        "shadow": [0, 1, 2, 0.05],
+        "marginTop": 2,
+        "maxWidthPct": 84
+      }
+    ]
+  },
+  "layout_outgoing": {
+    "type": "vbox",
+    "gap": 2,
+    "children": [
+      {
+        "type": "header",
+        "items": ["time"],
+        "senderColor": ["#1E293B", "#F1F5F9"]
+      },
+      {
+        "type": "body",
+        "corners": [12, 12, 2, 12],
+        "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+        "textColor": "#FFFFFF",
+        "padding": [10, 12, 10, 12],
+        "shadow": [0, 1, 2, 0.05],
+        "marginTop": 8,
+        "maxWidthPct": 84
+      }
+    ]
+  },
+  "layout_outgoing_next": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [12, 2, 2, 12],
+        "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
+        "textColor": "#FFFFFF",
+        "padding": [10, 12, 10, 12],
+        "shadow": [0, 1, 2, 0.05],
+        "marginTop": 2,
+        "maxWidthPct": 84
+      }
+    ]
+  },
+  "layout_system": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "textColor": ["#64748B", "#94A3B8"],
+        "padding": [0, 4, 4, 4],
+        "marginTop": 0
+      }
+    ]
+  },
+  "layout_broadcast": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "body",
+        "corners": [8, 8, 8, 8],
+        "bg": ["#FEF3C7", "#451A03"],
+        "border": ["#F59E0B", "#B45309"],
+        "padding": [10, 12, 10, 12],
+        "shadow": [0, 1, 2, 0.05],
+        "marginTop": 8
+      }
+    ]
+  },
+  "layout_request": {
+    "type": "vbox",
+    "gap": 0,
+    "children": [
+      {
+        "type": "fileCard",
+        "corners": [12, 12, 12, 12],
+        "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+        "border": ["#CBD5E1", "#334155"],
+        "padding": [10, 12, 10, 12],
+        "shadow": [0, 1, 2, 0.05],
+        "marginTop": 8,
+        "maxWidthPct": 84
+      }
+    ]
+  }
+}

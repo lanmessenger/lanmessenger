@@ -11,7 +11,7 @@
 #include <QFile>
 #include "core/lmccategories.h"
 #include "core/settings.h"
-#include "gui/chat/messagelog.h"
+#include "gui/chat/chatmessageview.h"
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
@@ -20,9 +20,8 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
   //	Destroy the window when it closes
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  pMessageLog = new lmcMessageLog(ui.fraMessageLog);
+  pMessageLog = new ChatMessageView(ui.fraMessageLog);
   ui.logLayout->addWidget(pMessageLog);
-  pMessageLog->setAcceptDrops(false);
 
   QList<int> sizes;
   sizes.append(width() * 0.35);
@@ -52,6 +51,13 @@ void lmcHistoryWindow::init(void) {
   pMessageLog->setAutoScroll(false);
 
   pSettings = new lmcSettings();
+  //  Single chat view shares the saved theme and appearance mode.
+  pMessageLog->setThemeName(pSettings->value(IDS_THEME, IDS_THEME_VAL).toString());
+  pMessageLog->setAppearanceMode(
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
+  //  Structured history keys own rows on this sentinel (right side).
+  pMessageLog->localId = ChatMessageView::historyLocalId();
+  pMessageLog->initChat();
   restoreGeometry(pSettings->value(IDS_WINDOWHISTORY).toByteArray());
   ui.splitter->restoreState(pSettings->value(IDS_SPLITTERHISTORY).toByteArray());
   setUIText();
@@ -69,6 +75,15 @@ void lmcHistoryWindow::stop(void) {
 }
 
 void lmcHistoryWindow::settingsChanged(void) {
+  //  Legacy window ignored settings; theme and appearance mode are live
+  //  (flags keep view defaults, as before).
+  QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  if(themeName.compare(pMessageLog->themeNameString()) != 0)
+    pMessageLog->setThemeName(themeName);
+  QString appearanceMode =
+    pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
+  if(appearanceMode.compare(pMessageLog->appearanceModeString()) != 0)
+    pMessageLog->setAppearanceMode(appearanceMode);
 }
 
 bool lmcHistoryWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
@@ -102,8 +117,13 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
   if(current) {
     qint64 offset = current->data(0, DataRole).toLongLong();
     QString data = History::getMessage(offset);
-
-    pMessageLog->setHtml(data);
+    QString name = current->text(0);
+    QDateTime date = current->data(1, DataRole).toDateTime();
+    //  Envelope "2": one row per message; legacy: one row, never migrated.
+    if(ChatMessageView::isStructuredHistory(&data))
+      pMessageLog->showHistoryMessages(&name, &date, &data);
+    else
+      pMessageLog->showLegacyHtml(&name, &date, &data);
   }
 }
 
@@ -119,7 +139,7 @@ void lmcHistoryWindow::setUIText(void) {
 }
 
 void lmcHistoryWindow::displayList(void) {
-  pMessageLog->setHtml("<html></html>");
+  pMessageLog->initChat();
   ui.tvMsgList->clear();
   msgList.clear();
 

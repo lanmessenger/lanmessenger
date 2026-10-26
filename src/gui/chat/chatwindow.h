@@ -14,7 +14,7 @@
 struct User;
 class XmlMessage;
 class lmcSettings;
-class lmcMessageLog;
+class ChatMessageView;
 class lmcSoundPlayer;
 class lmcToolButton;
 class lmcImagePickerAction;
@@ -39,6 +39,12 @@ public:
   void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void connectionStateChanged(bool connected);
   void settingsChanged(void);
+
+  //  Loopback self-chat: log the echo under an alias so it renders as
+  //  incoming instead of grouping with the sent row.
+  void enableLoopbackEcho(void);
+  static QString* loopbackEchoSender(bool loopbackMode, QString* lpszUserId,
+                                     const QString& localId, QString* pEchoId);
 
   QString localId;
   QHash<QString, QString> peerIds;
@@ -98,7 +104,7 @@ private:
 
   Ui::ChatWindow ui;
   lmcSettings* pSettings;
-  lmcMessageLog* pMessageLog;
+  ChatMessageView* pMessageLog;
   QAction* pFontAction;
   QAction* pFontColorAction;
   lmcToolButton* pbtnSmiley;
@@ -119,8 +125,12 @@ private:
   bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
+  bool messageColorSet = false;
+  bool messageFontSet = false;
   ChatState chatState;
   qint64 keyStroke;
   qint64 snapKeyStroke;
   bool dataSaved;
+  bool loopbackMode;
+  QString loopbackEchoId;
 };
