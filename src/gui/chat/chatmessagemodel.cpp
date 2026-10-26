@@ -235,7 +235,7 @@ void ChatMessageModel::updateUserName(QString* lpszUserId, QString* lpszUserName
     //  Text-preserving mutation: user name is part of contentRev, not of textSig.
     messageLog[i] = msg;
     QModelIndex idx = index(i, 0);
-    emit dataChanged(idx, idx, {UserNameRole, TextRole, Qt::DisplayRole});
+    emit dataChanged(idx, idx, {UserNameRole});
   }
   //  No clear() and full rebuild (unlike reloadMessageLog).
 }

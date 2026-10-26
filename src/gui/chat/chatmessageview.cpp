@@ -79,11 +79,13 @@ ChatMessageView::ChatMessageView(QWidget* parent)
 
   createContextMenu();
   connect(chatModel, &QAbstractItemModel::rowsInserted, this, &ChatMessageView::onRowsInserted);
+  connect(chatModel, &QAbstractItemModel::rowsRemoved, this, &ChatMessageView::onRowsRemoved);
   connect(chatModel, &QAbstractItemModel::modelReset, this, &ChatMessageView::onModelReset);
   connect(chatModel, &QAbstractItemModel::modelReset, this,
           &ChatMessageView::plainTextChanged);
   connect(chatModel, &QAbstractItemModel::dataChanged, this,
           &ChatMessageView::plainTextChanged);
+  connect(chatModel, &QAbstractItemModel::dataChanged, this, &ChatMessageView::onDataChanged);
   systemDark = qApp->palette().window().color().lightness() < 128;
 }
 
@@ -248,21 +250,11 @@ void ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
     scrollToBottom();
 }
 
-namespace {
-// QTextDocument decodes &nbsp; to U+00A0 and blocks to U+2029;
-// the history model keeps plain spaces and '\n'.
-QString normalizeHistoryText(QString text) {
-  text.replace(QChar(0x00A0), QLatin1Char(' '));
-  text.replace(QChar(0x2029), QLatin1Char('\n'));
-  return text;
-}
-} // namespace
-
 void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString* html) {
   initChat();
   QTextDocument doc;
   doc.setHtml(html ? *html : QString());
-  QString text = normalizeHistoryText(doc.toPlainText()).trimmed();
+  QString text = BubbleDelegate::normalizePlainText(doc.toPlainText()).trimmed();
   //  Broken offset or wiped historyFile: no phantom empty bubble.
   if(text.isEmpty())
     return;
@@ -304,7 +296,7 @@ QString historySpan(const QString& inner, const char* cls) {
     return QString();
   QTextDocument doc;
   doc.setHtml(m.captured(1));
-  return normalizeHistoryText(doc.toPlainText());
+  return BubbleDelegate::normalizePlainText(doc.toPlainText());
 }
 
 //  Envelope "2": one <p> per message; false when legacy or empty.
@@ -497,11 +489,11 @@ QModelIndex ChatMessageView::textIndexAt(const QPoint& pos, int* charPos) const 
 }
 
 void ChatMessageView::clearTextSelection() {
-  if(!bubbleDelegate->hasTextSelection())
-    return;
+  const bool had = bubbleDelegate->hasTextSelection() || textSelecting;
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
-  viewport()->update();
+  if(had)
+    viewport()->update();
 }
 QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
   QModelIndex idx = indexAt(pos);
@@ -735,11 +727,41 @@ void ChatMessageView::openExternal(const QString& href) {
 void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int last) {
   Q_UNUSED(parent);
   Q_UNUSED(last);
+  //  Deliberately broad: an insert at/above the selection shifts content
+  //  down, so the old index would mistarget another bubble; without a
+  //  follow-shift API, dropping the highlight is the safe choice.
   if(bubbleDelegate->hasTextSelection() && bubbleDelegate->selectionRow() >= first)
     clearTextSelection();
   if(autoScroll)
     scrollToBottom();
   emit plainTextChanged();
+}
+
+void ChatMessageView::onRowsRemoved(const QModelIndex& parent, int first, int last) {
+  Q_UNUSED(parent);
+  //  Only a hit selection dies; removals above would shift rows, but no
+  //  such producer exists (the typing row is always trailing, the rest
+  //  goes through modelReset).
+  if(!bubbleDelegate->hasTextSelection())
+    return;
+  const int row = bubbleDelegate->selectionRow();
+  if(row >= first && row <= last)
+    clearTextSelection();
+}
+
+void ChatMessageView::onDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight,
+                                    const QList<int>& roles) {
+  if(!bubbleDelegate->hasTextSelection())
+    return;
+  const int row = bubbleDelegate->selectionRow();
+  if(row < topLeft.row() || row > bottomRight.row())
+    return;
+  //  Avatar-only updates keep the highlight; text changes drop it.
+  if(!roles.isEmpty() && !roles.contains(Qt::DisplayRole) &&
+     !roles.contains(ChatMessageModel::TextRole) &&
+     !roles.contains(ChatMessageModel::FileOpRole))
+    return;
+  clearTextSelection();
 }
 
 void ChatMessageView::onModelReset() {

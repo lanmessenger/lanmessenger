@@ -84,6 +84,9 @@ public:
   bool hasTextSelection() const;
   int selectionRow() const;
   QString selectedText() const;
+  //  QTextDocument keeps HTML spaces as U+00A0, breaks as U+2028 and
+  //  blocks as U+2029; plain text wants regular spaces and newlines.
+  static QString normalizePlainText(QString text);
   void selectAllText(const QModelIndex& index, const QStyleOptionViewItem& option);
   //  Final row HTML (font/color guard + body). Public for tests.
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;

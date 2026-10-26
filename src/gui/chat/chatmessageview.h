@@ -93,6 +93,9 @@ protected:
 
 private slots:
   void onRowsInserted(const QModelIndex& parent, int first, int last);
+  void onRowsRemoved(const QModelIndex& parent, int first, int last);
+  void onDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight,
+                     const QList<int>& roles);
   void onModelReset();
   void onPaletteChanged();
   void copyAction_triggered();

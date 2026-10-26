@@ -589,10 +589,12 @@ QString BubbleDelegate::selectedText() const {
   QTextCursor cursor(e.doc);
   cursor.setPosition(lo);
   cursor.setPosition(hi, QTextCursor::KeepAnchor);
-  QString text = cursor.selectedText();
-  //  QTextDocument keeps HTML spaces as U+00A0 and blocks as U+2029;
-  //  plain-text copy wants regular spaces and newlines.
+  return normalizePlainText(cursor.selectedText());
+}
+
+QString BubbleDelegate::normalizePlainText(QString text) {
   text.replace(QChar(0x00A0), QLatin1Char(' '));
+  text.replace(QChar(0x2028), QLatin1Char('\n'));
   text.replace(QChar(0x2029), QLatin1Char('\n'));
   return text;
 }
