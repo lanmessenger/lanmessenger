@@ -25,8 +25,8 @@ struct RowGeometry {
 class BubbleGeometry {
 public:
   static int contentWidth(const ResolvedRow& row, int viewportWidth, int avatarSize);
-  static QRect placeBubble(int viewportWidth, int contentW, int contentH,
-                           const ResolvedRow& row, int headerH, int avatarSize);
+  static QRect placeBubble(const ResolvedRow& row, int viewportWidth, int contentW, int contentH,
+                           int headerH, int avatarSize);
   static RowGeometry buildLayout(const ResolvedRow& row, int viewportWidth, int contentW,
                                  int contentH, const QFont& nameFont, const QFont& timeFont,
                                  int avatarSize);

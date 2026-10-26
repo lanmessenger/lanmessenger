@@ -27,8 +27,8 @@ int BubbleGeometry::contentWidth(const ResolvedRow& row, int viewportWidth, int 
   return qMax(kMinContentW, avail - padH);
 }
 
-QRect BubbleGeometry::placeBubble(int viewportWidth, int contentW, int contentH,
-                                  const ResolvedRow& row, int headerH, int avatarSize) {
+QRect BubbleGeometry::placeBubble(const ResolvedRow& row, int viewportWidth, int contentW,
+                                  int contentH, int headerH, int avatarSize) {
   QString card = row.card;
   int bubbleW = contentW + row.padding[1] + row.padding[3];
   int bubbleH = contentH + row.padding[0] + row.padding[2];
@@ -65,7 +65,7 @@ RowGeometry BubbleGeometry::buildLayout(const ResolvedRow& row, int viewportWidt
     l.headerH = qMax(nfm.height(), tfm.height()) + row.vboxGap;
     l.headerAscent = qMax(nfm.ascent(), tfm.ascent());
   }
-  l.bubbleRect = placeBubble(viewportWidth, contentW, contentH, row, l.headerH, avatarSize);
+  l.bubbleRect = placeBubble(row, viewportWidth, contentW, contentH, l.headerH, avatarSize);
   l.docRect = QRect(l.bubbleRect.left() + row.padding[3], l.bubbleRect.top() + row.padding[0],
                     contentW, contentH);
   l.size = QSize(viewportWidth, l.bubbleRect.bottom() + 1);

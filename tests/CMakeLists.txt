@@ -145,6 +145,24 @@ set_target_properties(tst_chatnav PROPERTIES
 add_test(NAME chatnav COMMAND tst_chatnav)
 set_tests_properties(chatnav PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# Pure chat units (RowResolver/BubbleGeometry/RowHtmlBuilder), offscreen.
+add_executable(tst_chatpure
+    unit/tst_chatpure.cpp
+)
+
+target_link_libraries(tst_chatpure PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_chatpure PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME chatpure COMMAND tst_chatpure)
+set_tests_properties(chatpure PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # BubbleDelegate header typography (theme + local size, no message font leak),
 # offscreen.
 add_executable(tst_bubbleheader
