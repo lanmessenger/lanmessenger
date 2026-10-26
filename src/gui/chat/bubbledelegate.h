@@ -53,13 +53,6 @@ public:
   //  Theme + local display size only (never the message font). Public for tests.
   QFont headerNameFont() const;
   QFont headerTimeFont() const;
-  //  Top gap of the row: a per-tree scalar (series-start trees carry
-  //  the wide gap, _next trees the dense in-series one).
-  //  Public for tests.
-  int rowTopMargin(const QModelIndex& index) const;
-  //  Per-corner radii [TL, TR, BR, BL] from the walked tree.
-  //  Public for tests.
-  void rowCornerRadii(const QModelIndex& index, int out[4]) const;
   //  Layout resolution for one row: compiled layout_* walked once per row
   //  (inside entryFor), never touching QJson. Public for tests.
   struct ResolvedRow {
@@ -89,8 +82,6 @@ public:
     int corners[4] = {0, 0, 0, 0};
   };
   ResolvedRow resolveRow(const QModelIndex& index) const;
-  //  Bubble geometry in viewport coordinates (no row offset): left/right
-  //  keep 1px off the viewport edge so the border stroke never clips.
   //  Public for tests.
   QRect rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
                       const ResolvedRow& row) const;
@@ -101,8 +92,7 @@ public:
   //  Anchor rect in view coordinates (Tab-focus highlight).
   QRect anchorRect(const QString& href, const QStyleOptionViewItem& option,
                    const QModelIndex& index) const;
-  //  All row hrefs in document order (Tab navigation).
-  QStringList anchors(const QModelIndex& index, int viewportWidth) const;
+  QStringList anchors(const QModelIndex& index, const QStyleOptionViewItem& option) const;
   //  Tab-focused anchor highlight (view holds position, delegate paints).
   void setFocusAnchor(int row, const QString& href);
   void clearFocusAnchor();
@@ -119,10 +109,32 @@ private:
   struct CacheEntry {
     QTextDocument* doc = nullptr;
     int width = -1;
+    ResolvedRow row;
+    int headerH = 0;
+    int headerAscent = 0;
     QSize size;
     QRect bubbleRect;
     QRect docRect;
   };
+
+  struct HeaderMetrics {
+    int height = 0;
+    int ascent = 0;
+  };
+  HeaderMetrics headerMetrics(const ResolvedRow& row) const;
+  struct RowLayout {
+    int contentW = 0;
+    int contentH = 0;
+    int headerH = 0;
+    int headerAscent = 0;
+    QRect bubbleRect;
+    QRect docRect;
+    QSize size;
+  };
+  RowLayout buildLayout(int viewportWidth, const ResolvedRow& row, int contentW,
+                        int contentH) const;
+  QRect placeBubble(int viewportWidth, int contentW, int contentH, const ResolvedRow& row,
+                    int headerH) const;
 
   QString roleFor(const QModelIndex& index) const;
   double localPointSize() const;

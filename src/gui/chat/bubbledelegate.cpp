@@ -22,6 +22,8 @@
 namespace {
 
 const int kMaxCacheEntries = 150;
+const int kEdgeGutter = 1;
+const int kMinContentW = 80;
 
 //  Per-corner rounded rect: c is [TL, TR, BR, BL] in px, clamped to the rect.
 QPainterPath roundedCorners(const QRect& r, const int c[4]) {
@@ -449,47 +451,38 @@ int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
   if(row.avatar)
     avail -= theme.avatar.size + row.hboxGap;
   //  Strip cards span the viewport edge to edge: reserve the symmetric 1px
-  //  gutters rowBubbleRect keeps, so the 1px border stroke survives viewport
+  //  gutters placeBubble keeps, so the 1px border stroke survives viewport
   //  clipping on both sides (a flush edge loses its outer half and reads as
   //  thinner, e.g. the broadcast left edge).
   if(card == QLatin1String("broadcast") || card == QLatin1String("system"))
-    avail -= 2;
+    avail -= 2 * kEdgeGutter;
   if(card == QLatin1String("incoming") || card == QLatin1String("outgoing") ||
      card == QLatin1String("request"))
     avail = avail * row.maxWidthPct / 100;
   int padH = row.padding[1] + row.padding[3];
-  return qMax(80, avail - padH);
+  return qMax(kMinContentW, avail - padH);
 }
 
-int BubbleDelegate::rowTopMargin(const QModelIndex& index) const {
-  //  Per-tree scalar: series-start trees carry the wide gap, _next
-  //  trees the dense in-series one.
-  return resolveRow(index).marginTop;
+BubbleDelegate::HeaderMetrics BubbleDelegate::headerMetrics(const ResolvedRow& row) const {
+  HeaderMetrics m;
+  if(!row.header)
+    return m;
+  QFont nf = headerNameFont();
+  QFont tf = headerTimeFont();
+  QFontMetrics nfm(nf);
+  QFontMetrics tfm(tf);
+  m.height = qMax(nfm.height(), tfm.height()) + row.vboxGap;
+  m.ascent = qMax(nfm.ascent(), tfm.ascent());
+  return m;
 }
 
-void BubbleDelegate::rowCornerRadii(const QModelIndex& index, int out[4]) const {
-  //  Corners come from the layout body/fileCard node verbatim: outgoing nodes
-  //  carry hand-mirrored values, no code mirror exists.
-  ResolvedRow row = resolveRow(index);
-  for(int i = 0; i < 4; i++)
-    out[i] = row.corners[i];
-}
-
-QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
-                                    const ResolvedRow& row) const {
-  Q_UNUSED(index);
+QRect BubbleDelegate::placeBubble(int viewportWidth, int contentW, int contentH,
+                                  const ResolvedRow& row, int headerH) const {
   QString card = row.card;
-  int bubbleW = contentWidth(index, viewportWidth, row) + row.padding[1] +
-                row.padding[3];
+  int bubbleW = contentW + row.padding[1] + row.padding[3];
   int bubbleH = contentH + row.padding[0] + row.padding[2];
   int x = 0;
   int top = row.marginTop;
-  int headerH = 0;
-  if(row.header) {
-    QFont nf = headerNameFont();
-    QFont tf = headerTimeFont();
-    headerH = qMax(QFontMetrics(nf).height(), QFontMetrics(tf).height()) + row.vboxGap;
-  }
   int avatarW = 0;
   if(row.avatar)
     avatarW = theme.avatar.size + row.hboxGap;
@@ -498,23 +491,46 @@ QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth,
     //  Full-width custom theme (maxWidthPct 100, unreachable in shipped
     //  themes): keep the left stroke inside the viewport like below. The doc
     //  may overflow 1px on lines that exactly fill the width.
-    if(x < 1) {
-      bubbleW -= 1 - x;
-      x = 1;
+    if(x < kEdgeGutter) {
+      bubbleW -= kEdgeGutter - x;
+      x = kEdgeGutter;
     }
   } else if(card == QLatin1String("system")) {
     //  Full width centers on 1 through the contentWidth gutter above.
     x = (viewportWidth - bubbleW) / 2;
   } else if(card == QLatin1String("broadcast")) {
     //  Left gutter; the right one mirrors it through the avail cut above.
-    x = 1;
+    x = kEdgeGutter;
   } else {
     //  General guard (avatarless themes, request cards): never start left
     //  of the 1px stroke clearance. The width is untouched, so the doc
     //  still fits and only the bubble shifts right by a pixel.
-    x = qMax(avatarW, 1);
+    x = qMax(avatarW, kEdgeGutter);
   }
   return QRect(x, top + headerH, bubbleW, bubbleH);
+}
+
+BubbleDelegate::RowLayout BubbleDelegate::buildLayout(int viewportWidth, const ResolvedRow& row,
+                                                      int contentW, int contentH) const {
+  RowLayout l;
+  l.contentW = contentW;
+  l.contentH = contentH;
+  HeaderMetrics m = headerMetrics(row);
+  l.headerH = m.height;
+  l.headerAscent = m.ascent;
+  l.bubbleRect = placeBubble(viewportWidth, contentW, contentH, row, m.height);
+  l.docRect = QRect(l.bubbleRect.left() + row.padding[3], l.bubbleRect.top() + row.padding[0],
+                    contentW, contentH);
+  //  +1: QRect::bottom() is the last pixel, size needs one past it.
+  l.size = QSize(viewportWidth, l.bubbleRect.bottom() + 1);
+  return l;
+}
+
+QRect BubbleDelegate::rowBubbleRect(const QModelIndex& index, int viewportWidth, int contentH,
+                                    const ResolvedRow& row) const {
+  const int contentW = contentWidth(index, viewportWidth, row);
+  const HeaderMetrics m = headerMetrics(row);
+  return placeBubble(viewportWidth, contentW, contentH, row, m.height);
 }
 
 QString BubbleDelegate::contentRev(const QModelIndex& index) const {
@@ -581,14 +597,16 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   }
   ResolvedRow row = resolveRow(index);
   e.doc->setHtml(rowHtml(index, row));
-  e.doc->setTextWidth(contentWidth(index, viewportWidth, row));
+  const int contentW = contentWidth(index, viewportWidth, row);
+  e.doc->setTextWidth(contentW);
   QSizeF docSize = e.doc->size();
-  e.bubbleRect = rowBubbleRect(index, viewportWidth, qCeil(docSize.height()), row);
-  e.docRect = QRect(e.bubbleRect.left() + row.padding[3],
-                    e.bubbleRect.top() + row.padding[0],
-                    qCeil(docSize.width()), qCeil(docSize.height()));
-  //  +1: QRect::bottom() is the last pixel, size needs one past it.
-  e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
+  RowLayout l = buildLayout(viewportWidth, row, contentW, qCeil(docSize.height()));
+  e.row = row;
+  e.headerH = l.headerH;
+  e.headerAscent = l.headerAscent;
+  e.bubbleRect = l.bubbleRect;
+  e.docRect = l.docRect;
+  e.size = l.size;
   cache.insert(key, e);
   return cache.constFind(key).value();
 }
@@ -635,10 +653,10 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   painter->save();
   painter->setRenderHint(QPainter::Antialiasing);
   bool darkMode = Theme::isDark(mode, systemDark);
-  QString card = roleFor(index);
   const int width = viewWidth(option);
   const CacheEntry& e = entryFor(index, width);
-  const ResolvedRow row = resolveRow(index);
+  const ResolvedRow& row = e.row;
+  const QString& card = row.card;
   int top = option.rect.top();
 
   painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
@@ -677,7 +695,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     if(card == QLatin1String("outgoing"))
       hx = e.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
            tfm.horizontalAdvance(timePart);
-    int baseline = top + row.marginTop + qMax(nfm.ascent(), tfm.ascent());
+    int baseline = top + row.marginTop + e.headerAscent;
     if(!namePart.isEmpty()) {
       painter->setFont(nf);
       painter->setPen(nameColor);
@@ -806,8 +824,9 @@ void BubbleDelegate::clearFocusAnchor() {
   focusHref.clear();
 }
 
-QStringList BubbleDelegate::anchors(const QModelIndex& index, int viewportWidth) const {
-  const CacheEntry& e = entryFor(index, viewportWidth);
+QStringList BubbleDelegate::anchors(const QModelIndex& index,
+                                    const QStyleOptionViewItem& option) const {
+  const CacheEntry& e = entryFor(index, viewWidth(option));
   QStringList out;
   if(!e.doc)
     return out;

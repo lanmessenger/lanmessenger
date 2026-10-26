@@ -146,10 +146,10 @@ void TstBubbleHeader::seriesTopMargins() {
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   BubbleDelegate d;
   d.setTheme(t);
-  QCOMPARE(d.rowTopMargin(model.index(0, 0)), 9);
-  QCOMPARE(d.rowTopMargin(model.index(1, 0)), 3);
-  QCOMPARE(d.rowTopMargin(model.index(2, 0)), 3);
-  QCOMPARE(d.rowTopMargin(model.index(3, 0)), 9);
+  QCOMPARE(d.resolveRow(model.index(0, 0)).marginTop, 9);
+  QCOMPARE(d.resolveRow(model.index(1, 0)).marginTop, 3);
+  QCOMPARE(d.resolveRow(model.index(2, 0)).marginTop, 3);
+  QCOMPARE(d.resolveRow(model.index(3, 0)).marginTop, 9);
 
   //  Same text + same grouped flag => identical row height; the series
   //  start (top margin + header) is taller than an inner row.
@@ -192,30 +192,25 @@ void TstBubbleHeader::seriesCornerRadii() {
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   BubbleDelegate d;
   d.setTheme(t);
-  int first[4] = {0, 0, 0, 0};
-  int next[4] = {0, 0, 0, 0};
-  int single[4] = {0, 0, 0, 0};
-  int ownNext[4] = {0, 0, 0, 0};
-  d.rowCornerRadii(model.index(0, 0), first);
-  d.rowCornerRadii(model.index(1, 0), next);
-  d.rowCornerRadii(model.index(3, 0), single);
-  d.rowCornerRadii(model.index(4, 0), ownNext);
+  BubbleDelegate::ResolvedRow first = d.resolveRow(model.index(0, 0));
+  BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(1, 0));
+  BubbleDelegate::ResolvedRow single = d.resolveRow(model.index(3, 0));
+  BubbleDelegate::ResolvedRow ownNext = d.resolveRow(model.index(4, 0));
   const int wantBase[4] = {14, 14, 14, 3};
   const int wantNext[4] = {3, 14, 14, 3};
   //  Own rows mirror the base too: tail side is right.
   const int wantOwnSingle[4] = {14, 14, 3, 14};
   const int wantOwnNext[4] = {14, 3, 3, 14};
   for(int i = 0; i < 4; i++) {
-    QCOMPARE(first[i], wantBase[i]);
-    QCOMPARE(next[i], wantNext[i]);
-    QCOMPARE(single[i], wantOwnSingle[i]);
-    QCOMPARE(ownNext[i], wantOwnNext[i]);
+    QCOMPARE(first.corners[i], wantBase[i]);
+    QCOMPARE(next.corners[i], wantNext[i]);
+    QCOMPARE(single.corners[i], wantOwnSingle[i]);
+    QCOMPARE(ownNext.corners[i], wantOwnNext[i]);
   }
   //  Third row is grouped too: same radii as the second.
-  int third[4] = {0, 0, 0, 0};
-  d.rowCornerRadii(model.index(2, 0), third);
+  BubbleDelegate::ResolvedRow third = d.resolveRow(model.index(2, 0));
   for(int i = 0; i < 4; i++)
-    QCOMPARE(third[i], wantNext[i]);
+    QCOMPARE(third.corners[i], wantNext[i]);
 }
 
 void TstBubbleHeader::outgoingCornersReadVerbatim() {
@@ -284,15 +279,13 @@ void TstBubbleHeader::outgoingCornersReadVerbatim() {
   }
   BubbleDelegate d;
   d.setTheme(t);
-  int single[4] = {0, 0, 0, 0};
-  int next[4] = {0, 0, 0, 0};
-  d.rowCornerRadii(model.index(1, 0), single);
-  d.rowCornerRadii(model.index(2, 0), next);
+  BubbleDelegate::ResolvedRow single = d.resolveRow(model.index(1, 0));
+  BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(2, 0));
   const int wantSingle[4] = {1, 2, 3, 4};
   const int wantNext[4] = {5, 6, 7, 8};
   for(int i = 0; i < 4; i++) {
-    QCOMPARE(single[i], wantSingle[i]);
-    QCOMPARE(next[i], wantNext[i]);
+    QCOMPARE(single.corners[i], wantSingle[i]);
+    QCOMPARE(next.corners[i], wantNext[i]);
   }
 }
 

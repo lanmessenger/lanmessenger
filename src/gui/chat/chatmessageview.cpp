@@ -533,12 +533,15 @@ bool ChatMessageView::moveAnchorFocus(int delta) {
   int rows = chatModel->rowCount();
   if(rows == 0)
     return false;
-  int width = viewport()->width();
+  QStyleOptionViewItem opt;
+  opt.initFrom(this);
+  opt.widget = viewport();
+  opt.rect = QRect(0, 0, viewport()->width(), 0);
   if(focusRow < 0) {
     int start = (delta > 0) ? 0 : rows - 1;
     int step = (delta > 0) ? 1 : -1;
     for(int r = start; r >= 0 && r < rows; r += step) {
-      QStringList names = bubbleDelegate->anchors(chatModel->index(r, 0), width);
+      QStringList names = bubbleDelegate->anchors(chatModel->index(r, 0), opt);
       if(!names.isEmpty()) {
         focusRow = r;
         focusHref = (delta > 0) ? names.first() : names.last();
@@ -546,7 +549,7 @@ bool ChatMessageView::moveAnchorFocus(int delta) {
       }
     }
   } else {
-    QStringList current = bubbleDelegate->anchors(chatModel->index(focusRow, 0), width);
+    QStringList current = bubbleDelegate->anchors(chatModel->index(focusRow, 0), opt);
     int pos = current.indexOf(focusHref);
     if(pos + delta >= 0 && pos + delta < current.size()) {
       focusHref = current.at(pos + delta);
@@ -556,7 +559,7 @@ bool ChatMessageView::moveAnchorFocus(int delta) {
       int r = focusRow + delta;
       bool found = false;
       while(r >= 0 && r < rows) {
-        QStringList names = bubbleDelegate->anchors(chatModel->index(r, 0), width);
+        QStringList names = bubbleDelegate->anchors(chatModel->index(r, 0), opt);
         if(!names.isEmpty()) {
           focusRow = r;
           focusHref = (delta > 0) ? names.first() : names.last();
