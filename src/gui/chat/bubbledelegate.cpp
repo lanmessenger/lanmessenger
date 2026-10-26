@@ -5,19 +5,15 @@
 #include <QListView>
 #include <QPainter>
 #include <QPainterPath>
-#include <QAbstractTextDocumentLayout>
 #include <QFile>
-#include <QRegularExpression>
-#include <QTextBlock>
-#include <QTextCursor>
-#include <QTextLayout>
 #include <QUrl>
 #include <QtMath>
 
 #include "core/shared.h"
 #include "core/uidefinitions.h"
+#include "gui/chat/anchornavigator.h"
 #include "gui/chat/chatmessagemodel.h"
-#include "gui/chat/chattextguard.h"
+#include "gui/chat/rowhtmlbuilder.h"
 
 namespace {
 
@@ -46,31 +42,6 @@ QPainterPath roundedCorners(const QRect& r, const int c[4]) {
     path.arcTo(r.left(), r.top(), 2 * tl, 2 * tl, 180, -90);
   path.closeSubpath();
   return path;
-}
-
-QString fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal, bool own,
-                     bool fontExplicit) {
-  QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
-  if(font.italic())
-    style += QStringLiteral("font-style:italic; ");
-  if(font.bold())
-    style += QStringLiteral("font-weight:bold; ");
-  //  An explicitly chosen sender font is honored with its own size (like color);
-  //  otherwise the size comes from the local theme setting.
-  if(own || fontExplicit) {
-    style += QStringLiteral("font-size:%1pt; ").arg(font.pointSizeF());
-    if(color.isValid())
-      style += QStringLiteral("color:%1; ").arg(color.name());
-  } else {
-    style += fontStyle[qBound(0, fontSizeVal, FS_COUNT - 1)] + QStringLiteral(" ");
-    if(color.isValid())
-      style += QStringLiteral("color:%1; ").arg(color.name());
-  }
-  if(font.strikeOut())
-    style += QStringLiteral("text-decoration:line-through; ");
-  if(font.underline())
-    style += QStringLiteral("text-decoration:underline; ");
-  return style;
 }
 
 } // namespace
@@ -142,25 +113,6 @@ QFont BubbleDelegate::headerTimeFont() const {
   return f;
 }
 
-QFont BubbleDelegate::rowFont(const QModelIndex& index) const {
-  double themeSize = localPointSize();
-  QVariant v = index.data(ChatMessageModel::FontRole);
-  if(v.isValid()) {
-    //  Sender chose a font: honor family and size (like color).
-    QFont f = v.value<QFont>();
-    if(f.pointSizeF() <= 0)
-      f.setPointSizeF(themeSize);
-    else
-      f.setPointSizeF(qBound(ChatTextGuard::kMinFontPt, f.pointSizeF(),
-                             ChatTextGuard::kMaxFontPt));
-    return f;
-  }
-  //  Sender did not choose: theme fallback (app default family, local size).
-  QFont f;
-  f.setPointSizeF(themeSize);
-  return f;
-}
-
 QString BubbleDelegate::rowTime(const QModelIndex& index) const {
   if(!display.messageTime)
     return QString();
@@ -173,50 +125,6 @@ QString BubbleDelegate::rowTime(const QModelIndex& index) const {
   if(display.messageDate)
     time = t.toString(QStringLiteral("dd.MM.yyyy ")) + time;
   return time;
-}
-
-QString BubbleDelegate::decodeBody(QString text) const {
-  //  Port of lmcMessageLog::decodeMessage/processMessageText (no QTextBrowser).
-  if(display.trimMessage)
-    text = text.trimmed();
-  if(display.allowLinks) {
-    text.replace(QRegularExpression(
-                   QStringLiteral("((?:(?:https?|ftp|file)://|www\\.|ftp\\.)"
-                                  "[-A-Z0-9+&@#/%=~_|$?!:,.]*[A-Z0-9+&@#/%=~_|$])"),
-                   QRegularExpression::CaseInsensitiveOption),
-                 QStringLiteral("<a data-isLink='true' href='\\1'>\\1</a>"));
-    text.replace(QStringLiteral("<a data-isLink='true' href='www"),
-                 QStringLiteral("<a data-isLink='true' href='http://www"));
-    if(display.pathToLink)
-      text.replace(QRegularExpression(QStringLiteral("((\\\\\\\\[\\w-]+\\\\[^\\\\/:*?<>|"
-                                                     "]+)((?:\\\\[^\\\\/:*?<>|"
-                                                     "]+)*\\\\?)$)")),
-                   QStringLiteral("<a data-isLink='true' href='file:\\1'>\\1</a>"));
-  }
-  QString out;
-  int pos = 0;
-  while(pos < text.length()) {
-    int start = text.indexOf(QStringLiteral("<a data-isLink='true'"), pos);
-    if(start != -1) {
-      QString segment = text.mid(pos, start - pos);
-      ChatHelper::makeHtmlSafe(&segment);
-      if(display.showSmiley)
-        ChatHelper::decodeSmileys(&segment);
-      out += segment;
-      int end = text.indexOf(QStringLiteral("</a>"), start) + 4;
-      out += text.mid(start, end - start);
-      pos = end;
-    } else {
-      QString segment = text.mid(pos);
-      ChatHelper::makeHtmlSafe(&segment);
-      if(display.showSmiley)
-        ChatHelper::decodeSmileys(&segment);
-      out += segment;
-      break;
-    }
-  }
-  out.replace(QStringLiteral("\n"), QStringLiteral("<br/>"));
-  return out;
 }
 
 QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {
@@ -297,43 +205,24 @@ BubbleDelegate::ResolvedRow BubbleDelegate::resolveRow(const QModelIndex& index)
 QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row) const {
   int type = index.data(ChatMessageModel::TypeRole).toInt();
   bool isFile = (type == MT_File || type == MT_Folder);
-  QFont font = rowFont(index);
-  QColor color = index.data(ChatMessageModel::ColorRole).value<QColor>();
-  bool explicitColor = color.isValid();
-  if(!explicitColor) {
-    //  Explicit message color wins, then the resolved row text
-    //  (layout body/fileCard node or theme default, e.g. light text on
-    //  a saturated outgoing bubble).
-    color = Theme::pick(row.text, Theme::isDark(mode, systemDark));
-  } else {
-    bool darkMode = Theme::isDark(mode, systemDark);
-    QColor bg1, bg2;
-    Theme::pickBg(row.bg, darkMode, bg1, bg2);
-    double worst = -1.0;
-    if(bg1.alpha() != 0)
-      worst = ChatTextGuard::contrastRatio(color, bg1);
-    if(bg2.alpha() != 0) {
-      double r = ChatTextGuard::contrastRatio(color, bg2);
-      worst = (worst < 0.0) ? r : qMin(worst, r);
-    }
-    if(worst < 0.0) {
-      QColor page = Theme::pick(theme.page, darkMode);
-      if(page.alpha() != 0)
-        worst = ChatTextGuard::contrastRatio(color, page);
-    }
-    if(worst >= 0.0 && worst < ChatTextGuard::kMinContrast)
-      color = Theme::pick(row.text, darkMode);
-  }
+  const bool darkMode = Theme::isDark(mode, systemDark);
+  QFont font = RowHtmlBuilder::messageFont(index.data(ChatMessageModel::FontRole),
+                                           localPointSize());
+  QColor color =
+    RowHtmlBuilder::guardedColor(index.data(ChatMessageModel::ColorRole).value<QColor>(),
+                                 row.bg, row.text, theme.page, darkMode);
   bool own = index.data(ChatMessageModel::OwnRole).toBool();
   bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();
-  QString style = fontStyleFor(font, color, display.fontSizeVal, own, fontExplicit);
-  QString linkColorName = Theme::pick(theme.link, Theme::isDark(mode, systemDark)).name();
+  QString style = RowHtmlBuilder::fontStyleFor(font, color, display.fontSizeVal, own,
+                                               fontExplicit);
+  QString linkColorName = Theme::pick(theme.link, darkMode).name();
   QString body;
   if(isFile) {
     body = fileCardHtml(index);
   } else {
-    QString text = index.data(ChatMessageModel::TextRole).toString();
-    body = decodeBody(text);
+    body = RowHtmlBuilder::decodeBody(index.data(ChatMessageModel::TextRole).toString(),
+                                      display.trimMessage, display.allowLinks,
+                                      display.pathToLink, display.showSmiley);
   }
   return QStringLiteral("<div style='%1'>%2</div>").arg(style, body) +
          QStringLiteral("<style>a { color: %1; }</style>").arg(linkColorName);
@@ -587,49 +476,15 @@ QSize BubbleDelegate::sizeHint(const QStyleOptionViewItem& option,
 QString BubbleDelegate::anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
-  if(!docRect.contains(pos))
-    return QString();
-  QPointF docPos = QPointF(pos - docRect.topLeft());
-  QString href = e.doc->documentLayout()->anchorAt(docPos);
-  return href;
+  return AnchorNavigator::anchorAt(e.doc, e.geo.docRect.translated(0, option.rect.top()),
+                                   pos);
 }
 
 QRect BubbleDelegate::anchorRect(const QString& href, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
-  if(href.isEmpty() || !e.doc)
-    return QRect();
-  for(QTextBlock block = e.doc->begin(); block != e.doc->end(); block = block.next()) {
-    if(!block.layout())
-      continue;
-    QRect blockRect = e.doc->documentLayout()->blockBoundingRect(block).toRect();
-    for(QTextBlock::iterator it = block.begin(); !(it.atEnd()); ++it) {
-      QTextFragment frag = it.fragment();
-      if(!frag.charFormat().isAnchor() || frag.charFormat().anchorHref() != href)
-        continue;
-      int start = frag.position() - block.position();
-      int end = start + frag.length();
-      QTextLayout* layout = block.layout();
-      for(int i = 0; i < layout->lineCount(); i++) {
-        QTextLine line = layout->lineAt(i);
-        int ls = line.textStart();
-        int le = ls + line.textLength();
-        int s = qMax(start, ls);
-        int en = qMin(end, le);
-        if(s < en) {
-          qreal x1 = line.cursorToX(s);
-          qreal x2 = line.cursorToX(en);
-          QRect r(docRect.left() + blockRect.left() + int(x1),
-                  docRect.top() + blockRect.top() + int(line.y()),
-                  int(x2 - x1), int(line.height()));
-          return r;
-        }
-      }
-    }
-  }
-  return QRect();
+  return AnchorNavigator::anchorRect(e.doc, e.geo.docRect.translated(0, option.rect.top()),
+                                     href);
 }
 
 void BubbleDelegate::setFocusAnchor(int row, const QString& href) {
@@ -645,18 +500,5 @@ void BubbleDelegate::clearFocusAnchor() {
 QStringList BubbleDelegate::anchors(const QModelIndex& index,
                                     const QStyleOptionViewItem& option) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
-  QStringList out;
-  if(!e.doc)
-    return out;
-  for(QTextBlock block = e.doc->begin(); block != e.doc->end(); block = block.next()) {
-    for(QTextBlock::iterator it = block.begin(); !(it.atEnd()); ++it) {
-      QTextFragment frag = it.fragment();
-      if(frag.charFormat().isAnchor()) {
-        QString href = frag.charFormat().anchorHref();
-        if(!href.isEmpty() && !out.contains(href))
-          out.append(href);
-      }
-    }
-  }
-  return out;
+  return AnchorNavigator::anchors(e.doc);
 }

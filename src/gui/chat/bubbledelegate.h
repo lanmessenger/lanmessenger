@@ -87,9 +87,7 @@ private:
 
   QString roleFor(const QModelIndex& index) const;
   double localPointSize() const;
-  QFont rowFont(const QModelIndex& index) const;
   QString rowTime(const QModelIndex& index) const;
-  QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
   int viewWidth(const QStyleOptionViewItem& option) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, contentRev).
