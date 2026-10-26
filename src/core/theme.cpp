@@ -508,6 +508,135 @@ int treeContentCount(const Theme::LayoutNode& n) {
   return count;
 }
 
+bool fail(Theme& t, const QString& message) {
+  t.errorString = message;
+  qCWarning(lmcUi) << "Theme:" << t.errorString;
+  return false;
+}
+
+bool parseDisplayName(const QJsonObject& root, Theme& t) {
+  QJsonValue v = root.value(QStringLiteral("displayName"));
+  if(v.isUndefined() || v.isNull())
+    return true;
+  if(!v.isString())
+    return fail(t, QStringLiteral("bad displayName (want string)"));
+  QString label = v.toString().trimmed();
+  if(label.isEmpty() || label.size() > 80 || label.contains(QLatin1Char('\n')) ||
+     label.contains(QLatin1Char('\r')))
+    return fail(t, QStringLiteral("bad displayName (want non-empty single line)"));
+  t.displayName = label;
+  return true;
+}
+
+bool parseViewPadding(const QJsonObject& root, Theme& t) {
+  QJsonValue v = root.value(QStringLiteral("viewPadding"));
+  if(v.isUndefined() || v.isNull())
+    return true;
+  QString err;
+  if(!checkIntArray(v, 4, err, "viewPadding"))
+    return fail(t, err);
+  QJsonArray vp = v.toArray();
+  for(int i = 0; i < 4; i++) {
+    t.view.padding[i] = vp.at(i).toInt();
+    if(t.view.padding[i] < 0)
+      return fail(t, QStringLiteral("viewPadding must be >= 0"));
+  }
+  return true;
+}
+
+bool parseAvatar(const QJsonObject& root, Theme& t) {
+  QJsonObject a = root.value(QStringLiteral("avatar")).toObject();
+  if(a.contains(QStringLiteral("showOnGrouped")))
+    return fail(t, QStringLiteral("showOnGrouped removed (avatar is structural)"));
+  t.avatar.size = a.value(QStringLiteral("size")).toInt(-1);
+  t.avatar.shape = a.value(QStringLiteral("shape")).toString();
+  if(t.avatar.size <= 0 ||
+     (t.avatar.shape != QLatin1String("circle") && t.avatar.shape != QLatin1String("rounded") &&
+      t.avatar.shape != QLatin1String("square")))
+    return fail(t, QStringLiteral("bad avatar"));
+  return true;
+}
+
+bool parseHeader(const QJsonObject& root, Theme& t) {
+  QJsonObject h = root.value(QStringLiteral("header")).toObject();
+  if(h.contains(QStringLiteral("senderBold")))
+    return fail(t, QStringLiteral("senderBold removed (use senderWeight 100..900)"));
+  QJsonValue w = h.value(QStringLiteral("senderWeight"));
+  if(w.isUndefined() || w.isNull()) {
+    t.header.senderWeight = 600;
+  } else {
+    if(!w.isDouble() || std::floor(w.toDouble()) != w.toDouble() || w.toInt(-1) < 100 ||
+       w.toInt(-1) > 900)
+      return fail(t, QStringLiteral("bad header senderWeight (want 100..900)"));
+    t.header.senderWeight = w.toInt();
+  }
+  t.header.timeFormat = h.value(QStringLiteral("timeFormat")).toString();
+  if(t.header.timeFormat.isEmpty())
+    return fail(t, QStringLiteral("bad header.timeFormat"));
+  t.header.outgoingYouLabel = h.value(QStringLiteral("outgoingYouLabel")).toBool(false);
+  for(auto key : {QStringLiteral("senderSize"), QStringLiteral("timeSize")}) {
+    if(h.contains(key) && !h.value(key).isDouble())
+      return fail(t, QStringLiteral("bad header size %1 (want number)").arg(key));
+  }
+  t.header.senderSize = h.value(QStringLiteral("senderSize")).toDouble(1.0);
+  t.header.timeSize = h.value(QStringLiteral("timeSize")).toDouble(1.0);
+  if(t.header.senderSize < 0.5 || t.header.senderSize > 2.0 || t.header.timeSize < 0.5 ||
+     t.header.timeSize > 2.0)
+    return fail(t, QStringLiteral("bad header size (want 0.5..2.0)"));
+  QString err;
+  for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
+    QByteArray what = QByteArray("header.") + key.toLatin1();
+    Theme::DualColor c;
+    if(!h.contains(key) || !parseDualColor(h.value(key), what.constData(), err, c))
+      return fail(t, err.isEmpty() ? QStringLiteral("missing header.%1").arg(key) : err);
+    if(key == QLatin1String("senderColor"))
+      t.header.senderColor = c;
+    else
+      t.header.timeColor = c;
+  }
+  return true;
+}
+
+bool parseGlobalColors(const QJsonObject& root, Theme& t) {
+  QString err;
+  for(auto key : {QStringLiteral("text"), QStringLiteral("link"), QStringLiteral("page")}) {
+    QByteArray what = key.toLatin1();
+    Theme::DualColor c;
+    if(!root.contains(key) || !parseDualColor(root.value(key), what.constData(), err, c))
+      return fail(t, err.isEmpty() ? QStringLiteral("missing %1").arg(key) : err);
+    if(key == QLatin1String("text"))
+      t.text = c;
+    else if(key == QLatin1String("link"))
+      t.link = c;
+    else
+      t.page = c;
+  }
+  return true;
+}
+
+bool parseLayouts(const QJsonObject& root, Theme& t) {
+  for(int i = 0; i < kLayoutCount; i++) {
+    QString name = QLatin1String(kLayouts[i]);
+    if(!root.contains(name) || !root.value(name).isObject())
+      return fail(t, QStringLiteral("bad %1 (want object)").arg(name));
+    QJsonObject obj = root.value(name).toObject();
+    if(!validateNode(obj, 1, name, t.errorString)) {
+      t.errorString = name + QStringLiteral(": ") + t.errorString;
+      qCWarning(lmcUi) << "Theme:" << t.errorString;
+      return false;
+    }
+    Theme::LayoutNode node = compileNode(obj);
+    int content = treeContentCount(node);
+    if(content == 0)
+      return fail(t, QStringLiteral("%1 without body/fileCard").arg(name));
+    if(content > 1)
+      return fail(t, QStringLiteral("%1 holds one body/fileCard").arg(name));
+    t.layouts.insert(name, obj);
+    t.compiled.insert(name, node);
+  }
+  return true;
+}
+
 } // namespace
 
 QString Theme::defaultJsonText() {
@@ -531,182 +660,27 @@ Theme Theme::loadFromJson(const QByteArray& data) {
   QJsonParseError parseError;
   QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
   if(parseError.error != QJsonParseError::NoError || !doc.isObject()) {
-    t.errorString = QStringLiteral("bad json: %1").arg(parseError.errorString());
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+    fail(t, QStringLiteral("bad json: %1").arg(parseError.errorString()));
     return t;
   }
   QJsonObject root = doc.object();
-  if(!root.contains(QStringLiteral("version")) || root.value(QStringLiteral("version")).toInt(-1) != 1) {
-    t.errorString = QStringLiteral("bad version (want 1)");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!root.contains(QStringLiteral("version")) ||
+     root.value(QStringLiteral("version")).toInt(-1) != 1) {
+    fail(t, QStringLiteral("bad version (want 1)"));
     return t;
   }
-
-  QString err;
-
-  //  Optional UI label; absent = ID fallback.
-  QJsonValue displayNameValue = root.value(QStringLiteral("displayName"));
-  if(!displayNameValue.isUndefined() && !displayNameValue.isNull()) {
-    if(!displayNameValue.isString()) {
-      t.errorString = QStringLiteral("bad displayName (want string)");
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    QString label = displayNameValue.toString().trimmed();
-    if(label.isEmpty() || label.size() > 80 || label.contains(QLatin1Char('\n')) ||
-       label.contains(QLatin1Char('\r'))) {
-      t.errorString = QStringLiteral("bad displayName (want non-empty single line)");
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    t.displayName = label;
-  }
-
-  //  view padding: optional root key, defaults keep the current look.
-  QJsonValue viewPadding = root.value(QStringLiteral("viewPadding"));
-  if(!viewPadding.isUndefined() && !viewPadding.isNull()) {
-    if(!checkIntArray(viewPadding, 4, err, "viewPadding")) {
-      t.errorString = err;
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    QJsonArray vp = viewPadding.toArray();
-    for(int i = 0; i < 4; i++) {
-      t.view.padding[i] = vp.at(i).toInt();
-      if(t.view.padding[i] < 0) {
-        t.errorString = QStringLiteral("viewPadding must be >= 0");
-        qCWarning(lmcUi) << "Theme:" << t.errorString;
-        return t;
-      }
-    }
-  }
-
-  //  avatar / header (gaps live on layout containers now; stale
-  //  theme-level "gap" keys are ignored, not rejected).
-  //  avatar: size/shape required; showOnGrouped is gone (avatar space
-  //  is structural now: the node sits in series-start trees only).
-  QJsonObject a = root.value(QStringLiteral("avatar")).toObject();
-  if(a.contains(QStringLiteral("showOnGrouped"))) {
-    t.errorString = QStringLiteral("showOnGrouped removed (avatar is structural)");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!parseDisplayName(root, t))
     return t;
-  }
-  t.avatar.size = a.value(QStringLiteral("size")).toInt(-1);
-  t.avatar.shape = a.value(QStringLiteral("shape")).toString();
-  if(t.avatar.size <= 0 ||
-     (t.avatar.shape != QLatin1String("circle") && t.avatar.shape != QLatin1String("rounded") &&
-      t.avatar.shape != QLatin1String("square"))) {
-    t.errorString = QStringLiteral("bad avatar");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!parseViewPadding(root, t))
     return t;
-  }
-  QJsonObject h = root.value(QStringLiteral("header")).toObject();
-  if(h.contains(QStringLiteral("senderBold"))) {
-    t.errorString = QStringLiteral("senderBold removed (use senderWeight 100..900)");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!parseAvatar(root, t))
     return t;
-  }
-  QJsonValue senderWeightValue = h.value(QStringLiteral("senderWeight"));
-  if(senderWeightValue.isUndefined() || senderWeightValue.isNull()) {
-    t.header.senderWeight = 600;
-  } else {
-    if(!senderWeightValue.isDouble() ||
-       std::floor(senderWeightValue.toDouble()) != senderWeightValue.toDouble() ||
-       senderWeightValue.toInt(-1) < 100 || senderWeightValue.toInt(-1) > 900) {
-      t.errorString = QStringLiteral("bad header senderWeight (want 100..900)");
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    t.header.senderWeight = senderWeightValue.toInt();
-  }
-  t.header.timeFormat = h.value(QStringLiteral("timeFormat")).toString();
-  if(t.header.timeFormat.isEmpty()) {
-    t.errorString = QStringLiteral("bad header.timeFormat");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!parseHeader(root, t))
     return t;
-  }
-  //  The label text itself is not theme data: when true, the delegate renders
-  //  the translated "You" prefix (tr() in BubbleDelegate, .ts/.qm workflow).
-  t.header.outgoingYouLabel = h.value(QStringLiteral("outgoingYouLabel")).toBool(false);
-  for(auto key : {QStringLiteral("senderSize"), QStringLiteral("timeSize")}) {
-    if(h.contains(key) && !h.value(key).isDouble()) {
-      t.errorString = QStringLiteral("bad header size %1 (want number)").arg(key);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-  }
-  t.header.senderSize = h.value(QStringLiteral("senderSize")).toDouble(1.0);
-  t.header.timeSize = h.value(QStringLiteral("timeSize")).toDouble(1.0);
-  if(t.header.senderSize < 0.5 || t.header.senderSize > 2.0 || t.header.timeSize < 0.5 ||
-     t.header.timeSize > 2.0) {
-    t.errorString = QStringLiteral("bad header size (want 0.5..2.0)");
-    qCWarning(lmcUi) << "Theme:" << t.errorString;
+  if(!parseGlobalColors(root, t))
     return t;
-  }
-  //  Theme-level header colors are defaults; layout header nodes override.
-  //  Required like timeFormat: there is no sane hardcoded default.
-  for(auto key : {QStringLiteral("senderColor"), QStringLiteral("timeColor")}) {
-    QByteArray what = QByteArray("header.") + key.toLatin1();
-    Theme::DualColor c;
-    if(!h.contains(key) || !parseDualColor(h.value(key), what.constData(), err, c)) {
-      t.errorString = err.isEmpty() ? QStringLiteral("missing header.%1").arg(key) : err;
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    if(key == QLatin1String("senderColor"))
-      t.header.senderColor = c;
-    else
-      t.header.timeColor = c;
-  }
-
-  //  Single-use global colors: default body text, links, view fill.
-  for(auto key : {QStringLiteral("text"), QStringLiteral("link"), QStringLiteral("page")}) {
-    QByteArray what = key.toLatin1();
-    Theme::DualColor c;
-    if(!root.contains(key) || !parseDualColor(root.value(key), what.constData(), err, c)) {
-      t.errorString = err.isEmpty() ? QStringLiteral("missing %1").arg(key) : err;
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    if(key == QLatin1String("text"))
-      t.text = c;
-    else if(key == QLatin1String("link"))
-      t.link = c;
-    else
-      t.page = c;
-  }
-
-  //  layouts: all 7 are required single root objects, each holding
-  //  exactly one rect (the delegate always paints one); validate depth/types/if.
-  for(int i = 0; i < kLayoutCount; i++) {
-    QString name = QLatin1String(kLayouts[i]);
-    if(!root.contains(name) || !root.value(name).isObject()) {
-      t.errorString = QStringLiteral("bad %1 (want object)").arg(name);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    QJsonObject obj = root.value(name).toObject();
-    if(!validateNode(obj, 1, name, t.errorString)) {
-      t.errorString = name + QStringLiteral(": ") + t.errorString;
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    Theme::LayoutNode node = compileNode(obj);
-    int content = treeContentCount(node);
-    if(content == 0) {
-      t.errorString = QStringLiteral("%1 without body/fileCard").arg(name);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    if(content > 1) {
-      t.errorString = QStringLiteral("%1 holds one body/fileCard").arg(name);
-      qCWarning(lmcUi) << "Theme:" << t.errorString;
-      return t;
-    }
-    t.layouts.insert(name, obj);
-    t.compiled.insert(name, node);
-  }
-
+  if(!parseLayouts(root, t))
+    return t;
   t.isValid = true;
   return t;
 }
