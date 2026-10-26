@@ -104,7 +104,7 @@ void ChatMessageView::reloadTheme() {
   setViewportMargins(theme.view.padding[3], theme.view.padding[0], theme.view.padding[1],
                      theme.view.padding[2]);
   syncBackground();
-  viewport()->update();
+  requestRelayout();
 }
 
 void ChatMessageView::appendMessageLog(MessageType type, QString* lpszUserId,
@@ -153,7 +153,7 @@ void ChatMessageView::reloadMessageLog() {
   //  Re-read tokens + sizeHint invalidation, without clearing the log.
   syncToLayers();
   bubbleDelegate->invalidateCache();
-  viewport()->update();
+  requestRelayout();
 }
 
 QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
@@ -385,7 +385,7 @@ void ChatMessageView::setAppearanceMode(const QString& newMode) {
     appearanceMode = Theme::Mode::System;
   bubbleDelegate->setMode(appearanceMode, systemDark);
   syncBackground();
-  viewport()->update();
+  requestRelayout();
 }
 
 QString ChatMessageView::plainText() const {
@@ -639,14 +639,13 @@ void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int l
 
 void ChatMessageView::onModelReset() {
   bubbleDelegate->invalidateCache();
-  scheduleDelayedItemsLayout();
+  requestRelayout();
 }
 
 void ChatMessageView::resizeEvent(QResizeEvent* event) {
   QListView::resizeEvent(event);
   bubbleDelegate->noteViewportWidth(viewport()->width());
-  scheduleDelayedItemsLayout();
-  viewport()->update();
+  requestRelayout();
 }
 
 void ChatMessageView::onPaletteChanged() {
@@ -658,7 +657,7 @@ void ChatMessageView::onPaletteChanged() {
     systemDark = dark;
     bubbleDelegate->setMode(appearanceMode, systemDark);
     syncBackground();
-    viewport()->update();
+    requestRelayout();
   }
 }
 
@@ -747,4 +746,9 @@ void ChatMessageView::syncBackground() {
   vp.setColor(QPalette::Window, page);
   viewport()->setPalette(vp);
   viewport()->setAutoFillBackground(true);
+}
+
+void ChatMessageView::requestRelayout() {
+  scheduleDelayedItemsLayout();
+  viewport()->update();
 }

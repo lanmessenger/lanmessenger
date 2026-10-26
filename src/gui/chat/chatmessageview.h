@@ -98,6 +98,8 @@ private:
   void syncToLayers();
   void syncModelIdentity();
   void syncBackground();
+  //  Cache was invalidated, ask QListView for fresh sizeHints.
+  void requestRelayout();
   void createContextMenu();
   void showContextMenu(const QPoint& pos);
   void activateHref(const QString& href);

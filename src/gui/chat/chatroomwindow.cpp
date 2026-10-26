@@ -376,10 +376,12 @@ void lmcChatRoomWindow::settingsChanged(void) {
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
   QString themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
+  bool lookChanged = false;
   if(themeName.compare(pMessageLog->themeNameString()) != 0) {
     //  Theme switch alone: setThemeName repaints with the new theme,
     //  the log stays (no reloadMessageLog needed).
     pMessageLog->setThemeName(themeName);
+    lookChanged = true;
   }
   QString appearanceMode =
     pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString();
@@ -387,6 +389,7 @@ void lmcChatRoomWindow::settingsChanged(void) {
     //  Mode switch alone: setAppearanceMode repaints with the new palette,
     //  the log stays (no reloadMessageLog needed).
     pMessageLog->setAppearanceMode(appearanceMode);
+    lookChanged = true;
   }
   if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
      allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
@@ -397,10 +400,15 @@ void lmcChatRoomWindow::settingsChanged(void) {
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;
     pMessageLog->reloadMessageLog();
+    lookChanged = true;
   }
 
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
+  //  The view repaints only its viewport: siblings (toolbar, input)
+  //  need a window-wide update or keep transition artifacts.
+  if(lookChanged)
+    update();
 }
 
 void lmcChatRoomWindow::selectContacts(QStringList* selectedContacts) {
