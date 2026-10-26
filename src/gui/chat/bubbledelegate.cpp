@@ -2,10 +2,12 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "bubbledelegate.h"
 
+#include <QAbstractTextDocumentLayout>
 #include <QListView>
 #include <QPainter>
 #include <QPainterPath>
 #include <QFile>
+#include <QTextCursor>
 #include <QUrl>
 #include <QtMath>
 
@@ -436,12 +438,34 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   }
   painter->drawPath(roundedCorners(bubble, row.corners));
 
-  //  Body: a single QTextDocument chunk. drawContents paints in document
-  //  coordinates, so translate the painter to docRect.
+  //  Body: a single QTextDocument chunk in document coordinates.
+  //  With a fragment selection the layout draws with a Highlight selection
+  //  instead of the plain drawContents path.
   painter->save();
   painter->setClipRect(bubble);
   painter->translate(docRect.topLeft());
-  e.doc->drawContents(painter, QRectF(0, 0, docRect.width(), docRect.height()));
+  int selLo = qMin(selStart, selEnd);
+  int selHi = qMax(selStart, selEnd);
+  bool hasSel = (index.row() == selRow && selLo != selHi && e.doc != nullptr);
+  if(!hasSel) {
+    e.doc->drawContents(painter, QRectF(0, 0, docRect.width(), docRect.height()));
+  } else {
+    int len = e.doc->characterCount();
+    selLo = qBound(0, selLo, qMax(0, len - 1));
+    selHi = qBound(0, selHi, qMax(0, len - 1));
+    QTextCursor cursor(e.doc);
+    cursor.setPosition(selLo);
+    cursor.setPosition(selHi, QTextCursor::KeepAnchor);
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.palette = option.palette;
+    ctx.clip = QRectF(0, 0, docRect.width(), docRect.height());
+    QAbstractTextDocumentLayout::Selection sel;
+    sel.cursor = cursor;
+    sel.format.setBackground(option.palette.color(QPalette::Highlight));
+    sel.format.setForeground(option.palette.color(QPalette::HighlightedText));
+    ctx.selections.append(sel);
+    e.doc->documentLayout()->draw(painter, ctx);
+  }
   painter->restore();
 
   if(index.row() == focusRow && !focusHref.isEmpty()) {
@@ -489,4 +513,97 @@ QStringList BubbleDelegate::anchors(const QModelIndex& index,
                                     const QStyleOptionViewItem& option) const {
   const CacheEntry& e = entryFor(index, viewWidth(option));
   return AnchorNavigator::anchors(e.doc);
+}
+
+int BubbleDelegate::charPosAt(const QPoint& pos, const QStyleOptionViewItem& option,
+                              const QModelIndex& index) const {
+  const CacheEntry& e = entryFor(index, viewWidth(option));
+  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
+  if(!docRect.contains(pos) || e.doc == nullptr)
+    return -1;
+  QPointF docPos = QPointF(pos - docRect.topLeft());
+  int hit = e.doc->documentLayout()->hitTest(docPos, Qt::FuzzyHit);
+  if(hit < 0)
+    return -1;
+  return qBound(0, hit, qMax(0, e.doc->characterCount() - 1));
+}
+
+int BubbleDelegate::charPosClamped(const QPoint& pos, const QStyleOptionViewItem& option,
+                                   const QModelIndex& index) const {
+  const CacheEntry& e = entryFor(index, viewWidth(option));
+  if(e.doc == nullptr)
+    return -1;
+  int len = qMax(0, e.doc->characterCount() - 1);
+  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
+  if(pos.y() < docRect.top())
+    return 0;
+  if(pos.y() >= docRect.bottom())
+    return len;
+  int hit = e.doc->documentLayout()->hitTest(QPointF(pos - docRect.topLeft()), Qt::FuzzyHit);
+  if(hit < 0)
+    return len;
+  return qBound(0, hit, len);
+}
+
+void BubbleDelegate::setTextSelection(int row, int start, int end) {
+  selRow = row;
+  selStart = start;
+  selEnd = end;
+}
+
+void BubbleDelegate::extendSelection(int pos) {
+  if(selRow < 0)
+    return;
+  selEnd = pos;
+}
+
+void BubbleDelegate::clearTextSelection() {
+  selRow = -1;
+  selStart = 0;
+  selEnd = 0;
+}
+
+bool BubbleDelegate::hasTextSelection() const {
+  return selRow >= 0 && selStart != selEnd;
+}
+
+int BubbleDelegate::selectionRow() const {
+  return selRow;
+}
+
+QString BubbleDelegate::selectedText() const {
+  if(selRow < 0 || selStart == selEnd)
+    return QString();
+  const QListView* view = qobject_cast<const QListView*>(parent());
+  if(view == nullptr || view->model() == nullptr || view->viewport() == nullptr)
+    return QString();
+  QModelIndex idx = view->model()->index(selRow, 0);
+  if(!idx.isValid())
+    return QString();
+  const CacheEntry& e = entryFor(idx, view->viewport()->width());
+  int len = qMax(0, e.doc->characterCount() - 1);
+  int lo = qBound(0, qMin(selStart, selEnd), len);
+  int hi = qBound(0, qMax(selStart, selEnd), len);
+  if(lo == hi)
+    return QString();
+  QTextCursor cursor(e.doc);
+  cursor.setPosition(lo);
+  cursor.setPosition(hi, QTextCursor::KeepAnchor);
+  QString text = cursor.selectedText();
+  //  QTextDocument keeps HTML spaces as U+00A0 and blocks as U+2029;
+  //  plain-text copy wants regular spaces and newlines.
+  text.replace(QChar(0x00A0), QLatin1Char(' '));
+  text.replace(QChar(0x2029), QLatin1Char('\n'));
+  return text;
+}
+
+void BubbleDelegate::selectAllText(const QModelIndex& index,
+                                   const QStyleOptionViewItem& option) {
+  if(!index.isValid())
+    return;
+  const CacheEntry& e = entryFor(index, viewWidth(option));
+  int len = qMax(0, e.doc->characterCount() - 1);
+  selRow = index.row();
+  selStart = 0;
+  selEnd = len;
 }

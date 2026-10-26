@@ -71,7 +71,7 @@ ChatMessageView::ChatMessageView(QWidget* parent)
   //  narrowing the viewport against width-cached hints: keep it off.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setUniformItemSizes(false);
-  setSelectionMode(QAbstractItemView::ExtendedSelection);
+  setSelectionMode(QAbstractItemView::NoSelection);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
   viewport()->setMouseTracking(true);
@@ -431,32 +431,78 @@ void ChatMessageView::createContextMenu() {
                                                &ChatMessageView::selectAllAction_triggered,
                                                QIcon(), QKeySequence::SelectAll);
   connect(this, &QWidget::customContextMenuRequested, this, &ChatMessageView::showContextMenu);
+  //  Stale row must not leak into later Ctrl+A (same slot, no menu open).
+  connect(contextMenu, &QMenu::aboutToHide, this, [this] { contextRow = -1; });
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void ChatMessageView::showContextMenu(const QPoint& pos) {
-  bool hasSelection = !selectionModel()->selectedIndexes().isEmpty();
-  copyAction->setEnabled(hasSelection);
+  QModelIndex menuRow = indexAt(pos);
+  contextRow = menuRow.isValid() ? menuRow.row() : -1;
+  if(!bubbleDelegate->hasTextSelection()) {
+    if(menuRow.isValid())
+      setCurrentIndex(menuRow);
+  }
+  copyAction->setEnabled(bubbleDelegate->hasTextSelection());
   selectAllAction->setEnabled(chatModel->rowCount() > 0);
   contextMenu->exec(mapToGlobal(pos));
 }
 
 void ChatMessageView::copyAction_triggered() {
-  QModelIndexList selected = selectionModel()->selectedIndexes();
-  if(selected.isEmpty())
+  QString text = bubbleDelegate->selectedText();
+  if(text.isEmpty())
     return;
-  std::sort(selected.begin(), selected.end(),
-            [](const QModelIndex& a, const QModelIndex& b) { return a.row() < b.row(); });
-  QStringList parts;
-  for(const QModelIndex& idx : selected)
-    parts.append(chatModel->messageText(chatModel->messageAt(idx.row())));
-  QApplication::clipboard()->setText(parts.join(QStringLiteral("\n")));
+  QApplication::clipboard()->setText(text);
 }
 
 void ChatMessageView::selectAllAction_triggered() {
-  selectAll();
+  QModelIndex target;
+  //  Open menu wins: Select All means "the whole bubble under the cursor",
+  //  not a stale selection from another bubble.
+  if(contextRow >= 0)
+    target = chatModel->index(contextRow, 0);
+  if(!target.isValid()) {
+    if(bubbleDelegate->hasTextSelection())
+      target = chatModel->index(bubbleDelegate->selectionRow(), 0);
+    else
+      target = currentIndex().isValid() ? currentIndex()
+                                        : chatModel->index(chatModel->rowCount() - 1, 0);
+  }
+  if(!target.isValid())
+    return;
+  setCurrentIndex(target);
+  bubbleDelegate->selectAllText(target, indexOption(target));
+  viewport()->update();
 }
 
+QStyleOptionViewItem ChatMessageView::indexOption(const QModelIndex& idx) const {
+  QStyleOptionViewItem opt;
+  opt.initFrom(this);
+  opt.rect = visualRect(idx);
+  opt.widget = viewport();
+  return opt;
+}
+
+QModelIndex ChatMessageView::textIndexAt(const QPoint& pos, int* charPos) const {
+  QModelIndex idx = indexAt(pos);
+  if(!idx.isValid())
+    return QModelIndex();
+  QStyleOptionViewItem opt = indexOption(idx);
+  int hit = bubbleDelegate->charPosAt(pos, opt, idx);
+  if(hit < 0)
+    return QModelIndex();
+  if(charPos)
+    *charPos = hit;
+  return idx;
+}
+
+void ChatMessageView::clearTextSelection() {
+  if(!bubbleDelegate->hasTextSelection())
+    return;
+  bubbleDelegate->clearTextSelection();
+  textSelecting = false;
+  viewport()->update();
+}
 QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
   QModelIndex idx = indexAt(pos);
   if(!idx.isValid())
@@ -474,20 +520,61 @@ QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
 }
 
 void ChatMessageView::mousePressEvent(QMouseEvent* event) {
+  if(event->button() == Qt::RightButton) {
+    QModelIndex menuRow = indexAt(event->pos());
+    if(menuRow.isValid()) {
+      //  Foreign selection does not survive a right-click on another
+      //  bubble (QTextEdit-like); same-row selection stays for Copy.
+      if(bubbleDelegate->hasTextSelection() &&
+         menuRow.row() != bubbleDelegate->selectionRow())
+        clearTextSelection();
+      setCurrentIndex(menuRow);
+    }
+    QListView::mousePressEvent(event);
+    return;
+  }
+  if(event->button() != Qt::LeftButton) {
+    QListView::mousePressEvent(event);
+    return;
+  }
   QString href;
-  QModelIndex idx = anchorRowAt(event->pos(), &href);
-  if(idx.isValid() && !href.isEmpty() && event->button() == Qt::LeftButton) {
-    setCurrentIndex(idx);
+  QModelIndex anchorIdx = anchorRowAt(event->pos(), &href);
+  if(anchorIdx.isValid() && !href.isEmpty()) {
+    clearTextSelection();
+    setCurrentIndex(anchorIdx);
     activateHref(href);
     return;
   }
+  int charPos = -1;
+  QModelIndex textIdx = textIndexAt(event->pos(), &charPos);
   bubbleDelegate->clearFocusAnchor();
   focusRow = -1;
   focusHref.clear();
+  if(textIdx.isValid()) {
+    setCurrentIndex(textIdx);
+    bubbleDelegate->setTextSelection(textIdx.row(), charPos, charPos);
+    textSelecting = true;
+    viewport()->update();
+    return;
+  }
+  clearTextSelection();
   QListView::mousePressEvent(event);
 }
 
 void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
+  if(textSelecting && (event->buttons() & Qt::LeftButton)) {
+    int row = bubbleDelegate->selectionRow();
+    QModelIndex idx = chatModel->index(row, 0);
+    if(idx.isValid()) {
+      int clamped = bubbleDelegate->charPosClamped(event->pos(), indexOption(idx), idx);
+      if(clamped >= 0) {
+        bubbleDelegate->extendSelection(clamped);
+        viewport()->update();
+      }
+    }
+    viewport()->setCursor(Qt::IBeamCursor);
+    return;
+  }
   QString href;
   QModelIndex idx = anchorRowAt(event->pos(), &href);
   if(idx.isValid() && !href.isEmpty()) {
@@ -500,11 +587,26 @@ void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
     else if(href.contains(QLatin1String("/cancel/")))
       tip = tr("Cancel");
     QToolTip::showText(viewport()->mapToGlobal(event->pos()), tip, this);
+  } else if(textIndexAt(event->pos()).isValid()) {
+    viewport()->setCursor(Qt::IBeamCursor);
+    QToolTip::hideText();
   } else {
     viewport()->unsetCursor();
     QToolTip::hideText();
   }
   QListView::mouseMoveEvent(event);
+}
+
+void ChatMessageView::mouseReleaseEvent(QMouseEvent* event) {
+  if(textSelecting && event->button() == Qt::LeftButton) {
+    textSelecting = false;
+    if(!bubbleDelegate->hasTextSelection())
+      bubbleDelegate->clearTextSelection();
+    viewport()->unsetCursor();
+    viewport()->update();
+    return;
+  }
+  QListView::mouseReleaseEvent(event);
 }
 
 bool ChatMessageView::viewportEvent(QEvent* event) {
@@ -578,8 +680,10 @@ bool ChatMessageView::moveAnchorFocus(int delta) {
     }
   }
   bubbleDelegate->setFocusAnchor(focusRow, focusHref);
-  if(focusRow >= 0)
+  if(focusRow >= 0) {
+    clearTextSelection();
     scrollTo(chatModel->index(focusRow, 0));
+  }
   viewport()->update();
   return focusRow >= 0 && !focusHref.isEmpty();
 }
@@ -630,8 +734,9 @@ void ChatMessageView::openExternal(const QString& href) {
 
 void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int last) {
   Q_UNUSED(parent);
-  Q_UNUSED(first);
   Q_UNUSED(last);
+  if(bubbleDelegate->hasTextSelection() && bubbleDelegate->selectionRow() >= first)
+    clearTextSelection();
   if(autoScroll)
     scrollToBottom();
   emit plainTextChanged();
@@ -639,6 +744,8 @@ void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int l
 
 void ChatMessageView::onModelReset() {
   bubbleDelegate->invalidateCache();
+  bubbleDelegate->clearTextSelection();
+  textSelecting = false;
   requestRelayout();
 }
 
@@ -711,6 +818,10 @@ bool ChatMessageView::event(QEvent* event) {
     }
     if(ke->matches(QKeySequence::Copy)) {
       copyAction_triggered();
+      return true;
+    }
+    if(ke->matches(QKeySequence::SelectAll)) {
+      selectAllAction_triggered();
       return true;
     }
   }

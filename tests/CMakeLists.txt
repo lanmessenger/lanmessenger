@@ -183,6 +183,25 @@ set_target_properties(tst_bubbleheader PROPERTIES
 add_test(NAME bubbleheader COMMAND tst_bubbleheader)
 set_tests_properties(bubbleheader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# Right-click + Select All targets the bubble under the cursor, offscreen.
+add_executable(tst_chatselectall
+    unit/tst_chatselectall.cpp
+    ../src/resource.qrc
+)
+
+target_link_libraries(tst_chatselectall PRIVATE lmc_core Qt6::Test)
+
+set_target_properties(tst_chatselectall PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
+)
+
+add_test(NAME chatselectall COMMAND tst_chatselectall)
+set_tests_properties(chatselectall PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # History file round-trip (save/getList/getMessage + legacy view row),
 # offscreen.
 add_executable(tst_history

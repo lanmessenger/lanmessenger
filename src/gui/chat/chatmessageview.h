@@ -82,6 +82,7 @@ signals:
 protected:
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
   bool viewportEvent(QEvent* event) override;
   void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
@@ -110,6 +111,9 @@ private:
   //  to the focus chain, no trap): linear scan, no wrap-around.
   bool moveAnchorFocus(int delta);
   QModelIndex anchorRowAt(const QPoint& pos, QString* href = nullptr);
+  QStyleOptionViewItem indexOption(const QModelIndex& idx) const;
+  QModelIndex textIndexAt(const QPoint& pos, int* charPos = nullptr) const;
+  void clearTextSelection();
   QString themeFilePath() const;
 
   ChatMessageModel* chatModel;
@@ -124,4 +128,8 @@ private:
   QAction* selectAllAction = nullptr;
   int focusRow = -1;
   QString focusHref;
+  bool textSelecting = false;
+  //  Row under the cursor while the context menu is open (-1 when closed):
+  //  Select All targets it, not a stale selection from another bubble.
+  int contextRow = -1;
 };

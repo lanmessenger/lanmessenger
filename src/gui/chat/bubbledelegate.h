@@ -73,6 +73,18 @@ public:
   //  Tab-focused anchor highlight (view holds position, delegate paints).
   void setFocusAnchor(int row, const QString& href);
   void clearFocusAnchor();
+  //  Fragment selection inside one bubble (system Highlight colors in paint).
+  int charPosAt(const QPoint& pos, const QStyleOptionViewItem& option,
+                const QModelIndex& index) const;
+  int charPosClamped(const QPoint& pos, const QStyleOptionViewItem& option,
+                     const QModelIndex& index) const;
+  void setTextSelection(int row, int start, int end);
+  void extendSelection(int pos);
+  void clearTextSelection();
+  bool hasTextSelection() const;
+  int selectionRow() const;
+  QString selectedText() const;
+  void selectAllText(const QModelIndex& index, const QStyleOptionViewItem& option);
   //  Final row HTML (font/color guard + body). Public for tests.
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
 
@@ -100,6 +112,9 @@ private:
   DisplaySettings display;
   int focusRow = -1;
   QString focusHref;
+  int selRow = -1;
+  int selStart = 0;
+  int selEnd = 0;
   mutable QMap<QString, CacheEntry> cache;
   mutable QMap<QString, QPixmap> avatars;
 };
