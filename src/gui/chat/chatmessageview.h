@@ -26,6 +26,9 @@ public:
   //  lmcMessageLog compatibility (used by chatwindow).
   void initChat(bool clearLog = true);
   void reloadTheme();
+  //  Palette-only re-assert from the loaded theme: no file IO, no delegate
+  //  cache touch, no relayout.
+  void syncBackground();
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
                         XmlMessage* pMessage, bool bReload = false);
   void updateFileMessage(FileMode mode, FileOp op, QString fileId);
@@ -97,7 +100,6 @@ private slots:
 private:
   void syncToLayers();
   void syncModelIdentity();
-  void syncBackground();
   //  Cache was invalidated, ask QListView for fresh sizeHints.
   void requestRelayout();
   void createContextMenu();

@@ -182,6 +182,9 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 void lmcChatRoomWindow::show(void) {
   windowLoaded = true;
   QWidget::show();
+  //  Re-assert theme palette after show: the view otherwise keeps
+  //  the default style colors instead of theme.page.
+  pMessageLog->syncBackground();
 }
 
 void lmcChatRoomWindow::stop(void) {
