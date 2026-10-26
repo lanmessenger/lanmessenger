@@ -79,6 +79,7 @@ signals:
 protected:
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
   bool viewportEvent(QEvent* event) override;
   void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
   //  Tab/Return/Copy are intercepted here, not in keyPressEvent: QListView
@@ -88,6 +89,7 @@ protected:
 
 private slots:
   void onRowsInserted(const QModelIndex& parent, int first, int last);
+  void onModelReset();
   void onPaletteChanged();
   void copyAction_triggered();
   void selectAllAction_triggered();

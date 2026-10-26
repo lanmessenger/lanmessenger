@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QRegularExpression>
+#include <QResizeEvent>
 #include <QScrollBar>
 #include <QTextDocument>
 #include <QToolTip>
@@ -78,6 +79,7 @@ ChatMessageView::ChatMessageView(QWidget* parent)
 
   createContextMenu();
   connect(chatModel, &QAbstractItemModel::rowsInserted, this, &ChatMessageView::onRowsInserted);
+  connect(chatModel, &QAbstractItemModel::modelReset, this, &ChatMessageView::onModelReset);
   connect(chatModel, &QAbstractItemModel::modelReset, this,
           &ChatMessageView::plainTextChanged);
   connect(chatModel, &QAbstractItemModel::dataChanged, this,
@@ -630,6 +632,18 @@ void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int l
   if(autoScroll)
     scrollToBottom();
   emit plainTextChanged();
+}
+
+void ChatMessageView::onModelReset() {
+  bubbleDelegate->invalidateCache();
+  scheduleDelayedItemsLayout();
+}
+
+void ChatMessageView::resizeEvent(QResizeEvent* event) {
+  QListView::resizeEvent(event);
+  bubbleDelegate->noteViewportWidth(viewport()->width());
+  scheduleDelayedItemsLayout();
+  viewport()->update();
 }
 
 void ChatMessageView::onPaletteChanged() {

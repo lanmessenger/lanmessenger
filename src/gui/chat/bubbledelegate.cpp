@@ -2,6 +2,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "bubbledelegate.h"
 
+#include <QListView>
 #include <QPainter>
 #include <QPainterPath>
 #include <QAbstractTextDocumentLayout>
@@ -80,14 +81,12 @@ BubbleDelegate::BubbleDelegate(QObject* parent)
 
 void BubbleDelegate::setTheme(const Theme& newTheme) {
   theme = newTheme;
-  themeRev++;
   invalidateCache();
 }
 
 void BubbleDelegate::setMode(Theme::Mode newMode, bool newSystemDark) {
   mode = newMode;
   systemDark = newSystemDark;
-  themeRev++;
   invalidateCache();
 }
 
@@ -95,7 +94,6 @@ void BubbleDelegate::setDisplaySettings(const DisplaySettings& settings) {
   if(display == settings)
     return;
   display = settings;
-  themeRev++;
   invalidateCache();
 }
 
@@ -104,6 +102,17 @@ void BubbleDelegate::invalidateCache() {
     delete it.value().doc;
   cache.clear();
   avatars.clear();
+}
+
+void BubbleDelegate::noteViewportWidth(int viewportWidth) {
+  for(auto it = cache.begin(); it != cache.end();) {
+    if(it.value().width != viewportWidth) {
+      delete it.value().doc;
+      it = cache.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }
 
 //  Row role from the message alone: layout name minus the prefix,
@@ -426,6 +435,12 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
          QStringLiteral("<style>a { color: %1; }</style>").arg(linkColorName);
 }
 
+int BubbleDelegate::viewWidth(const QStyleOptionViewItem& option) const {
+  if(const QListView* view = qobject_cast<const QListView*>(parent()))
+    return view->viewport()->width();
+  return option.rect.width();
+}
+
 int BubbleDelegate::contentWidth(const QModelIndex& index, int viewportWidth,
                                  const ResolvedRow& row) const {
   Q_UNUSED(index);
@@ -531,11 +546,10 @@ QString BubbleDelegate::cacheKey(const QModelIndex& index, int viewportWidth) co
   qreal dpr = 1.0;
   if(QWidget* w = qobject_cast<QWidget*>(parent()))
     dpr = w->devicePixelRatioF();
-  return QStringLiteral("%1|%2|%3|%4|%5")
+  return QStringLiteral("%1|%2|%3|%4")
     .arg(index.row())
     .arg(viewportWidth)
     .arg(int(dpr * 100))
-    .arg(themeRev)
     .arg(contentRev(index));
 }
 
@@ -551,6 +565,7 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
     cache.clear();
   }
   CacheEntry e;
+  e.width = viewportWidth;
   e.doc = new QTextDocument(const_cast<BubbleDelegate*>(this));
   //  Bare QTextDocument has no searchPaths (unlike QTextBrowser),
   //  so qrc smileys are registered explicitly: addResource is the only path.
@@ -572,23 +587,6 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.docRect = QRect(e.bubbleRect.left() + row.padding[3],
                     e.bubbleRect.top() + row.padding[0],
                     qCeil(docSize.width()), qCeil(docSize.height()));
-  e.topMargin = row.marginTop;
-  //  Margin and corners from the already-resolved row: no second tree walk.
-  //  rowTopMargin()/rowCornerRadii() stay for tests and external callers.
-  for(int i = 0; i < 4; i++)
-    e.corner[i] = row.corners[i];
-  e.hasAvatar = row.avatar;
-  e.hasHeader = row.header;
-  e.headerItems = row.headerItems;
-  e.senderColor = row.senderColor;
-  e.timeColor = row.timeColor;
-  e.border = row.border;
-  e.hasBorder = row.hasBorder;
-  e.bg = row.bg;
-  e.shadowDx = row.shadowDx;
-  e.shadowDy = row.shadowDy;
-  e.shadowBlur = row.shadowBlur;
-  e.shadowOpacity = row.shadowOpacity;
   //  +1: QRect::bottom() is the last pixel, size needs one past it.
   e.size = QSize(viewportWidth, e.bubbleRect.bottom() + 1);
   cache.insert(key, e);
@@ -638,7 +636,9 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   painter->setRenderHint(QPainter::Antialiasing);
   bool darkMode = Theme::isDark(mode, systemDark);
   QString card = roleFor(index);
-  const CacheEntry& e = entryFor(index, option.rect.width());
+  const int width = viewWidth(option);
+  const CacheEntry& e = entryFor(index, width);
+  const ResolvedRow row = resolveRow(index);
   int top = option.rect.top();
 
   painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
@@ -647,12 +647,12 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   //  overrides); series-start trees carry it, _next trees omit it.
   //  The theme header holds defaults. Name run is senderColor,
   //  time run is timeColor and always regular.
-  if(e.hasHeader) {
+  if(row.header) {
     QFont nf = headerNameFont();
     QFont tf = headerTimeFont();
     QString time = rowTime(index);
-    bool wantSender = e.headerItems.contains(QStringLiteral("sender"));
-    bool wantTime = e.headerItems.contains(QStringLiteral("time"));
+    bool wantSender = row.headerItems.contains(QStringLiteral("sender"));
+    bool wantTime = row.headerItems.contains(QStringLiteral("time"));
     QString namePart;
     QString timePart = wantTime ? time : QString();
     if(card == QLatin1String("incoming")) {
@@ -669,15 +669,15 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
       //  The "You" prefix stays regular even when the incoming name is semibold.
       nf.setWeight(QFont::Normal);
     }
-    QColor nameColor = Theme::pick(e.senderColor, darkMode);
-    QColor timeColor = Theme::pick(e.timeColor, darkMode);
+    QColor nameColor = Theme::pick(row.senderColor, darkMode);
+    QColor timeColor = Theme::pick(row.timeColor, darkMode);
     QFontMetrics nfm(nf);
     QFontMetrics tfm(tf);
     int hx = e.bubbleRect.left();
     if(card == QLatin1String("outgoing"))
       hx = e.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
            tfm.horizontalAdvance(timePart);
-    int baseline = top + e.topMargin + qMax(nfm.ascent(), tfm.ascent());
+    int baseline = top + row.marginTop + qMax(nfm.ascent(), tfm.ascent());
     if(!namePart.isEmpty()) {
       painter->setFont(nf);
       painter->setPen(nameColor);
@@ -694,34 +694,34 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   QRect bubble = e.bubbleRect.translated(0, top);
   QRect docRect = e.docRect.translated(0, top);
 
-  if(e.hasAvatar) {
+  if(row.avatar) {
     QString avatarPath = index.data(ChatMessageModel::AvatarRole).toString();
     QPixmap pm = avatarPixmap(avatarPath, theme.avatar.size);
     int ay = bubble.top() + qMax(0, (bubble.height() - theme.avatar.size) / 2);
     painter->drawPixmap(0, ay, pm);
   }
 
-  if(e.shadowOpacity > 0.0) {
+  if(row.shadowOpacity > 0.0) {
     QColor shadow(0, 0, 0);
-    shadow.setAlphaF(e.shadowOpacity);
+    shadow.setAlphaF(row.shadowOpacity);
     painter->setPen(Qt::NoPen);
     painter->setBrush(shadow);
-    QRect shadowRect = bubble.translated(int(e.shadowDx), int(e.shadowDy));
-    painter->drawPath(roundedCorners(shadowRect, e.corner));
+    QRect shadowRect = bubble.translated(int(row.shadowDx), int(row.shadowDy));
+    painter->drawPath(roundedCorners(shadowRect, row.corners));
   }
 
   QColor bg, bg2;
-  Theme::pickBg(e.bg, darkMode, bg, bg2);
+  Theme::pickBg(row.bg, darkMode, bg, bg2);
   QLinearGradient grad(bubble.topLeft(), bubble.bottomLeft());
   grad.setColorAt(0, bg);
   grad.setColorAt(1, bg2);
   painter->setBrush(grad);
-  if(e.hasBorder) {
-    painter->setPen(Theme::pick(e.border, darkMode));
+  if(row.hasBorder) {
+    painter->setPen(Theme::pick(row.border, darkMode));
   } else {
     painter->setPen(Qt::NoPen);
   }
-  painter->drawPath(roundedCorners(bubble, e.corner));
+  painter->drawPath(roundedCorners(bubble, row.corners));
 
   //  Body: a single QTextDocument chunk. drawContents paints in document
   //  coordinates, so translate the painter to docRect.
@@ -744,13 +744,13 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 
 QSize BubbleDelegate::sizeHint(const QStyleOptionViewItem& option,
                                const QModelIndex& index) const {
-  const CacheEntry& e = entryFor(index, option.rect.width());
+  const CacheEntry& e = entryFor(index, viewWidth(option));
   return e.size;
 }
 
 QString BubbleDelegate::anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
-  const CacheEntry& e = entryFor(index, option.rect.width());
+  const CacheEntry& e = entryFor(index, viewWidth(option));
   QRect docRect = e.docRect.translated(0, option.rect.top());
   if(!docRect.contains(pos))
     return QString();
@@ -761,7 +761,7 @@ QString BubbleDelegate::anchorAt(const QPoint& pos, const QStyleOptionViewItem& 
 
 QRect BubbleDelegate::anchorRect(const QString& href, const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const {
-  const CacheEntry& e = entryFor(index, option.rect.width());
+  const CacheEntry& e = entryFor(index, viewWidth(option));
   QRect docRect = e.docRect.translated(0, option.rect.top());
   if(href.isEmpty() || !e.doc)
     return QRect();

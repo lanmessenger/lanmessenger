@@ -45,6 +45,7 @@ public:
   void setMode(Theme::Mode mode, bool systemDark);
   void setDisplaySettings(const DisplaySettings& settings);
   void invalidateCache();
+  void noteViewportWidth(int viewportWidth);
 
   void paint(QPainter* painter, const QStyleOptionViewItem& option,
              const QModelIndex& index) const override;
@@ -117,23 +118,10 @@ private:
 
   struct CacheEntry {
     QTextDocument* doc = nullptr;
+    int width = -1;
     QSize size;
     QRect bubbleRect;
     QRect docRect;
-    int topMargin = 0;
-    int corner[4] = {0, 0, 0, 0};
-    bool hasAvatar = false;
-    bool hasHeader = false;
-    QStringList headerItems;
-    Theme::DualColor senderColor;
-    Theme::DualColor timeColor;
-    Theme::DualColor border;
-    bool hasBorder = false;
-    Theme::Bg bg;
-    double shadowDx = 0.0;
-    double shadowDy = 0.0;
-    double shadowBlur = 0.0;
-    double shadowOpacity = 0.0;
   };
 
   QString roleFor(const QModelIndex& index) const;
@@ -143,8 +131,8 @@ private:
   QString decodeBody(QString text) const;
   QString fileCardHtml(const QModelIndex& index) const;
   int contentWidth(const QModelIndex& index, int viewportWidth, const ResolvedRow& row) const;
-  //  sizeHint cache key: (row, viewportWidth, DPR, theme/mode, settings,
-  //  contentRev). contentRev covers text/avatar/fileop of the same row.
+  int viewWidth(const QStyleOptionViewItem& option) const;
+  //  sizeHint cache key: (row, viewportWidth, DPR, contentRev).
   QString cacheKey(const QModelIndex& index, int viewportWidth) const;
   QString contentRev(const QModelIndex& index) const;
   const CacheEntry& entryFor(const QModelIndex& index, int viewportWidth) const;
@@ -157,7 +145,6 @@ private:
   Theme::Mode mode = Theme::Mode::System;
   bool systemDark = false;
   DisplaySettings display;
-  int themeRev = 0;
   int focusRow = -1;
   QString focusHref;
   mutable QMap<QString, CacheEntry> cache;

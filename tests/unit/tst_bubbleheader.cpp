@@ -54,6 +54,7 @@ private slots:
   void seriesCornerRadii();
   void outgoingCornersReadVerbatim();
   void layoutResolvesRow();
+  void resizeRecomputesHeight();
   void broadcastRectClearsViewportEdge();
   void paintRowsOffscreen();
 };
@@ -392,6 +393,34 @@ void TstBubbleHeader::layoutResolvesRow() {
   BubbleDelegate d2;
   d2.setTheme(t2);
   QCOMPARE(d2.resolveRow(model.index(0, 0)).vboxGap, 5);
+}
+
+void TstBubbleHeader::resizeRecomputesHeight() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QString me = QStringLiteral("me");
+  model.localId = me;
+  QString longText;
+  for(int i = 0; i < 40; i++)
+    longText += QStringLiteral("word%1 ").arg(i);
+  XmlMessage m = textMessage(longText);
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m);
+
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  BubbleDelegate d;
+  d.setTheme(t);
+  QStyleOptionViewItem narrow;
+  narrow.rect = QRect(0, 0, 240, 10);
+  QStyleOptionViewItem wide;
+  wide.rect = QRect(0, 0, 640, 10);
+  const int narrowH = d.sizeHint(narrow, model.index(0, 0)).height();
+  const int wideH = d.sizeHint(wide, model.index(0, 0)).height();
+  QVERIFY(narrowH > wideH);
+  QCOMPARE(d.sizeHint(narrow, model.index(0, 0)).height(), narrowH);
+  d.noteViewportWidth(640);
+  QCOMPARE(d.sizeHint(narrow, model.index(0, 0)).height(), narrowH);
 }
 
 void TstBubbleHeader::broadcastRectClearsViewportEdge() {
