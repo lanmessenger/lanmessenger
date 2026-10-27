@@ -106,9 +106,13 @@ key invalidates the theme.
   per-mode gradient pair (default `transparent`: flat text on the page).
 - Rect `textColor` / `border`: optional literal overrides.
 - Rect metrics: `padding` (4 ints ≥ 0 `[top, right, bottom,
-  left]`, default `[0, 0, 0, 0]`), `shadow` (`[dx, dy, blur, opacity]`,
-  opacity 0..1; black shadow, tinted shadows are not supported by the
-  renderer; default `[0, 0, 0, 0]` = no shadow), `marginTop`
+  left]`, default `[0, 0, 0, 0]`), `shadow` (`[dx, dy, opacity]`,
+  opacity 0..1; hard flat offset silhouette, black shadow, no blur:
+  tinted or blurred shadows are not supported by the
+  renderer; default `[0, 0, 0]` = no shadow; the legacy 4-element
+  `[dx, dy, blur, opacity]` form is rejected; for hairline edges
+  prefer `border`: a subtle low-opacity hard shadow reads as a dirty
+  edge on rounded corners, a `border` draws it crisp), `marginTop`
   (int ≥ 0, default `0`, top gap of a row; series-start trees carry the
   wide gap, `_next` trees the dense in-series one), `maxWidthPct`
   (optional int 1..100, default `100` = full width; window width change

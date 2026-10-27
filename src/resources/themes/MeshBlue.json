@@ -1,7 +1,7 @@
 {
   "version": 1,
   "displayName": "Modern Mesh Blue",
-  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Cyan shadow tint is not supported by the renderer (black shadow); opacity is shared for light/dark. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
+  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 26,
@@ -38,8 +38,8 @@
             "type": "body",
             "corners": [14, 14, 14, 3],
             "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
+            "border": ["#E2E8F0", "#1E3A5F"],
             "padding": [10, 14, 10, 14],
-            "shadow": [0, 2, 4, 0.08],
             "marginTop": 9,
             "maxWidthPct": 80
           }
@@ -55,8 +55,8 @@
         "type": "body",
         "corners": [3, 14, 14, 3],
         "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
+        "border": ["#E2E8F0", "#1E3A5F"],
         "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
         "marginTop": 3,
         "maxWidthPct": 80
       }
@@ -77,7 +77,6 @@
         "bg": ["gradient(#0284C7, #0369A1)", "gradient(#0EA5E9, #0284C7)"],
         "textColor": "#FFFFFF",
         "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
         "marginTop": 9,
         "maxWidthPct": 80
       }
@@ -93,7 +92,6 @@
         "bg": ["gradient(#0284C7, #0369A1)", "gradient(#0EA5E9, #0284C7)"],
         "textColor": "#FFFFFF",
         "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
         "marginTop": 3,
         "maxWidthPct": 80
       }
@@ -121,7 +119,6 @@
         "bg": ["#EFF6FF", "#082F49"],
         "border": "#0284C7",
         "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
         "marginTop": 9
       }
     ]
@@ -136,7 +133,6 @@
         "border": ["#BAE6FD", "#1E3A5F"],
         "corners": [12, 12, 12, 12],
         "padding": [10, 14, 10, 14],
-        "shadow": [0, 2, 4, 0.08],
         "marginTop": 9,
         "maxWidthPct": 80
       }

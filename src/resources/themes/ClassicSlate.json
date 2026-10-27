@@ -1,7 +1,7 @@
 {
   "version": 1,
   "displayName": "Classic Native Slate",
-  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Shadow opacity is shared for light/dark: light spec 0.05 used. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
+  "_comment": "Corners are explicit per layout: outgoing nodes carry hand-mirrored values. Outgoing body text is #FFFFFF both modes. Ships 7 layout_*: incoming/outgoing split into series-start and in-series (_next) trees.",
   "viewPadding": [0, 8, 8, 8],
   "avatar": {
     "size": 28,
@@ -38,8 +38,8 @@
             "type": "body",
             "corners": [12, 12, 12, 2],
             "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+            "border": ["#E2E8F0", "#334155"],
             "padding": [10, 12, 10, 12],
-            "shadow": [0, 1, 2, 0.05],
             "marginTop": 8,
             "maxWidthPct": 84
           }
@@ -55,8 +55,8 @@
         "type": "body",
         "corners": [2, 12, 12, 2],
         "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
+        "border": ["#E2E8F0", "#334155"],
         "padding": [10, 12, 10, 12],
-        "shadow": [0, 1, 2, 0.05],
         "marginTop": 2,
         "maxWidthPct": 84
       }
@@ -77,7 +77,6 @@
         "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
         "textColor": "#FFFFFF",
         "padding": [10, 12, 10, 12],
-        "shadow": [0, 1, 2, 0.05],
         "marginTop": 8,
         "maxWidthPct": 84
       }
@@ -93,7 +92,6 @@
         "bg": ["gradient(#2563EB, #1D4ED8)", "gradient(#3B82F6, #2563EB)"],
         "textColor": "#FFFFFF",
         "padding": [10, 12, 10, 12],
-        "shadow": [0, 1, 2, 0.05],
         "marginTop": 2,
         "maxWidthPct": 84
       }
@@ -121,7 +119,6 @@
         "bg": ["#FEF3C7", "#451A03"],
         "border": ["#F59E0B", "#B45309"],
         "padding": [10, 12, 10, 12],
-        "shadow": [0, 1, 2, 0.05],
         "marginTop": 8
       }
     ]
@@ -136,7 +133,6 @@
         "bg": ["gradient(#FFFFFF, #F8F9FA)", "gradient(#1E293B, #172033)"],
         "border": ["#CBD5E1", "#334155"],
         "padding": [10, 12, 10, 12],
-        "shadow": [0, 1, 2, 0.05],
         "marginTop": 8,
         "maxWidthPct": 84
       }

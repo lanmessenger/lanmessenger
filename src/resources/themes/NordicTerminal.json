@@ -38,8 +38,8 @@
             "type": "body",
             "corners": [6, 6, 6, 6],
             "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+            "border": ["#CBD5E1", "#2D3748"],
             "padding": [8, 10, 8, 10],
-            "shadow": [0, 0, 0, 0],
             "marginTop": 5,
             "maxWidthPct": 88
           }
@@ -55,8 +55,8 @@
         "type": "body",
         "corners": [2, 6, 6, 6],
         "bg": ["gradient(#F8FAFC, #F1F5F9)", "gradient(#1C2127, #171A1F)"],
+        "border": ["#CBD5E1", "#2D3748"],
         "padding": [8, 10, 8, 10],
-        "shadow": [0, 0, 0, 0],
         "marginTop": 2,
         "maxWidthPct": 88
       }
@@ -77,7 +77,6 @@
         "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
         "textColor": ["#F8FAFC", "#FFFFFF"],
         "padding": [8, 10, 8, 10],
-        "shadow": [0, 0, 0, 0],
         "marginTop": 5,
         "maxWidthPct": 88
       }
@@ -93,7 +92,6 @@
         "bg": ["gradient(#334155, #1E293B)", "gradient(#475569, #334155)"],
         "textColor": ["#F8FAFC", "#FFFFFF"],
         "padding": [8, 10, 8, 10],
-        "shadow": [0, 0, 0, 0],
         "marginTop": 2,
         "maxWidthPct": 88
       }
@@ -121,7 +119,6 @@
         "bg": ["#FEF2F2", "#450A0A"],
         "border": ["#EF4444", "#DC2626"],
         "padding": [8, 10, 8, 10],
-        "shadow": [0, 0, 0, 0],
         "marginTop": 5
       }
     ]
@@ -136,7 +133,6 @@
         "border": ["#CBD5E1", "#2D3748"],
         "corners": [6, 6, 6, 6],
         "padding": [8, 10, 8, 10],
-        "shadow": [0, 0, 0, 0],
         "marginTop": 5,
         "maxWidthPct": 88
       }

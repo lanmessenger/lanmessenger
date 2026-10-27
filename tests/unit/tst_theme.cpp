@@ -27,20 +27,20 @@ QByteArray validJson() {
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
         {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"]},
-        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 6, "maxWidthPct": 75}]}]},
+        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}]},
     "layout_incoming_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
     "layout_outgoing": {"type": "vbox", "gap": 2, "children": [
       {"type": "header", "items": ["time"]},
-      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_outgoing_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
     "layout_system": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_broadcast": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_request": {"type": "vbox", "gap": 0, "children": [
-      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 8, 0.18], "marginTop": 6, "maxWidthPct": 75}]}
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}
   })JSON");
 }
 
@@ -503,7 +503,7 @@ void TstTheme::twoRectsInLayoutRejected() {
   //  even in the file layout.
   QByteArray bad = withReplaced(
     validJson(), "\"marginTop\": 6, \"maxWidthPct\": 75}",
-    "\"marginTop\": 6, \"maxWidthPct\": 75}, {\"type\": \"body\", \"bg\": \"#FFFFFF\", \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}");
+    "\"marginTop\": 6, \"maxWidthPct\": 75}, {\"type\": \"body\", \"bg\": \"#FFFFFF\", \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}");
   Theme t = Theme::loadFromJson(bad);
   QVERIFY(!t.isValid);
   QByteArray bad2 = withReplaced(
@@ -721,7 +721,6 @@ void TstTheme::rectMetricsParsed() {
   QCOMPARE(rect.padding[3], 10);
   QCOMPARE(rect.shadowDx, 0.0);
   QCOMPARE(rect.shadowDy, 2.0);
-  QCOMPARE(rect.shadowBlur, 8.0);
   QCOMPARE(rect.shadowOpacity, 0.18);
   QCOMPARE(rect.marginTop, 6);
   QCOMPARE(rect.maxWidthPct, 75);
@@ -731,7 +730,7 @@ void TstTheme::rectMetricsOptionalDefaulted() {
   //  padding/shadow/marginTop are optional: absent = zeros (flat, no gap).
   QByteArray noMetrics = validJson();
   noMetrics.replace(", \"padding\": [8, 10, 8, 10]", "");
-  noMetrics.replace(", \"shadow\": [0, 2, 8, 0.18]", "");
+  noMetrics.replace(", \"shadow\": [0, 2, 0.18]", "");
   noMetrics.replace(", \"marginTop\": 6", "");
   noMetrics.replace(", \"marginTop\": 2", "");
   Theme t = Theme::loadFromJson(noMetrics);
@@ -743,7 +742,6 @@ void TstTheme::rectMetricsOptionalDefaulted() {
   QCOMPARE(rect.padding[3], 0);
   QCOMPARE(rect.shadowDx, 0.0);
   QCOMPARE(rect.shadowDy, 0.0);
-  QCOMPARE(rect.shadowBlur, 0.0);
   QCOMPARE(rect.shadowOpacity, 0.0);
   QCOMPARE(rect.marginTop, 0);
   QCOMPARE(rect.maxWidthPct, 75);
@@ -752,8 +750,12 @@ void TstTheme::rectMetricsOptionalDefaulted() {
   QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"padding\": [8, 10, 8, 10]",
                                             "\"padding\": [8, 10, 8]"))
              .isValid);
-  QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"shadow\": [0, 2, 8, 0.18]",
-                                            "\"shadow\": [0, 2, 8, 1.5]"))
+  QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"shadow\": [0, 2, 0.18]",
+                                            "\"shadow\": [0, 2, 1.5]"))
+             .isValid);
+  //  Legacy 4-element [dx, dy, blur, opacity] is rejected: no blur.
+  QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"shadow\": [0, 2, 0.18]",
+                                            "\"shadow\": [0, 2, 0, 0.18]"))
              .isValid);
   QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"marginTop\": 6", "\"marginTop\": -1"))
              .isValid);
@@ -805,7 +807,7 @@ void TstTheme::layoutWithoutRectRejected() {
   //  The delegate always paints one rect: a layout without body/fileCard
   //  is invalid.
   QByteArray noRect = withReplaced(
-    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 8, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}",
+    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}",
     "{\"type\": \"header\", \"items\": [\"time\"]}");
   Theme t = Theme::loadFromJson(noRect);
   QVERIFY(!t.isValid);
@@ -873,6 +875,10 @@ void TstTheme::shippedMeshBlueSpotCheck() {
   QCOMPARE(in.bg.lightTo, QColor(QStringLiteral("#F0FDF4")));
   QCOMPARE(in.bg.darkFrom, QColor(QStringLiteral("#162235")));
   QCOMPARE(in.bg.darkTo, QColor(QStringLiteral("#111A29")));
+  //  Shipped incoming carries the spec 1px border (Stitch chat spec).
+  QVERIFY(in.hasBorder);
+  QCOMPARE(in.border.light, QColor(QStringLiteral("#E2E8F0")));
+  QCOMPARE(in.border.dark, QColor(QStringLiteral("#1E3A5F")));
   const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
   const Theme::LayoutNode& out = outgoing.children.at(1);
   QVERIFY(out.hasTextColor);

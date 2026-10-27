@@ -339,12 +339,14 @@ void TstBubbleHeader::layoutResolvesRow() {
   QCOMPARE(first.padding[2], 10);
   QCOMPARE(first.padding[3], 14);
   QCOMPARE(first.shadowDx, 0.0);
-  QCOMPARE(first.shadowDy, 2.0);
-  QCOMPARE(first.shadowBlur, 4.0);
-  QCOMPARE(first.shadowOpacity, 0.08);
+  QCOMPARE(first.shadowDy, 0.0);
+  QCOMPARE(first.shadowOpacity, 0.0);
   QCOMPARE(first.marginTop, 9);
   QCOMPARE(first.maxWidthPct, 80);
-  QVERIFY(!first.hasBorder);
+  //  Shipped incoming carries the spec 1px border, no shadow.
+  QVERIFY(first.hasBorder);
+  QCOMPARE(first.border.light, QColor(QStringLiteral("#E2E8F0")));
+  QCOMPARE(first.border.dark, QColor(QStringLiteral("#1E3A5F")));
 
   BubbleDelegate::ResolvedRow next = d.resolveRow(model.index(1, 0));
   //  In-series rows walk layout_incoming_next: no avatar, no header.

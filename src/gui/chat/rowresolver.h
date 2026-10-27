@@ -26,7 +26,6 @@ struct ResolvedRow {
   int padding[4] = {0, 0, 0, 0}; // [T, R, B, L]
   double shadowDx = 0.0;
   double shadowDy = 0.0;
-  double shadowBlur = 0.0;
   double shadowOpacity = 0.0;
   int marginTop = 0;     // row top gap, per walked tree
   int maxWidthPct = 100; // absent in JSON = full width

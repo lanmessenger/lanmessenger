@@ -98,7 +98,6 @@ ResolvedRow RowResolver::resolve(const Theme& theme, const QString& card, bool g
         r.padding[i] = c.padding[i];
       r.shadowDx = c.shadowDx;
       r.shadowDy = c.shadowDy;
-      r.shadowBlur = c.shadowBlur;
       r.shadowOpacity = c.shadowOpacity;
       r.marginTop = c.marginTop;
       r.maxWidthPct = c.maxWidthPct;

@@ -294,10 +294,10 @@ bool validateRect(const QJsonObject& node, const QString& type, const QString& l
     }
   }
   if(node.contains(QStringLiteral("shadow"))) {
-    if(!checkDoubleArray(node.value(QStringLiteral("shadow")), 4, error, shadowWhat.constData()))
+    if(!checkDoubleArray(node.value(QStringLiteral("shadow")), 3, error, shadowWhat.constData()))
       return false;
     QJsonArray shadow = node.value(QStringLiteral("shadow")).toArray();
-    if(shadow.at(3).toDouble(-1.0) < 0.0 || shadow.at(3).toDouble(2.0) > 1.0) {
+    if(shadow.at(2).toDouble(-1.0) < 0.0 || shadow.at(2).toDouble(2.0) > 1.0) {
       error = QStringLiteral("bad %1 numbers (want shadow opacity)").arg(type);
       return false;
     }
@@ -489,8 +489,7 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
     QJsonArray sh = obj.value(QStringLiteral("shadow")).toArray();
     n.shadowDx = sh.at(0).toDouble();
     n.shadowDy = sh.at(1).toDouble();
-    n.shadowBlur = sh.at(2).toDouble();
-    n.shadowOpacity = sh.at(3).toDouble();
+    n.shadowOpacity = sh.at(2).toDouble();
   }
   //  Validator guarantees ints; marginTop is a per-tree scalar, absent
   //  maxWidthPct is full width.

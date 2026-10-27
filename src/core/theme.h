@@ -27,7 +27,7 @@ public:
 
   //  Rect metrics live on layout body/fileCard nodes; no theme-level
   //  metrics section exists. Per-node keys: bg, padding [T,R,B,L],
-  //  shadow [dx,dy,blur,opacity], marginTop (row top gap, int >= 0),
+  //  shadow [dx,dy,opacity], marginTop (row top gap, int >= 0),
   //  maxWidthPct. All optional: absent bg = transparent, absent
   //  padding/shadow/marginTop = zeros (no padding, no shadow, no top gap),
   //  absent maxWidthPct = 100 (full width).
@@ -101,7 +101,6 @@ public:
     int padding[4] = {0, 0, 0, 0}; // [T, R, B, L]
     double shadowDx = 0.0;
     double shadowDy = 0.0;
-    double shadowBlur = 0.0;
     double shadowOpacity = 0.0;
     int marginTop = 0;
     int maxWidthPct = 100;
