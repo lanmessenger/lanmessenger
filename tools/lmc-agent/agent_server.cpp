@@ -140,7 +140,28 @@ private:
     if(cmd == QStringLiteral("close_app")) {
       // Quit after the reply flushes: async so exec() modals (if any)
       // cannot swallow the response.
+      // Prod parity (lmcCore::exitApp): a naked quit with visible top-levels
+      // stalls under a WM, so close the visible ones first. Hidden popups
+      // stay out: closing a hidden QMenu segfaults in QWidgetPrivate::close.
+      QList<QPointer<QWidget>> guards;
+      for(QWidget* top : QApplication::topLevelWidgets())
+        if(top->isVisible())
+          guards.append(QPointer<QWidget>(top));
+      for(const QPointer<QWidget>& guard : guards)
+        if(!guard.isNull())
+          guard->close();
       QTimer::singleShot(0, qApp, &QCoreApplication::quit);
+      // Watchdog: a stalled loop becomes a loud log, not silence.
+      QTimer::singleShot(5000, qApp, [] {
+        qWarning("lmc-agent: close_app quit stalled, event loop still alive 5s after quit");
+        for(QWidget* top : QApplication::topLevelWidgets()) {
+          qWarning("lmc-agent: stalled window: %s visible=%d",
+                   top->metaObject()->className(), top->isVisible());
+          if(top->isVisible())
+            top->close();
+        }
+        qApp->quit();
+      });
     }
   }
 
