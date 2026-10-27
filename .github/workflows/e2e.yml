@@ -282,6 +282,30 @@ jobs:
 
           # WM session (openbox + tint2 + pcmanfm --desktop): background
           # start under a dbus session, readiness via EWMH probe.
+          # Panel/taskbar: stock light theme shipped with tint2. The stock
+          # launcher points at firefox/chromium desktops, which exist on
+          # CI runners (browsers preinstalled) — strip all launcher apps
+          # so the panel stays empty and deterministic.
+          mkdir -p ~/.config/tint2
+          cp /usr/share/tint2/horizontal-light-opaque.tint2rc ~/.config/tint2/tint2rc
+          sed -i '/^launcher_item_app/d' ~/.config/tint2/tint2rc
+          # Desktop: solid fill (no image). Trash icon hidden: screenshots
+          # need a clean background.
+          mkdir -p ~/.config/pcmanfm/default
+          cat > ~/.config/pcmanfm/default/desktop-items-0.conf <<'EOF'
+          [*]
+          wallpaper_mode=color
+          wallpaper_common=1
+          desktop_bg=#241f31
+          desktop_fg=#ffffff
+          desktop_shadow=#000000
+          desktop_font=Sans 12
+          show_wm_menu=0
+          sort=mtime;ascending;
+          show_documents=0
+          show_trash=0
+          show_mounts=0
+          EOF
           mkdir -p ~/.config/openbox
           printf 'tint2 &\npcmanfm --desktop &\n' > ~/.config/openbox/autostart
           chmod +x ~/.config/openbox/autostart
