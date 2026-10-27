@@ -117,6 +117,9 @@ jobs:
       # the build env: no compilers, no cmake.
       # x11-apps = xwd for the screenshots desktop capture (xwd lives in
       # x11-apps, NOT in x11-utils).
+      # WM stack (openbox + tint2 + pcmanfm --desktop): decorations and
+      # EWMH for a realistic window lifecycle; wmctrl probes that the WM
+      # is up. No obconf/lxterminal/menu: unused headless.
       - name: Install runtime dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -127,7 +130,9 @@ jobs:
             qt6-translations-l10n \
             qt6-multimedia-dev \
             libssl-dev \
-            xvfb xauth x11-utils x11-apps \
+            xvfb xauth x11-utils x11-apps wmctrl \
+            openbox tint2 pcmanfm dbus-x11 \
+            adwaita-icon-theme fonts-dejavu \
             python3-pip python3-venv
 
       - name: Download test layout (Linux)
@@ -275,12 +280,29 @@ jobs:
           done
           xdpyinfo -display :99 >/dev/null
 
-      # Screenshots reference frame: bare Xvfb, no WM (deterministic
-      # placement comes from the agent set_geometry, not decorations).
+          # WM session (openbox + tint2 + pcmanfm --desktop): background
+          # start under a dbus session, readiness via EWMH probe.
+          mkdir -p ~/.config/openbox
+          printf 'tint2 &\npcmanfm --desktop &\n' > ~/.config/openbox/autostart
+          chmod +x ~/.config/openbox/autostart
+          DISPLAY=:99 dbus-launch --exit-with-session openbox-session &
+          for i in $(seq 1 30); do
+            DISPLAY=:99 wmctrl -m >/dev/null 2>&1 && break || sleep 1
+          done
+          DISPLAY=:99 wmctrl -m >/dev/null
+
+      # Screenshots reference frame: openbox on :99 (decorations included,
+      # placement still comes from the agent set_geometry, v3 layout fits
+      # the 1024x768 worst leg with frames).
       - name: Log display resolution (Linux)
         if: runner.os == 'Linux'
         run: |
           xdpyinfo -display :99 | grep -E 'dimensions|resolution' || true
+          wmctrl -m || true
+          wmctrl -d || true
+          pgrep -a -x openbox || true
+          pgrep -a -x tint2 || true
+          pgrep -a -f 'pcmanfm --desktop' || true
           xwd -display :99 -root -out /tmp/res-probe.xwd && ls -l /tmp/res-probe.xwd && rm -f /tmp/res-probe.xwd || true
 
       - name: Log display resolution (Windows)
