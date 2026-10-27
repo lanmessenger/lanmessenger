@@ -22,9 +22,9 @@ local network. No dedicated messaging server or internet connection required.
 
 ## Screenshots
 
-| Windows | macOS | Linux (KDE) |
-|---------|-------|-------------|
-| [![Windows](https://lanmessenger.github.io/images/lmc_1225_win7.jpg)](https://lanmessenger.github.io/images/lmc_1225_win7.jpg) | [![macOS](https://lanmessenger.github.io/images/lmc_1225_osx.jpg)](https://lanmessenger.github.io/images/lmc_1225_osx.jpg) | [![KDE](https://lanmessenger.github.io/images/lmc_1225_kde.jpg)](https://lanmessenger.github.io/images/lmc_1225_kde.jpg) |
+| Windows | macOS | Linux |
+|---------|-------|-------|
+| [![Windows](https://lanmessenger.github.io/images/screenshots/win11-desktop.png)](https://lanmessenger.github.io/images/screenshots/win11-desktop.png) | [![macOS](https://lanmessenger.github.io/images/screenshots/mac-desktop.png)](https://lanmessenger.github.io/images/screenshots/mac-desktop.png) | [![Linux](https://lanmessenger.github.io/images/screenshots/linux-desktop.png)](https://lanmessenger.github.io/images/screenshots/linux-desktop.png) |
 
 ## Quick Start
 

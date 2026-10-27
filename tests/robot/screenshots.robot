@@ -24,20 +24,7 @@ Documentation     Desktop screenshots E2E: the real application against lmmd
 ...               (no conversion in v1), Windows PNG via PowerShell,
 ...               macOS screencapture with widget-shot fallback. Shots are
 ...               saved, never compared (clocks, font smoothing and native
-...               decorations float per OS). The two window shots
-...               (screenshots-window-main.png, screenshots-window-chat.png)
-...               are the stable site input: full top-level frames with
-...               native title bar, grabbed with frame=${TRUE} on every leg
-...               (bare Xvfb: frame == client, no titles on Linux — the site
-...               composite is Windows-only). Sizes vary per OS (title bar
-...               heights differ), so the site reads actual PNG dims and only
-...               scales positions from the 1280x1024 base (v3 positions fit
-...               1024x768 as is) — see
-...               todo/site-screenshots-composite.md. The desktop capture
-...               stays a CI-layout artifact for our eyes only.
-...               No autocommit to site/ in v1 —
-...               updating site/public/images/lmc_1225_* stays manual.
-...               Two drivers in one suite, one per side: LmcLibrary
+...               decorations float per OS). Two drivers in one suite, one per side: LmcLibrary
 ...               (via common.resource) owns the GUI with the in-process
 ...               lmc-agent, LmmLibrary (via mockstand.resource) owns the
 ...               mock side over its NDJSON socket. No /loopback: the app
