@@ -181,6 +181,10 @@ jobs:
       - name: Uninstall test app
         if: always()
         run: |
+          bin=/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger
+          # Graceful close first (covers cold /termwait when nothing runs);
+          # pkill stays as a fallback for a wedged instance.
+          "$bin" /termwait || true
           pkill -f '/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger' || true
           rm -rf /Applications/LAN-Messenger-smoke.app
           hdiutil detach /Volumes/lmc-smoke -force || true

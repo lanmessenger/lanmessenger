@@ -91,10 +91,11 @@ jobs:
 
       # Two-stage smoke (experimental): a plain launch goes through exec()
       # (event loop, main window, single-instance IPC), then a second
-      # invocation closes it. A lone /quit exits before exec()
-      # (see apprunner.cpp) and would miss all of that. Note: /quit sent
-      # to a *running* instance is a raise, not a quit — the closer must be /term
-      # (see lmcCore::processStartupSwitches).
+      # invocation closes it via /termwait (sends term, waits for the lock
+      # release — covers exitApp/shuttingDown and the /termwait branches in
+      # apprunner.cpp). A lone /quit exits before exec() (see apprunner.cpp)
+      # and would miss all of that. Note: /quit sent to a *running*
+      # instance is a raise, not a quit (see lmcCore::processStartupSwitches).
       #
       # First instance runs with /trace; log path must match the Dump step below.
       - name: Smoke start installed app
@@ -126,12 +127,12 @@ jobs:
             wait $app_pid || echo "first exit=$?" >&2
             exit 1
           fi
-          timeout 60 lmc /term
+          timeout 60 lmc /termwait
           for _ in $(seq 1 60); do
             kill -0 $app_pid 2>/dev/null || break
             sleep 0.5
           done
-          if kill -0 $app_pid 2>/dev/null; then echo 'app did not exit on /term' >&2; kill -9 $app_pid; exit 1; fi
+          if kill -0 $app_pid 2>/dev/null; then echo 'app did not exit on /termwait' >&2; kill -9 $app_pid; exit 1; fi
           wait $app_pid
           lmc /inst
 
