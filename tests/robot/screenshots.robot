@@ -12,9 +12,11 @@ Documentation     Desktop screenshots E2E: the real application against lmmd
 ...               The dialog is 5 replicas without emoji and without
 ...               v{version}. Windows are placed
 ...               deterministically via the agent (set_geometry: no WM on
-...               Linux CI, bare Xvfb): v2 layout for 1280x1024 spreads Main
-...               (64,96 360x620) and Chat (560,240 600x640) diagonally with
-...               desktop visible around and between them, no overlap. The dialog markers
+...               Linux CI, bare Xvfb): v3 layout fits the 1024x768 worst
+...               leg (Windows runner 1024x768 + native frame ~+31px height +
+...               ~40px taskbar): Main (48,48 340x580) and Chat
+...               (496,150 480x500) client areas, diagonally with desktop
+...               visible around and between them, no overlap. The dialog markers
 ...               (LINE_*) are suite-unique: CI runs the whole tests/robot/
 ...               with one shared HOME, so no other suite may reuse these
 ...               texts (stale chat history would cross-match). The desktop capture
@@ -29,7 +31,8 @@ Documentation     Desktop screenshots E2E: the real application against lmmd
 ...               (bare Xvfb: frame == client, no titles on Linux — the site
 ...               composite is Windows-only). Sizes vary per OS (title bar
 ...               heights differ), so the site reads actual PNG dims and only
-...               scales positions from the 1280x1024 base — see
+...               scales positions from the 1280x1024 base (v3 positions fit
+...               1024x768 as is) — see
 ...               todo/site-screenshots-composite.md. The desktop capture
 ...               stays a CI-layout artifact for our eyes only.
 ...               No autocommit to site/ in v1 —
@@ -83,18 +86,22 @@ ${LINE_2}         One last test. Disconnect the internet.
 ${LINE_3}         Done. Still chatting.
 ${LINE_4}         File transfer works too.
 ${LINE_5}         Perfect. Ship it!
-# Deterministic placement under 1280x1024 (bare Xvfb, no WM):
-# set_geometry + raise + activateWindow via Place Window. v2 spreads
-# the windows diagonally — Main upper-left, Chat lower-right — with
+# Deterministic placement fitting the 1024x768 worst leg (Windows runner
+# 1024x768 + native frame ~+31px height + ~40px taskbar; bare Xvfb on Linux
+# has no frame/taskbar so it fits with margin):
+# set_geometry + raise + activateWindow via Place Window. v3 spreads
+# the windows diagonally — Main upper-left, Chat right — with
 # desktop visible on every side and a gap between them (no overlap).
-${MAIN_X}         64
-${MAIN_Y}         96
-${MAIN_W}         360
-${MAIN_H}         620
-${CHAT_X}         560
-${CHAT_Y}         240
-${CHAT_W}         600
-${CHAT_H}         640
+# Main frame bottom: 48+580+31=659; Chat frame right 496+480=976,
+# bottom 150+500+31=681 — clear of the 1024x728 work area.
+${MAIN_X}         48
+${MAIN_Y}         48
+${MAIN_W}         340
+${MAIN_H}         580
+${CHAT_X}         496
+${CHAT_Y}         150
+${CHAT_W}         480
+${CHAT_H}         500
 
 
 *** Keywords ***
