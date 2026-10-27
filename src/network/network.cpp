@@ -80,11 +80,19 @@ void lmcNetwork::start(void) {
   }
 }
 
+void lmcNetwork::suspend(void) {
+  // NB: pWebNetwork is internet, not LAN — leave it running on transient loss
+  pUdpNetwork->suspend();
+  pTcpNetwork->suspend();
+}
+
 void lmcNetwork::stop(void) {
-  pTimer->stop();
+  if(pTimer)
+    pTimer->stop();
 
   pUdpNetwork->stop();
   pTcpNetwork->stop();
+  pWebNetwork->stop();
 
   qCInfo(lmcNet(), "Network stopped");
 }
@@ -174,8 +182,7 @@ void lmcNetwork::timer_timeout(void) {
       pTcpNetwork->start();
       canReceive = pUdpNetwork->canReceive;
     } else {
-      pUdpNetwork->stop();
-      pTcpNetwork->stop();
+      suspend();
     }
     emit connectionStateChanged();
   }

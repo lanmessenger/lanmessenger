@@ -9,7 +9,6 @@
 #include <QList>
 #include <QHostAddress>
 #include <QNetworkInterface>
-#include "core/definitions.h"
 
 struct DatagramHeader;
 class lmcSettings;
@@ -26,6 +25,7 @@ public:
 
   void init(int nPort = 0);
   void start(void);
+  void suspend(void);
   void stop(void);
   void setLocalId(QString* lpszLocalId);
   void setCrypto(lmcCrypto* pCrypto);

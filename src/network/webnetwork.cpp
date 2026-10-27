@@ -18,7 +18,15 @@ void lmcWebNetwork::init(void) {}
 
 void lmcWebNetwork::start(void) {}
 
-void lmcWebNetwork::stop(void) {}
+void lmcWebNetwork::stop(void) {
+  const QList<QNetworkReply*> pending = manager->findChildren<QNetworkReply*>();
+  for(QNetworkReply* reply : pending) {
+    reply->disconnect(this);
+    reply->abort();
+    reply->deleteLater();
+  }
+  active = false;
+}
 
 void lmcWebNetwork::sendMessage(QString* lpszUrl, QString* lpszData) {
   Q_UNUSED(lpszData);

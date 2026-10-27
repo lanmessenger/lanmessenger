@@ -27,6 +27,7 @@ public:
 
   void init(int nPort);
   void start(void);
+  void suspend(void);
   void stop(void);
   void setLocalId(QString* lpszLocalId);
   void setCrypto(lmcCrypto* pCrypto);
@@ -69,6 +70,7 @@ private:
   QMap<QString, MsgStream*> messageMap;
   MsgStream* locMsgStream;
   bool isRunning;
+  bool stoppingForExit; // terminal, no restart after stop()
   int tcpPort;
   QString localId;
   lmcCrypto* crypto;

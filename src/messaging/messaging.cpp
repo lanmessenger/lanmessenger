@@ -17,6 +17,7 @@ lmcMessaging::lmcMessaging(void) {
   connect(pNetwork, &lmcNetwork::connectionLost, this, &lmcMessaging::connectionLost);
   connect(pNetwork, &lmcNetwork::progressReceived, this, &lmcMessaging::receiveProgress);
   connect(pNetwork, &lmcNetwork::connectionStateChanged, this, &lmcMessaging::network_connectionStateChanged);
+  pTimer = nullptr;
   localUser = NULL;
   userList.clear();
   groupList.clear();
@@ -86,6 +87,8 @@ void lmcMessaging::update(void) {
 }
 
 void lmcMessaging::stop(void) {
+  if(pTimer)
+    pTimer->stop();
   sendBroadcast(MT_Depart, NULL);
   pNetwork->stop();
 

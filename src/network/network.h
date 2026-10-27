@@ -28,6 +28,7 @@ public:
 
   void init(XmlMessage* pInitParams);
   void start(void);
+  void suspend(void);
   void stop(void);
   QString physicalAddress(void);
   void setLocalId(QString* lpszLocalId);

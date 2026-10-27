@@ -19,6 +19,7 @@ lmcTcpNetwork::lmcTcpNetwork(void) {
   locMsgStream = NULL;
   crypto = NULL;
   isRunning = false;
+  stoppingForExit = false;
   ipAddress = QHostAddress::Null;
   server = new QTcpServer(this);
   connect(server, &QTcpServer::newConnection, this, &lmcTcpNetwork::server_newConnection);
@@ -29,6 +30,10 @@ void lmcTcpNetwork::init(int nPort) {
 }
 
 void lmcTcpNetwork::start(void) {
+  if(stoppingForExit) {
+    qCInfo(lmcNetTcp(), "TCP start ignored, stopping for exit");
+    return;
+  }
   qCInfo(lmcNetTcp(), "Starting TCP server");
   isRunning = server->listen(QHostAddress::Any, tcpPort > 0 ? tcpPort : IDS_TCPPORT_LEGACY_VAL);
   if(!isRunning && tcpPort == 0 && server->serverError() == QAbstractSocket::AddressInUseError) {
@@ -42,9 +47,8 @@ void lmcTcpNetwork::start(void) {
   }
 }
 
-void lmcTcpNetwork::stop(void) {
+void lmcTcpNetwork::suspend(void) {
   server->close();
-  // Close all open sockets
   if(locMsgStream)
     locMsgStream->stop();
   QMap<QString, MsgStream*>::const_iterator index = messageMap.constBegin();
@@ -55,6 +59,15 @@ void lmcTcpNetwork::stop(void) {
     index++;
   }
   isRunning = false;
+}
+
+void lmcTcpNetwork::stop(void) {
+  stoppingForExit = true;
+  suspend();
+  for(int i = 0; i < sendList.count(); i++)
+    sendList[i]->stop();
+  for(int i = 0; i < receiveList.count(); i++)
+    receiveList[i]->stop();
 }
 
 void lmcTcpNetwork::setLocalId(QString* lpszLocalId) {
@@ -227,6 +240,8 @@ void lmcTcpNetwork::socket_readyRead(void) {
 }
 
 void lmcTcpNetwork::msgStream_connectionLost(QString* lpszUserId) {
+  if(stoppingForExit)
+    return;
   emit connectionLost(lpszUserId);
 }
 

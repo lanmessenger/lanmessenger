@@ -45,7 +45,7 @@ void lmcUdpNetwork::start(void) {
   isRunning = true;
 }
 
-void lmcUdpNetwork::stop(void) {
+void lmcUdpNetwork::suspend(void) {
   disconnect(pUdpReceiver, &QIODevice::readyRead, this, &lmcUdpNetwork::processPendingDatagrams);
   if(pUdpReceiver->state() == QAbstractSocket::BoundState) {
     qCInfo(lmcNetUdp(), "%s",
@@ -55,7 +55,13 @@ void lmcUdpNetwork::stop(void) {
     pUdpReceiver->close();
     qCInfo(lmcNetUdp(), "%s", (left ? "Success" : "Failed"));
   }
+  if(pUdpSender->isOpen())
+    pUdpSender->close();
   isRunning = false;
+}
+
+void lmcUdpNetwork::stop(void) {
+  suspend();
 }
 
 void lmcUdpNetwork::setLocalId(QString* lpszLocalId) {
