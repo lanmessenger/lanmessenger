@@ -108,7 +108,7 @@ jobs:
       # same coverage as the Linux smoke. macOS ships no timeout(1), so
       # python3 (preinstalled on the runner) caps a hang on a blocking
       # dialog. /inst must return 0 when no instance is running
-      # (main.cpp: application.isRunning() ? 1 : 0).
+      # (apprunner.cpp: tryBecomeServer() == HeldByOther ? 1 : 0).
       - name: Smoke start installed app
         run: |
           set -euo pipefail

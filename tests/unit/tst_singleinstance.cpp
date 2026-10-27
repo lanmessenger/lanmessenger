@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
 // Unit tests for SingleInstance. The binary re-executes itself as a helper:
-//   --probe-elect <appId> <holdMs>  elect via isRunning(), linger, exit
+//   --probe-elect <appId> <holdMs>  elect via tryBecomeServer(), linger, exit
 //   --si-holder <appId> <secs>      live server, prints READY then GOT:<msg>
 #include <QtTest>
 
@@ -53,10 +53,10 @@ bool waitForLine(QProcess& child, const QByteArray& prefix, int timeoutMs, QByte
 int runProbeElect(const QStringList& args) {
   QTextStream out(stdout);
   SingleInstance probe(args.value(1));
-  const bool running = probe.isRunning();
-  out << (running ? "CLIENT\n" : "READY\n");
+  const bool heldByOther = probe.tryBecomeServer() == SingleInstance::Election::HeldByOther;
+  out << (heldByOther ? "CLIENT\n" : "READY\n");
   out.flush();
-  if(running)
+  if(heldByOther)
     return 1; // lost the election: not the scenario under test
   QThread::msleep(static_cast<unsigned>(args.value(2).toUInt()));
   return 0;
@@ -117,20 +117,25 @@ private slots:
   void killTakeover(void);
   void unknownOpcodeDropped(void);
   void emptyDisconnectDropped(void);
+  void peekSeesLiveHolder(void);
+  void peekFreeWhenNobody(void);
+  void peekFreeAfterRelease(void);
 };
 
 void TstSingleInstance::firstBecomesServer(void) {
   SingleInstance a(freshAppId("first"));
-  QVERIFY2(!a.isRunning(), "first instance must not see another");
+  QVERIFY2(a.tryBecomeServer() == SingleInstance::Election::Elected,
+           "first instance must not see another");
   QVERIFY2(a.isServer(), "first instance must hold the lock and listen");
 }
 
 void TstSingleInstance::secondSeesClient(void) {
   const QString id = freshAppId("second");
   SingleInstance a(id);
-  QVERIFY2(!a.isRunning(), "first must elect");
+  QVERIFY2(a.tryBecomeServer() == SingleInstance::Election::Elected, "first must elect");
   SingleInstance b(id);
-  QVERIFY2(b.isRunning(), "second must see the first");
+  QVERIFY2(b.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "second must see the first");
   QVERIFY2(!b.isServer(), "second must not be the server");
   QVERIFY2(a.isServer(), "first stays the server");
 }
@@ -142,7 +147,8 @@ void TstSingleInstance::deliveryAck(void) {
   QVERIFY2(child.waitForStarted(5000), "holder child failed to start");
   QVERIFY2(waitForLine(child, "READY", 15000), "holder did not elect");
   SingleInstance client(id);
-  QVERIFY2(client.isRunning(), "client must see the holder");
+  QVERIFY2(client.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "client must see the holder");
   QVERIFY2(client.tryDeliver(QStringLiteral("raise")), "server must ack raise");
   QByteArray got;
   QVERIFY2(waitForLine(child, "GOT:", 15000, &got), "server did not receive raise");
@@ -169,7 +175,8 @@ void TstSingleInstance::transientHeal(void) {
   QVERIFY2(probe.waitForStarted(5000), "probe failed to start");
   QVERIFY2(waitForLine(probe, "READY", 15000), "probe did not elect");
   SingleInstance first(id);
-  QVERIFY2(first.isRunning(), "lock is held by the transient probe");
+  QVERIFY2(first.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "lock is held by the transient probe");
   // Probe listens but never acks: delivery must be false.
   QVERIFY2(!first.tryDeliver(QStringLiteral("racy"), 1000), "transient must not ack");
   QVERIFY2(probe.waitForFinished(10000), "probe did not exit");
@@ -228,7 +235,8 @@ void TstSingleInstance::persistentLockFailsBudget(void) {
   QVERIFY2(holder.waitForStarted(5000), "holder failed to start");
   QVERIFY2(waitForLine(holder, "READY", 15000), "holder did not elect");
   SingleInstance first(id);
-  QVERIFY2(first.isRunning(), "holder must be visible");
+  QVERIFY2(first.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "holder must be visible");
   QElapsedTimer t;
   t.start();
   QVERIFY2(!first.ensureServer(5, 100), "persistent lock must fail the budget");
@@ -241,10 +249,12 @@ void TstSingleInstance::destructorReleases(void) {
   const QString id = freshAppId("dtor");
   {
     SingleInstance a(id);
-    QVERIFY2(!a.isRunning(), "setup: first must elect");
+    QVERIFY2(a.tryBecomeServer() == SingleInstance::Election::Elected,
+             "setup: first must elect");
   }
   SingleInstance b(id);
-  QVERIFY2(!b.isRunning(), "lock must be free after destructor");
+  QVERIFY2(b.tryBecomeServer() == SingleInstance::Election::Elected,
+           "lock must be free after destructor");
   QVERIFY2(b.isServer(), "second must elect after release");
 }
 
@@ -255,7 +265,8 @@ void TstSingleInstance::killTakeover(void) {
   QVERIFY2(child.waitForStarted(5000), "holder child failed to start");
   QVERIFY2(waitForLine(child, "READY", 15000), "holder did not elect");
   SingleInstance first(id);
-  QVERIFY2(first.isRunning(), "holder must be visible");
+  QVERIFY2(first.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "holder must be visible");
   child.kill();
   QVERIFY2(child.waitForFinished(5000), "holder did not die");
   QVERIFY2(first.ensureServer(100, 100), "crashed holder must be taken over");
@@ -319,6 +330,38 @@ void TstSingleInstance::emptyDisconnectDropped(void) {
   QCOMPARE(got, QByteArray("GOT:term"));
   child.kill();
   QVERIFY2(child.waitForFinished(5000), "holder did not die");
+}
+
+void TstSingleInstance::peekSeesLiveHolder(void) {
+  const QString id = freshAppId("peekholder");
+  SingleInstance holder(id);
+  QVERIFY2(holder.ensureServer(100, 100), "holder must elect");
+  SingleInstance probe(id);
+  QVERIFY2(probe.isLockedByOther(), "peek must see the live holder");
+  QVERIFY2(!probe.isServer(), "peek must not elect");
+  QVERIFY2(holder.isServer(), "holder must stay the server after probe peek");
+  QVERIFY2(!holder.isLockedByOther(), "self-hold is not 'other'");
+}
+
+void TstSingleInstance::peekFreeWhenNobody(void) {
+  const QString id = freshAppId("peekfree");
+  SingleInstance probe(id);
+  QVERIFY2(!probe.isLockedByOther(), "peek must report free");
+  QVERIFY2(!probe.isServer(), "peek must not elect");
+}
+
+void TstSingleInstance::peekFreeAfterRelease(void) {
+  const QString id = freshAppId("peekrelease");
+  {
+    SingleInstance holder(id);
+    QVERIFY2(holder.ensureServer(100, 100), "holder must elect");
+    SingleInstance probe(id);
+    QVERIFY2(probe.isLockedByOther(), "holder must be visible");
+    QVERIFY2(holder.isServer(), "holder must stay the server after probe peek");
+  }
+  SingleInstance after(id);
+  QVERIFY2(!after.isLockedByOther(), "lock must be free after destructor");
+  QVERIFY2(!after.isServer(), "peek must not elect");
 }
 
 int main(int argc, char* argv[]) {

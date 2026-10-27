@@ -13,6 +13,7 @@
 #include <QIcon>
 #include <QSslSocket>
 #include <QDir>
+#include <QThread>
 #include <cstdio>
 
 //	Define a unique application id. This is a combination of two GUIDs
@@ -29,13 +30,15 @@ int showSwitches(void) {
                 "/sync - Synchronizes application settings and their external dependencies.\n"
                 "/unsync - Removes all external application dependencies.\n"
                 "/term - Closes an instance which is already running.\n"
+                "/termwait - Closes it and waits for it to exit.\n"
                 "/inst - Returns a value indicating whether an instance is already running.\n"
                 "/quit - Closes once the command line parameters are processed.\n"
                 "/trace - Enables debug logging to logs/lmc_*.log (disabled by default).\n"
                 "/? - Display this help.\n"
                 "\n"
                 "If an instance is already running, a second launch only brings its window\n"
-                "to the front (or closes it with /term); other switches apply at startup only.\n"
+                "to the front (or closes it with /term, waits with /termwait);\n"
+                "other switches apply at startup only.\n"
                 "\n"
                 "Example:\n"
                 "Start in loopback mode with default settings: lmc /loopback /noconfig\n"
@@ -55,14 +58,28 @@ static void initTrace(const QStringList& arguments) {
   LmcLogging::enable(StdLocation::freeLogFile());
 }
 
-// IPC is two commands: "raise" (default, brings the first instance forward)
-// and "term" (closes it; sent by the NSIS uninstaller and the deb smoke).
-// Other switches are startup-only and never leave this process: a second
-// launch never applies them to the running instance.
+static bool waitForFirstInstanceExit(Application& application, int timeoutMs) {
+  const int stepMs = 250;
+  int waited = 0;
+  while(application.isLockedByOther()) {
+    if(waited >= timeoutMs)
+      return false;
+    QThread::msleep(stepMs);
+    waited += stepMs;
+  }
+  return true;
+}
+
 QString remoteCommandFor(const QStringList& arguments) {
+  if(arguments.contains(QStringLiteral("/termwait"), Qt::CaseInsensitive))
+    return QStringLiteral("term");
   if(arguments.contains("/term", Qt::CaseInsensitive))
     return QStringLiteral("term");
   return QStringLiteral("raise");
+}
+
+bool wantsTermWait(const QStringList& arguments) {
+  return arguments.contains(QStringLiteral("/termwait"), Qt::CaseInsensitive);
 }
 
 int lmcRunApplication(int argc, char* argv[],
@@ -90,18 +107,32 @@ int lmcRunApplication(int argc, char* argv[],
     if(arguments.at(index).compare("/?", Qt::CaseInsensitive) == 0)
       return showSwitches();
     else if(arguments.at(index).compare("/inst", Qt::CaseInsensitive) == 0)
-      // 1 iff the single-instance lock is held. Pathology never holds it.
-      return application.isRunning() ? 1 : 0;
+      // 1 iff the single-instance lock is held by another instance.
+      // Pathology never holds it. Explicit elect here: cold start becomes
+      // the server and reports 0.
+      return application.tryBecomeServer(true) == SingleInstance::Election::HeldByOther ? 1 : 0;
     else
       messageList += arguments.at(index) + "\n";
   }
 
   // Probe once, then branch: second delivers and exits, first serves,
   // pathology degrades.
+  const QString remoteCommand = remoteCommandFor(arguments);
   const SingleInstance::StartupOutcome outcome =
-    application.resolveStartup(remoteCommandFor(arguments), 10, 200);
-  if(outcome == SingleInstance::StartupOutcome::SecondDelivered)
+    application.resolveStartup(remoteCommand, 10, 200);
+  if(outcome == SingleInstance::StartupOutcome::SecondDelivered) {
+    if(wantsTermWait(arguments) && !waitForFirstInstanceExit(application, 10000)) {
+      fprintf(stderr, "lmc: warning: previous instance still running after termwait\n");
+      return 1;
+    }
     return 0;
+  }
+  if(outcome == SingleInstance::StartupOutcome::FirstServer && wantsTermWait(arguments))
+    return 0;
+  if(outcome == SingleInstance::StartupOutcome::Pathology && wantsTermWait(arguments)) {
+    fprintf(stderr, "lmc: error: single-instance server unavailable, cannot stop previous instance\n");
+    return 1;
+  }
 
   initTrace(arguments);
   if(outcome == SingleInstance::StartupOutcome::Pathology) {

@@ -40,6 +40,7 @@ public:
   void restore(void);
   void minimize(void);
   void stop(void);
+  void setShuttingDown(bool shuttingDown);
   void addUser(User* pUser);
   void updateUser(User* pUser);
   void removeUser(QString* lpszUserId);
@@ -157,6 +158,7 @@ private:
   bool noBusyAlert;
   bool noDNDAlert;
   bool statusToolTip;
+  bool shuttingDown;
   lmcSoundPlayer* pSoundPlayer;
   TrayMessageType lastTrayMessageType;
   QActionGroup* statusGroup;

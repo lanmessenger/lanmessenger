@@ -23,8 +23,12 @@ Application::Application(const QString& id, int& argc, char** argv)
 Application::~Application() {
 }
 
-bool Application::isRunning() {
-  return single_->isRunning();
+SingleInstance::Election Application::tryBecomeServer(bool warn) {
+  return single_->tryBecomeServer(warn);
+}
+
+bool Application::isLockedByOther() {
+  return single_->isLockedByOther();
 }
 
 bool Application::event(QEvent* e) {

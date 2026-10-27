@@ -20,7 +20,8 @@ public:
   explicit Application(const QString& id, int& argc, char** argv);
   ~Application() override;
 
-  bool isRunning();
+  SingleInstance::Election tryBecomeServer(bool warn = true);
+  bool isLockedByOther();
   SingleInstance::StartupOutcome resolveStartup(const QString& remoteCommand, int retries,
                                                 int sleepMs, int timeout = 5000);
 

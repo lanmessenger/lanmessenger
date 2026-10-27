@@ -10,9 +10,11 @@ class TstApprunner : public QObject {
 private slots:
   void plainLaunchRaises(void);
   void termCloses(void);
+  void termwaitCloses(void);
   void termCaseInsensitive(void);
   void startupOnlySwitchesRaise(void);
   void termWinsOverOthers(void);
+  void waitOnlyForTermwait(void);
 };
 
 void TstApprunner::plainLaunchRaises(void) {
@@ -22,6 +24,16 @@ void TstApprunner::plainLaunchRaises(void) {
 
 void TstApprunner::termCloses(void) {
   QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/term"}), QStringLiteral("term"));
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc", "/term"}));
+}
+
+void TstApprunner::termwaitCloses(void) {
+  QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/termwait"}), QStringLiteral("term"));
+  QVERIFY(wantsTermWait(QStringList{"/usr/bin/lmc", "/termwait"}));
+  QVERIFY(wantsTermWait(QStringList{"/usr/bin/lmc", "/TERMWAIT"}));
+  QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/term", "/termwait"}),
+           QStringLiteral("term"));
+  QVERIFY(wantsTermWait(QStringList{"/usr/bin/lmc", "/term", "/termwait"}));
 }
 
 void TstApprunner::termCaseInsensitive(void) {
@@ -30,7 +42,6 @@ void TstApprunner::termCaseInsensitive(void) {
 }
 
 void TstApprunner::startupOnlySwitchesRaise(void) {
-  // Init-only switches must not leak into IPC: the running instance just raises.
   QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/loopback"}), QStringLiteral("raise"));
   QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/loopback", "/noconfig"}),
            QStringLiteral("raise"));
@@ -40,6 +51,16 @@ void TstApprunner::startupOnlySwitchesRaise(void) {
 void TstApprunner::termWinsOverOthers(void) {
   QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/loopback", "/term"}),
            QStringLiteral("term"));
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc", "/loopback", "/term"}));
+}
+
+void TstApprunner::waitOnlyForTermwait(void) {
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc"}));
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc", "/quit"}));
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc", "/loopback", "/noconfig"}));
+  QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/termwaitfoo"}), QStringLiteral("raise"));
+  QVERIFY(!wantsTermWait(QStringList{"/usr/bin/lmc", "/termwaitfoo"}));
+  QCOMPARE(remoteCommandFor(QStringList{"/usr/bin/lmc", "/terminal"}), QStringLiteral("raise"));
 }
 
 QTEST_MAIN(TstApprunner)

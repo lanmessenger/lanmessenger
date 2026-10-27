@@ -349,8 +349,14 @@ SectionEnd
     Quit
     
     CloseApp:
-    ;Run the application with /term switch to terminate the running instance.
-    ExecWait "$INSTDIR\${AppExec} /silent /term"
+    ExecWait "$INSTDIR\${AppExec} /silent /termwait" $0
+    IntCmp $0 0 NotRunning
+    MessageBox MB_OK|MB_ICONSTOP \
+      "${ProductName} is still running and could not be closed automatically.$\n$\n\
+      Please close it manually and run the uninstaller again." \
+      /SD IDOK
+    SetErrorLevel $0
+    Quit
     
     NotRunning:
     

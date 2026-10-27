@@ -107,6 +107,7 @@ private:
   QPointer<lmcBroadcastWindow> pBroadcastWindow;
   bool messageTop;
   bool pubMessagePop;
+  bool watchdogArmed = false;
   QString lang;
   bool adaptiveRefresh;
   int refreshTime;

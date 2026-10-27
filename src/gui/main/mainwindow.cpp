@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QKeyEvent>
 #include <QCloseEvent>
+#include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
@@ -50,6 +51,7 @@ lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)
   ui.tvUserList->installEventFilter(this);
 
   windowLoaded = false;
+  shuttingDown = false;
 }
 
 lmcMainWindow::~lmcMainWindow(void) {
@@ -124,6 +126,7 @@ void lmcMainWindow::show(void) {
 }
 
 void lmcMainWindow::restore(void) {
+  qCDebug(lmcUi(), "Main restore/show");
   //	if window is minimized, restore it to previous state
   if(windowState().testFlag(Qt::WindowMinimized))
     setWindowState(windowState() & ~Qt::WindowMinimized);
@@ -135,8 +138,13 @@ void lmcMainWindow::restore(void) {
 
 void lmcMainWindow::minimize(void) {
   // This function actually hides the window, basically the opposite of restore()
+  qCDebug(lmcUi(), "Main minimize/hide");
   hide();
   showMinimizeMessage();
+}
+
+void lmcMainWindow::setShuttingDown(bool shuttingDown) {
+  this->shuttingDown = shuttingDown;
 }
 
 void lmcMainWindow::stop(void) {
@@ -371,7 +379,12 @@ bool lmcMainWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
 }
 
 void lmcMainWindow::closeEvent(QCloseEvent* pEvent) {
-  //	close main window to system tray
+  if(shuttingDown) {
+    qCInfo(lmcUi(), "Shutdown: main close accepted (shutdown)");
+    pEvent->accept();
+    return;
+  }
+  qCDebug(lmcUi(), "Main closeEvent, minimizing to tray");
   pEvent->ignore();
   minimize();
 }

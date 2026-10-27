@@ -33,12 +33,14 @@ public:
   explicit SingleInstance(const QString& appId, QObject* parent = nullptr);
   ~SingleInstance() override;
 
-  // QLockFile has no peek: probing via tryLock() elects us on success.
   Election tryBecomeServer(bool warn = true);
   // True if this instance currently holds the lock AND listens.
   bool isServer() const;
-  // /inst contract: 1 iff the lock is held by someone else.
-  bool isRunning();
+  // Peek: true iff the lock file is held by another instance. Never listens:
+  // safe to call from any branch, including the holder itself (self-hold
+  // reports false; the probe does a momentary tryLock/unlock on a separate
+  // QLockFile and never calls listen()). Used by /termwait and peek tests.
+  bool isLockedByOther();
   // Local socket name (test hook).
   QString socketName() const;
   // No election inside: call only from the HeldByOther branch.

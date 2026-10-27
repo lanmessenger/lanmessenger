@@ -22,6 +22,8 @@ class QCoreApplication;
 int lmcRunApplication(int argc, char* argv[],
                       const std::function<void(QCoreApplication&)>& preExecHook);
 
-// Maps a second-instance command line to the IPC command sent to the running
-// instance: "term" iff /term is present, "raise" otherwise (unit-tested).
+// "term" when /term or /termwait is present (exact element match,
+// case-insensitive), "raise" otherwise.
 QString remoteCommandFor(const QStringList& arguments);
+// True when /termwait is present. Second instance only.
+bool wantsTermWait(const QStringList& arguments);

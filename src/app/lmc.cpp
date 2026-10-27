@@ -8,8 +8,10 @@
 #include <QSet>
 #include <QTranslator>
 #include <QTimer>
+#include <QThread>
 #include <QSysInfo>
 #include <QFile>
+#include <cstdio>
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
@@ -240,7 +242,9 @@ void lmcCore::stop(void) {
   if(pTimer)
     pTimer->stop();
 
+  qCInfo(lmcApp(), "Shutdown: windows stopped");
   pMessaging->stop();
+  qCInfo(lmcApp(), "Shutdown: messaging stopped");
   pMainWindow->stop();
 
   qCInfo(lmcApp(), "Application stopped");
@@ -249,12 +253,30 @@ void lmcCore::stop(void) {
 //	This slot handles the exit signal emitted by main window when the user
 //	selects quit from the menu.
 void lmcCore::exitApp(void) {
+  qCInfo(lmcApp(), "Shutdown: quit requested");
+  pMainWindow->setShuttingDown(true);
+  for(QWidget* window : QApplication::topLevelWidgets())
+    window->close();
   qApp->quit();
+  if(watchdogArmed)
+    return;
+  watchdogArmed = true;
+  QTimer::singleShot(5000, this, [] {
+    qCWarning(lmcApp(), "Shutdown: WATCHDOG event loop still alive 5s after quit");
+    fprintf(stderr, "lmc: warning: event loop still alive 5s after quit\n");
+    for(QWidget* window : QApplication::topLevelWidgets()) {
+      qCDebug(lmcApp(), "Shutdown: watchdog window: %s visible=%d",
+              window->metaObject()->className(), window->isVisible());
+      window->close();
+    }
+    qApp->quit();
+  });
 }
 
 //	This slot handles the signal emitted by QApplication when the application
 //	quits either by user interaction or from operating system signal.
 void lmcCore::aboutToExit(void) {
+  qCInfo(lmcApp(), "Shutdown: aboutToQuit received, stopping");
   stop();
   pSettings->setValue(IDS_VERSION, IDA_VERSION);
 
@@ -365,7 +387,8 @@ bool lmcCore::processStartupSwitches(const QString& szMessage) {
   if(messageList.contains("/unsync", Qt::CaseInsensitive)) {
     lmcSettings::setAutoStart(false);
   }
-  if(messageList.contains("/term", Qt::CaseInsensitive)) {
+  if(messageList.contains("/term", Qt::CaseInsensitive) ||
+     messageList.contains("/termwait", Qt::CaseInsensitive)) {
     doNotExit = false;
     exitApp();
   }
@@ -377,10 +400,22 @@ bool lmcCore::processStartupSwitches(const QString& szMessage) {
 }
 
 void lmcCore::receiveRemoteMessage(const QString& message) {
-  // Only "term" exits; anything else raises.
-  if(message.compare("term", Qt::CaseInsensitive) == 0)
-    exitApp();
+  const bool isTerm = message.compare("term", Qt::CaseInsensitive) == 0;
+  if(isTerm)
+    qCInfo(lmcApp(), "Shutdown: remote command 'term' received");
   else
+    qCDebug(lmcApp(), "Remote command '%s' received", qPrintable(message));
+  if(isTerm) {
+    QWidget* modal = QApplication::activeModalWidget();
+    qCDebug(lmcApp(), "Shutdown: remote context: guiThread=%d modal=%s topLevel=%d",
+            QThread::currentThread() == qApp->thread(),
+            modal ? modal->metaObject()->className() : "(none)",
+            QApplication::topLevelWidgets().count());
+    for(QWidget* window : QApplication::topLevelWidgets())
+      qCDebug(lmcApp(), "Shutdown: window: %s visible=%d minimized=%d",
+              window->metaObject()->className(), window->isVisible(), window->isMinimized());
+    exitApp();
+  } else
     pMainWindow->restore();
 }
 
@@ -529,6 +564,7 @@ void lmcCore::chatWindow_closed(QString* lpszUserId) {
       break;
     }
   }
+  qCDebug(lmcApp(), "Chat closed, total=%d", chatWindows.count());
 }
 
 void lmcCore::chatRoomWindow_closed(QString* lpszThreadId) {
@@ -841,6 +877,7 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
   pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());
   if(pMessaging->isLoopback() && pLocalUser->id.compare(pRemoteUser->id) == 0)
     pChatWindow->enableLoopbackEcho();
+  qCDebug(lmcApp(), "Chat opened, total=%d", chatWindows.count());
 }
 
 void lmcCore::showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert) {

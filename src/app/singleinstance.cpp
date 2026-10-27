@@ -88,8 +88,17 @@ QString SingleInstance::socketName() const {
   return socketName_;
 }
 
-bool SingleInstance::isRunning() {
-  return tryBecomeServer(true) == Election::HeldByOther;
+bool SingleInstance::isLockedByOther() {
+  // Self-hold means no *other* holder (the lock is exclusive).
+  if(lockFile_.isLocked())
+    return false;
+  // Separate probe: never touches our own guard, never elects via listen().
+  QLockFile probe(lockFileFor(socketName_));
+  if(probe.tryLock()) {
+    probe.unlock();
+    return false;
+  }
+  return true;
 }
 
 bool SingleInstance::tryDeliver(const QString& message, int timeout) {
@@ -214,6 +223,7 @@ void SingleInstance::receiveConnection() {
     socket->write(&kAckOpcode, 1);
     socket->waitForBytesWritten(1000);
     delete socket;
+    qCDebug(lmcApp(), "SingleInstance: dispatching '%s' command", qPrintable(message));
     emit messageReceived(message);
   }
 }
