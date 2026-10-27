@@ -24,7 +24,7 @@ local network. No dedicated messaging server or internet connection required.
 
 | Windows | macOS | Linux |
 |---------|-------|-------|
-| [![Windows](https://lanmessenger.github.io/images/screenshots/win11-desktop.png)](https://lanmessenger.github.io/images/screenshots/win11-desktop.png) | [![macOS](https://lanmessenger.github.io/images/screenshots/mac-desktop.png)](https://lanmessenger.github.io/images/screenshots/mac-desktop.png) | [![Linux](https://lanmessenger.github.io/images/screenshots/linux-desktop.png)](https://lanmessenger.github.io/images/screenshots/linux-desktop.png) |
+| [![Windows](https://lanmessenger.github.io/images/screenshots/win11-desktop-min.jpg)](https://lanmessenger.github.io/images/screenshots/win11-desktop.png) | [![macOS](https://lanmessenger.github.io/images/screenshots/mac-desktop-min.jpg)](https://lanmessenger.github.io/images/screenshots/mac-desktop.png) | [![Linux](https://lanmessenger.github.io/images/screenshots/linux-desktop-min.jpg)](https://lanmessenger.github.io/images/screenshots/linux-desktop.png) |
 
 ## Quick Start
 
