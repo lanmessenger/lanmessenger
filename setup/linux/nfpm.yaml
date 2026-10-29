@@ -1,0 +1,44 @@
+# Single source for the Linux system packages: deb and rpm are built from
+# this file by setup/linux/package.sh (nfpm). Per-format differences live
+# only in `overrides` below; the payload tree is shared.
+#
+# Version/arch/release come from the environment (set by package.sh per
+# invocation): deb keeps the plain upstream version (empty release), rpm
+# uses release 1. nfpm maps arch x86_64 to deb amd64 automatically.
+name: lmc
+arch: ${LMC_ARCH}
+platform: linux
+umask: 0o022
+version: ${LMC_VERSION}
+release: ${LMC_RELEASE}
+section: web
+priority: optional
+maintainer: LAN Messenger Project
+description: LAN Messenger is an instant messaging application for communication over a local network. It does not require a server.
+vendor: LAN Messenger Project
+homepage: https://lanmessenger.github.io/
+license: GPL-3.0-or-later
+depends:
+- libqt6core6t64 (>= 6.2) | libqt6core6 (>= 6.2)
+- libqt6gui6t64 (>= 6.2) | libqt6gui6 (>= 6.2)
+- libqt6widgets6t64 (>= 6.2) | libqt6widgets6 (>= 6.2)
+- libqt6network6t64 (>= 6.2) | libqt6network6 (>= 6.2)
+- libqt6xml6t64 (>= 6.2) | libqt6xml6 (>= 6.2)
+- libqt6multimedia6 (>= 6.2)
+- qt6-qpa-plugins (>= 6.2)
+- libssl3t64 | libssl3
+recommends:
+- fonts-noto-color-emoji
+contents:
+- src: ./package/usr
+  dst: /usr
+  type: tree
+overrides:
+  rpm:
+    depends:
+    - qt6-qtbase >= 6.2
+    - qt6-qtbase-gui >= 6.2
+    - qt6-qtmultimedia >= 6.2
+    - openssl-libs
+    recommends:
+    - google-noto-color-emoji-fonts

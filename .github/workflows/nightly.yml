@@ -67,7 +67,8 @@ jobs:
 
           # Version sorts after the last release (1.2.39 < 1.2.40~nightly.N)
           # and before the upcoming one (1.2.40~nightly.N < 1.2.40) in both
-          # dpkg and rpm (tilde semantics). No hyphens: alien splits on them.
+          # dpkg and rpm (tilde semantics). No hyphens: they are not valid
+          # in rpm Version / deb upstream version.
           version="${base_next}~nightly.${GITHUB_RUN_NUMBER}"
           installer_version="${base_next}.${GITHUB_RUN_NUMBER}"
 

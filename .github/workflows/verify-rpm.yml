@@ -5,18 +5,14 @@
 #
 # No inputs needed: the artifact name (packages-linux) is fixed, and the
 # install goes to the real system paths (/usr/...) — the container is
-# ephemeral. No rebuild here by design. The .rpm is converted from the
-# same .deb by alien and shares its payload (see rpm_setup); the deb-side
+# ephemeral. No rebuild here by design. The .rpm is built from the same
+# staged payload tree as the .deb (see setup/linux/nfpm.yaml); the deb-side
 # smoke lives in verify-deb.yml.
 #
-# Known alien limitations (documented, not gated strictly):
-# - rpm Requires carry only /bin/sh: the Debian Depends alternatives are
-#   dropped, so the workflow installs the Fedora Qt set explicitly
-#   (qt6-qtbase/qt6-qtbase-gui/qt6-qtmultimedia/openssl) and records
-#   `rpm -qpR` for visibility.
-# - alien -c copies DEBIAN scriptlets verbatim: postinstall checks
-#   `$1 = configure` (deb convention; rpm passes 1/2), so the scriptlets
-#   are present but no-ops on rpm. Recorded via `rpm -qp --scripts`.
+# Strict gate by design: dnf installs ONLY the rpm, so the Requires in
+# nfpm.yaml (Qt, openssl-libs) must resolve everything. The emoji font
+# rides along as a weak dependency (Recommends). `rpm -qpR` and the weak
+# deps are recorded below for visibility.
 name: Verify rpm
 
 on:
@@ -41,31 +37,37 @@ jobs:
       - name: List package artifact
         run: ls -la dist
 
-      # alien drops the Debian Depends (alternatives) into bare /bin/sh
-      # Requires, so dnf cannot resolve system Qt from the rpm itself.
-      # Install the Fedora Qt equivalents explicitly; the rpm payload
-      # itself is installed from the exact artifact built by build.yml.
-      # xdpyinfo is a standalone package on Fedora (xorg-x11-utils was
-      # retired after F34); it backs the xdpyinfo X-readiness wait below.
+      # Strict gate: only the rpm itself is installed, so dnf must resolve
+      # the system Qt and openssl-libs from the Requires in nfpm.yaml. If
+      # this fails on missing dependencies, the package metadata is wrong —
+      # not the test. xdpyinfo is a standalone package on Fedora
+      # (xorg-x11-utils was retired after F34); it backs the xdpyinfo
+      # X-readiness wait below.
       - name: Install package
         run: |
           set -euo pipefail
           rpm=(dist/lmc-*_min.rpm)
           if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
           dnf -y install "./${rpm[0]}" \
-            qt6-qtbase qt6-qtbase-gui qt6-qtmultimedia \
-            openssl-libs \
             xorg-x11-server-Xvfb xdpyinfo appstream
           rpm -qi lmc
           rpm -ql lmc
 
-      - name: Record rpm metadata (Requires, scriptlets)
+      - name: Record rpm metadata (Requires, weak deps, scriptlets)
         run: |
           set -euo pipefail
           rpm=(dist/lmc-*_min.rpm)
           if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
           echo '--- Requires ---'
           rpm -qpR "./${rpm[0]}"
+          for dep in qt6-qtbase qt6-qtbase-gui qt6-qtmultimedia openssl-libs; do
+            rpm -qpR "./${rpm[0]}" | grep -Eq "^${dep}([ >=]|$)" \
+              || { echo "missing Requires: ${dep}" >&2; exit 1; }
+          done
+          echo '--- Recommends ---'
+          rpm -qp --recommends "./${rpm[0]}"
+          rpm -qp --recommends "./${rpm[0]}" | grep -Eq "^google-noto-color-emoji-fonts([ >=]|$)" \
+            || { echo "missing Recommends: google-noto-color-emoji-fonts" >&2; exit 1; }
           echo '--- scriptlets ---'
           rpm -qp --scripts "./${rpm[0]}"
           echo '--- verify ---'
@@ -120,7 +122,8 @@ jobs:
       # risks — missing .so libs, xcb platform plugin, lmc.rcc, lang/*.qm —
       # same coverage as the Linux smoke in build.yml. The full lifecycle
       # (exec/IPC/SSL-backend dialog) is gated by verify-deb.yml and e2e on
-      # the identical payload (the .rpm is converted from the same .deb).
+      # the identical payload (both formats are built from the same staged
+      # tree by setup/linux, see nfpm.yaml).
       # Runs through the real installed entry point (lmc -> lmc.sh), which
       # also covers the LD_LIBRARY_PATH launcher.
       - name: Smoke start installed app

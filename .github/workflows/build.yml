@@ -77,7 +77,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Linux, oldest baseline (Ubuntu 22.04, Qt 6.2, glibc 2.35): one _min
+  # Linux, oldest baseline (Ubuntu 22.04, Qt 6.2, glibc 2.35): one system-Qt
   # package per arch installs and runs on any newer Debian-family distro.
   build-linux:
     runs-on: ubuntu-22.04
@@ -159,13 +159,17 @@ jobs:
       - name: Build packages
         if: inputs.artifacts != 'test'
         env:
-          PACKAGE_MODE: _min
+          NFPM_VERSION: 2.48.0
+          NFPM_SHA256: 6d7f9a28b2f397934403950fcbba83f598b08d02edbe79a0815b3b4897341750
+          NFPM_ARCH: x86_64
         run: |
-          sudo apt-get install -y alien rpm
-          cd setup/x11
-          chmod +x setup rpm_setup
-          sh ./setup "$PKG_VERSION"
-          sh ./rpm_setup "$PKG_VERSION"
+          curl -sSLf --retry 3 -o /tmp/nfpm.tar.gz "https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_Linux_${NFPM_ARCH}.tar.gz"
+          echo "${NFPM_SHA256}  /tmp/nfpm.tar.gz" | sha256sum -c -
+          mkdir -p /tmp/nfpm-bin && tar -xzf /tmp/nfpm.tar.gz -C /tmp/nfpm-bin nfpm
+          cd setup/linux
+          chmod +x stage.sh package.sh
+          sh ./stage.sh
+          NFPM=/tmp/nfpm-bin/nfpm sh ./package.sh "$PKG_VERSION"
 
       - name: Upload packages
         if: inputs.artifacts != 'test'

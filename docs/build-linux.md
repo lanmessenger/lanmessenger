@@ -44,54 +44,48 @@ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 This will be valid only for the current session. It has to be run again
 after a log out or restart.
 
-## Installer (deb)
+## Installer (deb and rpm)
 
-For building the installer, run the bash script `setup` in the
-`setup/x11` folder. Make sure the scripts named `postinst`, `postrm`
-and `prerm` in the folder `package/DEBIAN` have executable permission.
-The setup script substitutes the version and architecture placeholders
-(`VERSION`, `ARCH`) in the file `control` in the same folder from its
-argument; edit that file to reflect the proper installed size (in KB) of
-the application. The scripts `lmc.sh` and `whitelist` in
-`package/usr/lib/lmc` must also have executable permission. All files and
-folders inside the `package` folder must be owned by the root user.
+Both Linux system packages are built from a single `nfpm.yaml` in the
+`setup/linux` folder, on top of the payload tree staged by `stage.sh`
+from `release` (the `package-local` target must have run first, see
+above; CI does this in `build.yml`):
 
-The setup script generates the deb installation package which will be
-saved to the `setup` folder. The package will have the name
-`lmc_<version>_<arch>.deb` (e.g. `lmc_1.2.39_x86_64.deb`). Set the
-environment variable `PACKAGE_MODE=_min` to build a minimal package that
-does not bundle the Qt libraries (this is what the CI build produces);
-without it the package also bundles the Qt 6 libraries the application
-links and the plugins they need.
+```bash
+cd setup/linux
+sh ./stage.sh
+NFPM=/path/to/nfpm sh ./package.sh 1.2.39
+```
+
+`nfpm` is a single static binary, no root needed:
+download `nfpm_*_Linux_x86_64.tar.gz` from the
+[nfpm releases](https://github.com/goreleaser/nfpm/releases) (pin the
+version, verify the sha256 from `checksums.txt`). `package.sh` builds
+`lmc_<version>_<arch>_min.deb` and `lmc-<version>.<arch>_min.rpm`
+into the `setup` folder. Only system-Qt packages are built (the `_min`
+suffix is legacy, kept for artifact stability); the `Depends`/`Requires`
+in `nfpm.yaml` pull the system Qt 6 libraries. Bundled Qt is not
+supported.
+
+Dependencies are declared once per ecosystem in `nfpm.yaml`
+(`overrides.rpm` carries the Fedora names). Icon caches need no
+maintainer scripts: they are refreshed by the distro triggers/hooks.
+Autostart entries are per-user configuration created by the app itself
+and are left in place on uninstall; the app removes its own entry when
+autostart is disabled.
 
 Chat messages render emoji with the operating system's color emoji font.
-The deb package recommends `fonts-noto-color-emoji`, so it is installed
-automatically on most systems (apt installs Recommends by default).
+The packages recommend it, so it is normally installed automatically
+(apt installs Recommends by default, dnf installs weak Recommends by
+default):
+
+- Debian/Ubuntu: `fonts-noto-color-emoji`
+- Fedora/RHEL: `google-noto-color-emoji-fonts`
+
 The app also runs without it (monochrome/tofu fallback). If emoji show
 up as empty boxes (tofu), install the font manually:
 
 ```bash
-sudo apt-get install fonts-noto-color-emoji
-```
-
-## Installer (rpm)
-
-For generating an rpm package, `alien` must be installed first. To
-install `alien`, run:
-
-```bash
-sudo apt-get install alien
-```
-
-Execute the `rpm_setup` script in `setup/x11` to generate an rpm
-package from the deb package (the deb package must be created first).
-This package will have the name `lmc-<version>.<arch>.rpm` and will be
-saved to the `setup` folder.
-
-The rpm is converted from the deb with `alien`, so the Debian font
-package name carries over unresolved. On Fedora/RHEL install the emoji
-font manually:
-
-```bash
-sudo dnf install google-noto-emoji-color-fonts
+sudo apt-get install fonts-noto-color-emoji   # Debian/Ubuntu
+sudo dnf install google-noto-color-emoji-fonts  # Fedora
 ```

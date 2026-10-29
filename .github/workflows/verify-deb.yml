@@ -7,8 +7,8 @@
 # No inputs needed: the artifact name (packages-linux) is fixed, and the
 # install goes to the real system paths (/usr/...) — the runner is
 # ephemeral. No rebuild here by design. The .rpm side is covered by
-# verify-rpm.yml; the .rpm is converted from the same .deb by alien and
-# shares its payload.
+# verify-rpm.yml; both formats are built from the same staged tree
+# by setup/linux (see nfpm.yaml) and share the payload.
 name: Verify deb
 
 on:
@@ -36,7 +36,7 @@ jobs:
         run: ls -la dist
 
       # apt resolves the system Qt 6.4 + libssl deps declared in
-      # DEBIAN/control; xvfb is for the headless smoke start below.
+      # setup/linux/nfpm.yaml; xvfb is for the headless smoke start below.
       - name: Install package
         run: |
           set -euo pipefail
