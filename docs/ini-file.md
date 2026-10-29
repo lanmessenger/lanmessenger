@@ -102,7 +102,6 @@ Keys without a section prefix.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `Emoticon` | bool, `true` | Render smileys as images. |
 | `MessageTime` | bool, `true` | Show the time next to messages. |
 | `MessageDate` | bool, `false` | Show the date next to messages. |
 | `AllowLinks` | bool, `true` | Turn URLs into clickable links. |

@@ -11,9 +11,7 @@
 #include "gui/chat/bubblegeometry.h"
 #include "gui/chat/rowresolver.h"
 
-//  Native chat delegate: renders rows resolved by RowResolver (S subset
-//  avatar/header/body/fileCard; the validator accepts linkPreview/quote/
-//  code/buttons, the delegate ignores them).
+//  Native chat delegate: renders rows resolved by RowResolver.
 //  In-series rows walk layout_incoming_next/layout_outgoing_next:
 //  header and avatar live in series-start trees only.
 class BubbleDelegate : public QStyledItemDelegate {
@@ -21,7 +19,6 @@ class BubbleDelegate : public QStyledItemDelegate {
 
 public:
   struct DisplaySettings {
-    bool showSmiley = true;
     int fontSizeVal = 1;
     bool messageTime = true;
     bool messageDate = false;
@@ -31,7 +28,7 @@ public:
     bool autoFile = false;
 
     bool operator==(const DisplaySettings& other) const {
-      return showSmiley == other.showSmiley && fontSizeVal == other.fontSizeVal &&
+      return fontSizeVal == other.fontSizeVal &&
              messageTime == other.messageTime && messageDate == other.messageDate &&
              allowLinks == other.allowLinks && pathToLink == other.pathToLink &&
              trimMessage == other.trimMessage && autoFile == other.autoFile;
@@ -52,28 +49,26 @@ public:
   void paint(QPainter* painter, const QStyleOptionViewItem& option,
              const QModelIndex& index) const override;
   QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-  //  Theme + local display size only (never the message font). Public for tests.
+  //  Theme + display size only. Public for tests.
   QFont headerNameFont() const;
   QFont headerTimeFont() const;
-  //  Layout resolution for one row: RowResolver walks the compiled
-  //  layout_* once per row (inside entryFor), never touching QJson.
-  //  Alias kept so tests use BubbleDelegate::ResolvedRow as before.
+  //  Row layout. Alias kept for tests.
   using ResolvedRow = ::ResolvedRow;
   ResolvedRow resolveRow(const QModelIndex& index) const;
-  //  Public for tests: geometry only, no model access.
+  //  Geometry only, no model access.
   QRect rowBubbleRect(int viewportWidth, int contentH, const ResolvedRow& row) const;
 
-  //  Link hit-test: href under pos or empty. Coordinate mapping as in paint.
+  //  Link hit-test: href under pos or empty.
   QString anchorAt(const QPoint& pos, const QStyleOptionViewItem& option,
                    const QModelIndex& index) const;
-  //  Anchor rect in view coordinates (Tab-focus highlight).
+  //  Anchor rect in view coordinates.
   QRect anchorRect(const QString& href, const QStyleOptionViewItem& option,
                    const QModelIndex& index) const;
   QStringList anchors(const QModelIndex& index, const QStyleOptionViewItem& option) const;
-  //  Tab-focused anchor highlight (view holds position, delegate paints).
+  //  Tab-focused anchor highlight.
   void setFocusAnchor(int row, const QString& href);
   void clearFocusAnchor();
-  //  Fragment selection inside one bubble (system Highlight colors in paint).
+  //  Fragment selection inside one bubble.
   int charPosAt(const QPoint& pos, const QStyleOptionViewItem& option,
                 const QModelIndex& index) const;
   int charPosClamped(const QPoint& pos, const QStyleOptionViewItem& option,
@@ -84,11 +79,10 @@ public:
   bool hasTextSelection() const;
   int selectionRow() const;
   QString selectedText() const;
-  //  QTextDocument keeps HTML spaces as U+00A0, breaks as U+2028 and
-  //  blocks as U+2029; plain text wants regular spaces and newlines.
+  //  QTextDocument whitespace -> plain spaces and newlines.
   static QString normalizePlainText(QString text);
   void selectAllText(const QModelIndex& index, const QStyleOptionViewItem& option);
-  //  Final row HTML (font/color guard + body). Public for tests.
+  //  Final row HTML. Public for tests.
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
 
 private:

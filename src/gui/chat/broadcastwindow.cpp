@@ -17,9 +17,11 @@
 #include "core/uidefinitions.h"
 #include "messaging/xmlmessage.h"
 #include "gui/chat/chatdefinitions.h"
-#include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
-#include "gui/widgets/imagepickeraction.h"
+#include "gui/chat/emojipicker.h"
+#include "gui/chat/emojipickeraction.h"
+#include "gui/chat/emojihighlighter.h"
+#include "gui/chat/chathelper.h"
 
 //	constructor
 lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
@@ -76,7 +78,6 @@ void lmcBroadcastWindow::init(bool connected) {
   pSettings = new lmcSettings();
   restoreGeometry(pSettings->value(IDS_WINDOWBROADCAST).toByteArray());
   ui.splitter->restoreState(pSettings->value(IDS_SPLITTERBROADCAST).toByteArray());
-  showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
   pFontGroup->actions()[fontSizeVal]->setChecked(true);
@@ -92,6 +93,9 @@ void lmcBroadcastWindow::init(bool connected) {
   setUIText();
 
   ui.txtMessage->setStyleSheet("QTextEdit { " + fontStyle[fontSizeVal] + " }");
+  //  Composer stays base-only; emoji runs are painted by the highlighter.
+  emojiHighlighter = new EmojiHighlighter(ui.txtMessage->document());
+  emojiHighlighter->setBaseFamily(ui.txtMessage->font().family());
   ui.txtMessage->setFocus();
 }
 
@@ -128,7 +132,6 @@ void lmcBroadcastWindow::connectionStateChanged(bool connected) {
 }
 
 void lmcBroadcastWindow::settingsChanged(void) {
-  showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
@@ -192,15 +195,15 @@ void lmcBroadcastWindow::fontAction_triggered(QAction* action) {
   ui.txtMessage->setStyleSheet("QTextEdit { " + fontStyle[fontSizeVal] + " }");
 }
 
-//	insert a smiley into the text box
-void lmcBroadcastWindow::smileyAction_triggered(void) {
-  //	if smileys are enabled, insert an image else insert a text smiley
-  //	nSmiley contains index of smiley
-  if(showSmiley) {
-    QString htmlPic("<html><head></head><body><img src='" + smileyPic[nSmiley] + "' /></body></html>");
-    ui.txtMessage->insertHtml(htmlPic);
-  } else
-    ui.txtMessage->insertPlainText(smileyCode[nSmiley]);
+//	insert an emoji into the text box
+void lmcBroadcastWindow::emojiAction_triggered(void) {
+  if(nEmoji < 0)
+    return;
+  const QString emoji = EmojiPicker::emojiAt(nEmoji);
+  nEmoji = -1;
+  if(emoji.isEmpty())
+    return;
+  ui.txtMessage->insertPlainText(emoji);
 }
 
 //	select all users in the user tree
@@ -274,19 +277,19 @@ void lmcBroadcastWindow::createToolBar(void) {
   connect(pbtnFontSize, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnFontSize_clicked);
   pToolBar->addWidget(pbtnFontSize);
 
-  //	create the smiley menu
-  lmcImagePickerAction* pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-  connect(pSmileyAction, &QAction::triggered, this, &lmcBroadcastWindow::smileyAction_triggered);
+  //	create the emoji menu
+  pEmojiAction = new EmojiPickerAction(this, &nEmoji);
+  connect(pEmojiAction, &QAction::triggered, this, &lmcBroadcastWindow::emojiAction_triggered);
 
-  QMenu* pSmileyMenu = new QMenu(this);
-  pSmileyMenu->addAction(pSmileyAction);
+  pEmojiMenu = new QMenu(this);
+  pEmojiMenu->addAction(pEmojiAction);
 
-  //	create the smiley tool button
-  pbtnSmiley = new lmcToolButton(pToolBar);
-  pbtnSmiley->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
-  pbtnSmiley->setPopupMode(QToolButton::InstantPopup);
-  pbtnSmiley->setMenu(pSmileyMenu);
-  pToolBar->addWidget(pbtnSmiley);
+  //	create the emoji tool button
+  pbtnEmoji = new lmcToolButton(pToolBar);
+  pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
+  pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
+  pbtnEmoji->setMenu(pEmojiMenu);
+  pToolBar->addWidget(pbtnEmoji);
 }
 
 void lmcBroadcastWindow::setUIText(void) {
@@ -296,7 +299,7 @@ void lmcBroadcastWindow::setUIText(void) {
 
   pbtnFontSize->setText(lmcStrings::fontSize()[fontSizeVal]);
   pbtnFontSize->setToolTip(tr("Change Font Size"));
-  pbtnSmiley->setToolTip(tr("Insert Smiley"));
+  pbtnEmoji->setToolTip(tr("Insert Emoji"));
 
   for(int index = 0; index < pFontGroup->actions().count(); index++)
     pFontGroup->actions()[index]->setText(lmcStrings::fontSize()[index]);
@@ -310,11 +313,7 @@ void lmcBroadcastWindow::sendMessage(void) {
 
   //	send only if connected
   if(bConnected) {
-    QString szHtmlMessage(ui.txtMessage->toHtml());
-    encodeMessage(&szHtmlMessage);
-    QTextDocument docMessage;
-    docMessage.setHtml(szHtmlMessage);
-    QString szMessage(docMessage.toPlainText());
+    QString szMessage(ui.txtMessage->toPlainText());
 
     //	send broadcast
     int sendCount = 0;
@@ -340,12 +339,6 @@ void lmcBroadcastWindow::sendMessage(void) {
     ui.txtMessage->clear();
     close();
   }
-}
-
-//	Called before sending message
-void lmcBroadcastWindow::encodeMessage(QString* lpszMessage) {
-  //	replace all emoticon images with corresponding text code
-  ChatHelper::encodeSmileys(lpszMessage);
 }
 
 //	show a message depending on the connection state

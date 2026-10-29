@@ -17,7 +17,8 @@ class lmcSettings;
 class ChatMessageView;
 class lmcSoundPlayer;
 class lmcToolButton;
-class lmcImagePickerAction;
+class EmojiPickerAction;
+class EmojiHighlighter;
 class QMenu;
 class QAction;
 class QToolBar;
@@ -73,19 +74,18 @@ private slots:
   void btnHistory_clicked(void);
   void btnTransfers_clicked(void);
   void btnSend_clicked(void);
-  void smileyAction_triggered(void);
+  void emojiAction_triggered(void);
   void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void checkChatState(void);
 
 private:
-  void createSmileyMenu(void);
+  void createEmojiMenu(void);
   void createToolBar(void);
   void setUIText(void);
   void sendMessage(void);
   void sendFile(QString* lpszFilePath);
   void sendFolder(QString* lpszFolderPath);
   void sendObject(MessageType type, QString* lpszPath);
-  void encodeMessage(QString* lpszMessage);
   void processFileOp(XmlMessage* pMessage);
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
   void updateFileMessage(FileMode mode, FileOp op, QString fileId);
@@ -107,19 +107,18 @@ private:
   ChatMessageView* pMessageLog;
   QAction* pFontAction;
   QAction* pFontColorAction;
-  lmcToolButton* pbtnSmiley;
+  lmcToolButton* pbtnEmoji;
   QAction* pFileAction;
   QAction* pFolderAction;
   QAction* pSaveAction;
   QToolBar* pRightBar;
   QAction* pHistoryAction;
   QAction* pTransferAction;
-  QMenu* pSmileyMenu;
-  lmcImagePickerAction* pSmileyAction;
-  int nSmiley;
+  QMenu* pEmojiMenu;
+  EmojiPickerAction* pEmojiAction;
+  int nEmoji = -1;
   bool bConnected;
   int infoFlag;
-  bool showSmiley;
   bool sendKeyMod;
   bool clearOnClose;
   bool showSendButton;
@@ -127,6 +126,8 @@ private:
   QColor messageColor;
   bool messageColorSet = false;
   bool messageFontSet = false;
+  //  Paints emoji runs in the color font. Created in init().
+  EmojiHighlighter* emojiHighlighter = nullptr;
   ChatState chatState;
   qint64 keyStroke;
   qint64 snapKeyStroke;

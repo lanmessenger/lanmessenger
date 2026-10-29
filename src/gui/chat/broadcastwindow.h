@@ -14,6 +14,9 @@ class XmlMessage;
 class QToolBar;
 class QToolButton;
 class lmcToolButton;
+class EmojiPickerAction;
+class EmojiHighlighter;
+class QMenu;
 class QAction;
 class QActionGroup;
 class QTreeWidgetItem;
@@ -44,7 +47,7 @@ protected:
 private slots:
   void btnFontSize_clicked(void);
   void fontAction_triggered(QAction* action);
-  void smileyAction_triggered(void);
+  void emojiAction_triggered(void);
   void btnSelectAll_clicked(void);
   void btnSelectNone_clicked(void);
   void tvUserList_itemChanged(QTreeWidgetItem* item, int column);
@@ -54,19 +57,21 @@ private:
   void createToolBar(void);
   void setUIText(void);
   void sendMessage(void);
-  void encodeMessage(QString* lpszMessage);
   void showStatus(int flag, bool add);
 
   Ui::BroadcastWindow ui;
   lmcSettings* pSettings;
   QToolBar* pToolBar;
   QToolButton* pbtnFontSize;
-  lmcToolButton* pbtnSmiley;
+  lmcToolButton* pbtnEmoji;
+  QMenu* pEmojiMenu;
+  EmojiPickerAction* pEmojiAction;
   int fontSizeVal;
-  int nSmiley;
+  int nEmoji = -1;
+  //  Created in init(); broadcast has no setMessageFont.
+  EmojiHighlighter* emojiHighlighter = nullptr;
   bool bConnected;
   int infoFlag;
-  bool showSmiley;
   bool sendKeyMod;
   bool parentToggling;
   bool childToggling;

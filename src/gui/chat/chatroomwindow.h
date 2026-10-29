@@ -16,7 +16,8 @@ class lmcSettings;
 class ChatMessageView;
 class lmcSoundPlayer;
 class lmcToolButton;
-class lmcImagePickerAction;
+class EmojiPickerAction;
+class EmojiHighlighter;
 class QMenu;
 class QAction;
 class QTreeWidgetItem;
@@ -65,7 +66,7 @@ private slots:
   void btnFontColor_clicked(void);
   void btnSave_clicked(void);
   void btnSend_clicked(void);
-  void smileyAction_triggered(void);
+  void emojiAction_triggered(void);
   void addContactAction_triggered(void);
   void log_sendMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void tvUserList_itemActivated(QTreeWidgetItem* pItem, int column);
@@ -73,11 +74,10 @@ private slots:
 
 private:
   void createUserMenu(void);
-  void createSmileyMenu(void);
+  void createEmojiMenu(void);
   void createToolBar(void);
   void setUIText(void);
   void sendMessage(void);
-  void encodeMessage(QString* lpszMessage);
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage);
   void showStatus(int flag, bool add);
   QString getWindowTitle(void);
@@ -103,21 +103,21 @@ private:
   QAction* userInfoAction;
   QAction* pFontAction;
   QAction* pFontColorAction;
-  lmcToolButton* pbtnSmiley;
+  lmcToolButton* pbtnEmoji;
   QAction* pSaveAction;
-  QMenu* pSmileyMenu;
-  lmcImagePickerAction* pSmileyAction;
+  QMenu* pEmojiMenu;
+  EmojiPickerAction* pEmojiAction;
   QAction* addContactAction;
-  int nSmiley;
+  int nEmoji = -1;
   bool bConnected;
   int infoFlag;
-  bool showSmiley;
   bool sendKeyMod;
   bool showSendButton;
   lmcSoundPlayer* pSoundPlayer;
   QColor messageColor;
   bool messageColorSet = false;
   bool messageFontSet = false;
+  EmojiHighlighter* emojiHighlighter = nullptr;
   bool dataSaved;
   bool windowLoaded;
 };

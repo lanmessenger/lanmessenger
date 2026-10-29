@@ -527,11 +527,6 @@
         <translation>Platí aj pre verejný chat</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Zobrazovať smajlíkov v správach</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Zobrazovať čas odoslania správ</translation>
@@ -1029,9 +1024,9 @@
         <translation>Zmeniť veľkosť písma</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>Vložiť smajlíka</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1097,11 +1092,6 @@
         <translation>Zobraziť &amp;informácie</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>Vložiť smajlíka</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Uložiť ako...</translation>
@@ -1120,6 +1110,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Zmeniť písmo</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1195,11 +1190,6 @@
         <translation>Uložiť súkromnú konverzáciu</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="533"/>
-        <source>Insert Smiley</source>
-        <translation>Vložiť smajlíka</translation>
-    </message>
-    <message>
         <location filename="chatwindow.cpp" line="534"/>
         <source>Send A &amp;File...</source>
         <translation>Poslať &amp;súbor...</translation>
@@ -1258,6 +1248,11 @@
         <location filename="chatwindow.cpp" line="547"/>
         <source>Change message font</source>
         <translation>Zmeniť písmo</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="548"/>

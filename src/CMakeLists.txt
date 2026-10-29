@@ -23,6 +23,9 @@ add_library(lmc_core STATIC
     gui/chat/chatmessageview.cpp
     gui/chat/chatroomwindow.cpp
     gui/chat/chatwindow.cpp
+    gui/chat/emojipicker.cpp
+    gui/chat/emojipickeraction.cpp
+    gui/chat/emojihighlighter.cpp
     core/crypto.cpp
     network/datagram.cpp
     messaging/filemessagingproc.cpp
@@ -71,6 +74,9 @@ add_library(lmc_core STATIC
     gui/chat/chatdefinitions.h
     gui/chat/chattextguard.h
     gui/chat/chatwindow.h
+    gui/chat/emojipicker.h
+    gui/chat/emojipickeraction.h
+    gui/chat/emojihighlighter.h
     gui/chat/chatmessagemodel.h
     gui/chat/chatmessageview.h
     gui/chat/chatroomwindow.h

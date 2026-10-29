@@ -14,8 +14,8 @@ class QMenu;
 class QAction;
 class QDateTime;
 
-//  Native chat view (stage 1.5, single path): QListView + ChatMessageModel +
-//  BubbleDelegate. Single view for chat/chatroom/history/settings-preview.
+//  Native chat view: QListView + ChatMessageModel + BubbleDelegate.
+//  Single view for chat/chatroom/history/settings-preview.
 class ChatMessageView : public QListView {
   Q_OBJECT
   Q_PROPERTY(QString plainText READ plainText NOTIFY plainTextChanged)
@@ -23,11 +23,9 @@ class ChatMessageView : public QListView {
 public:
   explicit ChatMessageView(QWidget* parent = nullptr);
 
-  //  lmcMessageLog compatibility (used by chatwindow).
+  //  lmcMessageLog compatibility.
   void initChat(bool clearLog = true);
   void reloadTheme();
-  //  Palette-only re-assert from the loaded theme: no file IO, no delegate
-  //  cache touch, no relayout.
   void syncBackground();
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
                         XmlMessage* pMessage, bool bReload = false);
@@ -40,34 +38,28 @@ public:
   void abortPendingFileOperations();
   void saveMessageLog(QString filePath);
   void restoreMessageLog(QString filePath, bool reload = true);
-  //  Legacy history blob: one read-only row, never migrated.
+  //  Legacy history blob: one read-only row.
   void showLegacyHtml(QString* userName, QDateTime* when, QString* html);
-  //  Envelope data-lmc-history="2": one row per message (own right,
-  //  others left); needs localId == historyLocalId(), else legacy fallback.
   static bool isStructuredHistory(const QString* html);
   static QString historyLocalId();
   void showHistoryMessages(QString* userName, QDateTime* when, QString* html);
   void setAppearanceMode(const QString& mode);
   QString appearanceModeString() const;
-  //  Theme switch by name (user dir wins over built-in qrc); unknown names
-  //  are ignored, the log stays (reloadTheme repaints + invalidates cache).
   void setThemeName(const QString& name);
   QString themeNameString() const;
 
   QString plainText() const;
   int rowCount() const;
   QString messageAt(int row) const;
-  //  OwnRole of a row (history regression: stored rows must not read as own).
   bool isOwnRow(int row) const;
 
-  //  Fields mirror lmcMessageLog (assigned directly from chatwindow).
+  //  Fields mirror lmcMessageLog.
   QString localId;
   QString peerId;
   QString peerName;
   QHash<QString, QString> participantAvatars;
   bool hasData = false;
   int fontSizeVal = 1;
-  bool showSmiley = true;
   bool autoFile = false;
   bool messageTime = true;
   bool messageDate = false;
@@ -86,9 +78,6 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
   bool viewportEvent(QEvent* event) override;
   void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
-  //  Tab/Return/Copy are intercepted here, not in keyPressEvent: QListView
-  //  eats Tab/Backtab before keyPressEvent (focus traversal), and the agent's
-  //  posted events never reach it (trace shows event() but no keyPressEvent).
   bool event(QEvent* event) override;
 
 private slots:
@@ -104,14 +93,11 @@ private slots:
 private:
   void syncToLayers();
   void syncModelIdentity();
-  //  Cache was invalidated, ask QListView for fresh sizeHints.
   void requestRelayout();
   void createContextMenu();
   void showContextMenu(const QPoint& pos);
   void activateHref(const QString& href);
   void openExternal(const QString& href);
-  //  False when there are no anchors or the edge is reached (Tab then goes
-  //  to the focus chain, no trap): linear scan, no wrap-around.
   bool moveAnchorFocus(int delta);
   QModelIndex anchorRowAt(const QPoint& pos, QString* href = nullptr);
   QStyleOptionViewItem indexOption(const QModelIndex& idx) const;
@@ -132,7 +118,5 @@ private:
   int focusRow = -1;
   QString focusHref;
   bool textSelecting = false;
-  //  Row under the cursor while the context menu is open (-1 when closed):
-  //  Select All targets it, not a stale selection from another bubble.
   int contextRow = -1;
 };

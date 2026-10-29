@@ -8,11 +8,9 @@
 #include <QPainterPath>
 #include <QFile>
 #include <QTextCursor>
-#include <QUrl>
 #include <QtMath>
 
 #include "core/shared.h"
-#include "core/uidefinitions.h"
 #include "gui/chat/anchornavigator.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "gui/chat/rowhtmlbuilder.h"
@@ -217,7 +215,7 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
   } else {
     body = RowHtmlBuilder::decodeBody(index.data(ChatMessageModel::TextRole).toString(),
                                       display.trimMessage, display.allowLinks,
-                                      display.pathToLink, display.showSmiley);
+                                      display.pathToLink, font.family());
   }
   return QStringLiteral("<div style='%1'>%2</div>").arg(style, body) +
          QStringLiteral("<style>a { color: %1; }</style>").arg(linkColorName);
@@ -289,18 +287,6 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   CacheEntry e;
   e.width = viewportWidth;
   e.doc = new QTextDocument(const_cast<BubbleDelegate*>(this));
-  //  Bare QTextDocument has no searchPaths (unlike QTextBrowser),
-  //  so qrc smileys are registered explicitly: addResource is the only path.
-  for(int i = 0; i < SM_MAPCOUNT; i++) {
-    QString key = QStringLiteral("qrc") + smileyPic[i];
-    if(!avatars.contains(key)) {
-      QPixmap pm(smileyPic[i]);
-      if(!pm.isNull())
-        avatars.insert(key, pm);
-    }
-    if(avatars.contains(key))
-      e.doc->addResource(QTextDocument::ImageResource, QUrl(key), avatars.value(key));
-  }
   ResolvedRow row = resolveRow(index);
   e.doc->setHtml(rowHtml(index, row));
   const int contentW =

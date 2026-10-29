@@ -559,11 +559,6 @@
         <translation>സന്ദേശ ജാലകം</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>സന്ദേശങ്ങളില്‍ ഇമോട്ടിക്കോണ്‍ കാണിക്കുക</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>സന്ദേശങ്ങളില്‍ സമയം ഉള്‍പ്പെടുത്തുക</translation>
@@ -1100,9 +1095,9 @@
         <translation>ലിപിയുടെ വലിപ്പം മാറ്റുക</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>ഇമോട്ടിക്കോണ്‍ ഉള്‍പ്പെടുത്തുക</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1168,11 +1163,6 @@
         <translation>&amp;വിവരം ശേഖരിക്കുക</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>ഇമോട്ടിക്കോണ്‍ ഉള്‍പ്പെടുത്തുക</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>ഇങ്ങനെ &amp;സൂക്ഷിക്കുക...</translation>
@@ -1191,6 +1181,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>സന്ദേശ ലിപി മാറ്റുക</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1244,11 +1239,6 @@
         <location filename="chatwindow.cpp" line="227"/>
         <source>%1 sends a folder...</source>
         <translation>%1 ഒരു ഫോള്‍ഡര്‍ അയക്കുന്നു...</translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="530"/>
-        <source>Insert Smiley</source>
-        <translation>ഇമോട്ടിക്കോണ്‍ ഉള്‍പ്പെടുത്തുക</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="531"/>
@@ -1310,6 +1300,11 @@
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>സന്ദേശ ലിപി മാറ്റുക</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>

@@ -442,10 +442,6 @@
         <translation>Pomanjšaj prejeta sporočila v opravilno vrstico</translation>
     </message>
     <message>
-        <source>Show emoticons in instant messages</source>
-        <translation>Prikaži emocije v takojšnjih sporočilih</translation>
-    </message>
-    <message>
         <source>Add time stamp to instant messages</source>
         <translation>Dodaj časovni žig v takojšnja sporočila</translation>
     </message>
@@ -848,8 +844,9 @@
         <translation>Spremeni velikost pisave</translation>
     </message>
     <message>
-        <source>Insert Smiley</source>
-        <translation>Vstavi smeška</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No recipient selected</source>
@@ -903,10 +900,6 @@
         <translation>Pridobi &amp;Informacije</translation>
     </message>
     <message>
-        <source>Insert Smiley</source>
-        <translation> Vstavi smeška</translation>
-    </message>
-    <message>
         <source>&amp;Save As...</source>
         <translation>&amp;Shrani kot...</translation>
     </message>
@@ -921,6 +914,11 @@
     <message>
         <source>Change message font</source>
         <translation>Spremeni pisavo sporočil</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change Color...</source>
@@ -982,10 +980,6 @@
         <translation>Shrani pogovor</translation>
     </message>
     <message>
-        <source>Insert Smiley</source>
-        <translation>Vstavi smeška</translation>
-    </message>
-    <message>
         <source>Send A &amp;File...</source>
         <translation>Pošlji &amp;Datoteko...</translation>
     </message>
@@ -1024,6 +1018,11 @@
     <message>
         <source>Change message font</source>
         <translation>Spremeni pisavo sporočil</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change Color...</source>

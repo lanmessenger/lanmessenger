@@ -74,6 +74,7 @@ private slots:
   void savedSessionShowsAsNonEmptyRow();
   void qt6BuggyRecordStillReads();
   void structuredHistoryShowsOneRowPerMessage();
+  void structuredHistoryKeepsEmojiRuns();
   void unstructuredBlobFallsBackToSingleRow();
   void nbspNormalizesToSpace();
 
@@ -217,6 +218,52 @@ void TstHistory::structuredHistoryShowsOneRowPerMessage() {
   QVERIFY(!second.contains(QChar(0x00A0)));
   QCOMPARE(first, QStringLiteral("ping https://example.com/x"));
   QCOMPARE(second, QStringLiteral("line1\nline2"));
+}
+
+void TstHistory::structuredHistoryKeepsEmojiRuns() {
+  ChatMessageView src;
+  src.resize(400, 300);
+  src.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&src, 5000));
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  src.localId = me;
+  src.initChat();
+
+  //  S1 wraps emoji runs in nested <span> inside <span class='message'>:
+  //  the loader must not truncate the text after the first </span>.
+  const qint64 t1 = 1761300000000;
+  XmlMessage m1;
+  m1.addHeader(XN_TIME, QString::number(t1));
+  m1.addData(XN_MESSAGE, QStringLiteral("hi \U0001F600 bye"));
+  XmlMessage m2;
+  m2.addHeader(XN_TIME, QString::number(t1 + 60000));
+  m2.addData(XN_MESSAGE, QStringLiteral("\U0001F984\u200D\U0001F308!"));
+  XmlMessage m3;
+  m3.addHeader(XN_TIME, QString::number(t1 + 120000));
+  m3.addData(XN_MESSAGE, QStringLiteral("go www.x/\U0001F600/end"));
+  src.appendMessageLog(MT_Message, &me, &meName, &m1);
+  src.appendMessageLog(MT_Message, &me, &meName, &m2);
+  src.appendMessageLog(MT_Message, &me, &meName, &m3);
+
+  QString blob = src.prepareMessageLogForSave();
+  QVERIFY(ChatMessageView::isStructuredHistory(&blob));
+  QVERIFY(blob.contains(QStringLiteral("Noto Color Emoji")));
+
+  ChatMessageView view;
+  view.resize(400, 300);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
+  view.localId = ChatMessageView::historyLocalId();
+  view.initChat();
+
+  QString name = QStringLiteral("Jack");
+  QDateTime when = QDateTime::currentDateTime();
+  view.showHistoryMessages(&name, &when, &blob);
+  QCOMPARE(view.rowCount(), 3);
+  QCOMPARE(view.messageAt(0), QStringLiteral("hi \U0001F600 bye"));
+  QCOMPARE(view.messageAt(1), QStringLiteral("\U0001F984\u200D\U0001F308!"));
+  QCOMPARE(view.messageAt(2), QStringLiteral("go www.x/\U0001F600/end"));
 }
 
 void TstHistory::unstructuredBlobFallsBackToSingleRow() {

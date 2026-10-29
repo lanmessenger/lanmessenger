@@ -100,7 +100,8 @@ jobs:
             qt6-translations-l10n \
             qt6-multimedia-dev \
             libssl-dev libgl1-mesa-dev \
-            xvfb xauth
+            xvfb xauth \
+            fonts-noto-color-emoji
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release" -DLMC_VERSION="$PKG_VERSION"

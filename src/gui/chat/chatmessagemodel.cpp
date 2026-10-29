@@ -443,7 +443,7 @@ QString ChatMessageModel::messageText(const SingleMessage& msg) const {
 
 QString ChatMessageModel::plainText() const {
   //  Canonical plainText for e2e: model->data() joined, \n per message,
-  //  sent+echo duplicates kept, links as text, smileys as source text without qrc:.
+  //  sent+echo duplicates kept, links and emoji as source text.
   QStringList lines;
   for(const SingleMessage& msg : messageLog) {
     QString t = messageText(msg);

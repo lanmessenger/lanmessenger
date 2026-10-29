@@ -678,10 +678,6 @@
         <translation>Előzmények</translation>
     </message>
     <message>
-        <source>Show emoticons in instant messages</source>
-        <translation>Emotikonok mutatása az üzenetekben</translation>
-    </message>
-    <message>
         <source>Custom location</source>
         <translation>Egyéni hely</translation>
     </message>
@@ -848,12 +844,13 @@
         <translation>Betűméret váltása</translation>
     </message>
     <message>
-        <source>No recipient selected</source>
-        <translation>Nincs címzett kiválasztva</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Insert Smiley</source>
-        <translation>Emotikon beszúrása</translation>
+        <source>No recipient selected</source>
+        <translation>Nincs címzett kiválasztva</translation>
     </message>
     <message>
         <source>Please select at least one recipient to send a broadcast.</source>
@@ -885,10 +882,6 @@
     <message>
         <source>Change Font...</source>
         <translation>Betűtípus cseréje...</translation>
-    </message>
-    <message>
-        <source>Insert Smiley</source>
-        <translation>Emotikon beszúrása</translation>
     </message>
     <message>
         <source>Send &amp;File</source>
@@ -939,6 +932,11 @@
         <translation>Betűtípus cseréje</translation>
     </message>
     <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change Color...</source>
         <translation>Betűszín cseréje...</translation>
     </message>
@@ -984,10 +982,6 @@
     <message>
         <source>%1 is away.</source>
         <translation>%1 nincs a gépnél.</translation>
-    </message>
-    <message>
-        <source>Insert Smiley</source>
-        <translation>Emotikon beszúrása</translation>
     </message>
     <message>
         <source>File &amp;Transfers</source>
@@ -1052,6 +1046,11 @@
     <message>
         <source>Change message font</source>
         <translation>Betűtípus cseréje</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change Color...</source>

@@ -171,10 +171,7 @@ void lmcMainWindow::stop(void) {
   QDir::SortFlags sort = QDir::Name;
   //  save all cached conversations to history, then delete the files
   QString filter = "msg_*.tmp";
-  //  S1.5: cached msg_*.tmp blobs are model QDataStream (SingleMessage
-  //  operators are shared with legacy), readable by the new view.
-  //  Stack object: deterministic destruction on scope exit, no deleteLater
-  //  lottery against the quitting event loop.
+  //  Stack object: destroyed on scope exit.
   ChatMessageView messageLog;
   QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
   for(QString fileName : fileNames) {

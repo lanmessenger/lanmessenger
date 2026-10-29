@@ -64,6 +64,16 @@ does not bundle the Qt libraries (this is what the CI build produces);
 without it the package also bundles the Qt 6 libraries the application
 links and the plugins they need.
 
+Chat messages render emoji with the operating system's color emoji font.
+The deb package recommends `fonts-noto-color-emoji`, so it is installed
+automatically on most systems (apt installs Recommends by default).
+The app also runs without it (monochrome/tofu fallback). If emoji show
+up as empty boxes (tofu), install the font manually:
+
+```bash
+sudo apt-get install fonts-noto-color-emoji
+```
+
 ## Installer (rpm)
 
 For generating an rpm package, `alien` must be installed first. To
@@ -77,3 +87,11 @@ Execute the `rpm_setup` script in `setup/x11` to generate an rpm
 package from the deb package (the deb package must be created first).
 This package will have the name `lmc-<version>.<arch>.rpm` and will be
 saved to the `setup` folder.
+
+The rpm is converted from the deb with `alien`, so the Debian font
+package name carries over unresolved. On Fedora/RHEL install the emoji
+font manually:
+
+```bash
+sudo dnf install google-noto-emoji-color-fonts
+```

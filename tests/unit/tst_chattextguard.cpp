@@ -6,11 +6,19 @@
 #include <QtTest>
 
 #include <QFile>
+#include <QFontDatabase>
+#include <QImage>
+#include <QPainter>
+#include <QStyleOptionViewItem>
+#include <QTextDocument>
+#include <QTextLayout>
 
 #include "core/definitions.h"
 #include "gui/chat/bubbledelegate.h"
+#include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "gui/chat/chattextguard.h"
+#include "gui/chat/emojihighlighter.h"
 #include "messaging/xmlmessage.h"
 
 namespace {
@@ -48,6 +56,36 @@ QString renderedColor(ChatMessageModel& model, int row, Theme::Mode mode) {
   return d.rowHtml(idx, d.resolveRow(idx));
 }
 
+int saturatedPixels(const QImage& img) {
+  int n = 0;
+  for(int y = 0; y < img.height(); y++) {
+    const QRgb* line = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+    for(int x = 0; x < img.width(); x++) {
+      int mx = qMax(qRed(line[x]), qMax(qGreen(line[x]), qBlue(line[x])));
+      int mn = qMin(qRed(line[x]), qMin(qGreen(line[x]), qBlue(line[x])));
+      if(mx - mn > 48)
+        n++;
+    }
+  }
+  return n;
+}
+
+int paintRowSaturated(ChatMessageModel& model, int row) {
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  BubbleDelegate d;
+  d.setTheme(t);
+  d.setMode(Theme::Mode::Light, false);
+  QModelIndex idx = model.index(row, 0);
+  QImage img(400, 200, QImage::Format_ARGB32);
+  img.fill(Qt::white);
+  QPainter painter(&img);
+  QStyleOptionViewItem option;
+  option.rect = QRect(0, 0, 400, 200);
+  d.paint(&painter, option, idx);
+  painter.end();
+  return saturatedPixels(img);
+}
+
 } // namespace
 
 class TstChatTextGuard : public QObject {
@@ -66,6 +104,9 @@ private slots:
   void rowHtmlIncomingRedStays();
   void rowHtmlTransparentSystemStays();
   void rowHtmlExplicitTransparentFallback();
+  void rowHtmlEmojiPassthrough();
+  void rowHtmlEmojiColor();
+  void emojiHighlighterUsesWidgetBaseFamily();
 };
 
 void TstChatTextGuard::contrastBlackWhite() {
@@ -252,6 +293,78 @@ void TstChatTextGuard::rowHtmlExplicitTransparentFallback() {
   QString html = d.rowHtml(idx, row);
   QVERIFY(html.contains(QStringLiteral("color:#0f172a")));
   QVERIFY(!html.contains(QStringLiteral("#ffff00")));
+}
+
+void TstChatTextGuard::rowHtmlEmojiPassthrough() {
+  ChatMessageModel model;
+  QString peer = QStringLiteral("peer");
+  QString peerName = QStringLiteral("Peer");
+  model.localId = QStringLiteral("me");
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_MESSAGE, QStringLiteral("hi 😀 :-)"));
+  model.appendMessageLog(MT_Message, &peer, &peerName, &m);
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  BubbleDelegate d;
+  d.setTheme(t);
+  d.setMode(Theme::Mode::Light, false);
+  QModelIndex idx = model.index(0, 0);
+  QString html = d.rowHtml(idx, d.resolveRow(idx));
+  QVERIFY(html.contains(QStringLiteral("😀")));
+  QVERIFY(html.contains(QStringLiteral(":-)")));
+  QVERIFY(!html.contains(QStringLiteral(":/smileys")));
+  QVERIFY(!html.contains(QStringLiteral("<img")));
+  QVERIFY(html.contains(QStringLiteral("Noto Color Emoji")));
+  QImage img(400, 200, QImage::Format_ARGB32);
+  img.fill(Qt::white);
+  QPainter painter(&img);
+  QStyleOptionViewItem option;
+  option.rect = QRect(0, 0, 400, 200);
+  d.paint(&painter, option, idx);
+  painter.end();
+  QVERIFY(!img.isNull());
+}
+
+void TstChatTextGuard::rowHtmlEmojiColor() {
+  //  Emoji render must carry saturated pixels a letter does not have.
+  if(!QFontDatabase::hasFamily(QStringLiteral("Noto Color Emoji")) &&
+     !QFontDatabase::hasFamily(QStringLiteral("Segoe UI Emoji")) &&
+     !QFontDatabase::hasFamily(QStringLiteral("Apple Color Emoji")))
+    QSKIP("no color emoji font installed");
+  ChatMessageModel emojiModel;
+  QString peer = QStringLiteral("peer");
+  QString peerName = QStringLiteral("Peer");
+  emojiModel.localId = QStringLiteral("me");
+  XmlMessage emojiMsg;
+  emojiMsg.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  emojiMsg.addData(XN_MESSAGE, QStringLiteral("hi \U0001F600"));
+  emojiModel.appendMessageLog(MT_Message, &peer, &peerName, &emojiMsg);
+
+  ChatMessageModel plainModel;
+  plainModel.localId = QStringLiteral("me");
+  XmlMessage plainMsg;
+  plainMsg.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  plainMsg.addData(XN_MESSAGE, QStringLiteral("hi o"));
+  plainModel.appendMessageLog(MT_Message, &peer, &peerName, &plainMsg);
+
+  QVERIFY(paintRowSaturated(emojiModel, 0) > paintRowSaturated(plainModel, 0));
+}
+
+void TstChatTextGuard::emojiHighlighterUsesWidgetBaseFamily() {
+  QTextDocument doc;
+  doc.setPlainText(QStringLiteral("hi \U0001F600"));
+  EmojiHighlighter highlighter(&doc);
+  highlighter.setBaseFamily(QStringLiteral("DejaVu Sans"));
+  bool found = false;
+  for(const QTextLayout::FormatRange& r : doc.firstBlock().layout()->formats()) {
+    if(r.start == 3 && r.length == 2) {
+      found = true;
+      QCOMPARE(r.format.fontFamilies(),
+               ChatHelper::emojiFamiliesWithBase(QStringLiteral("DejaVu Sans")));
+    }
+  }
+  QVERIFY(found);
 }
 
 QTEST_MAIN(TstChatTextGuard)

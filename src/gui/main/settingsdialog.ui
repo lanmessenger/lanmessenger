@@ -594,13 +594,6 @@
              </spacer>
             </item>
             <item>
-             <widget class="QCheckBox" name="chkEmoticon">
-              <property name="text">
-               <string>Show emoticons in instant messages</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QCheckBox" name="chkMessageTime">
               <property name="text">
                <string>Add time stamp to instant messages</string>
@@ -2172,7 +2165,6 @@
   <tabstop>rdbMessageTop</tabstop>
   <tabstop>rdbMessageBottom</tabstop>
   <tabstop>chkPublicMessagePop</tabstop>
-  <tabstop>chkEmoticon</tabstop>
   <tabstop>chkMessageTime</tabstop>
   <tabstop>chkMessageDate</tabstop>
   <tabstop>chkAllowLinks</tabstop>

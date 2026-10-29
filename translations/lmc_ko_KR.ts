@@ -554,11 +554,6 @@
         <translation>메세지창</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>메세지창에 이모티콘 보이기</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>도착한 시간 보이기</translation>
@@ -1096,9 +1091,9 @@
         <translation>글꼴 크기 바꾸기</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>이모티콘 넣기</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1164,11 +1159,6 @@
         <translation>정보 얻기(&amp;I)</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>이모티콘 넣기</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>다른 이름으로 저장하기(&amp;S)...</translation>
@@ -1187,6 +1177,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>메세지 글꼴 바꾸기</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1240,11 +1235,6 @@
         <location filename="chatwindow.cpp" line="227"/>
         <source>%1 sends a folder...</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="530"/>
-        <source>Insert Smiley</source>
-        <translation>이모티콘 넣기</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="531"/>
@@ -1305,6 +1295,11 @@
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>메세지 글꼴 바꾸기</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>

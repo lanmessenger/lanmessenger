@@ -11,6 +11,7 @@
 
 QString RowHtmlBuilder::fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal,
                                      bool own, bool fontExplicit) {
+  //  Base family only; emoji runs are covered by wrapEmojiRuns spans.
   QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
   if(font.italic())
     style += QStringLiteral("font-style:italic; ");
@@ -48,7 +49,7 @@ QFont RowHtmlBuilder::messageFont(const QVariant& fontVar, double themeSize) {
 }
 
 QString RowHtmlBuilder::decodeBody(QString text, bool trim, bool allowLinks, bool pathToLink,
-                                   bool showSmiley) {
+                                   const QString& baseFamily) {
   if(trim)
     text = text.trimmed();
   if(allowLinks) {
@@ -72,18 +73,14 @@ QString RowHtmlBuilder::decodeBody(QString text, bool trim, bool allowLinks, boo
     if(start != -1) {
       QString segment = text.mid(pos, start - pos);
       ChatHelper::makeHtmlSafe(&segment);
-      if(showSmiley)
-        ChatHelper::decodeSmileys(&segment);
-      out += segment;
+      out += ChatHelper::wrapEmojiRuns(segment, baseFamily);
       int end = text.indexOf(QStringLiteral("</a>"), start) + 4;
       out += text.mid(start, end - start);
       pos = end;
     } else {
       QString segment = text.mid(pos);
       ChatHelper::makeHtmlSafe(&segment);
-      if(showSmiley)
-        ChatHelper::decodeSmileys(&segment);
-      out += segment;
+      out += ChatHelper::wrapEmojiRuns(segment, baseFamily);
       break;
     }
   }

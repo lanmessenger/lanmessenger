@@ -48,8 +48,6 @@
 #define IDS_REFRESHTIME_VAL 300
 #define IDS_IDLETIME "IdleTime"
 #define IDS_IDLETIME_VAL 0
-#define IDS_EMOTICON "Messages/Emoticon"
-#define IDS_EMOTICON_VAL true
 #define IDS_MESSAGETIME "Messages/MessageTime"
 #define IDS_MESSAGETIME_VAL true
 #define IDS_MESSAGEDATE "Messages/MessageDate"

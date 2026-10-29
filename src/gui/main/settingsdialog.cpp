@@ -553,7 +553,6 @@ void lmcSettingsDialog::loadSettings(void) {
   ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
   ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
   ui.chkPublicMessagePop->setChecked(pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool());
-  ui.chkEmoticon->setChecked(pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool());
   ui.chkMessageTime->setChecked(pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool());
   ui.chkMessageDate->setChecked(pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool());
   ui.chkAllowLinks->setChecked(pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool());
@@ -647,7 +646,6 @@ void lmcSettingsDialog::saveSettings(void) {
 
   pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked(), IDS_MESSAGETOP_VAL);
   pSettings->setValue(IDS_PUBMESSAGEPOP, ui.chkPublicMessagePop->isChecked(), IDS_PUBMESSAGEPOP_VAL);
-  pSettings->setValue(IDS_EMOTICON, ui.chkEmoticon->isChecked(), IDS_EMOTICON_VAL);
   pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked(), IDS_MESSAGETIME_VAL);
   pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked(), IDS_MESSAGEDATE_VAL);
   pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked(), IDS_ALLOWLINKS_VAL);

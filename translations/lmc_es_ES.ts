@@ -560,11 +560,6 @@
         <translation>Ventana de mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Mostrar emoticones en los mensajes instantáneos</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Agregar fecha y hora a los mensajes instantáneos</translation>
@@ -1100,9 +1095,9 @@
         <translation>Cambiar tamaño de la fuente</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1168,11 +1163,6 @@
         <translation>Obtener &amp;Información</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Guardar como...</translation>
@@ -1191,6 +1181,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Cambiar fuente del mensaje</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1244,11 +1239,6 @@
         <location filename="chatwindow.cpp" line="227"/>
         <source>%1 sends a folder...</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="chatwindow.cpp" line="530"/>
-        <source>Insert Smiley</source>
-        <translation>Insertar Smiley</translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="531"/>
@@ -1309,6 +1299,11 @@
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>Cambiar fuente del mensaje</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>

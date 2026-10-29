@@ -527,11 +527,6 @@
         <translation>Auf öffentliche Nachrichten anwenden</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Zeige Emoticons in Nachrichten</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Zeitstempel in Nachrichten anzeigen</translation>
@@ -1028,9 +1023,9 @@
         <translation>Schriftgröße ändern</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>Emoticon einfügen</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1096,11 +1091,6 @@
         <translation>Weitere &amp;Informationen</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>Emoticon einfügen</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Speichern unter...</translation>
@@ -1119,6 +1109,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Schriftart ändern</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1199,11 +1194,6 @@
         <translation>Unterhaltung speichern</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="530"/>
-        <source>Insert Smiley</source>
-        <translation>Emoticon einfügen</translation>
-    </message>
-    <message>
         <location filename="chatwindow.cpp" line="531"/>
         <source>Send A &amp;File...</source>
         <translation>&amp;Datei senden...</translation>
@@ -1262,6 +1252,11 @@
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>Schriftart ändern</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>

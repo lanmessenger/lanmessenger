@@ -21,39 +21,16 @@
 #include "core/shared.h"
 #include "core/stdlocation.h"
 #include "core/lmccategories.h"
+#include "gui/chat/chathelper.h"
+#include "gui/chat/rowhtmlbuilder.h"
 #include "gui/widgets/actionhelper.h"
 
 namespace {
 
-//  decodeMessage with useDefaults=true (for file save): links are force-detected,
-//  smileys stay as text, no trim.
+//  decodeMessage for file save: links detected, no trim, no UNC paths,
+//  emoji-only spans (same as RowHtmlBuilder, single source for links/escape).
 void decodeForSave(QString* text) {
-  text->replace(QRegularExpression(QStringLiteral("((?:(?:https?|ftp|file)://|www\\.|ftp\\.)"
-                                                  "[-A-Z0-9+&@#/%=~_|$?!:,.]*[A-Z0-9+&@#/%=~_|$])"),
-                                   QRegularExpression::CaseInsensitiveOption),
-                QStringLiteral("<a data-isLink='true' href='\\1'>\\1</a>"));
-  text->replace(QStringLiteral("<a data-isLink='true' href='www"),
-                QStringLiteral("<a data-isLink='true' href='http://www"));
-  QString out;
-  int pos = 0;
-  while(pos < text->length()) {
-    int start = text->indexOf(QStringLiteral("<a data-isLink='true'"), pos);
-    if(start != -1) {
-      QString segment = text->mid(pos, start - pos);
-      ChatHelper::makeHtmlSafe(&segment);
-      out += segment;
-      int end = text->indexOf(QStringLiteral("</a>"), start) + 4;
-      out += text->mid(start, end - start);
-      pos = end;
-    } else {
-      QString segment = text->mid(pos);
-      ChatHelper::makeHtmlSafe(&segment);
-      out += segment;
-      break;
-    }
-  }
-  out.replace(QStringLiteral("\n"), QStringLiteral("<br/>"));
-  *text = out;
+  *text = RowHtmlBuilder::decodeBody(*text, false, true, false, QString());
 }
 
 } // namespace
@@ -66,9 +43,6 @@ ChatMessageView::ChatMessageView(QWidget* parent)
   setModel(chatModel);
   setItemDelegate(bubbleDelegate);
   setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  //  Rows reflow to the viewport width in BubbleDelegate::sizeHint,
-  //  so a horizontal bar can only be an artifact of the vertical bar
-  //  narrowing the viewport against width-cached hints: keep it off.
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setUniformItemSizes(false);
   setSelectionMode(QAbstractItemView::NoSelection);
@@ -286,16 +260,42 @@ QString historyAttr(const QString& attrs, const char* name) {
 }
 
 QString historySpan(const QString& inner, const char* cls) {
-  QRegularExpression re(
-    QStringLiteral("<span class=['\"]") + QLatin1String(cls) +
-      QStringLiteral("['\"]>(.*?)</span>"),
-    QRegularExpression::DotMatchesEverythingOption |
-      QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch m = re.match(inner);
-  if(!m.hasMatch())
+  QRegularExpression openRe(
+    QStringLiteral("<span class=['\"]") + QLatin1String(cls) + QStringLiteral("['\"]>"),
+    QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch open = openRe.match(inner);
+  if(!open.hasMatch())
+    return QString();
+  //  Balanced close: S1 emoji spans nest inside the message span, so the
+  //  first </span> is not necessarily ours. Old blobs have no nesting
+  //  and behave exactly as before.
+  int depth = 1;
+  int pos = open.capturedEnd();
+  int contentEnd = -1;
+  while(depth > 0 && pos < inner.length()) {
+    int nested = inner.indexOf(QStringLiteral("<span"), pos, Qt::CaseInsensitive);
+    int close = inner.indexOf(QStringLiteral("</span>"), pos, Qt::CaseInsensitive);
+    if(close == -1)
+      return QString();
+    if(nested != -1 && nested < close) {
+      int tagEnd = inner.indexOf(QLatin1Char('>'), nested);
+      if(tagEnd == -1)
+        return QString();
+      //  A self-closed <span/> carries no content: no depth change.
+      if(inner.at(tagEnd - 1) != QLatin1Char('/'))
+        depth++;
+      pos = tagEnd + 1;
+    } else {
+      depth--;
+      if(depth == 0)
+        contentEnd = close;
+      pos = close + 7;
+    }
+  }
+  if(contentEnd == -1)
     return QString();
   QTextDocument doc;
-  doc.setHtml(m.captured(1));
+  doc.setHtml(inner.mid(open.capturedEnd(), contentEnd - open.capturedEnd()));
   return BubbleDelegate::normalizePlainText(doc.toPlainText());
 }
 
@@ -397,7 +397,6 @@ QString ChatMessageView::messageAt(int row) const {
 void ChatMessageView::syncToLayers() {
   syncModelIdentity();
   BubbleDelegate::DisplaySettings ds;
-  ds.showSmiley = showSmiley;
   ds.fontSizeVal = fontSizeVal;
   ds.messageTime = messageTime;
   ds.messageDate = messageDate;

@@ -105,9 +105,6 @@ bool lmcSettings::loadFromConfig(const QString& configFile) {
   value = extSettings.value(IDS_PUBMESSAGEPOP);
   if(value.isValid())
     setValue(IDS_PUBMESSAGEPOP, value);
-  value = extSettings.value(IDS_EMOTICON);
-  if(value.isValid())
-    setValue(IDS_EMOTICON, value);
   value = extSettings.value(IDS_MESSAGETIME);
   if(value.isValid())
     setValue(IDS_MESSAGETIME, value);

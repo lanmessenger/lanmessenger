@@ -141,8 +141,7 @@ void TstChatNav::legacyHtmlShowsAsSingleRow() {
   QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
   view.initChat();
 
-  //  S1.5 history: stored blobs (legacy or new-model HTML) render as one
-  //  read-only body row, never migrated.
+  //  Stored blobs render as one read-only row.
   QString name = QStringLiteral("Jack");
   QDateTime when = QDateTime::currentDateTime();
   QString html = QStringLiteral("<html><body><p><span class='salutation'>Jack:</span>"

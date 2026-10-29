@@ -528,11 +528,6 @@
         <translation>Aplicar às mensagens públicas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="605"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Mostrar emoctions em mensagens instantâneas</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="612"/>
         <source>Add time stamp to instant messages</source>
         <translation>Adicionar timbre de horário às mensagens instantâneas</translation>
@@ -1027,9 +1022,9 @@
         <translation>Mudar Tamanho da Fonte</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>Inserir Smiley</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1095,11 +1090,6 @@
         <translation>Obter &amp;Informação</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>Inserir Smiley</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>&amp;Salvar como...</translation>
@@ -1118,6 +1108,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Mudar fonte da mensagem</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1198,11 +1193,6 @@
         <translation>Salva esta conversa</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="530"/>
-        <source>Insert Smiley</source>
-        <translation>Inserir Smiley</translation>
-    </message>
-    <message>
         <location filename="chatwindow.cpp" line="531"/>
         <source>Send A &amp;File...</source>
         <translation>Enviar um &amp;Arquivo...</translation>
@@ -1261,6 +1251,11 @@
         <location filename="chatwindow.cpp" line="546"/>
         <source>Change message font</source>
         <translation>Mudar fonte da mensagem</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="547"/>

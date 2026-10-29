@@ -30,26 +30,15 @@
 #include "messaging/xmlmessage.h"
 #include "gui/chat/chatmessageview.h"
 #include "gui/chat/chatdefinitions.h"
-#include "gui/chat/chathelper.h"
 #include "gui/widgets/subcontrols.h"
-#include "gui/widgets/imagepickeraction.h"
+#include "gui/chat/emojipicker.h"
+#include "gui/chat/emojipickeraction.h"
+#include "gui/chat/emojihighlighter.h"
+#include "gui/chat/chathelper.h"
 #include "gui/widgets/actionhelper.h"
 #include "core/soundplayer.h"
 
 QString GroupId = "PARTICIPANTS";
-
-static void mergeFormatOverDocument(QTextEdit* edit, const QTextCharFormat& format) {
-  QTextCursor saved = edit->textCursor();
-  int anchor = saved.anchor();
-  int position = saved.position();
-  QTextCursor cursor(edit->document());
-  cursor.select(QTextCursor::Document);
-  cursor.mergeCharFormat(format);
-  QTextCursor restore(edit->document());
-  restore.setPosition(anchor);
-  restore.setPosition(position, QTextCursor::KeepAnchor);
-  edit->setTextCursor(restore);
-}
 
 lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
     : QWidget(parent) {
@@ -111,7 +100,7 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   groupMode = !threadId.isNull();
 
   createUserMenu();
-  createSmileyMenu();
+  createEmojiMenu();
   createToolBar();
 
   bConnected = connected;
@@ -134,8 +123,6 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   ui.tvUserList->expandAll();
 
   pSettings = new lmcSettings();
-  showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
-  pMessageLog->showSmiley = showSmiley;
   pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
   pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
   pMessageLog->messageTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
@@ -159,6 +146,8 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
 
   setUIText();
 
+  //  Highlighter owns the emoji runs; the widget font stays base-only.
+  emojiHighlighter = new EmojiHighlighter(ui.txtMessage->document());
   setMessageFont(font);
   ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
   ui.txtMessage->setFocus();
@@ -359,8 +348,6 @@ void lmcChatRoomWindow::connectionStateChanged(bool connected) {
 }
 
 void lmcChatRoomWindow::settingsChanged(void) {
-  showSmiley = pSettings->value(IDS_EMOTICON, IDS_EMOTICON_VAL).toBool();
-  pMessageLog->showSmiley = showSmiley;
   pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
   pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
@@ -530,7 +517,7 @@ void lmcChatRoomWindow::btnFontColor_clicked(void) {
     ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
     QTextCharFormat format;
     format.setForeground(color);
-    mergeFormatOverDocument(ui.txtMessage, format);
+    ChatHelper::mergeFormatOverDocument(ui.txtMessage, format);
   }
 }
 
@@ -558,13 +545,14 @@ void lmcChatRoomWindow::btnSend_clicked(void) {
   sendMessage();
 }
 
-void lmcChatRoomWindow::smileyAction_triggered(void) {
-  //	nSmiley contains index of smiley
-  if(showSmiley) {
-    QString htmlPic("<html><head></head><body><img src='" + smileyPic[nSmiley] + "' /></body></html>");
-    ui.txtMessage->insertHtml(htmlPic);
-  } else
-    ui.txtMessage->insertPlainText(smileyCode[nSmiley]);
+void lmcChatRoomWindow::emojiAction_triggered(void) {
+  if(nEmoji < 0)
+    return;
+  const QString emoji = EmojiPicker::emojiAt(nEmoji);
+  nEmoji = -1;
+  if(emoji.isEmpty())
+    return;
+  ui.txtMessage->insertPlainText(emoji);
 }
 
 void lmcChatRoomWindow::addContactAction_triggered(void) {
@@ -623,12 +611,12 @@ void lmcChatRoomWindow::createUserMenu(void) {
                                               &lmcChatRoomWindow::userInfoAction_triggered);
 }
 
-void lmcChatRoomWindow::createSmileyMenu(void) {
-  pSmileyAction = new lmcImagePickerAction(this, smileyPic, SM_COUNT, 19, 10, &nSmiley);
-  connect(pSmileyAction, &QAction::triggered, this, &lmcChatRoomWindow::smileyAction_triggered);
+void lmcChatRoomWindow::createEmojiMenu(void) {
+  pEmojiAction = new EmojiPickerAction(this, &nEmoji);
+  connect(pEmojiAction, &QAction::triggered, this, &lmcChatRoomWindow::emojiAction_triggered);
 
-  pSmileyMenu = new QMenu(this);
-  pSmileyMenu->addAction(pSmileyAction);
+  pEmojiMenu = new QMenu(this);
+  pEmojiMenu->addAction(pEmojiAction);
 }
 
 void lmcChatRoomWindow::createToolBar(void) {
@@ -645,11 +633,11 @@ void lmcChatRoomWindow::createToolBar(void) {
 
   pLeftBar->addSeparator();
 
-  pbtnSmiley = new lmcToolButton(pLeftBar);
-  pbtnSmiley->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
-  pbtnSmiley->setPopupMode(QToolButton::InstantPopup);
-  pbtnSmiley->setMenu(pSmileyMenu);
-  pLeftBar->addWidget(pbtnSmiley);
+  pbtnEmoji = new lmcToolButton(pLeftBar);
+  pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
+  pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
+  pbtnEmoji->setMenu(pEmojiMenu);
+  pLeftBar->addWidget(pbtnEmoji);
 
   pLeftBar->addSeparator();
 
@@ -688,7 +676,6 @@ void lmcChatRoomWindow::setUIText(void) {
   userChatAction->setText(tr("&Conversation"));
   userFileAction->setText(tr("Send &File"));
   userInfoAction->setText(tr("Get &Information"));
-  pbtnSmiley->setToolTip(tr("Insert Smiley"));
   pSaveAction->setText(tr("&Save As..."));
   pSaveAction->setToolTip(tr("Save this conversation"));
   ui.btnSend->setText(tr("Send"));
@@ -697,6 +684,7 @@ void lmcChatRoomWindow::setUIText(void) {
   pFontAction->setToolTip(tr("Change message font"));
   pFontColorAction->setText(tr("Change Color..."));
   pFontColorAction->setToolTip(tr("Change message text color"));
+  pbtnEmoji->setToolTip(tr("Insert Emoji"));
 
   if(groupMode) {
     addContactAction->setText(tr("&Add Contacts..."));
@@ -711,11 +699,7 @@ void lmcChatRoomWindow::sendMessage(void) {
     return;
 
   if(bConnected) {
-    QString szHtmlMessage(ui.txtMessage->toHtml());
-    encodeMessage(&szHtmlMessage);
-    QTextDocument docMessage;
-    docMessage.setHtml(szHtmlMessage);
-    QString szMessage = docMessage.toPlainText();
+    QString szMessage(ui.txtMessage->toPlainText());
 
     QFont font = ui.txtMessage->font();
     font.setPointSize(ui.txtMessage->fontPointSize());
@@ -762,12 +746,6 @@ void lmcChatRoomWindow::sendMessage(void) {
 
   ui.txtMessage->clear();
   ui.txtMessage->setFocus();
-}
-
-//	Called before sending message
-void lmcChatRoomWindow::encodeMessage(QString* lpszMessage) {
-  //	replace all emoticon images with corresponding text code
-  ChatHelper::encodeSmileys(lpszMessage);
 }
 
 void lmcChatRoomWindow::appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName, XmlMessage* pMessage) {
@@ -818,12 +796,23 @@ QString lmcChatRoomWindow::getWindowTitle(void) {
 }
 
 void lmcChatRoomWindow::setMessageFont(QFont& font) {
-  ui.txtMessage->setFont(font);
+  QStringList baseFamilies;
+  if(!font.family().isEmpty())
+    baseFamilies.append(font.family());
+  QFont baseFont = font;
+  if(!baseFamilies.isEmpty())
+    baseFont.setFamilies(baseFamilies);
+  ui.txtMessage->setFont(baseFont);
+  if(baseFamilies.isEmpty())
+    ChatHelper::clearFamiliesOverDocument(ui.txtMessage);
   QTextCharFormat format;
-  format.setFontFamily(font.family());
-  if(font.pointSize() > 0)
-    format.setFontPointSize(font.pointSize());
-  mergeFormatOverDocument(ui.txtMessage, format);
+  if(!baseFamilies.isEmpty())
+    format.setFontFamilies(baseFamilies);
+  if(baseFont.pointSize() > 0)
+    format.setFontPointSize(baseFont.pointSize());
+  ChatHelper::mergeFormatOverDocument(ui.txtMessage, format);
+  if(emojiHighlighter)
+    emojiHighlighter->setBaseFamily(baseFamilies.value(0));
 }
 
 void lmcChatRoomWindow::updateStatusImage(QTreeWidgetItem* pItem, QString* lpszStatus) {

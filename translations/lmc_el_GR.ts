@@ -570,11 +570,6 @@
         <translation>Παράθυρο Μηνυμάτων</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="632"/>
-        <source>Show emoticons in instant messages</source>
-        <translation>Εμφάνιση emoticon στα άμεσα μηνύματα</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="639"/>
         <source>Add time stamp to instant messages</source>
         <translation>Προσθήκη χρονοσφραγίδων στα άμεσα μηνύματα</translation>
@@ -1039,9 +1034,9 @@
         <translation>Αλλαγή Μεγέθους Γραμματοσειράς</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="303"/>
-        <source>Insert Smiley</source>
-        <translation>Εισαγωγή Smiley</translation>
+        <location filename="broadcastwindow.cpp" line="298"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="broadcastwindow.cpp" line="339"/>
@@ -1107,11 +1102,6 @@
         <translation>Λήψη &amp;Πληροφορίας</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="624"/>
-        <source>Insert Smiley</source>
-        <translation>Εισαγωγή Smiley</translation>
-    </message>
-    <message>
         <location filename="chatroomwindow.cpp" line="625"/>
         <source>&amp;Save As...</source>
         <translation>Αποθήκευση &amp;Ως...</translation>
@@ -1130,6 +1120,11 @@
         <location filename="chatroomwindow.cpp" line="628"/>
         <source>Change message font</source>
         <translation>Αλλαγή γραμματοσειράς μηνύματος</translation>
+    </message>
+    <message>
+        <location filename="chatroomwindow.cpp" line="693"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatroomwindow.cpp" line="629"/>
@@ -1171,11 +1166,6 @@
 </context>
 <context>
     <name>lmcChatWindow</name>
-    <message>
-        <location filename="chatwindow.cpp" line="531"/>
-        <source>Insert Smiley</source>
-        <translation>Εισαγωγή Smiley</translation>
-    </message>
     <message>
         <location filename="chatwindow.cpp" line="532"/>
         <source>Send A &amp;File...</source>
@@ -1235,6 +1225,11 @@
         <location filename="chatwindow.cpp" line="547"/>
         <source>Change message font</source>
         <translation>Αλλαγή γραμματοσειράς μηνυμάτων</translation>
+    </message>
+    <message>
+        <location filename="chatwindow.cpp" line="653"/>
+        <source>Insert Emoji</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="chatwindow.cpp" line="548"/>
