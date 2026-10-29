@@ -71,7 +71,7 @@
     <name>BubbleDelegate</name>
     <message>
         <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 vous envoie un dossier:</translation>
     </message>
     <message>
         <source>%1 sends you a file:</source>
@@ -115,7 +115,7 @@
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous</translation>
     </message>
 </context>
 <context>
@@ -134,7 +134,7 @@
     </message>
     <message>
         <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 vous envoie un dossier:</translation>
     </message>
     <message>
         <source>This message was not delivered to %1:</source>
@@ -614,7 +614,7 @@
     </message>
     <message>
         <source>Clear messages when window is closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer les messages à la fermeture de la fenêtre</translation>
     </message>
     <message>
         <source>Reset All</source>
@@ -687,23 +687,23 @@
     </message>
     <message>
         <source>Show Send button in chat windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le bouton d'envoi dans les fenêtres de discussion</translation>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Thème</translation>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Thème:</translation>
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode:</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualiser</translation>
     </message>
 </context>
 <context>
@@ -861,7 +861,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Insérer un emoji</translation>
     </message>
     <message>
         <source>No recipient selected</source>
@@ -932,7 +932,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Insérer un emoji</translation>
     </message>
     <message>
         <source>Change Color...</source>
@@ -970,14 +970,14 @@
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Envoyer le message</translation>
     </message>
 </context>
 <context>
     <name>lmcChatWindow</name>
     <message>
         <source>%1 sends a folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 envoyer un dossier ...</translation>
     </message>
     <message>
         <source>Send A &amp;File...</source>
@@ -985,7 +985,7 @@
     </message>
     <message>
         <source>Send A Fol&amp;der...</source>
-        <translation type="unfinished"></translation>
+        <translation>Envoyer un &amp;dossier ...</translation>
     </message>
     <message>
         <source>&amp;Save As...</source>
@@ -1005,7 +1005,7 @@
     </message>
     <message>
         <source>Send a folder to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Envoyer un dossier à %1</translation>
     </message>
     <message>
         <source>Save this conversation</source>
@@ -1029,7 +1029,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Insérer un emoji</translation>
     </message>
     <message>
         <source>Change Color...</source>
@@ -1093,7 +1093,7 @@
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Envoyer le message</translation>
     </message>
 </context>
 <context>
@@ -1275,7 +1275,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Send Fol&amp;der</source>
-        <translation type="unfinished"></translation>
+        <translation>Envoyer un &amp;dossier </translation>
     </message>
     <message>
         <source>Get &amp;Information</source>
@@ -1347,15 +1347,15 @@ Désirez-vous vraiment continuer?</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Clair</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Sombre</translation>
     </message>
     <message>
         <source>auto</source>
-        <translation type="unfinished"></translation>
+        <translation>auto</translation>
     </message>
     <message>
         <source>Empty = automatic: try 50000, use any free port if busy. Set a value to require that exact port.</source>

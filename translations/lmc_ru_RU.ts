@@ -71,7 +71,7 @@
     <name>BubbleDelegate</name>
     <message>
         <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 отправил Вам папку:</translation>
     </message>
     <message>
         <source>%1 sends you a file:</source>
@@ -134,7 +134,7 @@
     </message>
     <message>
         <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 отправил Вам папку:</translation>
     </message>
     <message>
         <source>This message was not delivered to %1:</source>
@@ -523,7 +523,7 @@
     </message>
     <message>
         <source>Clear messages when window is closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Очищать сообщения при закрытии окна</translation>
     </message>
     <message>
         <source>Change Font...</source>
@@ -688,23 +688,23 @@
     </message>
     <message>
         <source>Show Send button in chat windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать кнопку отправки в окнах чата</translation>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Тема</translation>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тема:</translation>
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим:</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить</translation>
     </message>
 </context>
 <context>
@@ -862,7 +862,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить эмодзи</translation>
     </message>
     <message>
         <source>No recipient selected</source>
@@ -933,7 +933,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить эмодзи</translation>
     </message>
     <message>
         <source>Change Color...</source>
@@ -971,7 +971,7 @@
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить сообщение</translation>
     </message>
 </context>
 <context>
@@ -982,7 +982,7 @@
     </message>
     <message>
         <source>Send A Fol&amp;der...</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить &amp;Папку...</translation>
     </message>
     <message>
         <source>&amp;Save As...</source>
@@ -1002,7 +1002,7 @@
     </message>
     <message>
         <source>Send a folder to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить папку %1</translation>
     </message>
     <message>
         <source>Save this conversation</source>
@@ -1026,7 +1026,7 @@
     </message>
     <message>
         <source>Insert Emoji</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить эмодзи</translation>
     </message>
     <message>
         <source>Change Color...</source>
@@ -1066,7 +1066,7 @@
     </message>
     <message>
         <source>%1 sends a folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 отправляет папку...</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1094,7 +1094,7 @@
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить сообщение</translation>
     </message>
 </context>
 <context>
@@ -1103,7 +1103,9 @@
         <source>Preferences could not be imported from &apos;%1&apos;.
 
 File may not exist, or may not be compatible with this version of %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось импортировать настройки из '%1'.
+
+Файл может отсутствовать или быть несовместим с этой версией %2.</translation>
     </message>
     <message>
         <source>LAYOUT_DIRECTION</source>
@@ -1276,7 +1278,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Send Fol&amp;der</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить &amp;Папку</translation>
     </message>
     <message>
         <source>Get &amp;Information</source>
@@ -1347,19 +1349,19 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Светлая</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Темная</translation>
     </message>
     <message>
         <source>auto</source>
-        <translation type="unfinished"></translation>
+        <translation>авто</translation>
     </message>
     <message>
         <source>Empty = automatic: try 50000, use any free port if busy. Set a value to require that exact port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пусто = автоматически: попробовать 50000, если занят — использовать любой свободный порт. Укажите значение, чтобы требовать именно этот порт.</translation>
     </message>
 </context>
 <context>
