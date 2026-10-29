@@ -354,10 +354,6 @@
         <translation>Adres Multicast:</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Wygląd czatu</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Lista kontaktów</translation>
     </message>
@@ -1301,97 +1297,6 @@ Plik może nie istnieć albo nie być kompatybilny z tą wersją %2.</translatio
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Ogłoszenie od %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Ta wiadomość nie została dostarczona do %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Twoja wiadomość nie została wysłana.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Wysyłam &apos;%1&apos; do %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Anuluj</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 wysyła Ci plik:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">%1 wysyła Ci folder:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 wysyła Ci plik:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Akceptuj</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Odrzuć</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Zaakceptowano</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Odrzucone</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 wysyła Ci folder:</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Anulowano</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Przerwane</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Zakończono</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 pisze....</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 napisał</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 dołączył do konwersacji</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 opuścił konwersacje</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopiuj</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Zaznacz &amp;wszystko</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1440,10 +1345,6 @@ Plik może nie istnieć albo nie być kompatybilny z tą wersją %2.</translatio
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Dźwięki (Niedostępne)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Sprawdź aktualizacje</translation>
     </message>
     <message>
         <source>System</source>

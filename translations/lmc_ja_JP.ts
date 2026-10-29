@@ -350,10 +350,6 @@
         <translation>マルチキャストアドレス:</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">会話画面のテーマ</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>コンタクトリスト</translation>
     </message>
@@ -1297,97 +1293,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">%1 からブロードキャストでメッセージ:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">このメッセージは %1 に送信されませんでした:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">メッセージは送信されていません。</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">%2へ送信: %1.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">キャンセル</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1 がファイルを送信:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="obsolete">%1 がフォルダを送信:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 からファイルの送信:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">承認</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">拒否</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">承認しました</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">拒否しました</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 からフォルダの送信:</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">キャンセルされました</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="obsolete">中断されました</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">完了しました</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 入力中...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="obsolete">%1 が入力しました</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1が会話に参加しました</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1は会話から離脱しました</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">コピー(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">すべて選択(&amp;A)</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1436,10 +1341,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>音(利用不可)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">アップデートの確認</translation>
     </message>
     <message>
         <source>System</source>

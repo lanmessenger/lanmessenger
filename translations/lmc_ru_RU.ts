@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ru_UA" sourcelanguage="en_US">
+<TS version="2.1" language="ru_RU" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -349,10 +349,6 @@
     <message>
         <source>Multicast address:</source>
         <translation>Групповой адрес:</translation>
-    </message>
-    <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Тема чата</translation>
     </message>
     <message>
         <source>Contacts List</source>
@@ -1296,101 +1292,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Широковещательное сообщение от %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Это сообщение не было доставлено к %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Ваше сообщение не было отправлено.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Отправка &apos;%1&apos; к %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Отмена</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 отправляет Вам файл:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 отправил Вам файл:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Файл был принят автоматически.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Принять</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Отклонить</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Принят</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Вы приняли файл.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Отклонен</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Вы отклонили файл.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Отменено</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Прервано</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Завершено</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 вводит с клавиатуры...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 вставил текст</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 присоединился к этой беседе</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 покинул эту беседу</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Копировать</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Выбрать&amp;все</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1439,10 +1340,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Звуки (не доступно)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Проверить обновления</translation>
     </message>
     <message>
         <source>System</source>

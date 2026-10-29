@@ -283,10 +283,6 @@
         <translation>التاريخ</translation>
     </message>
     <message>
-        <source>about:blank</source>
-        <translation type="obsolete">حول:فارغة</translation>
-    </message>
-    <message>
         <source>Clear History</source>
         <translation>مسح التأريخ</translation>
     </message>
@@ -320,10 +316,6 @@
     <message>
         <source>Contacts</source>
         <translation>الاتصالات</translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
     </message>
 </context>
 <context>
@@ -656,10 +648,6 @@
         <translation>عرض الملفات</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">مظهر المحادثة</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -842,10 +830,6 @@
     <message>
         <source>Contacts</source>
         <translation>الاتصالات</translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -1111,10 +1095,6 @@
 <context>
     <name>lmcCore</name>
     <message>
-        <source>QT_LAYOUT_DIRECTION</source>
-        <translation type="obsolete">RTL</translation>
-    </message>
-    <message>
         <source>Preferences could not be imported from &apos;%1&apos;.
 
 File may not exist, or may not be compatible with this version of %2.</source>
@@ -1307,101 +1287,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">هذه الرسالة لم تصل ل %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">رسالة لم ترسل.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">تلقي رسالة من %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">ارسال %1 الى %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">الغاء</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 يرسل لك ملف:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 ارسل لك ملف:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">تم الموافقة على الملف تلقائيا.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">موافق</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">رفض</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">موافقة</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">لقد وافقت على ملف.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">رفض</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">لقد رفضت ملف.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">ملغي</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">غير صالح</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">مكتمل</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 يكتب الان...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 قام بادخال حروف</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 قام بالدخول لهذه المحادثة</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 قد غادر هذه المحادثة</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;نسخ</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">اختيار &amp;الكل</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1450,10 +1335,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>الاصوات غير متاح</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">التحقق من التحديثات</translation>
     </message>
     <message>
         <source>System</source>

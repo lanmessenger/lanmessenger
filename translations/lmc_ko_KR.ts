@@ -350,10 +350,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">대화창 테마</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -490,22 +486,6 @@
     <message>
         <source>Message Font</source>
         <translation>메세지 글꼴</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">미리 보기:</translation>
-    </message>
-    <message>
-        <source>Small size</source>
-        <translation type="obsolete">작은 글꼴</translation>
-    </message>
-    <message>
-        <source>Medium size</source>
-        <translation type="obsolete">보통 글꼴</translation>
-    </message>
-    <message>
-        <source>Large size</source>
-        <translation type="obsolete">큰 글꼴</translation>
     </message>
     <message>
         <source>History</source>
@@ -757,57 +737,6 @@
     </message>
 </context>
 <context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">개인 정보</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">이름:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">성:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">없음</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">정보:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">시스템 정보</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">운영체제:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">IP주소:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">메신저 버전:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">컴퓨터 이름:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">로그인 이름:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">닫기</translation>
-    </message>
-</context>
-<context>
     <name>UserInfoWindow</name>
     <message>
         <source>Dialog</source>
@@ -1047,14 +976,6 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>Chat with %1</source>
-        <translation type="obsolete">%1와 대화하기</translation>
-    </message>
-    <message>
-        <source>Change Font Size</source>
-        <translation type="obsolete">글꼴 크기 바꾸기</translation>
-    </message>
-    <message>
         <source>%1 sends a folder...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1119,18 +1040,6 @@
         <translation>메세지 글꼴 색상 바꾸기</translation>
     </message>
     <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">당신이 수신을 허가한 파일입니다.</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">당신이 수신을 거부한 파일입니다.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="obsolete">취소됨</translation>
-    </message>
-    <message>
         <source>Select Font</source>
         <translation>글꼴 고르기</translation>
     </message>
@@ -1157,54 +1066,6 @@
     <message>
         <source>%1 sends a file...</source>
         <translation>%1가 보낸 파일...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">허가됨</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">거부됨</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="obsolete">%1가 보낸 메세지:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="obsolete">%1에게 전달되지 못한 메세지:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="obsolete">당신의 메세지는 전달되지 못했습니다.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="obsolete">%2에게 %1를 보냅니다.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">취소</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1가 보내는 파일:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">파일을 자동으로 수신합니다.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="obsolete">%1가 보낸 파일:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="obsolete">허가</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="obsolete">거부</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1345,10 +1206,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation>&amp;공개 대화</translation>
     </message>
     <message>
-        <source>New Chat Room</source>
-        <translation type="obsolete">새로운 대화방</translation>
-    </message>
-    <message>
         <source>E&amp;xit</source>
         <translation>나가기(&amp;X)</translation>
     </message>
@@ -1434,106 +1291,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">%1에게 전달되지 못한 메세지:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">당신의 메세지는 전달되지 못했습니다.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">%1가 보낸 전체 메세지:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">%2에게 %1를 보냅니다.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">취소</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1가 보내는 파일:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1가 보낸 파일:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">파일을 자동으로 수신합니다.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">허가</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">거부</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">허가됨</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">당신이 수신을 허가한 파일입니다.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">거부됨</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">당신이 수신을 거부한 파일입니다.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">취소됨</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">거절됨</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">완료됨</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1가 메세지 작성중...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1가 메세지를 작성함</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1이 대화에 참여하였습니다</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1이 대화를 마쳤습니다</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;부</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">&amp;모두 선택</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
-    <message>
-        <source>AaBbYyZz</source>
-        <translation type="obsolete">AaBbYyZz</translation>
-    </message>
     <message>
         <source>Save History</source>
         <translation>대화 내용 저장</translation>
@@ -1581,10 +1339,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>효과음(사용할 수 없음)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">업데이트 확인하기</translation>
     </message>
     <message>
         <source>System</source>
@@ -1784,13 +1538,6 @@ LAN Messenger works on essentially every popular desktop platform.</source>
     <message>
         <source>You have the latest version of %1.</source>
         <translation>%1이 최신 버전입니다.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">사용자 정보</translation>
     </message>
 </context>
 <context>

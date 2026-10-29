@@ -645,10 +645,6 @@
         <translation>Visualizza File</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Tema della chat</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Lista Contatti</translation>
     </message>
@@ -1290,101 +1286,6 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Questo messaggio non è stato recapitato a %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Il messaggio non è stato inviato.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Messaggio di rete da %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Invia %1 a %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Cancella</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 sta inviando un file:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 invia file:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Il file è stato accettato automaticamente.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Accetta</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Rifiuta</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Accettato</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Hai accettato il file.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Rifiutato</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Hai rifiutato il file.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Cancellato</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Interrotto</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Completato</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 sta scrivendo ....</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 ha digitato un testo</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 ha aderito a questa conversazione</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 ha lasciato questa conversazione</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Copia</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Seleziona &amp;Tutto</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1433,10 +1334,6 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Suono (Non Disponibile)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Verificare gli aggiornamenti</translation>
     </message>
     <message>
         <source>System</source>

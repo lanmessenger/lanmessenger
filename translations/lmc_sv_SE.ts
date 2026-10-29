@@ -350,10 +350,6 @@
         <translation>Massutsändningsadress:</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Chatt-tema</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Kontaktlista</translation>
     </message>
@@ -1297,97 +1293,6 @@ Filen kanske inte finns, eller kanske inte är kompatibel med den här versionen
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Massmeddelande från %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Detta meddelande levererades inte till %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Ditt meddelande skickades inte.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Skickar &apos;%1&apos; till &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 skickar en fil till dig:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">%1 skickar en mapp till dig:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 skickar en fil:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Tacka ja</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Tacka nej</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Accepterad</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Nekad</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 skickar en mapp:</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Avbruten</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Avbruten</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Slutförd</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 skriver...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 har skickat text</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 har anslutit till denna konversation</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 har lämnat denna konversation</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopiera</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Markera &amp;allt</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1436,10 +1341,6 @@ Filen kanske inte finns, eller kanske inte är kompatibel med den här versionen
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Ljud (Ej tillgängligt)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Sök efter uppdateringar</translation>
     </message>
     <message>
         <source>System</source>

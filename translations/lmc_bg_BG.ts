@@ -350,10 +350,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Чат тема</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -738,57 +734,6 @@
     <message>
         <source>Recheck Version</source>
         <translation>Провери пак</translation>
-    </message>
-</context>
-<context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">Лична информация</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">Малко име:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">Фамилно име:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">N / A</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">Повече информация:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">Системна информация</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">Операционна система:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">IP Адрес:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">Версия на месинджъра:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">Име на компютъра:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">Потребител в ОС:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Затвори</translation>
     </message>
 </context>
 <context>
@@ -1262,10 +1207,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation>&amp;Публичен чат</translation>
     </message>
     <message>
-        <source>New Chat Room</source>
-        <translation type="obsolete">Нова Чат Стая</translation>
-    </message>
-    <message>
         <source>E&amp;xit</source>
         <translation>И&amp;зход</translation>
     </message>
@@ -1351,101 +1292,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Броудкаст съобщение от %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Това съобщение не беше получено от %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Вашето съобщение не беше изпратено.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Изпращане %1 на %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Прекъсни</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 ви изпраща файла:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 ви изпраща файла:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Файлът беше приет автоматично.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Приеми</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Откажи</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Приет</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Вие приехте файла.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Отказан</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Вие отказахте файла.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Прекъснат</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Прекъснато</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Завършено</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 пише...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 написа текста</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 се присъедини към разговора</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 напусна този разговор</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Копиране</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Избор &amp;на всичко</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1494,10 +1340,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Звуци (Не е на разположение)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Провери за обновления</translation>
     </message>
     <message>
         <source>System</source>
@@ -1699,13 +1541,6 @@ LAN Месинджър на практика работи на всякаква 
     <message>
         <source>You have the latest version of %1.</source>
         <translation>Вие разполагате с последната версия на %1.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">Информация за потребител</translation>
     </message>
 </context>
 <context>

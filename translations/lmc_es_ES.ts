@@ -350,10 +350,6 @@
         <translation>Dirección de multidifusión:</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Tema de la ventana de chat</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Lista de contactos</translation>
     </message>
@@ -494,22 +490,6 @@
     <message>
         <source>Message Font</source>
         <translation>Fuente del mensaje</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">Vista previa:</translation>
-    </message>
-    <message>
-        <source>Small size</source>
-        <translation type="obsolete">Tamaño pequeño</translation>
-    </message>
-    <message>
-        <source>Medium size</source>
-        <translation type="obsolete">Tamaño mediano</translation>
-    </message>
-    <message>
-        <source>Large size</source>
-        <translation type="obsolete">Tamaño grande</translation>
     </message>
     <message>
         <source>History</source>
@@ -757,61 +737,6 @@
     </message>
 </context>
 <context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialogo</translation>
-    </message>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">Información Personal</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">Nombre:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">Apellido:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">N/A</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">Acerca de:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">Información del Sistema</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">Sistema Operativo:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">Dirección IP:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">Versión del Messenger:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">Nombre del equipo:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">Nombre de inicio de sesión:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Cerrar</translation>
-    </message>
-</context>
-<context>
     <name>UserInfoWindow</name>
     <message>
         <source>Dialog</source>
@@ -1051,14 +976,6 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>Chat with %1</source>
-        <translation type="obsolete">Chatear con %1</translation>
-    </message>
-    <message>
-        <source>Change Font Size</source>
-        <translation type="obsolete">Cambiar tamaño de la fuente</translation>
-    </message>
-    <message>
         <source>%1 sends a folder...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1123,18 +1040,6 @@
         <translation>Cambiar el color del texto del mensaje</translation>
     </message>
     <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Usted ha aceptado el archivo.</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Ha rechazado el archivo.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="obsolete">Cancelado</translation>
-    </message>
-    <message>
         <source>Select Font</source>
         <translation>Seleccione la Fuente</translation>
     </message>
@@ -1161,54 +1066,6 @@
     <message>
         <source>%1 sends a file...</source>
         <translation>%1 envía un archivo...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">Aceptado</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">Declinó</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="obsolete">Difusión de mensajes de %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="obsolete">Este mensaje no fue entregado a %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="obsolete">Su mensaje no fue enviado.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="obsolete">Enviando &apos;%1&apos; a %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1 le está enviando un archivo:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">El archivo ha sido aceptado de forma automática.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="obsolete">%1 le envía un archivo:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="obsolete">Aceptar</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="obsolete">Declinar</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1434,106 +1291,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Difusión de mensajes de %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Este mensaje no fue entregado a %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Su mensaje no fue enviado.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Enviando &apos;%1&apos; a %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Cancelar</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 le está enviando un archivo:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 le envía un archivo:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">El archivo ha sido aceptado de forma automática.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Aceptar</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Declinar</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Aceptado</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Usted ha aceptado el archivo.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Declinó</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Ha rechazado el archivo.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Cancelado</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Interrumpido</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Finalizado</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 está tecleando...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 ha introducido el texto</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 se ha unido a esta conversación</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 ha dejado a esta conversación</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Copiar</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Seleccionar &amp;todos</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
-    <message>
-        <source>AaBbYyZz</source>
-        <translation type="obsolete">AaBbYyZz</translation>
-    </message>
     <message>
         <source>Save History</source>
         <translation>Guardar historial</translation>
@@ -1581,10 +1339,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Sonidos (No disponible)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Comprobar actualizaciones</translation>
     </message>
     <message>
         <source>System</source>
@@ -1786,13 +1540,6 @@ LAN Messenger trabaja esencialmente en todas las plataformas de escritorio más 
     <message>
         <source>You have the latest version of %1.</source>
         <translation>Tiene la última versión del %1.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">Información del usuario</translation>
     </message>
 </context>
 <context>

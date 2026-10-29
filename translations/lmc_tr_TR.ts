@@ -350,10 +350,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Sohbet penceresinin Tema</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Kişi Listesi</translation>
     </message>
@@ -494,22 +490,6 @@
     <message>
         <source>Message Font</source>
         <translation>İleti fontu</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">Önizleme:</translation>
-    </message>
-    <message>
-        <source>Small size</source>
-        <translation type="obsolete">Küçük</translation>
-    </message>
-    <message>
-        <source>Medium size</source>
-        <translation type="obsolete">Orta</translation>
-    </message>
-    <message>
-        <source>Large size</source>
-        <translation type="obsolete">Büyük</translation>
     </message>
     <message>
         <source>History</source>
@@ -757,57 +737,6 @@
     </message>
 </context>
 <context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">Kişisel Bilgiler</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">İsim:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">Soyisim:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">N / A</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">Hakkında:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">Sistem Bilgisi</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">İşletim Sistemi:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">IP Adresi:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">Messenger Versiyonu:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">Bilgisayar Adı:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">Oturum Adı:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Kapat</translation>
-    </message>
-</context>
-<context>
     <name>UserInfoWindow</name>
     <message>
         <source>Dialog</source>
@@ -1047,14 +976,6 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>Chat with %1</source>
-        <translation type="obsolete">%1 ile konuş</translation>
-    </message>
-    <message>
-        <source>Change Font Size</source>
-        <translation type="obsolete">Font Ölçüsünü Değiştir</translation>
-    </message>
-    <message>
         <source>%1 sends a folder...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1119,18 +1040,6 @@
         <translation>İleti yazı rengini değiştir</translation>
     </message>
     <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Dosya Transferini kabul ettniz.</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Dosya Transferini reddettiniz.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="obsolete">İptal Edildi</translation>
-    </message>
-    <message>
         <source>Select Font</source>
         <translation>Font Seç</translation>
     </message>
@@ -1157,54 +1066,6 @@
     <message>
         <source>%1 sends a file...</source>
         <translation>%1 kullanıcısı dosya gönderiyor...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">Kabul Edildi</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">Reddedildi</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="obsolete">İleti %1 alıcısına gönderildi:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="obsolete">İleti %1 alıcısına gönderilemedi:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="obsolete">İletiniz gönderilmedi.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="obsolete">&apos;%1&apos;  %2 kullanıcısına gönderiliyor.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">İptal Edildi</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1 kullanıcısı size dosya gönderiyor:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Dosya otomatik olarak kabul edildi.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="obsolete">%1 kullanıcısı size dosya gönderiyor:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="obsolete">Kabul Et</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="obsolete">Reddet</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1430,106 +1291,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">İleti %1 alıcısına gönderildi:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">İleti %1 alıcısına gönderilemedi:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">İletiniz gönderilmedi.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">&apos;%1&apos;  %2 kullanıcısına gönderiliyor.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">İptal</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 kullanıcısı size dosya gönderiyor:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 kullanıcısı size dosya gönderiyor:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Dosya otomatik olarak kabul edildi.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Kabul Et</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Reddet</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Kabul Edildi</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Dosya Transferini kabul ettniz.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Reddedildi</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Dosya Transferini reddettiniz.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">İptal Edildi</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Kesildi</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Tamamlandı</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 yazarak...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 metin girmiştir</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 görüşmeye katıldı</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 görüşmeden ayrıldı</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopyala</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Hepsini &amp;Seç</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
-    <message>
-        <source>AaBbYyZz</source>
-        <translation type="obsolete">AaBbYyZz</translation>
-    </message>
     <message>
         <source>Save History</source>
         <translation>Geçmişi Kaydet</translation>
@@ -1577,10 +1339,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Sesler (Uygun Değil)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Güncelleştirmeleri denetle</translation>
     </message>
     <message>
         <source>System</source>
@@ -1782,13 +1540,6 @@ LAN Messenger yaygın bütün masaüstü platformlarda kullanılabilir.</transla
     <message>
         <source>You have the latest version of %1.</source>
         <translation>%1  en son sürümüne sahipsiniz.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">Kullanıcı Bilgisi</translation>
     </message>
 </context>
 <context>

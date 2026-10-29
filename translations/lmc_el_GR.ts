@@ -350,10 +350,6 @@
         <translation>Διεύθυνση πολλαπλής διανομής:</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Θέμα Συνομιλίας</translation>
-    </message>
-    <message>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1297,97 +1293,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Μήνυμα εκπομπής από %1:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Αυτό το μήνυμα δεν παραδώθηκε σε %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Το μήνυμά σας δεν στάλθηκε.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Αποστολή &apos;%1&apos; σε %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Ακύρωση</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">Ο/Η %1 σου στέλνει ένα αρχείο:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">Ο/Η %1 σου στέλνει ένα φάκελο:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">Ο/Η %1 σου στέλνει ένα αρχείο:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Αποδοχή</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Απόρριψη</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Έγινε αποδοχή</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Απορρίφθηκε</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">Ο/Η %1 σου στέλνει ένα φάκελο:</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Ακυρώθηκε</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Διακόπηκε</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Ολοκληρώθηκε</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">Ο/Η %1 πληκτρολογεί...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">Ο/Η %1 έγραψε κείμενο</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">Ο/Η %1 συνδέθηκε σε αυτή τη συνομιλία</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">Ο/Η %1 έφυγε από την συνομιλία</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Αντιγραφή</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Επιλογή &amp;Όλων</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1436,10 +1341,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Ήχοι (Μη Διαθέσιμοι)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Έλεγχος για ενημερώσεις</translation>
     </message>
     <message>
         <source>System</source>

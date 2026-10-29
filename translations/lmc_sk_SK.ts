@@ -645,10 +645,6 @@
         <translation>Zobraziť súbory</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Vzhľad konverzácií</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation>Zoznam používateľov</translation>
     </message>
@@ -659,10 +655,6 @@
     <message>
         <source>Show status as tooltip</source>
         <translation>Zobrazovať stav používateľov ako tooltip</translation>
-    </message>
-    <message>
-        <source>Show offline contacts</source>
-        <translation type="vanished">Zobrazovať odpojených používateľov</translation>
     </message>
     <message>
         <source>Send messages using:</source>
@@ -1294,97 +1286,6 @@ Súbor neexistuje alebo nie je kompatibilný s touto verziou programu %2.</trans
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Táto správa nebola doručená používateľovi %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Vaša správa nebola odoslaná.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Hromadná správa od %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Pokus o odoslanie &apos;%1&apos; používateľovi %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Zrušiť</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 Vám posiela súbor:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">%1 Vám posiela priečinok:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 Vám posiela súbor:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 Vám posiela priečinok:</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Prenos prijatý</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Prijať</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Odmietnuť</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Prenos odmietnutý</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Prenos zrušený</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Prenos prerušený</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Prenos dokončený</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 píše správu...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 má rozpísanú správu</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 sa pripojil(a) do tejto konverzácie</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 sa odpojil(a) z tejto konverzácie</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopírovať</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Vybrať &amp;všetko</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1433,10 +1334,6 @@ Súbor neexistuje alebo nie je kompatibilný s touto verziou programu %2.</trans
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Zvuky (nie sú dispozícií)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Skontrolovať aktualizácie</translation>
     </message>
     <message>
         <source>System</source>

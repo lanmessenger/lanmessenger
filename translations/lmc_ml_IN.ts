@@ -325,10 +325,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Broadcast List:</source>
-        <translation type="obsolete">പ്രക്ഷേപണ പട്ടിക:</translation>
-    </message>
-    <message>
         <source>Broadcast address:</source>
         <oldsource>Broadcast Address:</oldsource>
         <translation>പ്രക്ഷേപണം ചെയ്യാനുള്ള വിലാസം:</translation>
@@ -348,10 +344,6 @@
     <message>
         <source>Multicast address:</source>
         <translation>മള്‍ട്ടികാസ്റ്റ് വിലാസം:</translation>
-    </message>
-    <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">സന്ദേശ ജാലകത്തിന്‍റെ തീം</translation>
     </message>
     <message>
         <source>Contacts List</source>
@@ -494,22 +486,6 @@
     <message>
         <source>Message Font</source>
         <translation>സന്ദേശ ലിപി</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">ഉദാഹരണം:</translation>
-    </message>
-    <message>
-        <source>Small size</source>
-        <translation type="obsolete">ചെറുത്‌</translation>
-    </message>
-    <message>
-        <source>Medium size</source>
-        <translation type="obsolete">സാധാരണം</translation>
-    </message>
-    <message>
-        <source>Large size</source>
-        <translation type="obsolete">വലുത്</translation>
     </message>
     <message>
         <source>History</source>
@@ -761,57 +737,6 @@
     </message>
 </context>
 <context>
-    <name>UserInfoDialog</name>
-    <message>
-        <source>Personal Information</source>
-        <translation type="obsolete">വ്യക്തിയുടെ വിവരം</translation>
-    </message>
-    <message>
-        <source>First Name:</source>
-        <translation type="obsolete">പേര്:</translation>
-    </message>
-    <message>
-        <source>Last Name:</source>
-        <translation type="obsolete">വീട്ടു പേര്:</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="obsolete">ലഭ്യമല്ല</translation>
-    </message>
-    <message>
-        <source>About:</source>
-        <translation type="obsolete">വ്യക്തിയെ കുറിച്ച്:</translation>
-    </message>
-    <message>
-        <source>System Information</source>
-        <translation type="obsolete">സിസ്റ്റത്തിന്‍റെ വിവരം</translation>
-    </message>
-    <message>
-        <source>Operating System:</source>
-        <translation type="obsolete">ഒപറേറ്റിംഗ് സിസ്റ്റം:</translation>
-    </message>
-    <message>
-        <source>IP Address:</source>
-        <translation type="obsolete">IP വിലാസം:</translation>
-    </message>
-    <message>
-        <source>Messenger Version:</source>
-        <translation type="obsolete">വെര്‍ഷന്‍:</translation>
-    </message>
-    <message>
-        <source>Computer Name:</source>
-        <translation type="obsolete">കമ്പ്യൂട്ടര്‍ പേര്:</translation>
-    </message>
-    <message>
-        <source>Logon Name:</source>
-        <translation type="obsolete">ലോഗിന്‍ പേര്:</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">അടയ്ക്കുക</translation>
-    </message>
-</context>
-<context>
     <name>UserInfoWindow</name>
     <message>
         <source>Dialog</source>
@@ -1051,14 +976,6 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>Chat with %1</source>
-        <translation type="obsolete">%1 - സംഭാഷണം</translation>
-    </message>
-    <message>
-        <source>Change Font Size</source>
-        <translation type="obsolete">ലിപിയുടെ വലിപ്പം മാറ്റുക</translation>
-    </message>
-    <message>
         <source>%1 sends a folder...</source>
         <translation>%1 ഒരു ഫോള്‍ഡര്‍ അയക്കുന്നു...</translation>
     </message>
@@ -1126,18 +1043,6 @@
         <translation>സന്ദേശ ലിപിയുടെ നിറം മാറ്റുക</translation>
     </message>
     <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">ഫയല്‍ സ്വീകരിച്ചിരിക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">ഫയല്‍ നിരസിച്ചു.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="obsolete">റദ്ദാക്കി</translation>
-    </message>
-    <message>
         <source>Select Font</source>
         <translation>ലിപി തിരഞ്ഞെടുക്കുക</translation>
     </message>
@@ -1164,54 +1069,6 @@
     <message>
         <source>%1 sends a file...</source>
         <translation>%1 ഒരു ഫയല്‍ അയക്കുന്നു...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="obsolete">സ്വീകരിച്ചു</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="obsolete">നിരസിച്ചു</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="obsolete">%1 - പ്രക്ഷേപണം:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="obsolete">ഈ സന്ദേശം %1 എന്ന സുഹൃത്തിനു അയക്കാന്‍ സാധിച്ചില്ല:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="obsolete">താങ്കളുടെ സന്ദേശം അയക്കാന്‍ സാധിച്ചില്ല.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="obsolete">&apos;%1&apos; %2 എന്ന സുഹൃത്തിനു അയക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">റദ്ദാക്കുക</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="obsolete">%1 ഒരു ഫയല്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">ഫയല്‍ തന്നെത്താനെ സ്വീകരിച്ചിരിക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="obsolete">%1 ഒരു ഫയല്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="obsolete">സ്വീകരിക്കുക</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="obsolete">നിരസിക്കുക</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1440,114 +1297,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">%1 - പ്രക്ഷേപണം:</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">ഈ സന്ദേശം %1 എന്ന സുഹൃത്തിനു അയക്കാന്‍ സാധിച്ചില്ല:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">താങ്കളുടെ സന്ദേശം അയക്കാന്‍ സാധിച്ചില്ല.</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">&apos;%1&apos; %2 എന്ന സുഹൃത്തിനു അയക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">റദ്ദാക്കുക</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 ഒരു ഫയല്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">%1 ഒരു ഫോള്‍ഡര്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 ഒരു ഫയല്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">ഫയല്‍ തന്നെത്താനെ സ്വീകരിച്ചിരിക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">സ്വീകരിക്കുക</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">നിരസിക്കുക</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">സ്വീകരിച്ചു</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">ഫയല്‍ സ്വീകരിച്ചിരിക്കുന്നു.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">നിരസിച്ചു</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">ഫയല്‍ നിരസിച്ചു.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 ഒരു ഫോള്‍ഡര്‍ അയക്കുന്നു:</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">റദ്ദാക്കി</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">തടസ്സപ്പെട്ടു</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">പൂര്‍ത്തിയാക്കി</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 ടൈപ്പ് ചെയ്യുന്നു...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 സന്ദേശം എഴുതിയിരിക്കുന്നു</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 ഈ സംഭാഷണത്തില്‍ പങ്കു ചേര്‍ന്നിരിക്കുന്നു</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 ഈ സംഭാഷണത്തില്‍ നിന്നും പിന്‍വാങ്ങിയിരിക്കുന്നു</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;പകര്‍ത്തുക</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">&amp;എല്ലാം തിരഞ്ഞെടുക്കുക</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
-    <message>
-        <source>AaBbYyZz</source>
-        <translation type="obsolete">അആഇഈഉഊ</translation>
-    </message>
     <message>
         <source>Save History</source>
         <translation>ചരിത്രം സൂക്ഷിക്കുക</translation>
@@ -1595,10 +1345,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>ശബ്ദങ്ങള്‍ (ലഭ്യമല്ല)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">പുതിയതു തിരയുക</translation>
     </message>
     <message>
         <source>System</source>
@@ -1800,13 +1546,6 @@ LAN Messenger works on essentially every popular desktop platform.</source>
     <message>
         <source>You have the latest version of %1.</source>
         <translation>നിങ്ങളുടെ %1 വെര്‍ഷന്‍ ഏറ്റവും പുതിയതാണ്.</translation>
-    </message>
-</context>
-<context>
-    <name>lmcUserInfoDialog</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">വിവരങ്ങള്‍</translation>
     </message>
 </context>
 <context>

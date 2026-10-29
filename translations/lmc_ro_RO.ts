@@ -59,10 +59,6 @@
         <translation>Trimite către:</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation>Selectează tot</translation>
     </message>
@@ -211,10 +207,6 @@
         <translation>Formular</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation type="unfinished">Trimite</translation>
     </message>
@@ -291,10 +283,6 @@
         <translation>Data</translation>
     </message>
     <message>
-        <source>about:blank</source>
-        <translation type="obsolete">about:blank</translation>
-    </message>
-    <message>
         <source>Clear History</source>
         <translation>Șterge istoricul</translation>
     </message>
@@ -328,10 +316,6 @@
     <message>
         <source>Contacts</source>
         <translation>Contacte</translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
     </message>
 </context>
 <context>
@@ -664,10 +648,6 @@
         <translation>Vizualizează fișierele</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Tema chat</translation>
-    </message>
-    <message>
         <source>Contacts List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -850,10 +830,6 @@
     <message>
         <source>Contacts</source>
         <translation>Contacte</translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="obsolete">.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -1311,101 +1287,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Mesajul nu a fost livrat către %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Mesajul nu a fost trimis.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Mesaj către mai mulți trimis de la %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Trimit %1 către %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Anulează</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 trimite un fișier:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 trimite un fișier:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Fișierul a fost acceptat automat.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Acceptă</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Refuză</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Acceptat</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Ați acceptat fișierul.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Refuzat</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Ați refuzat fișierul.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Abandonat</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Întrerupt</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Finalizat</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 scrie...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 a introdus text</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 s-a alăturat conversației</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 a părasit conversația</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Copie(ază)</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Selectează &amp;tot</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1454,10 +1335,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Sunete (indisponibile)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Caută actualizări</translation>
     </message>
     <message>
         <source>System</source>

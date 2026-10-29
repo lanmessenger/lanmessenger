@@ -489,10 +489,6 @@
         <translation>Címlista</translation>
     </message>
     <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Üzenetablak témák</translation>
-    </message>
-    <message>
         <source>Incoming File Request</source>
         <translation>Bejövő fájlok fogadása</translation>
     </message>
@@ -973,10 +969,6 @@
 <context>
     <name>lmcChatWindow</name>
     <message>
-        <source>%1 types...</source>
-        <translation type="vanished">%1 írja...</translation>
-    </message>
-    <message>
         <source>Send a file to %1</source>
         <translation>Fájl küldése %1 -nak</translation>
     </message>
@@ -1292,110 +1284,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Másol</translation>
-    </message>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Az üzenetet %1 nem kapta meg:</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 kilépett a beszélgetésből</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 üzenetet ír...</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="vanished">Elutasítottad a fájlt.</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="vanished">%1 mappát küld neked:</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">%1 körüzenetet küldött:</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Kész</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Elfogad</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Mégsem</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 egy fájlt küld neked:</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 üzenetet írt</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 belépett a beszélgetésbe</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">&apos;%1&apos; küldése %2 -nak.</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Üzeneted nem lett elküldve.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Visszavonva</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Elfogadva</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Megszakítva</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Összes &amp;kijelölése</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Elutasít</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 fájl küld neked:</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Elutasítva</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="vanished">Elfogadtad a fájlt.</translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="vanished">%1 egy mappát küld neked:</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Frissítések keresése</translation>
-    </message>
     <message>
         <source>Select Color</source>
         <translation>Betűszín választása</translation>

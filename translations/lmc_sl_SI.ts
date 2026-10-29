@@ -565,10 +565,6 @@
         <translation>Največje število poskusov:</translation>
     </message>
     <message>
-        <source>Broadcast Settings</source>
-        <translation type="obsolete">Nastavitve Broadcast-a</translation>
-    </message>
-    <message>
         <source>Broadcast address:</source>
         <translation>Broadcast naslov:</translation>
     </message>
@@ -611,10 +607,6 @@
     <message>
         <source>View Files</source>
         <translation>Poglej datoteke</translation>
-    </message>
-    <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Videz pogovorov</translation>
     </message>
     <message>
         <source>Contacts List</source>
@@ -1291,101 +1283,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Sporočilo ni bilo poslano %1:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Vaše sporočilo ni bilo poslano.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Skupinsko sporočilo od %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Pošiljam &apos;%1&apos; %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Prekliči</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 vam pošilja datoteko:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 pošilja datoteko:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Datoteka je bila samodejno sprejeta.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Sprejmi</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Zavrni</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Sprejeto</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Sprejeli ste datoteko.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Zavrnjeno</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Zavrnili ste datoteko.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Preklicano</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 tipka...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 je vpisal besedilo</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 se je pridružil(a) pogovoru</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 je zapustil(a) pogovor</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopiraj</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Izberi &amp;Vse</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Prekinjeno</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Končano</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1426,10 +1323,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Zvoki (Ni na voljo)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Preveri posodobitve</translation>
     </message>
     <message>
         <source>Select sound</source>

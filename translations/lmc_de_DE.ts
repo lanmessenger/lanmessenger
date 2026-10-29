@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="de" sourcelanguage="en_US">
+<TS version="2.1" language="de_DE" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -585,10 +585,6 @@
         <translation>Broadcast-Liste:</translation>
     </message>
     <message>
-        <source>Broadcast Settings</source>
-        <translation type="obsolete">Broadcast-Einstellungen</translation>
-    </message>
-    <message>
         <source>Broadcast address:</source>
         <translation>Broadcast-Adresse:</translation>
     </message>
@@ -647,10 +643,6 @@
     <message>
         <source>View Files</source>
         <translation>Dateien anzeigen</translation>
-    </message>
-    <message>
-        <source>Chat Theme</source>
-        <translation type="vanished">Chat Ansicht</translation>
     </message>
     <message>
         <source>Contacts List</source>
@@ -1292,101 +1284,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
 </context>
 <context>
-    <name>lmcMessageLog</name>
-    <message>
-        <source>This message was not delivered to %1:</source>
-        <translation type="vanished">Die Nachricht an %1 wurde nicht zugestellt:</translation>
-    </message>
-    <message>
-        <source>Your message was not sent.</source>
-        <translation type="vanished">Ihre Nachricht wurde nicht gesendet.</translation>
-    </message>
-    <message>
-        <source>Broadcast message from %1:</source>
-        <translation type="vanished">Broadcast-Nachricht von %1:</translation>
-    </message>
-    <message>
-        <source>Sending &apos;%1&apos; to %2.</source>
-        <translation type="vanished">Sende &apos;%1&apos; an %2.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Abbrechen</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a file:</source>
-        <translation type="vanished">%1 sendet Ihnen eine Datei:</translation>
-    </message>
-    <message>
-        <source>%1 sends you a file:</source>
-        <translation type="vanished">%1 möchte Ihnen eine Datei senden:</translation>
-    </message>
-    <message>
-        <source>File has been accepted automatically.</source>
-        <translation type="obsolete">Datei wurde automatisch akzeptiert.</translation>
-    </message>
-    <message>
-        <source>Accept</source>
-        <translation type="vanished">Annehmen</translation>
-    </message>
-    <message>
-        <source>Decline</source>
-        <translation type="vanished">Ablehnen</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation type="vanished">Angenommen</translation>
-    </message>
-    <message>
-        <source>You have accepted the file.</source>
-        <translation type="obsolete">Sie haben die Datei angenommen.</translation>
-    </message>
-    <message>
-        <source>Declined</source>
-        <translation type="vanished">Abgelehnt</translation>
-    </message>
-    <message>
-        <source>You have declined the file.</source>
-        <translation type="obsolete">Sie haben die Datei abgelehnt.</translation>
-    </message>
-    <message>
-        <source>Canceled</source>
-        <translation type="vanished">Abgebrochen</translation>
-    </message>
-    <message>
-        <source>Interrupted</source>
-        <translation type="vanished">Unterbrochen</translation>
-    </message>
-    <message>
-        <source>Completed</source>
-        <translation type="vanished">Abgeschlossen</translation>
-    </message>
-    <message>
-        <source>%1 is typing...</source>
-        <translation type="vanished">%1 schreibt gerade...</translation>
-    </message>
-    <message>
-        <source>%1 has entered text</source>
-        <translation type="vanished">%1 hat einen Text eingegeben</translation>
-    </message>
-    <message>
-        <source>%1 has joined this conversation</source>
-        <translation type="vanished">%1 ist der Unterhaltung beigetreten</translation>
-    </message>
-    <message>
-        <source>%1 has left this conversation</source>
-        <translation type="vanished">%1 hat die Unterhaltung verlassen</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopieren</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Alles &amp;markieren</translation>
-    </message>
-</context>
-<context>
     <name>lmcSettingsDialog</name>
     <message>
         <source>Save History</source>
@@ -1435,10 +1332,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <message>
         <source>Sounds (Not Available)</source>
         <translation>Klänge (Nicht verfügbar)</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation type="vanished">Nach Updates suchen</translation>
     </message>
     <message>
         <source>System</source>
