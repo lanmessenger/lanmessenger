@@ -1111,7 +1111,9 @@
         <source>Preferences could not be imported from &apos;%1&apos;.
 
 File may not exist, or may not be compatible with this version of %2.</source>
-        <translation>A fájl nem létezik, vagy nem kompatibilis a %2 verzióval.</translation>
+        <translation>A beállításokat nem sikerült importálni innen: „%1”.
+
+A fájl nem létezik, vagy nem kompatibilis a %2 verzióval.</translation>
     </message>
     <message>
         <source>%1 cannot start because another application is using the port configured for use with %2.</source>

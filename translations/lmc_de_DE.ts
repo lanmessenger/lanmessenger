@@ -1303,7 +1303,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Are you sure you want to reset your %1 preferences?</source>
-        <translation>Möchten Sie die Benutzereinstellungen wirklich zurücksetzen?</translation>
+        <translation>Möchten Sie die %1-Einstellungen wirklich zurücksetzen?</translation>
     </message>
     <message>
         <source>Reset Preferences</source>

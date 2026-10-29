@@ -1267,7 +1267,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Send &amp;File</source>
-        <translation>Trimite &amp;amp;fișierul</translation>
+        <translation>Trimite &amp;fișierul</translation>
     </message>
     <message>
         <source>Send Fol&amp;der</source>
