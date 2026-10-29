@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="sl_SI">
+<TS version="2.1" language="sl_SI" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -35,6 +35,10 @@
         <source>Close</source>
         <translation>Zapri</translation>
     </message>
+    <message>
+        <source>&lt;_Qt Version&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BroadcastWindow</name>
@@ -66,63 +70,50 @@
 <context>
     <name>BubbleDelegate</name>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="248"/>
         <source>%1 sends you a folder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="249"/>
         <source>%1 sends you a file:</source>
         <translation>%1 pošilja datoteko:</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="251"/>
         <source>Sending &apos;%1&apos; to %2.</source>
         <translation>Pošiljam &apos;%1&apos; %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="259"/>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="273"/>
         <source>Accepted</source>
         <translation>Sprejeto</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
         <source>Accept</source>
         <translation>Sprejmi</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="263"/>
         <source>Decline</source>
         <translation>Zavrni</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="267"/>
         <source>Cancel</source>
         <translation>Prekliči</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="276"/>
         <source>Declined</source>
         <translation>Zavrnjeno</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="279"/>
         <source>Canceled</source>
         <translation>Preklicano</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="283"/>
         <source>Interrupted</source>
         <translation>Prekinjeno</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="286"/>
         <source>Completed</source>
         <translation>Končano</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/bubbledelegate.cpp" line="655"/>
         <source>You</source>
         <translation type="unfinished"></translation>
     </message>
@@ -130,75 +121,83 @@
 <context>
     <name>ChatMessageModel</name>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="367"/>
         <source>Broadcast message from %1:</source>
         <translation>Skupinsko sporočilo od %1:</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="374"/>
         <source>%1 sends you a file:</source>
         <translation>%1 pošilja datoteko:</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="375"/>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="378"/>
         <source>Sending &apos;%1&apos; to %2.</source>
         <translation>Pošiljam &apos;%1&apos; %2.</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="377"/>
         <source>%1 sends you a folder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="390"/>
         <source>This message was not delivered to %1:</source>
         <translation>Sporočilo ni bilo poslano %1:</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="393"/>
         <source>%1 has joined this conversation</source>
         <translation>%1 se je pridružil(a) pogovoru</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="395"/>
         <source>%1 has left this conversation</source>
         <translation>%1 je zapustil(a) pogovor</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="400"/>
         <source>%1 is typing...</source>
         <translation>%1 tipka...</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="402"/>
         <source>%1 has entered text</source>
         <translation>%1 je vpisal besedilo</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="441"/>
         <source>Accepted</source>
         <translation>Sprejeto</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="443"/>
         <source>Declined</source>
         <translation>Zavrnjeno</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="445"/>
         <source>Canceled</source>
         <translation>Preklicano</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="448"/>
         <source>Interrupted</source>
         <translation>Prekinjeno</translation>
     </message>
     <message>
-        <location filename="../src/gui/chat/chatmessagemodel.cpp" line="450"/>
         <source>Completed</source>
         <translation>Končano</translation>
+    </message>
+</context>
+<context>
+    <name>ChatMessageView</name>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">&amp;Kopiraj</translation>
+    </message>
+    <message>
+        <source>Select &amp;All</source>
+        <translation type="unfinished">Izberi &amp;Vse</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation type="unfinished">Sprejmi</translation>
+    </message>
+    <message>
+        <source>Decline</source>
+        <translation type="unfinished">Zavrni</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Prekliči</translation>
     </message>
 </context>
 <context>
@@ -207,12 +206,20 @@
         <source>Form</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished">Pošlji</translation>
+    </message>
 </context>
 <context>
     <name>ChatWindow</name>
     <message>
         <source>Form</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished">Pošlji</translation>
     </message>
 </context>
 <context>
@@ -607,7 +614,7 @@
     </message>
     <message>
         <source>Chat Theme</source>
-        <translation>Videz pogovorov</translation>
+        <translation type="vanished">Videz pogovorov</translation>
     </message>
     <message>
         <source>Contacts List</source>
@@ -679,6 +686,26 @@
     </message>
     <message>
         <source>Clear messages when window is closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Send button in chat windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -836,7 +863,6 @@
         <translation>Spremeni velikost pisave</translation>
     </message>
     <message>
-        <location filename="broadcastwindow.cpp" line="298"/>
         <source>Insert Emoji</source>
         <translation type="unfinished"></translation>
     </message>
@@ -908,7 +934,6 @@
         <translation>Spremeni pisavo sporočil</translation>
     </message>
     <message>
-        <location filename="chatroomwindow.cpp" line="693"/>
         <source>Insert Emoji</source>
         <translation type="unfinished"></translation>
     </message>
@@ -939,6 +964,14 @@
     <message>
         <source>Public Chat</source>
         <translation>Javni pogovor</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished">Pošlji</translation>
+    </message>
+    <message>
+        <source>Send message</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1012,7 +1045,6 @@
         <translation>Spremeni pisavo sporočil</translation>
     </message>
     <message>
-        <location filename="chatwindow.cpp" line="653"/>
         <source>Insert Emoji</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1054,6 +1086,14 @@
     </message>
     <message>
         <source>Send a folder to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation type="unfinished">Pošlji</translation>
+    </message>
+    <message>
+        <source>Send message</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1254,31 +1294,31 @@ File may not exist, or may not be compatible with this version of %2.</source>
     <name>lmcMessageLog</name>
     <message>
         <source>This message was not delivered to %1:</source>
-        <translation>Sporočilo ni bilo poslano %1:</translation>
+        <translation type="vanished">Sporočilo ni bilo poslano %1:</translation>
     </message>
     <message>
         <source>Your message was not sent.</source>
-        <translation>Vaše sporočilo ni bilo poslano.</translation>
+        <translation type="vanished">Vaše sporočilo ni bilo poslano.</translation>
     </message>
     <message>
         <source>Broadcast message from %1:</source>
-        <translation>Skupinsko sporočilo od %1:</translation>
+        <translation type="vanished">Skupinsko sporočilo od %1:</translation>
     </message>
     <message>
         <source>Sending &apos;%1&apos; to %2.</source>
-        <translation>Pošiljam &apos;%1&apos; %2.</translation>
+        <translation type="vanished">Pošiljam &apos;%1&apos; %2.</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Prekliči</translation>
+        <translation type="vanished">Prekliči</translation>
     </message>
     <message>
         <source>%1 is sending you a file:</source>
-        <translation>%1 vam pošilja datoteko:</translation>
+        <translation type="vanished">%1 vam pošilja datoteko:</translation>
     </message>
     <message>
         <source>%1 sends you a file:</source>
-        <translation>%1 pošilja datoteko:</translation>
+        <translation type="vanished">%1 pošilja datoteko:</translation>
     </message>
     <message>
         <source>File has been accepted automatically.</source>
@@ -1286,15 +1326,15 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Sprejmi</translation>
+        <translation type="vanished">Sprejmi</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation>Zavrni</translation>
+        <translation type="vanished">Zavrni</translation>
     </message>
     <message>
         <source>Accepted</source>
-        <translation>Sprejeto</translation>
+        <translation type="vanished">Sprejeto</translation>
     </message>
     <message>
         <source>You have accepted the file.</source>
@@ -1302,7 +1342,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Declined</source>
-        <translation>Zavrnjeno</translation>
+        <translation type="vanished">Zavrnjeno</translation>
     </message>
     <message>
         <source>You have declined the file.</source>
@@ -1310,47 +1350,39 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Canceled</source>
-        <translation>Preklicano</translation>
+        <translation type="vanished">Preklicano</translation>
     </message>
     <message>
         <source>%1 is typing...</source>
-        <translation>%1 tipka...</translation>
+        <translation type="vanished">%1 tipka...</translation>
     </message>
     <message>
         <source>%1 has entered text</source>
-        <translation>%1 je vpisal besedilo</translation>
+        <translation type="vanished">%1 je vpisal besedilo</translation>
     </message>
     <message>
         <source>%1 has joined this conversation</source>
-        <translation>%1 se je pridružil(a) pogovoru</translation>
+        <translation type="vanished">%1 se je pridružil(a) pogovoru</translation>
     </message>
     <message>
         <source>%1 has left this conversation</source>
-        <translation>%1 je zapustil(a) pogovor</translation>
+        <translation type="vanished">%1 je zapustil(a) pogovor</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopiraj</translation>
+        <translation type="vanished">&amp;Kopiraj</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>Izberi &amp;Vse</translation>
+        <translation type="vanished">Izberi &amp;Vse</translation>
     </message>
     <message>
         <source>Interrupted</source>
-        <translation>Prekinjeno</translation>
-    </message>
-    <message>
-        <source>%1 is sending you a folder:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 sends you a folder:</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Prekinjeno</translation>
     </message>
     <message>
         <source>Completed</source>
-        <translation>Končano</translation>
+        <translation type="vanished">Končano</translation>
     </message>
 </context>
 <context>
@@ -1397,7 +1429,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>Check for updates</source>
-        <translation>Preveri posodobitve</translation>
+        <translation type="vanished">Preveri posodobitve</translation>
     </message>
     <message>
         <source>Select sound</source>
@@ -1405,6 +1437,26 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>&lt;File Not Found&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">Sistem</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Empty = automatic: try 50000, use any free port if busy. Set a value to require that exact port.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
