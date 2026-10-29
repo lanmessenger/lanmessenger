@@ -13,7 +13,7 @@
 
 namespace {
 
-const int kColumns = 8;
+const int kColumns = 10;
 const int kCellSize = 32;
 const int kFontSizePt = 16;
 
@@ -53,6 +53,54 @@ const QStringList kEmojis = {
   QStringLiteral("\U0001F44C"),
   QStringLiteral("\U0001F622"),
   QStringLiteral("\U0001F605"),
+  QStringLiteral("\U0001F603"),
+  QStringLiteral("\U0001F604"),
+  QStringLiteral("\U0001F606"),
+  QStringLiteral("\U0001F607"),
+  QStringLiteral("\U0001F60B"),
+  QStringLiteral("\U0001F60F"),
+  QStringLiteral("\U0001F612"),
+  QStringLiteral("\U0001F613"),
+  QStringLiteral("\U0001F616"),
+  QStringLiteral("\U0001F61E"),
+  QStringLiteral("\U0001F62D"),
+  QStringLiteral("\U0001F631"),
+  QStringLiteral("\U0001F917"),
+  QStringLiteral("\U0001F92A"),
+  QStringLiteral("\U0001F608"),
+  QStringLiteral("\U0001F636"),
+  QStringLiteral("\U0001F64C"),
+  QStringLiteral("\U0001F91D"),
+  QStringLiteral("\U0001F44B"),
+  QStringLiteral("\U0001F446"),
+  QStringLiteral("\U0001F447"),
+  QStringLiteral("\U0001F449"),
+  QStringLiteral("\U0001F91E"),
+  QStringLiteral("\U0001F918"),
+  QStringLiteral("\u270C\uFE0F"),
+  QStringLiteral("\U0001F63A"),
+  QStringLiteral("\U0001F495"),
+  QStringLiteral("\U0001F49C"),
+  QStringLiteral("\u2B50\uFE0F"),
+  QStringLiteral("\U0001F31F"),
+  QStringLiteral("\U0001F308"),
+  QStringLiteral("\u2600\uFE0F"),
+  QStringLiteral("\u2615\uFE0F"),
+  QStringLiteral("\u2708\uFE0F"),
+  QStringLiteral("\u26BD\uFE0F"),
+  QStringLiteral("\u23F0\uFE0F"),
+  QStringLiteral("\U0001F339"),
+  QStringLiteral("\U0001F37A"),
+  QStringLiteral("\U0001F382"),
+  QStringLiteral("\U0001F381"),
+  QStringLiteral("\U0001F4F7"),
+  QStringLiteral("\U0001F4A1"),
+  QStringLiteral("\U0001F4BB"),
+  QStringLiteral("\U0001F697"),
+  QStringLiteral("\U0001F4A4"),
+  QStringLiteral("\U0001F340"),
+  QStringLiteral("\U0001F514"),
+  QStringLiteral("\U0001F3B5"),
 };
 
 } // namespace

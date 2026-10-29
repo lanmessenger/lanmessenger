@@ -319,7 +319,7 @@ void TstChatPure::emojiMatcherStartersAndContinuations() {
 void TstChatPure::emojiMatcherAllPickerEmojis() {
   //  Every picker cell is exactly one run.
   const QStringList& emojis = EmojiPicker::emojis();
-  QCOMPARE(emojis.size(), 32);
+  QCOMPARE(emojis.size(), 80);
   for(const QString& e : emojis) {
     QVERIFY2(!e.isEmpty(), qPrintable(QStringLiteral("empty picker cell")));
     QCOMPARE(ChatHelper::emojiRunLength(e, 0), e.length());
