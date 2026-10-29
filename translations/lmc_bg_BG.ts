@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Прекъсни</translation>
     </message>
 </context>
 <context>

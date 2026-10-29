@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;പകര്‍ത്തുക</translation>
+        <translation>&amp;പകര്‍ത്തുക</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">&amp;എല്ലാം തിരഞ്ഞെടുക്കുക</translation>
+        <translation>&amp;എല്ലാം തിരഞ്ഞെടുക്കുക</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">സ്വീകരിക്കുക</translation>
+        <translation>സ്വീകരിക്കുക</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">നിരസിക്കുക</translation>
+        <translation>നിരസിക്കുക</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">റദ്ദാക്കുക</translation>
+        <translation>റദ്ദാക്കുക</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">അയക്കുക</translation>
+        <translation>അയക്കുക</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">അയക്കുക</translation>
+        <translation>അയക്കുക</translation>
     </message>
 </context>
 <context>
@@ -966,7 +966,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">അയക്കുക</translation>
+        <translation>അയക്കുക</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1092,7 +1092,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">അയക്കുക</translation>
+        <translation>അയക്കുക</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1348,7 +1348,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">സിസ്റ്റം</translation>
+        <translation>സിസ്റ്റം</translation>
     </message>
     <message>
         <source>Light</source>
