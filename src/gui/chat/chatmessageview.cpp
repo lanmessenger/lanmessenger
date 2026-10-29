@@ -398,8 +398,6 @@ void ChatMessageView::syncToLayers() {
   syncModelIdentity();
   BubbleDelegate::DisplaySettings ds;
   ds.fontSizeVal = fontSizeVal;
-  ds.messageTime = messageTime;
-  ds.messageDate = messageDate;
   ds.allowLinks = allowLinks;
   ds.pathToLink = pathToLink;
   ds.trimMessage = trimMessage;

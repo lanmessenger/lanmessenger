@@ -527,16 +527,6 @@
         <translation>Applica a tutti i messaggi pubblici</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Aggiungi la data nei messaggi istantanei</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Visualizza la data e l&apos;ora</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Consenti collegamenti ipertestuali nei messaggi istantanei</translation>

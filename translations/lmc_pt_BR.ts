@@ -528,16 +528,6 @@
         <translation>Aplicar às mensagens públicas</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Adicionar timbre de horário às mensagens instantâneas</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Mostrar data no timbre de horário</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Permitir hyperlinks em mensagens instantâneas</translation>

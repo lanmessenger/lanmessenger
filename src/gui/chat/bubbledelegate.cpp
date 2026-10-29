@@ -106,17 +106,11 @@ QFont BubbleDelegate::headerTimeFont() const {
 }
 
 QString BubbleDelegate::rowTime(const QModelIndex& index) const {
-  if(!display.messageTime)
-    return QString();
   QDateTime t = index.data(ChatMessageModel::TimeRole).toDateTime();
   if(!t.isValid())
     return QString();
   //  Fixed breaking change: HH:mm from the theme, no longer QLocale::ShortFormat.
-  QString time = t.toString(theme.header.timeFormat.isEmpty() ? QStringLiteral("HH:mm")
-                                                              : theme.header.timeFormat);
-  if(display.messageDate)
-    time = t.toString(QStringLiteral("dd.MM.yyyy ")) + time;
-  return time;
+  return t.toString(theme.header.timeFormat);
 }
 
 QString BubbleDelegate::fileCardHtml(const QModelIndex& index) const {

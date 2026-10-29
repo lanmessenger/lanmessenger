@@ -39,7 +39,6 @@ protected:
 private slots:
   void lvCategories_currentRowChanged(int currentRow);
   void btnOk_clicked(void);
-  void chkMessageTime_toggled(bool checked);
   void chkAllowLinks_toggled(bool checked);
   void rdbSysHistoryPath_toggled(bool checked);
   void btnHistoryPath_clicked(void);

@@ -570,16 +570,6 @@
         <translation>Παράθυρο Μηνυμάτων</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="639"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Προσθήκη χρονοσφραγίδων στα άμεσα μηνύματα</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="664"/>
-        <source>Show date in time stamp</source>
-        <translation>Εμφάνιση ημερομηνίας στα άμεσα μηνύματα</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="575"/>
         <source>Set incoming messages foreground</source>
         <translation>Ορισμός προσκηνίου εισερχόμενων άμεσων μηνυμάτων</translation>

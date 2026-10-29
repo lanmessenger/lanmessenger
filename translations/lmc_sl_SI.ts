@@ -442,14 +442,6 @@
         <translation>Pomanjšaj prejeta sporočila v opravilno vrstico</translation>
     </message>
     <message>
-        <source>Add time stamp to instant messages</source>
-        <translation>Dodaj časovni žig v takojšnja sporočila</translation>
-    </message>
-    <message>
-        <source>Show date in time stamp</source>
-        <translation>Pokaži datum v časovnem žigu</translation>
-    </message>
-    <message>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Dovoli hiper-povezave v takojšnjih sporočilih</translation>
     </message>

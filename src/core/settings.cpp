@@ -105,12 +105,6 @@ bool lmcSettings::loadFromConfig(const QString& configFile) {
   value = extSettings.value(IDS_PUBMESSAGEPOP);
   if(value.isValid())
     setValue(IDS_PUBMESSAGEPOP, value);
-  value = extSettings.value(IDS_MESSAGETIME);
-  if(value.isValid())
-    setValue(IDS_MESSAGETIME, value);
-  value = extSettings.value(IDS_MESSAGEDATE);
-  if(value.isValid())
-    setValue(IDS_MESSAGEDATE, value);
   value = extSettings.value(IDS_ALLOWLINKS);
   if(value.isValid())
     setValue(IDS_ALLOWLINKS, value);

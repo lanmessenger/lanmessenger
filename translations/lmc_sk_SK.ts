@@ -527,16 +527,6 @@
         <translation>Platí aj pre verejný chat</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Zobrazovať čas odoslania správ</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Zobrazovať aj dátum odoslania správ</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Povoliť internetové odkazy v správach</translation>

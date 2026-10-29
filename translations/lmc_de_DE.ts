@@ -527,16 +527,6 @@
         <translation>Auf öffentliche Nachrichten anwenden</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Zeitstempel in Nachrichten anzeigen</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Zeige Datum im Zeitstempel</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Hyperlinks in Nachrichten erlauben</translation>

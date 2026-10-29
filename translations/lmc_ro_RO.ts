@@ -544,16 +544,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Adaugă marcaj de timp la mesaje</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Afișează data în marcajul de timp</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="646"/>
         <source>Allow hyperlinks in instant messages</source>
         <translation>Permite hyperlegături în mesaje</translation>

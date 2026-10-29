@@ -20,18 +20,15 @@ class BubbleDelegate : public QStyledItemDelegate {
 public:
   struct DisplaySettings {
     int fontSizeVal = 1;
-    bool messageTime = true;
-    bool messageDate = false;
     bool allowLinks = true;
     bool pathToLink = false;
     bool trimMessage = true;
     bool autoFile = false;
 
     bool operator==(const DisplaySettings& other) const {
-      return fontSizeVal == other.fontSizeVal &&
-             messageTime == other.messageTime && messageDate == other.messageDate &&
-             allowLinks == other.allowLinks && pathToLink == other.pathToLink &&
-             trimMessage == other.trimMessage && autoFile == other.autoFile;
+      return fontSizeVal == other.fontSizeVal && allowLinks == other.allowLinks &&
+             pathToLink == other.pathToLink && trimMessage == other.trimMessage &&
+             autoFile == other.autoFile;
     }
     bool operator!=(const DisplaySettings& other) const {
       return !(*this == other);

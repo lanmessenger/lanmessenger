@@ -564,16 +564,6 @@
         <translation>Okno wiadomości</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Dodaj znacznij czasowy do wiadomości</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Pokaż datę w znaczniku czasowym</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Wiadomość przychodząca na wierzchu</translation>

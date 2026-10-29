@@ -560,16 +560,6 @@
         <translation>Meddelandefönster</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Lägg till tidsstämpel i snabbmeddelanden</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Visa datum i tidsstämpel</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Visa inkommande meddelanden i förgrunden</translation>

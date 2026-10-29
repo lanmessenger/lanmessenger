@@ -134,8 +134,6 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   pSettings = new lmcSettings();
   pMessageLog->autoFile = pSettings->value(IDS_AUTOFILE, IDS_AUTOFILE_VAL).toBool();
   pMessageLog->fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
-  pMessageLog->messageTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
-  pMessageLog->messageDate = pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool();
   pMessageLog->allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   pMessageLog->pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   pMessageLog->trimMessage = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
@@ -311,8 +309,6 @@ void lmcChatWindow::settingsChanged(void) {
       pMessageLog->updateUserName(&loopbackEchoId, &localName);
   }
 
-  bool msgTime = pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool();
-  bool msgDate = pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool();
   bool allowLinks = pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool();
   bool pathToLink = pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool();
   bool trim = pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool();
@@ -332,11 +328,8 @@ void lmcChatWindow::settingsChanged(void) {
     pMessageLog->setAppearanceMode(appearanceMode);
     lookChanged = true;
   }
-  if(msgTime != pMessageLog->messageTime || msgDate != pMessageLog->messageDate ||
-     allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
+  if(allowLinks != pMessageLog->allowLinks || pathToLink != pMessageLog->pathToLink ||
      trim != pMessageLog->trimMessage) {
-    pMessageLog->messageTime = msgTime;
-    pMessageLog->messageDate = msgDate;
     pMessageLog->allowLinks = allowLinks;
     pMessageLog->pathToLink = pathToLink;
     pMessageLog->trimMessage = trim;

@@ -40,7 +40,6 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
 
   connect(ui.lvCategories, &QListWidget::currentRowChanged, this, &lmcSettingsDialog::lvCategories_currentRowChanged);
   connect(ui.btnOK, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnOk_clicked);
-  connect(ui.chkMessageTime, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkMessageTime_toggled);
   connect(ui.chkAllowLinks, &QAbstractButton::toggled, this, &lmcSettingsDialog::chkAllowLinks_toggled);
   connect(ui.rdbSysHistoryPath, &QAbstractButton::toggled, this, &lmcSettingsDialog::rdbSysHistoryPath_toggled);
   connect(ui.btnHistoryPath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnHistoryPath_clicked);
@@ -202,12 +201,6 @@ void lmcSettingsDialog::btnOk_clicked(void) {
   saveSettings();
 }
 
-void lmcSettingsDialog::chkMessageTime_toggled(bool checked) {
-  Q_UNUSED(checked);
-
-  ui.chkMessageDate->setEnabled(ui.chkMessageTime->isChecked());
-}
-
 void lmcSettingsDialog::chkAllowLinks_toggled(bool checked) {
   Q_UNUSED(checked);
 
@@ -295,7 +288,6 @@ void lmcSettingsDialog::refreshPreview(void) {
     pMessageLog->fontSizeVal = FS_MEDIUM;
   pMessageLog->localId = "Myself";
   pMessageLog->peerId = "Jack";
-  pMessageLog->messageTime = true;
   QString themeName = ui.cboTheme->currentData().toString();
   if(themeName.isEmpty() && pSettings)
     themeName = pSettings->value(IDS_THEME, IDS_THEME_VAL).toString();
@@ -553,8 +545,6 @@ void lmcSettingsDialog::loadSettings(void) {
   ui.rdbMessageTop->setChecked(pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
   ui.rdbMessageBottom->setChecked(!pSettings->value(IDS_MESSAGETOP, IDS_MESSAGETOP_VAL).toBool());
   ui.chkPublicMessagePop->setChecked(pSettings->value(IDS_PUBMESSAGEPOP, IDS_PUBMESSAGEPOP_VAL).toBool());
-  ui.chkMessageTime->setChecked(pSettings->value(IDS_MESSAGETIME, IDS_MESSAGETIME_VAL).toBool());
-  ui.chkMessageDate->setChecked(pSettings->value(IDS_MESSAGEDATE, IDS_MESSAGEDATE_VAL).toBool());
   ui.chkAllowLinks->setChecked(pSettings->value(IDS_ALLOWLINKS, IDS_ALLOWLINKS_VAL).toBool());
   ui.chkPathToLink->setChecked(pSettings->value(IDS_PATHTOLINK, IDS_PATHTOLINK_VAL).toBool());
   ui.chkTrimMessage->setChecked(pSettings->value(IDS_TRIMMESSAGE, IDS_TRIMMESSAGE_VAL).toBool());
@@ -646,8 +636,6 @@ void lmcSettingsDialog::saveSettings(void) {
 
   pSettings->setValue(IDS_MESSAGETOP, ui.rdbMessageTop->isChecked(), IDS_MESSAGETOP_VAL);
   pSettings->setValue(IDS_PUBMESSAGEPOP, ui.chkPublicMessagePop->isChecked(), IDS_PUBMESSAGEPOP_VAL);
-  pSettings->setValue(IDS_MESSAGETIME, ui.chkMessageTime->isChecked(), IDS_MESSAGETIME_VAL);
-  pSettings->setValue(IDS_MESSAGEDATE, ui.chkMessageDate->isChecked(), IDS_MESSAGEDATE_VAL);
   pSettings->setValue(IDS_ALLOWLINKS, ui.chkAllowLinks->isChecked(), IDS_ALLOWLINKS_VAL);
   pSettings->setValue(IDS_PATHTOLINK, ui.chkPathToLink->isChecked(), IDS_PATHTOLINK_VAL);
   pSettings->setValue(IDS_TRIMMESSAGE, ui.chkTrimMessage->isChecked(), IDS_TRIMMESSAGE_VAL);

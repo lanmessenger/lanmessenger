@@ -642,10 +642,6 @@
         <translation>Állapot jelzések felfüggesztése amíg Elfoglalt vagyok</translation>
     </message>
     <message>
-        <source>Show date in time stamp</source>
-        <translation>Dátumot is mutassa</translation>
-    </message>
-    <message>
         <source>Minimize main window to system tray</source>
         <translation>Ablak minimalizálása a tálcára</translation>
     </message>
@@ -664,10 +660,6 @@
     <message>
         <source>Change Color...</source>
         <translation>Betűszín...</translation>
-    </message>
-    <message>
-        <source>Add time stamp to instant messages</source>
-        <translation>Időbélyeg hozzáadása az üzenetekhez</translation>
     </message>
     <message>
         <source>Status Alerts</source>

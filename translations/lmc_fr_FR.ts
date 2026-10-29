@@ -570,16 +570,6 @@
         <translation>Fenêtre des messages</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Ajouter horodatage des messages instantanés</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Afficher la date en temps Stamo</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Réglez entrants plan messages</translation>

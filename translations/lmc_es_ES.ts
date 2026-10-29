@@ -560,16 +560,6 @@
         <translation>Ventana de mensajes</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Agregar fecha y hora a los mensajes instantáneos</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Mostrar el tiempo en fecha y hora</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Establecer en primer plano los mensajes recibidos</translation>

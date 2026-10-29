@@ -560,16 +560,6 @@
         <translation>Прозорец със съобщения</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>Показвай време (час) на съобщенията</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>Показвай дата на съобщенията</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>Показвай идващите съобщения на преден план</translation>

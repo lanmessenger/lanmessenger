@@ -559,16 +559,6 @@
         <translation>സന്ദേശ ജാലകം</translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="612"/>
-        <source>Add time stamp to instant messages</source>
-        <translation>സന്ദേശങ്ങളില്‍ സമയം ഉള്‍പ്പെടുത്തുക</translation>
-    </message>
-    <message>
-        <location filename="settingsdialog.ui" line="637"/>
-        <source>Show date in time stamp</source>
-        <translation>സമയത്തില്‍ തീയതി ഉള്‍പ്പെടുത്തുക</translation>
-    </message>
-    <message>
         <location filename="settingsdialog.ui" line="548"/>
         <source>Set incoming messages foreground</source>
         <translation>സന്ദേശങ്ങള്‍ ലഭിക്കുമ്പോള്‍ ജാലകം മുകളില്‍ കൊണ്ടു വരുക</translation>

@@ -102,8 +102,6 @@ Keys without a section prefix.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `MessageTime` | bool, `true` | Show the time next to messages. |
-| `MessageDate` | bool, `false` | Show the date next to messages. |
 | `AllowLinks` | bool, `true` | Turn URLs into clickable links. |
 | `PathToLink` | bool, `false` | Turn file paths into clickable links. |
 | `Trim` | bool, `true` | Trim leading/trailing whitespace from messages. |

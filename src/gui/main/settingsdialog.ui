@@ -594,40 +594,6 @@
              </spacer>
             </item>
             <item>
-             <widget class="QCheckBox" name="chkMessageTime">
-              <property name="text">
-               <string>Add time stamp to instant messages</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <spacer name="horizontalSpacer_5">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>10</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkMessageDate">
-                <property name="text">
-                 <string>Show date in time stamp</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
              <widget class="QCheckBox" name="chkAllowLinks">
               <property name="text">
                <string>Allow hyperlinks in instant messages</string>
@@ -2165,8 +2131,6 @@
   <tabstop>rdbMessageTop</tabstop>
   <tabstop>rdbMessageBottom</tabstop>
   <tabstop>chkPublicMessagePop</tabstop>
-  <tabstop>chkMessageTime</tabstop>
-  <tabstop>chkMessageDate</tabstop>
   <tabstop>chkAllowLinks</tabstop>
   <tabstop>chkPathToLink</tabstop>
   <tabstop>chkTrimMessage</tabstop>

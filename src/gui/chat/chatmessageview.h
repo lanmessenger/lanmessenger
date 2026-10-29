@@ -61,8 +61,6 @@ public:
   bool hasData = false;
   int fontSizeVal = 1;
   bool autoFile = false;
-  bool messageTime = true;
-  bool messageDate = false;
   bool allowLinks = true;
   bool pathToLink = false;
   bool trimMessage = true;
