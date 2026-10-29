@@ -4,9 +4,11 @@
 
 #include <QtTest>
 
+#include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QMouseEvent>
 #include <QTimer>
 
 #include "core/definitions.h"
@@ -83,6 +85,17 @@ void appendChatState(ChatMessageView& view, ChatState state) {
 
 QPoint rowCenter(ChatMessageView& view, int row) {
   return view.visualRect(view.model()->index(row, 0)).center();
+}
+
+//  QTest::mouseMove(widget, pos, delay) takes a delay, not buttons: on
+//  Qt < 6.3 widget moves go through QCursor::setPos, which delivers nothing
+//  on offscreen, so a QTest-driven drag never extends there. Send the move
+//  directly instead (same viewport -> view path as QTest::mousePress,
+//  explicit LeftButton state): works on Qt 6.2 offscreen, 6.4+ and xcb.
+void dragMove(ChatMessageView& view, const QPoint& pos) {
+  QMouseEvent move(QEvent::MouseMove, pos, view.viewport()->mapToGlobal(pos), Qt::NoButton,
+                   Qt::LeftButton, Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &move);
 }
 
 void invoke(ChatMessageView& view, const char* slot) {
@@ -226,7 +239,7 @@ void TstChatSelectAll::leftDragSelectsFragment() {
   const QPoint start = rowCenter(view, 0);
   const QPoint end = start + QPoint(80, 0);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
-  QTest::mouseMove(view.viewport(), end, Qt::LeftButton);
+  dragMove(view, end);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
   const QString frag = copiedText(view);
   QVERIFY(!frag.isEmpty());
@@ -376,7 +389,7 @@ void TstChatSelectAll::dragBackwardSelectsFragment() {
   const QPoint start = rowCenter(view, 0) + QPoint(80, 0);
   const QPoint end = start - QPoint(160, 0);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
-  QTest::mouseMove(view.viewport(), end, Qt::LeftButton);
+  dragMove(view, end);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
   const QString frag = copiedText(view);
   QVERIFY(!frag.isEmpty());
@@ -393,7 +406,7 @@ void TstChatSelectAll::dragClampTakesSuffix() {
   const int below = view.visualRect(view.model()->index(0, 0)).bottom() + 40;
   const QPoint end(start.x(), below);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
-  QTest::mouseMove(view.viewport(), end, Qt::LeftButton);
+  dragMove(view, end);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
   const QString frag = copiedText(view);
   QVERIFY(!frag.isEmpty());
@@ -408,7 +421,7 @@ void TstChatSelectAll::dragStaysInStartRow() {
   const QPoint start = rowCenter(view, 0);
   const QPoint end = rowCenter(view, 1);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
-  QTest::mouseMove(view.viewport(), end, Qt::LeftButton);
+  dragMove(view, end);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
   const QString frag = copiedText(view);
   QVERIFY(!frag.isEmpty());
