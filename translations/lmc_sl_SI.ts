@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopiraj</translation>
+        <translation>&amp;Kopiraj</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Izberi &amp;Vse</translation>
+        <translation>Izberi &amp;Vse</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Sprejmi</translation>
+        <translation>Sprejmi</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Zavrni</translation>
+        <translation>Zavrni</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Prekliči</translation>
+        <translation>Prekliči</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
 </context>
 <context>
@@ -959,7 +959,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1082,7 +1082,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Pošlji</translation>
+        <translation>Pošlji</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1334,7 +1334,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Sistem</translation>
+        <translation>Sistem</translation>
     </message>
     <message>
         <source>Light</source>

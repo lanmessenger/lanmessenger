@@ -181,19 +181,19 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Copia</translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Seleziona &amp;Tutto</translation>
+        <translation>Seleziona &amp;Tutto</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Accetta</translation>
+        <translation>Accetta</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Rifiuta</translation>
+        <translation>Rifiuta</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Invia</translation>
+        <translation>Invia</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Invia</translation>
+        <translation>Invia</translation>
     </message>
 </context>
 <context>
@@ -959,7 +959,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Invia</translation>
+        <translation>Invia</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1082,7 +1082,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Invia</translation>
+        <translation>Invia</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1337,7 +1337,7 @@ File potrebbero non esistere, oppure potrebbe non essere compatibile con questa 
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Sistema</translation>
+        <translation>Sistema</translation>
     </message>
     <message>
         <source>Light</source>

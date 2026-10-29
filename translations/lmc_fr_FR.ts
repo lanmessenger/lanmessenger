@@ -181,15 +181,15 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">Co&amp;pier</translation>
+        <translation>Co&amp;pier</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Sélectionner &amp;Tout</translation>
+        <translation>Sélectionner &amp;Tout</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Accepter</translation>
+        <translation>Accepter</translation>
     </message>
     <message>
         <source>Decline</source>
@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Envoyer</translation>
+        <translation>Envoyer</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Envoyer</translation>
+        <translation>Envoyer</translation>
     </message>
 </context>
 <context>
@@ -966,7 +966,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Envoyer</translation>
+        <translation>Envoyer</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Envoyer</translation>
+        <translation>Envoyer</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1343,7 +1343,7 @@ Désirez-vous vraiment continuer?</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Système</translation>
+        <translation>Système</translation>
     </message>
     <message>
         <source>Light</source>

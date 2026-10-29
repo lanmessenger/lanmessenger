@@ -185,7 +185,7 @@
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">&amp;모두 선택</translation>
+        <translation>&amp;모두 선택</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -193,11 +193,11 @@
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">거부</translation>
+        <translation>거부</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">취소</translation>
+        <translation>취소</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">보내기</translation>
+        <translation>보내기</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">보내기</translation>
+        <translation>보내기</translation>
     </message>
 </context>
 <context>
@@ -966,7 +966,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">보내기</translation>
+        <translation>보내기</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">보내기</translation>
+        <translation>보내기</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1342,7 +1342,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">시스템</translation>
+        <translation>시스템</translation>
     </message>
     <message>
         <source>Light</source>

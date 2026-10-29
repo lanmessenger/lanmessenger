@@ -181,19 +181,19 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Копиране</translation>
+        <translation>&amp;Копиране</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Избор &amp;на всичко</translation>
+        <translation>Избор &amp;на всичко</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Приеми</translation>
+        <translation>Приеми</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Откажи</translation>
+        <translation>Откажи</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Изпрати</translation>
+        <translation>Изпрати</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Изпрати</translation>
+        <translation>Изпрати</translation>
     </message>
 </context>
 <context>
@@ -966,7 +966,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Изпрати</translation>
+        <translation>Изпрати</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1090,7 +1090,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Изпрати</translation>
+        <translation>Изпрати</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1343,7 +1343,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Системни</translation>
+        <translation>Системни</translation>
     </message>
     <message>
         <source>Light</source>

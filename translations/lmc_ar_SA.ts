@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;نسخ</translation>
+        <translation>&amp;نسخ</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">اختيار &amp;الكل</translation>
+        <translation>اختيار &amp;الكل</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">موافق</translation>
+        <translation>موافق</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">رفض</translation>
+        <translation>رفض</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">الغاء</translation>
+        <translation>الغاء</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">ارسال</translation>
+        <translation>ارسال</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">ارسال</translation>
+        <translation>ارسال</translation>
     </message>
 </context>
 <context>
@@ -962,7 +962,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">ارسال</translation>
+        <translation>ارسال</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1085,7 +1085,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">ارسال</translation>
+        <translation>ارسال</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1338,7 +1338,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">النظام</translation>
+        <translation>النظام</translation>
     </message>
     <message>
         <source>Light</source>

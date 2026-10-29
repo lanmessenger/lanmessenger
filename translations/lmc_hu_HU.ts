@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Másol</translation>
+        <translation>&amp;Másol</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Összes &amp;kijelölése</translation>
+        <translation>Összes &amp;kijelölése</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Elfogad</translation>
+        <translation>Elfogad</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Elutasít</translation>
+        <translation>Elutasít</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Küldés</translation>
+        <translation>Küldés</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Küldés</translation>
+        <translation>Küldés</translation>
     </message>
 </context>
 <context>
@@ -959,7 +959,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Küldés</translation>
+        <translation>Küldés</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1082,7 +1082,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Küldés</translation>
+        <translation>Küldés</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1335,7 +1335,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Rendszer</translation>
+        <translation>Rendszer</translation>
     </message>
     <message>
         <source>Light</source>

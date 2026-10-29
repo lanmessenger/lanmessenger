@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">コピー(&amp;C)</translation>
+        <translation>コピー(&amp;C)</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">すべて選択(&amp;A)</translation>
+        <translation>すべて選択(&amp;A)</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">承認</translation>
+        <translation>承認</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">拒否</translation>
+        <translation>拒否</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
+        <translation>キャンセル</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">送信</translation>
+        <translation>送信</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">送信</translation>
+        <translation>送信</translation>
     </message>
 </context>
 <context>
@@ -234,7 +234,7 @@
     </message>
     <message>
         <source>Calculating time</source>
-        <translation type="unfinished">所要時間を計算中</translation>
+        <translation>所要時間を計算中</translation>
     </message>
     <message>
         <source>To: </source>
@@ -966,7 +966,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">送信</translation>
+        <translation>送信</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">送信</translation>
+        <translation>送信</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1344,7 +1344,7 @@ File may not exist, or may not be compatible with this version of %2.</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">システム</translation>
+        <translation>システム</translation>
     </message>
     <message>
         <source>Light</source>

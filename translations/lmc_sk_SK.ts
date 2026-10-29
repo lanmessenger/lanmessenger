@@ -181,23 +181,23 @@
     <name>ChatMessageView</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopírovať</translation>
+        <translation>&amp;Kopírovať</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Vybrať &amp;všetko</translation>
+        <translation>Vybrať &amp;všetko</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Prijať</translation>
+        <translation>Prijať</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished">Odmietnuť</translation>
+        <translation>Odmietnuť</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Zrušiť</translation>
+        <translation>Zrušiť</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Odoslať</translation>
+        <translation>Odoslať</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Odoslať</translation>
+        <translation>Odoslať</translation>
     </message>
 </context>
 <context>
@@ -959,7 +959,7 @@
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Odoslať</translation>
+        <translation>Odoslať</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1078,11 +1078,11 @@
     </message>
     <message>
         <source>Group Conversation</source>
-        <translation type="unfinished">Skupinová konverzácia</translation>
+        <translation>Skupinová konverzácia</translation>
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished">Odoslať</translation>
+        <translation>Odoslať</translation>
     </message>
     <message>
         <source>Send message</source>
@@ -1337,7 +1337,7 @@ Súbor neexistuje alebo nie je kompatibilný s touto verziou programu %2.</trans
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Systém</translation>
+        <translation>Systém</translation>
     </message>
     <message>
         <source>Light</source>
