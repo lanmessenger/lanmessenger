@@ -38,7 +38,7 @@ On macOS the DMG is ad-hoc signed and not notarized. If Gatekeeper blocks the fi
 sudo xattr -dr com.apple.quarantine "/Applications/LAN-Messenger.app"
 ```
 
-See [Installing on macOS](docs/install-macos.md) for details.
+See [Installing on macOS](docs/install-macos.md) and [Installing on Linux](docs/install-linux.md) for details.
 
 ## Downloads and Documentation
 
