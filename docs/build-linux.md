@@ -1,6 +1,6 @@
 ---
 title: Building on Linux
-description: CMake build, launch scripts, debugging, and deb/rpm packaging.
+description: CMake build, launch scripts, debugging, and deb/rpm/Arch packaging.
 ---
 
 Prerequisites first: [Build prerequisites](build-prerequisites.md) (OpenSSL layout, CMake,
@@ -44,10 +44,10 @@ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 This will be valid only for the current session. It has to be run again
 after a log out or restart.
 
-## Installer (deb and rpm)
+## Installer (deb, rpm, Arch)
 
-Both Linux system packages are built from a single `nfpm.yaml` in the
-`setup/linux` folder, on top of the payload tree staged by `stage.sh`
+All three Linux system packages are built from a single `nfpm.yaml` in
+the `setup/linux` folder, on top of the payload tree staged by `stage.sh`
 from `release` (the `package-local` target must have run first, see
 above; CI does this in `build.yml`):
 
@@ -61,11 +61,21 @@ NFPM=/path/to/nfpm sh ./package.sh 1.2.39
 download `nfpm_*_Linux_x86_64.tar.gz` from the
 [nfpm releases](https://github.com/goreleaser/nfpm/releases) (pin the
 version, verify the sha256 from `checksums.txt`). `package.sh` builds
-`lmc_<version>_<arch>_min.deb` and `lmc-<version>.<arch>_min.rpm`
-into the `setup` folder. Only system-Qt packages are built (the `_min`
-suffix is legacy, kept for artifact stability); the `Depends`/`Requires`
-in `nfpm.yaml` pull the system Qt 6 libraries. Bundled Qt is not
+into the `setup` folder:
+
+- `lmc_<version>_amd64.deb`
+- `lmc-<version>-1.x86_64.rpm`
+- `lmc-<version>-1-x86_64.pkg.tar.zst`
+
+Only system-Qt packages are built; the `Depends`/`Requires` in
+`nfpm.yaml` pull the system Qt 6 libraries. Bundled Qt is not
 supported.
+
+Nightly versions look like `1.2.40~nightly.123` in deb/rpm and
+`1.2.40_nightly.123` in the Arch package (`pkgver` forbids `~` and `-`,
+so `package.sh` maps them to `_`). Nightly Arch packages sort newer than
+the matching release; switching from a nightly to that release looks
+like a downgrade to pacman.
 
 Dependencies are declared once per ecosystem in `nfpm.yaml`
 (`overrides.rpm` carries the Fedora names). Icon caches need no
@@ -81,6 +91,7 @@ default):
 
 - Debian/Ubuntu: `fonts-noto-color-emoji`
 - Fedora/RHEL: `google-noto-color-emoji-fonts`
+- Arch: `noto-fonts-emoji`
 
 The app also runs without it (monochrome/tofu fallback). If emoji show
 up as empty boxes (tofu), install the font manually:
@@ -88,4 +99,5 @@ up as empty boxes (tofu), install the font manually:
 ```bash
 sudo apt-get install fonts-noto-color-emoji   # Debian/Ubuntu
 sudo dnf install google-noto-color-emoji-fonts  # Fedora
+sudo pacman -S noto-fonts-emoji                 # Arch
 ```

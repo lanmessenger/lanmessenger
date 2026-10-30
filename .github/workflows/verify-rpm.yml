@@ -6,8 +6,9 @@
 # No inputs needed: the artifact name (packages-linux) is fixed, and the
 # install goes to the real system paths (/usr/...) — the container is
 # ephemeral. No rebuild here by design. The .rpm is built from the same
-# staged payload tree as the .deb (see setup/linux/nfpm.yaml); the deb-side
-# smoke lives in verify-deb.yml.
+# staged payload tree as the .deb and the Arch package (see
+# setup/linux/nfpm.yaml); the deb-side smoke lives in verify-deb.yml,
+# the Arch side in verify-arch.yml.
 #
 # Strict gate by design: dnf installs ONLY the rpm, so the Requires in
 # nfpm.yaml (Qt, openssl-libs) must resolve everything. The emoji font
@@ -46,7 +47,7 @@ jobs:
       - name: Install package
         run: |
           set -euo pipefail
-          rpm=(dist/lmc-*_min.rpm)
+          rpm=(dist/lmc-*.rpm)
           if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
           dnf -y install "./${rpm[0]}" \
             xorg-x11-server-Xvfb xdpyinfo appstream
@@ -56,7 +57,7 @@ jobs:
       - name: Record rpm metadata (Requires, weak deps, scriptlets)
         run: |
           set -euo pipefail
-          rpm=(dist/lmc-*_min.rpm)
+          rpm=(dist/lmc-*.rpm)
           if [ ! -f "${rpm[0]}" ]; then echo 'rpm not found in dist/' >&2; exit 1; fi
           echo '--- Requires ---'
           rpm -qpR "./${rpm[0]}"
@@ -122,7 +123,7 @@ jobs:
       # risks — missing .so libs, xcb platform plugin, lmc.rcc, lang/*.qm —
       # same coverage as the Linux smoke in build.yml. The full lifecycle
       # (exec/IPC/SSL-backend dialog) is gated by verify-deb.yml and e2e on
-      # the identical payload (both formats are built from the same staged
+      # the identical payload (all three formats are built from the same staged
       # tree by setup/linux, see nfpm.yaml).
       # Runs through the real installed entry point (lmc -> lmc.sh), which
       # also covers the LD_LIBRARY_PATH launcher.

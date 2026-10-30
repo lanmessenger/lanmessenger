@@ -1,10 +1,13 @@
-# Single source for the Linux system packages: deb and rpm are built from
-# this file by setup/linux/package.sh (nfpm). Per-format differences live
-# only in `overrides` below; the payload tree is shared.
+# Single source for the Linux system packages: deb, rpm and archlinux are
+# built from this file by setup/linux/package.sh (nfpm). Per-format
+# differences live only in `overrides` below; the payload tree is shared.
 #
 # Version/arch/release come from the environment (set by package.sh per
 # invocation): deb keeps the plain upstream version (empty release), rpm
-# uses release 1. nfpm maps arch x86_64 to deb amd64 automatically.
+# and archlinux use release 1. Arch gets a sanitized version (package.sh
+# maps `~`/`-` to `_`, pkgver forbids them); nightly-only caveat: the
+# sanitized nightly sorts newer than the release (see docs/build-linux.md).
+# nfpm maps arch x86_64 to deb amd64 automatically.
 name: lmc
 arch: ${LMC_ARCH}
 platform: linux
@@ -42,3 +45,14 @@ overrides:
     - openssl-libs
     recommends:
     - google-noto-color-emoji-fonts
+  archlinux:
+    depends:
+    - qt6-base
+    # Not the bare qt6-multimedia: it is a virtual provider group and
+    # pacman would interactively ask to pick qt6-multimedia-backend,
+    # hanging CI. The ffmpeg variant resolves non-interactively.
+    - qt6-multimedia-ffmpeg
+    - openssl
+    # Recommends and Suggests both land in .PKGINFO optdepend.
+    recommends:
+    - noto-fonts-emoji

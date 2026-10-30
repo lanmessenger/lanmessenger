@@ -1,0 +1,147 @@
+# Smoke test for the Linux Arch package: installs the exact
+# packages-linux artifact built by build.yml in an Arch container and starts
+# the installed app. Shared by release.yml and nightly.yml so the two
+# publish gates cannot drift apart.
+#
+# No inputs needed: the artifact name (packages-linux) is fixed, and the
+# install goes to the real system paths (/usr/...) — the container is
+# ephemeral. No rebuild here by design. The .pkg.tar.zst is built from the
+# same staged payload tree as the .deb and the .rpm (see
+# setup/linux/nfpm.yaml); the deb-side smoke lives in verify-deb.yml,
+# the rpm side in verify-rpm.yml.
+#
+# Strict gate by design: pacman installs ONLY the package, so the depends
+# in nfpm.yaml (qt6-base, qt6-multimedia-ffmpeg, openssl) must resolve
+# everything. The emoji font rides along as a weak dependency (optdepend).
+# NOTE: the ffmpeg backend variant is required — the bare qt6-multimedia
+# is a virtual provider group and pacman would interactively ask to pick
+# qt6-multimedia-backend, hanging CI.
+name: Verify arch
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    container:
+      image: archlinux:latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-linux
+          path: dist
+          merge-multiple: true
+
+      - name: List package artifact
+        run: ls -la dist
+
+      # Strict gate: only the package itself is installed, so pacman must
+      # resolve the system Qt and openssl from the depends in nfpm.yaml. If
+      # this fails on missing dependencies, the package metadata is wrong —
+      # not the test. Xvfb/xdpyinfo back the X-readiness wait below,
+      # appstream validates the metainfo.
+      - name: Install package
+        run: |
+          set -euo pipefail
+          pacman -Syu --noconfirm xorg-server-xvfb xorg-xdpyinfo appstream
+          pkg=(dist/lmc-*.pkg.tar.zst)
+          if [ ! -f "${pkg[0]}" ]; then echo 'arch package not found in dist/' >&2; exit 1; fi
+          pacman -U --noconfirm "./${pkg[0]}"
+          pacman -Qi lmc
+          pacman -Ql lmc
+
+      - name: Record package metadata (depends, optdepends)
+        run: |
+          set -euo pipefail
+          pkg=(dist/lmc-*.pkg.tar.zst)
+          if [ ! -f "${pkg[0]}" ]; then echo 'arch package not found in dist/' >&2; exit 1; fi
+          echo '--- .PKGINFO ---'
+          tar -xOf "./${pkg[0]}" .PKGINFO
+          echo '--- depends ---'
+          for dep in qt6-base qt6-multimedia-ffmpeg openssl; do
+            tar -xOf "./${pkg[0]}" .PKGINFO | grep -Eq "^depend = ${dep}([ >=]|$)" \
+              || { echo "missing depend: ${dep}" >&2; exit 1; }
+          done
+          echo '--- optdepends ---'
+          tar -xOf "./${pkg[0]}" .PKGINFO | grep -E '^optdepend = ' || true
+          tar -xOf "./${pkg[0]}" .PKGINFO | grep -Eq '^optdepend = noto-fonts-emoji' \
+            || { echo 'missing optdepend: noto-fonts-emoji' >&2; exit 1; }
+
+      - name: Verify installed layout
+        run: |
+          set -euo pipefail
+          command -v lmc
+          test -L /usr/bin/lmc
+          for f in /usr/lib/lmc/lan-messenger /usr/lib/lmc/lmc.sh /usr/lib/lmc/lmc.rcc \
+                   /usr/share/applications/lmc.desktop \
+                   /usr/share/metainfo/lmc.metainfo.xml \
+                   /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
+            test -e "$f" || { echo "missing $f" >&2; exit 1; }
+          done
+
+      - name: Validate AppStream metadata
+        run: |
+          set -euo pipefail
+          appstreamcli validate --no-net /usr/share/metainfo/lmc.metainfo.xml
+
+      # One shared X server for the smoke steps below: steps of a job share
+      # the container, so Xvfb started here outlives this step. DISPLAY/USER/
+      # QT_QPA_PLATFORM go to $GITHUB_ENV for the smoke steps. No trap/kill
+      # needed — the ephemeral container is discarded with the job.
+      #
+      # Explicit Xvfb with an xdpyinfo wait instead of xvfb-run -a: xvfb-run
+      # does not wait for the X server to be ready, so Qt occasionally
+      # connects too early ("could not connect to display" flake). A live
+      # xdpyinfo round-trip proves more than the socket showing up.
+      - name: Start Xvfb
+        run: |
+          set -euo pipefail
+          disp=""
+          for n in 99 100 101 102; do
+            if [ ! -e /tmp/.X$n-lock ] && [ ! -S /tmp/.X11-unix/X$n ]; then disp=$n; break; fi
+          done
+          if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
+          Xvfb :$disp -screen 0 1280x1024x24 &
+          for _ in $(seq 1 30); do
+            xdpyinfo -display :$disp >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :$disp >/dev/null || { echo 'Xvfb did not start' >&2; exit 1; }
+          echo "DISPLAY=:$disp" >> "$GITHUB_ENV"
+          echo "USER=ci" >> "$GITHUB_ENV"
+          echo "QT_QPA_PLATFORM=xcb" >> "$GITHUB_ENV"
+
+      # Package gate: /quit exits after core init (see apprunner.cpp:
+      # QApplication, lmc.rcc, translations, settings/messaging/mainwindow
+      # init) without entering the event loop. That covers the packaging
+      # risks — missing .so libs, xcb platform plugin, lmc.rcc, lang/*.qm —
+      # same coverage as the Linux smoke in build.yml. The full lifecycle
+      # (exec/IPC/SSL-backend dialog) is gated by verify-deb.yml and e2e on
+      # the identical payload (all formats are built from the same staged
+      # tree by setup/linux, see nfpm.yaml).
+      # Runs through the real installed entry point (lmc -> lmc.sh), which
+      # also covers the LD_LIBRARY_PATH launcher.
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          timeout 60 lmc /loopback /noconfig /quit
+          lmc /inst
+
+      - name: Uninstall package
+        run: |
+          set -euo pipefail
+          pacman -R --noconfirm lmc
+          if pacman -Q lmc >/dev/null 2>&1; then echo 'lmc still installed' >&2; exit 1; fi
+          test ! -e /usr/lib/lmc/lan-messenger
+
+      - name: Dump package state on failure
+        if: failure()
+        run: |
+          echo "DISPLAY=${DISPLAY:-<unset>}"
+          ls -la /tmp/.X11-unix/ || true
+          pacman -Q | grep -i lmc || true
+          pacman -Ql lmc || true

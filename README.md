@@ -28,7 +28,7 @@ local network. No dedicated messaging server or internet connection required.
 
 ## Quick Start
 
-1. Download the package for your operating system (`.exe` for Windows, `.dmg` for macOS, or `.deb`/`.rpm` for Linux) from the [releases page](https://github.com/lanmessenger/lanmessenger/releases).
+1. Download the package for your operating system (`.exe` for Windows, `.dmg` for macOS, or `.deb`/`.rpm`/`.pkg.tar.zst` for Linux) from the [releases page](https://github.com/lanmessenger/lanmessenger/releases).
 2. Install and run LAN Messenger on two or more machines connected to the same local network. Other users should appear automatically.
 3. If other users don't appear, check that the machines can communicate over the network and that the local firewall allows LAN Messenger traffic. VPN configurations or network separation may prevent peer discovery.
 

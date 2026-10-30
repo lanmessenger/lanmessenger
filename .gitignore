@@ -43,6 +43,7 @@ __pycache__/
 /setup/lmc*.zip
 /setup/lmc*.deb
 /setup/lmc*.rpm
+/setup/lmc*.pkg.tar.zst
 
 # stage.sh output (staged payload tree, not tracked)
 setup/linux/package/usr/lib/lmc/lmc.rcc

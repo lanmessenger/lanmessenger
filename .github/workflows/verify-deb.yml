@@ -6,9 +6,10 @@
 #
 # No inputs needed: the artifact name (packages-linux) is fixed, and the
 # install goes to the real system paths (/usr/...) — the runner is
-# ephemeral. No rebuild here by design. The .rpm side is covered by
-# verify-rpm.yml; both formats are built from the same staged tree
-# by setup/linux (see nfpm.yaml) and share the payload.
+# ephemeral. No rebuild here by design. The .rpm/.pkg.tar.zst sides are
+# covered by verify-rpm.yml/verify-arch.yml; all three formats are built
+# from the same staged payload tree by setup/linux (see nfpm.yaml) and
+# share the payload.
 name: Verify deb
 
 on:
@@ -40,7 +41,7 @@ jobs:
       - name: Install package
         run: |
           set -euo pipefail
-          deb=(dist/lmc_*_min.deb)
+          deb=(dist/lmc_*.deb)
           if [ ! -f "${deb[0]}" ]; then echo 'deb not found in dist/' >&2; exit 1; fi
           sudo apt-get update
           sudo apt-get install -y "./${deb[0]}" xvfb x11-utils appstream
@@ -148,7 +149,7 @@ jobs:
           trap 'rm -rf /tmp/reloc' EXIT
           rm -rf /tmp/reloc
           mkdir -p /tmp/reloc
-          deb=(dist/lmc_*_min.deb)
+          deb=(dist/lmc_*.deb)
           if [ ! -f "${deb[0]}" ]; then echo 'deb not found in dist/' >&2; exit 1; fi
           dpkg-deb -x "./${deb[0]}" /tmp/reloc
           test -x /tmp/reloc/usr/lib/lmc/lmc.sh
