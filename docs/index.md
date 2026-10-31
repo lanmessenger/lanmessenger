@@ -5,6 +5,7 @@ description: Guides and references for LAN Messenger.
 
 ## Installing
 
+- [Installing on Windows](install-windows.md): installer, SmartScreen, silent install, and firewall.
 - [Installing on macOS](install-macos.md): first launch, the Gatekeeper warning, and why it appears.
 - [Installing on Linux](install-linux.md): install commands, firewall ports, and what to do when no peers appear.
 
