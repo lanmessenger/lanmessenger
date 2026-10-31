@@ -407,10 +407,9 @@ if(WIN32)
 endif()
 
 if(UNIX AND NOT APPLE)
-    # Launcher script (sets LD_LIBRARY_PATH) and the Unity tray whitelist helper.
+    # Launcher script (sets LD_LIBRARY_PATH).
     install(PROGRAMS
         scripts/lan-messenger.sh
-        scripts/whitelist
         DESTINATION .
     )
 endif()

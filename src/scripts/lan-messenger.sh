@@ -7,9 +7,6 @@
  if [ "${dirname%$tmp}" != "/" ]; then
  dirname=$PWD/$dirname
  fi
-
- $dirname/whitelist $appname
-
  LD_LIBRARY_PATH=$dirname
  export LD_LIBRARY_PATH
  $dirname/$appname "$@"

@@ -27,9 +27,8 @@ build does).
 ## Launch scripts
 
 Launch the application through the `lan-messenger.sh` script in the
-release layout. It sets the load paths for the bundled libraries and
-calls the `whitelist` helper internally (needed for the system tray icon
-on Ubuntu). Both scripts are staged with executable permission by the
+release layout. It sets the load paths for the bundled libraries.
+The script is staged with executable permission by the
 `package-local` target.
 
 ## Debugging

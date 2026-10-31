@@ -18,7 +18,6 @@ cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING
 cp -v -r ../../release/lang ./package/usr/lib/lmc
 cp -v -r ../../release/sounds ./package/usr/lib/lmc
 chmod 755 ./package/usr/lib/lmc/lmc.sh
-chmod 755 ./package/usr/lib/lmc/whitelist
 
 echo "DONE."
 exit 0
