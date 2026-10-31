@@ -175,7 +175,7 @@ jobs:
           if (-not (Test-Path build/tools/lmm/lmmd.exe)) { throw "lmmd missing" }
 
       # macOS still installs Qt: the test layout's .app links the Qt libs
-      # from QT_ROOT_DIR (only Plugins ride inside the bundle).
+      # from QT_ROOT_DIR (only PlugIns ride inside the bundle).
       - uses: jurplel/install-qt-action@v4
         if: runner.os == 'macOS'
         with:
@@ -193,9 +193,10 @@ jobs:
           ln -sfn "$(brew --prefix openssl@3)/lib" openssl/lib
 
       # ---- macOS runtime (no compilation: binaries come from build-test) ----
-      # The Plugins copy lives in the tarball now (apprunner.cpp REPLACES
-      # the default Qt plugin paths with Contents/Plugins, so without it
-      # the app blocks in the "missing openssl" box before the agent starts).
+      # The PlugIns copy lives in the tarball now (apprunner.cpp points
+      # the default Qt plugin paths at Contents/PlugIns only when
+      # Contents/PlugIns/platforms and Contents/PlugIns/tls exist, so without
+      # them the app blocks in the "missing openssl" box before the agent starts).
       - name: Download test layout (macOS)
         if: runner.os == 'macOS'
         uses: actions/download-artifact@v7

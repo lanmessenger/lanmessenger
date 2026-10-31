@@ -88,10 +88,16 @@ int lmcRunApplication(int argc, char* argv[],
   QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifdef Q_OS_MAC
+  // Bundled plugins only (PlugIns from macdeployqt); a bare bundle keeps
+  // the default (build Qt) paths. A partial PlugIns is not supported and
+  // is treated as absent.
   QDir dir(QApplication::applicationDirPath());
   dir.cdUp();
-  dir.cd("Plugins");
-  QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+  const QString plugInsPath = dir.absoluteFilePath(QStringLiteral("PlugIns"));
+  const QDir plugInsDir(plugInsPath);
+  if(plugInsDir.exists(QStringLiteral("platforms")) &&
+     plugInsDir.exists(QStringLiteral("tls")))
+    QApplication::setLibraryPaths(QStringList(plugInsPath));
 #endif
   QResource::registerResource(StdLocation::resourceFile());
 

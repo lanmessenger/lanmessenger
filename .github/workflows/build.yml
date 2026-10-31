@@ -467,8 +467,9 @@ jobs:
 
       # The test layout is a COPY of the .app in $RUNNER_TEMP: the original
       # tree is only read, never modified, so the dmg staging sees the
-      # pristine tree. The Plugins copy mirrors what e2e used to do inline:
-      # apprunner REPLACES the Qt plugin paths with Contents/Plugins, so
+      # pristine tree. The PlugIns copy mirrors what e2e used to do inline:
+      # apprunner points the Qt plugin paths at Contents/PlugIns only when
+      # Contents/PlugIns/platforms and Contents/PlugIns/tls exist, so
       # without it the test binary blocks on the missing-openssl dialog.
       - name: Pack test layout
         if: inputs.artifacts != 'release'
@@ -481,8 +482,8 @@ jobs:
           test -x "$STAGE/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test"
           cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
           test -x "$STAGE/build/tools/lmm/lmmd"
-          mkdir -p "$STAGE/release/LAN-Messenger.app/Contents/Plugins"
-          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/release/LAN-Messenger.app/Contents/Plugins/"
+          mkdir -p "$STAGE/release/LAN-Messenger.app/Contents/PlugIns"
+          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/release/LAN-Messenger.app/Contents/PlugIns/"
           tar -C "$STAGE" -czf "test-layout-${{ matrix.leg }}.tar.gz" release build
 
       - name: Upload test layout

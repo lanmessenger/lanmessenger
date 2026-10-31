@@ -24,8 +24,11 @@ cmake --build build --config Release --target package-local --parallel
 
 No helper library ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt
 frameworks and plugins are collected by `stage-mac-app` via `macdeployqt`
-(the app replaces the plugin paths with the bundle `Plugins`, see
-`setLibraryPaths` in `src/app/apprunner.cpp`).
+(the app points the plugin paths at the bundled `PlugIns` only
+when `Contents/PlugIns/platforms` and `Contents/PlugIns/tls` exist,
+see `setLibraryPaths` in `src/app/apprunner.cpp`). A bare
+`release/LAN-Messenger.app` runs against the build Qt (dev launch); the DMG
+after `stage-mac-app` runs against the bundled Qt.
 
 ## Installer (DMG)
 
