@@ -22,8 +22,10 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
 cmake --build build --config Release --target package-local --parallel
 ```
 
-No helper library ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt image format plugins
-go to `Contents/Plugins` (see `setLibraryPaths` in `main.cpp`).
+No helper library ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt
+frameworks and plugins are collected by `stage-mac-app` via `macdeployqt`
+(the app replaces the plugin paths with the bundle `Plugins`, see
+`setLibraryPaths` in `src/app/apprunner.cpp`).
 
 ## Installer (DMG)
 

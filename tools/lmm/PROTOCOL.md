@@ -114,8 +114,8 @@ events.poll until message.received on Bob;
 
 ## Notes / v1 limits
 
-- All peers share one UDP discovery port (50000) and one box, like the
-  two-instance setup in `howto/runbook.md`. TCP ports are auto-assigned;
+- All peers share one UDP discovery port (50000) and one box (two-instance
+  setup). TCP ports are auto-assigned;
   announces carry the real port, so dial always works.
 - File transfers (`file.send`/`file.accept` + `file.*` events) run the real
   `lmcMessaging`/`FileSender`/`FileReceiver` stack between workers, with

@@ -90,9 +90,9 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --target package-local --parallel
 ```
 
-The `package-local` target stages the complete runtime bundle (the
-application binary, translations, the resource bundle, sounds
-and the Qt image/platform/TLS plugins) into the `LMC_RELEASE_DIR`
+The `package-local` target stages the runtime bundle (the
+application binary, translations, the resource bundle, sounds) into the
+`LMC_RELEASE_DIR`
 directory, which defaults to `<build-dir>/release`. The packaging scripts
 under `setup` expect the layout in `release`, so pass
 `-DLMC_RELEASE_DIR="$PWD/release"` when you plan to build the

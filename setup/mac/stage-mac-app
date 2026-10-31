@@ -16,11 +16,6 @@ rm -rf "$APP"
 # Copy the app bundle to the setup folder
 cp -r "../../release/$APP" "$APP"
 
-# Remove plugins that were copied into the app bundle while building
-echo "Deleting old plugins..."
-rm -rf "$APP/Contents/Plugins"
-echo "Done."
-
 # Copy all the required dependencies into the app bundle, and set correct lookup paths
 "$QTDIR/bin/macdeployqt" "$APP" -verbose=2
 

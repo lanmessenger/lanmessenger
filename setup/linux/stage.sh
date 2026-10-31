@@ -6,6 +6,8 @@ set -e
 cd "$(dirname "$0")"
 
 echo "COPYING FILES..."
+# Copy the shared payload; the lmc.sh launcher stays tracked in package/
+# (it differs from the portable lan-messenger.sh in release/).
 # cp -r merges dirs: a .qm/sound removed from release/ would survive in
 # package/ and leak into both packages on re-staging. Single files below
 # are overwritten by cp, only the trees need a reset.

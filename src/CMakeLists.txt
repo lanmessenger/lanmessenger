@@ -355,13 +355,19 @@ add_custom_target(lmc_runtime_files ALL
 add_dependencies(lmc lmc_runtime_files)
 
 # ---------------------------------------------------------------------------
-# Release layout (step 1.3): the install() rules below stage the flat runtime
-# tree that setup/** packages (from release in CI via LMC_RELEASE_DIR).
-# Local staging: cmake --build <build-dir> --target package-local
+# Release payload staging: install() rules + package-local target. Lives here
+# (not in a separate module) because install(TARGETS lmc) belongs to the
+# directory that defines the lmc target.
+#
+# Result of `cmake --build <build-dir> --target package-local` in
+# LMC_RELEASE_DIR (defaults to <build>/release): binary, lmc.rcc, lang,
+# sounds. On macOS this is the .app bundle, on Windows the exe layout
+# (plus the OpenSSL DLLs below); the Qt runtime beside them is deployed
+# by the packagers (macdeployqt in setup/mac, windeployqt in CI),
+# on Linux it comes from the distro packages (see setup/linux/nfpm.yaml).
 # ---------------------------------------------------------------------------
 if(APPLE)
-    # macOS: everything goes into LAN-Messenger.app/Contents/MacOS and Qt
-    # imageformat plugins into Contents/Plugins (see main.cpp setLibraryPaths).
+    # macOS: everything goes into LAN-Messenger.app/Contents/MacOS.
     set(LMC_LAYOUT_BIN_DIR LAN-Messenger.app/Contents/MacOS)
     set(LMC_LAYOUT_LICENSE COPYING)
 elseif(WIN32)
@@ -390,69 +396,13 @@ install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
 install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
         RENAME ${LMC_LAYOUT_LICENSE})
 
-# Qt imageformat plugins live in the Qt installation's plugins/ directory:
-# locate it relative to the Qt6Core CMake package (covers both the standard
-# <prefix>/plugins layout and Debian's multiarch qt6/plugins layout). Override
-# with -DQT_PLUGINS_DIR=<path> for other installations. Windows ships none
-# here (windeployqt covers them in CI).
-if(NOT WIN32)
-    set(QT_PLUGINS_DIR "" CACHE PATH
-        "Qt plugin directory (autodetected from the Qt6Core package when empty)")
-    if(NOT QT_PLUGINS_DIR)
-        foreach(_plugins_cand
-                ../../../plugins
-                ../../plugins
-                ../../../qt6/plugins
-                ../../qt6/plugins
-                ../../../qt5/plugins
-                ../../qt5/plugins
-                ../../../qt/plugins
-                ../../qt/plugins)
-            get_filename_component(_plugins_abs
-                "${Qt6Core_DIR}/${_plugins_cand}" ABSOLUTE)
-            if(EXISTS "${_plugins_abs}/imageformats")
-                set(QT_PLUGINS_DIR "${_plugins_abs}")
-                break()
-            endif()
-        endforeach()
-    endif()
-    if(NOT QT_PLUGINS_DIR)
-        message(FATAL_ERROR
-            "Could not locate the Qt plugin directory; pass -DQT_PLUGINS_DIR=<path>")
-    endif()
-endif()
-if(APPLE)
-    foreach(_plugin libqgif.dylib libqico.dylib libqjpeg.dylib)
-        install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
-                DESTINATION LAN-Messenger.app/Contents/Plugins/imageformats)
-    endforeach()
-    # TIFF moved out of qtbase in Qt 6 (qtimageformats module); macOS shipped
-    # it historically, so take it when present and skip silently otherwise.
-    install(FILES ${QT_PLUGINS_DIR}/imageformats/libqtiff.dylib
-            DESTINATION LAN-Messenger.app/Contents/Plugins/imageformats
-            OPTIONAL)
-elseif(UNIX)
-    foreach(_plugin libqgif.so libqico.so libqjpeg.so)
-        install(FILES ${QT_PLUGINS_DIR}/imageformats/${_plugin}
-                DESTINATION imageformats)
-    endforeach()
-    # Platform plugin and Qt 6 TLS backends for standalone bundles (QSslSocket
-    # needs a TLS plugin). QCoreApplication::libraryPaths() includes the
-    # application directory, so plugins next to the binary are found.
-    install(FILES ${QT_PLUGINS_DIR}/platforms/libqxcb.so DESTINATION platforms)
-    file(GLOB _tls_plugins "${QT_PLUGINS_DIR}/tls/*")
-    if(_tls_plugins)
-        install(FILES ${_tls_plugins} DESTINATION tls)
-    endif()
-endif()
-
 if(WIN32)
     # OpenSSL DLLs from the openssl/bin redistributable.
-    file(GLOB _openssl_dlls
+    file(GLOB _lmc_openssl_dlls
         ${CMAKE_SOURCE_DIR}/openssl/bin/libcrypto*.dll
         ${CMAKE_SOURCE_DIR}/openssl/bin/libssl*.dll)
-    if(_openssl_dlls)
-        install(FILES ${_openssl_dlls} DESTINATION .)
+    if(_lmc_openssl_dlls)
+        install(FILES ${_lmc_openssl_dlls} DESTINATION .)
     endif()
 endif()
 
@@ -465,7 +415,7 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
-# package-local: stage the complete layout in one command. LMC_RELEASE_DIR
+# package-local: stage the layout in one command. LMC_RELEASE_DIR
 # defaults to <build>/release; CI points it at release where setup/**
 # expects the layout.
 set(LMC_RELEASE_DIR "${CMAKE_BINARY_DIR}/release" CACHE PATH
