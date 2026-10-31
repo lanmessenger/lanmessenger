@@ -6,6 +6,11 @@ set -e
 cd "$(dirname "$0")"
 
 echo "COPYING FILES..."
+# release/ is the CLEAN system payload (no Qt plugin copies: system packages
+# use the distro Qt via nfpm.yaml dependencies; hermetic copies for dev/e2e
+# live only in build/teststage). Copy the shared payload; launchers stay
+# tracked in package/ (lmc.sh/whitelist differ from the portable
+# lan-messenger.sh in release/).
 # cp -r merges dirs: a .qm/sound removed from release/ would survive in
 # package/ and leak into both packages on re-staging. Single files below
 # are overwritten by cp, only the trees need a reset.

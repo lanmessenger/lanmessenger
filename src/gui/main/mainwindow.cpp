@@ -32,7 +32,7 @@
 #include "gui/widgets/actionhelper.h"
 #include "gui/widgets/imagepickeraction.h"
 #include "gui/chat/chatmessageview.h"
-#include "messaging/history.h"
+#include "storage/historystore.h"
 
 lmcMainWindow::lmcMainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
@@ -171,21 +171,34 @@ void lmcMainWindow::stop(void) {
   QDir::SortFlags sort = QDir::Name;
   //  save all cached conversations to history, then delete the files
   QString filter = "msg_*.tmp";
-  //  Stack object: destroyed on scope exit.
+  //  Stack object: destroyed on scope exit. Reused across files: clear
+  //  identity + rows before each restore so a broken file cannot resave
+  //  the previous session. A corrupt cache file is always deleted; a valid
+  //  one only after a successful save, so a closed store keeps the cache
+  //  for the next shutdown.
   ChatMessageView messageLog;
+  const QString shutdownLocalId = pLocalUser ? pLocalUser->id : QString();
   QStringList fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
   for(QString fileName : fileNames) {
     QString filePath = cacheDir.absoluteFilePath(fileName);
-    messageLog.restoreMessageLog(filePath, false);
-    QString szMessageLog = messageLog.prepareMessageLogForSave();
-    History::save(messageLog.peerName, QDateTime::currentDateTime(), &szMessageLog);
-    QFile::remove(filePath);
+    messageLog.localId = shutdownLocalId;
+    messageLog.initChat();
+    if(!messageLog.restoreMessageLog(filePath, false)) {
+      QFile::remove(filePath);
+      continue;
+    }
+    if(HistoryStore::instance()->saveSession(messageLog.peerName,
+                                             QDateTime::currentDateTime(),
+                                             messageLog.storedMessages()))
+      QFile::remove(filePath);
   }
 
-  //  delete all other temp files
+  //  delete all other temp files, preserving unsaved msg_*.tmp above
   filter = "*.tmp";
   fileNames = cacheDir.entryList(QStringList() << filter, filters, sort);
   for(QString fileName : fileNames) {
+    if(fileName.startsWith(QStringLiteral("msg_")))
+      continue;
     QString filePath = cacheDir.absoluteFilePath(fileName);
     QFile::remove(filePath);
   }

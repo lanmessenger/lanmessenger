@@ -79,7 +79,8 @@ jobs:
         shell: pwsh
         run: |
           @('C:\lmc-smoke\lmc.exe', 'C:\lmc-smoke\lmc.rcc', 'C:\lmc-smoke\uninst.exe',
-            'C:\lmc-smoke\Qt6Core.dll', 'C:\lmc-smoke\Qt6Widgets.dll') | ForEach-Object {
+            'C:\lmc-smoke\Qt6Core.dll', 'C:\lmc-smoke\Qt6Widgets.dll',
+            'C:\lmc-smoke\Qt6Sql.dll', 'C:\lmc-smoke\sqldrivers\qsqlite.dll') | ForEach-Object {
             if (-not (Test-Path $_)) { throw "missing $_" } }
           # Translations gate: one app .qm and one Qt system .qm. de_DE is
           # pinned because qtbase_de.qm is the configure-time sentinel

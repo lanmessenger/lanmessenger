@@ -8,10 +8,12 @@
 #include <QScreen>
 #include <QTreeWidgetItem>
 #include <QKeyEvent>
-#include <QFile>
 #include "core/lmccategories.h"
+#include "core/definitions.h"
 #include "core/settings.h"
 #include "gui/chat/chatmessageview.h"
+#include "messaging/xmlmessage.h"
+#include "storage/historystore.h"
 
 lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent, flags) {
@@ -33,6 +35,8 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
   connect(ui.tvMsgList, &QTreeWidget::currentItemChanged,
           this, &lmcHistoryWindow::tvMsgList_currentItemChanged);
   connect(ui.btnClearHistory, &QAbstractButton::clicked, this, &lmcHistoryWindow::btnClearHistory_clicked);
+  connect(HistoryStore::instance(), &HistoryStore::sessionsChanged, this,
+          &lmcHistoryWindow::updateList);
 
   ui.tvMsgList->installEventFilter(this);
   pMessageLog->installEventFilter(this);
@@ -115,21 +119,37 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
   Q_UNUSED(previous);
 
   if(current) {
-    qint64 offset = current->data(0, DataRole).toLongLong();
-    QString data = History::getMessage(offset);
-    QString name = current->text(0);
-    QDateTime date = current->data(1, DataRole).toDateTime();
-    //  Envelope "2": one row per message; legacy: one row, never migrated.
-    if(ChatMessageView::isStructuredHistory(&data))
-      pMessageLog->showHistoryMessages(&name, &date, &data);
-    else
-      pMessageLog->showLegacyHtml(&name, &date, &data);
+    qint64 sessionId = current->data(0, DataRole).toLongLong();
+    QList<StoredMessage> rows = HistoryStore::instance()->messagesForSession(sessionId);
+    QDateTime closedAt;
+    for(const SessionInfo& s : msgList) {
+      if(s.id == sessionId) {
+        closedAt = s.closedAt;
+        break;
+      }
+    }
+    pMessageLog->initChat();
+    for(const StoredMessage& row : rows) {
+      XmlMessage xml;
+      qint64 ts = row.createdAt > 0 ? row.createdAt
+                                    : (closedAt.isValid() ? closedAt.toMSecsSinceEpoch() : 0);
+      xml.addHeader(XN_TIME, QString::number(ts));
+      xml.addData(XN_MESSAGE, row.body);
+      QString userId = row.isOwn ? pMessageLog->localId
+                                 : (!row.senderId.isEmpty() ? row.senderId : row.senderName);
+      QString name = row.senderName;
+      MessageType type =
+        row.messageType == int(MT_GroupMessage) ? MT_GroupMessage : MT_Message;
+      pMessageLog->appendMessageLog(type, &userId, &name, &xml);
+    }
   }
 }
 
 void lmcHistoryWindow::btnClearHistory_clicked(void) {
-  QFile::remove(History::historyFile());
-  displayList();
+  // updateList() arrives via sessionsChanged on success; no explicit
+  // displayList() (would double the pass and mask a store failure).
+  if(!HistoryStore::instance()->clearSessions())
+    qCWarning(lmcUi(), "History window: clearSessions failed");
 }
 
 void lmcHistoryWindow::setUIText(void) {
@@ -139,24 +159,32 @@ void lmcHistoryWindow::setUIText(void) {
 }
 
 void lmcHistoryWindow::displayList(void) {
+  qint64 selectedId = 0;
+  if(ui.tvMsgList->currentItem())
+    selectedId = ui.tvMsgList->currentItem()->data(0, DataRole).toLongLong();
   pMessageLog->initChat();
   ui.tvMsgList->clear();
   msgList.clear();
 
-  msgList = History::getList();
+  msgList = HistoryStore::instance()->listSessions();
 
+  QTreeWidgetItem* toSelect = nullptr;
   for(int index = 0; index < msgList.count(); index++) {
     lmcHistoryTreeWidgetItem* pItem = new lmcHistoryTreeWidgetItem();
     pItem->setText(0, msgList[index].name);
-    pItem->setText(1, QLocale::system().toString(msgList[index].date, QLocale::ShortFormat));
-    pItem->setData(0, DataRole, msgList[index].offset);
-    pItem->setData(1, DataRole, msgList[index].date);
+    pItem->setText(1, QLocale::system().toString(msgList[index].closedAt, QLocale::ShortFormat));
+    pItem->setData(0, DataRole, msgList[index].id);
+    pItem->setData(1, DataRole, msgList[index].closedAt);
     pItem->setSizeHint(0, QSize(0, 20));
     ui.tvMsgList->addTopLevelItem(pItem);
+    if(msgList[index].id == selectedId)
+      toSelect = pItem;
   }
 
   ui.tvMsgList->sortByColumn(1, Qt::DescendingOrder);
 
-  if(ui.tvMsgList->topLevelItemCount() > 0)
+  if(toSelect)
+    ui.tvMsgList->setCurrentItem(toSelect);
+  else if(ui.tvMsgList->topLevelItemCount() > 0)
     ui.tvMsgList->setCurrentItem(ui.tvMsgList->topLevelItem(0));
 }

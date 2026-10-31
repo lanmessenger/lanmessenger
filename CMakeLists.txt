@@ -27,6 +27,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+# Shared staging modules (cmake/LmcQtPlugins.cmake, LmcRelease.cmake,
+# LmcTeststage.cmake) are included by src/ and below.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 add_subdirectory(src)
 
 enable_testing()
@@ -43,3 +47,11 @@ endif()
 # Test tooling lives in tools/ next to the lmm mock daemon; tests/ holds
 # only the suites themselves. See tools/lmc-agent/PROTOCOL.md.
 add_subdirectory(tools/lmc-agent)
+
+# ---------------------------------------------------------------------------
+# teststage (A1): see cmake/LmcTeststage.cmake. Local mirror of the CI test
+# layout; release/ stays immutable, the e2e/robot stand is assembled as a
+# copy in build/teststage/. Included here (after src/tests/tools) so the
+# package-local, lan-messenger-test and lmmd targets already exist.
+# ---------------------------------------------------------------------------
+include(LmcTeststage)

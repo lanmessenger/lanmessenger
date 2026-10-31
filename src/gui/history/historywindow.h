@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <QList>
 #include "ui_historywindow.h"
-#include "messaging/history.h"
+#include "storage/historystore.h"
 
 class lmcSettings;
 class ChatMessageView;
@@ -40,5 +40,5 @@ private:
   Ui::HistoryWindow ui;
   lmcSettings* pSettings;
   ChatMessageView* pMessageLog;
-  QList<MsgInfo> msgList;
+  QList<SessionInfo> msgList;
 };

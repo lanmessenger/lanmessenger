@@ -26,7 +26,8 @@
 #include "core/shared.h"
 #include "core/settings.h"
 #include "core/uidefinitions.h"
-#include "messaging/history.h"
+#include "core/lmccategories.h"
+#include "storage/historystore.h"
 #include "messaging/xmlmessage.h"
 #include "gui/chat/chatmessageview.h"
 #include "gui/chat/chatdefinitions.h"
@@ -181,9 +182,12 @@ void lmcChatRoomWindow::stop(void) {
   // dataSaved flag is used to ensure that history is saved only once, when the
   // window is closed by the user or by the application on exit
   if(pMessageLog->hasData && saveHistory && groupMode && !dataSaved) {
-    QString szMessageLog = pMessageLog->prepareMessageLogForSave();
-    History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
-    dataSaved = true;
+    if(HistoryStore::instance()->saveSession(tr("Group Conversation"),
+                                             QDateTime::currentDateTime(),
+                                             pMessageLog->storedMessages()))
+      dataSaved = true;
+    else
+      qCWarning(lmcUi, "ChatRoomWindow: saveSession failed, history not saved");
   }
 
   if(!groupMode && windowLoaded) {

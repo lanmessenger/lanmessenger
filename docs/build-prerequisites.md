@@ -87,16 +87,32 @@ Configure and build from the repository root:
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release --target package-local --parallel
+cmake --build build --config Release --target package-local
 ```
 
-The `package-local` target stages the complete runtime bundle (the
-application binary, translations, the resource bundle, sounds
-and the Qt image/platform/TLS plugins) into the `LMC_RELEASE_DIR`
-directory, which defaults to `<build-dir>/release`. The packaging scripts
+The `package-local` target stages the runtime bundle (the
+application binary, translations, the resource bundle, sounds;
+on macOS/Windows also the bundled Qt plugins) into the `LMC_RELEASE_DIR`
+directory, which defaults to `<build-dir>/release`. On Linux the tree is
+the CLEAN system payload (no `imageformats/platforms/tls/sqldrivers`
+copies). The packaging scripts
 under `setup` expect the layout in `release`, so pass
 `-DLMC_RELEASE_DIR="$PWD/release"` when you plan to build the
-install packages (this is what the CI build does).
+install packages (this is what the CI build does). Hermetic Qt plugin
+copies for local runs/e2e live only in `build/teststage`
+(`scripts/lmc-build.sh teststage`), never in `release/`.
+
+History storage runs on SQLite via the Qt Sql driver. The hermetic
+teststage carries the QSQLite plugin from the Qt used for the build
+(Debian/Ubuntu: `libqt6sql6-sqlite`; the Qt Sql development files
+themselves ship with `qt6-base-dev`). Configure only warns when the plugin
+is missing (build and unit tests keep working), but staging the teststage
+fails with a hint until the plugin
+is installed. On Windows/macOS the deploy tools (`windeployqt` /
+`macdeployqt`) stage the driver instead — see
+[Building on Windows](build-windows.md). System deb/rpm packages do not
+bundle the plugin at all: they depend on the distro driver (see
+`setup/linux/nfpm.yaml`).
 
 If OpenSSL is laid out in the `openssl` folder described above, pass
 `-DOPENSSL_ROOT_DIR=$PWD/openssl` to the configure command. Otherwise the

@@ -17,7 +17,7 @@
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "messaging/messaging.h"
-#include "messaging/history.h"
+#include "storage/historystore.h"
 #include "messaging/xmlmessage.h"
 #include "gui/main/mainwindow.h"
 #include "gui/chat/chatwindow.h"
@@ -100,6 +100,10 @@ void lmcCore::init(const QString& szCommandArgs) {
 
   qCInfo(lmcApp(), "Settings loaded");
 
+  // Single-shot history open: schema + legacy import before first use.
+  if(!HistoryStore::instance()->open())
+    qCWarning(lmcApp(), "HistoryStore: open failed, history will be unavailable");
+
   pMessaging->init(pInitParams);
   pMainWindow->init(pMessaging->localUser, &pMessaging->groupList, pMessaging->isConnected());
   pPublicChatWindow->init(pMessaging->localUser, pMessaging->isConnected());
@@ -157,6 +161,8 @@ void lmcCore::loadSettings(void) {
 
 void lmcCore::settingsChanged(void) {
   pMessaging->settingsChanged();
+  if(!HistoryStore::instance()->reopenIfPathChanged())
+    qCWarning(lmcApp(), "HistoryStore: reopen after path change failed");
   pMainWindow->settingsChanged();
   if(pPublicChatWindow)
     pPublicChatWindow->settingsChanged();
@@ -246,6 +252,7 @@ void lmcCore::stop(void) {
   pMessaging->stop();
   qCInfo(lmcApp(), "Shutdown: messaging stopped");
   pMainWindow->stop();
+  HistoryStore::instance()->close();
 
   qCInfo(lmcApp(), "Application stopped");
 }
@@ -365,14 +372,20 @@ bool lmcCore::processStartupSwitches(const QString& szMessage) {
   if(messageList.contains("/loopback", Qt::CaseInsensitive))
     pMessaging->setLoopback(true);
   if(messageList.contains("/nohistory", Qt::CaseInsensitive)) {
-    QFile::remove(History::historyFile());
-    if(pHistoryWindow)
-      pHistoryWindow->updateList();
+    if(HistoryStore::instance()->clearSessions()) {
+      if(pHistoryWindow)
+        pHistoryWindow->updateList();
+    } else {
+      qCWarning(lmcApp(), "HistoryStore: /nohistory clear failed");
+    }
   }
   if(messageList.contains("/nofilehistory", Qt::CaseInsensitive)) {
-    QFile::remove(StdLocation::transferHistory());
-    if(pTransferWindow)
-      pTransferWindow->updateList();
+    if(HistoryStore::instance()->clearTransfers()) {
+      if(pTransferWindow)
+        pTransferWindow->updateList();
+    } else {
+      qCWarning(lmcApp(), "HistoryStore: /nofilehistory clear failed");
+    }
   }
   if(messageList.contains("/noconfig", Qt::CaseInsensitive)) {
     QFile::remove(StdLocation::avatarFile());

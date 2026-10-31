@@ -31,7 +31,8 @@
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "core/uidefinitions.h"
-#include "messaging/history.h"
+#include "core/lmccategories.h"
+#include "storage/historystore.h"
 #include "messaging/xmlmessage.h"
 #include "gui/chat/chatmessageview.h"
 #include "gui/widgets/subcontrols.h"
@@ -159,8 +160,15 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   pMessageLog->setAppearanceMode(
     pSettings->value(IDS_APPEARANCE_MODE, IDS_APPEARANCE_MODE_VAL).toString());
   pMessageLog->initChat();
-  if(!clearOnClose)
-    pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
+  if(!clearOnClose) {
+    // restoreMessageLog() clears peerId/peerName when the tmp file is
+    // missing/corrupt (needed for the shutdown-loop reuse in
+    // lmcMainWindow). A fresh chat must keep the identity set above.
+    if(!pMessageLog->restoreMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"))) {
+      pMessageLog->peerId = peerId;
+      pMessageLog->peerName = peerNames.value(peerId);
+    }
+  }
 }
 
 void lmcChatWindow::enableLoopbackEcho(void) {
@@ -183,12 +191,13 @@ void lmcChatWindow::stop(void) {
   bool saveHistory = pSettings->value(IDS_HISTORY, IDS_HISTORY_VAL).toBool();
   if(pMessageLog->hasData && saveHistory && !dataSaved) {
     if(clearOnClose) {
-      QString szMessageLog = pMessageLog->prepareMessageLogForSave();
-      if(!groupMode)
-        History::save(peerNames.value(peerId), QDateTime::currentDateTime(), &szMessageLog);
+      QString name =
+        !groupMode ? peerNames.value(peerId) : tr("Group Conversation");
+      if(HistoryStore::instance()->saveSession(name, QDateTime::currentDateTime(),
+                                               pMessageLog->storedMessages()))
+        dataSaved = true;
       else
-        History::save(tr("Group Conversation"), QDateTime::currentDateTime(), &szMessageLog);
-      dataSaved = true;
+        qCWarning(lmcUi, "ChatWindow: saveSession failed, history not saved");
     } else {
       pMessageLog->saveMessageLog(QDir(StdLocation::cacheDir()).absoluteFilePath("msg_" + peerId + ".tmp"));
     }

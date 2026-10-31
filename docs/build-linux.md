@@ -11,14 +11,24 @@ Distribution packages work too (see the [OpenSSL setup](build-prerequisites.md#l
 ## Build
 
 The build is driven by CMake. The `package-local` target stages the
-runtime layout (binary, `lmc.rcc`, `lang`, `sounds` and the Qt
-imageformats/platforms/tls plugins) into the `LMC_RELEASE_DIR` directory
+CLEAN system payload (binary, `lmc.rcc`, `lang`, `sounds` — no Qt plugin
+copies; system packages use the distro Qt via `setup/linux/nfpm.yaml`
+dependencies) into the `LMC_RELEASE_DIR` directory
 (defaults to `<build-dir>/release`):
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
-cmake --build build --config Release --target package-local --parallel
+cmake --build build --config Release --target package-local
 ```
+
+On dev-VM build strictly in one thread (no `--parallel`: it hangs the VM,
+see `howto/runbook.md`); CI runners use `--parallel`.
+
+Hermetic runs (bundled Qt plugins + test binaries) live only in
+`build/teststage` (see `scripts/lmc-build.sh teststage`): a copy of
+`release/` plus `imageformats/platforms/tls/sqldrivers` from the Qt used
+for the build and `lan-messenger-test`/`lmmd`. `release/` itself stays
+clean and is never written by test tooling.
 
 The packaging scripts read the layout from `release`, so pass that
 value for `LMC_RELEASE_DIR` when building packages (this is what the CI

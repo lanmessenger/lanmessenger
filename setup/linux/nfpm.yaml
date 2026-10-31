@@ -27,6 +27,8 @@ depends:
 - libqt6widgets6t64 (>= 6.2) | libqt6widgets6 (>= 6.2)
 - libqt6network6t64 (>= 6.2) | libqt6network6 (>= 6.2)
 - libqt6xml6t64 (>= 6.2) | libqt6xml6 (>= 6.2)
+- libqt6sql6t64 (>= 6.2) | libqt6sql6 (>= 6.2)
+- libqt6sql6-sqlite
 - libqt6multimedia6 (>= 6.2)
 - qt6-qpa-plugins (>= 6.2)
 - libssl3t64 | libssl3

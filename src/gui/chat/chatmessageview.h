@@ -10,6 +10,8 @@
 #include "gui/chat/chatmessagemodel.h"
 #include "messaging/xmlmessage.h"
 
+struct StoredMessage;
+
 class QMenu;
 class QAction;
 class QDateTime;
@@ -34,10 +36,11 @@ public:
   void updateAvatar(QString* lpszUserId, QString* lpszFilePath);
   void reloadMessageLog();
   QString prepareMessageLogForSave(OutputFormat format = HtmlFormat);
+  QList<StoredMessage> storedMessages() const;
   void setAutoScroll(bool enable);
   void abortPendingFileOperations();
   void saveMessageLog(QString filePath);
-  void restoreMessageLog(QString filePath, bool reload = true);
+  bool restoreMessageLog(QString filePath, bool reload = true);
   //  Legacy history blob: one read-only row.
   void showLegacyHtml(QString* userName, QDateTime* when, QString* html);
   static bool isStructuredHistory(const QString* html);

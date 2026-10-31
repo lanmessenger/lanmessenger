@@ -88,7 +88,10 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   case FileRole:
     return msg.type == MT_File || msg.type == MT_Folder;
   case OwnRole:
-    return msg.userId == localId;
+    // Single source with ChatMessageView::storedMessages() and
+    // prepareMessageLogForSave(): empty userId (system rows) is never own,
+    // guarding an empty localId from flipping the sides.
+    return !msg.userId.isEmpty() && msg.userId == localId;
   case PreviewRole:
     //  No link previews at all (stage 1): always false.
     return false;

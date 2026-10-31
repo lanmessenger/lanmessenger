@@ -1,6 +1,13 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+//
+// LEGACY: binary messenger.db reader (QDataStream linked list).
+// Replaced by: src/storage/historystore.* (Qt Sql + SQLite, lanmessenger.db).
+// Delete after: the SQLite release + one successful legacy import cycle
+// (HistoryStore renames the legacy file to .bak; no writers remain).
+// New code must not use this except the one-shot import in
+// HistoryStore::open.
 #pragma once
 
 #include <QString>
@@ -57,15 +64,13 @@ struct MsgInfo {
 class History {
 public:
   static QString historyFile(void);
-  static int save(QString user, QDateTime timeStamp, QString* lpszData);
   static QList<MsgInfo> getList(void);
   static QString getMessage(qint64 offset);
+  // Explicit-path entry points for the HistoryStore one-shot importer.
+  static bool hasDbMarker(const QString& path);
+  static QList<MsgInfo> getListFrom(const QString& path);
+  static QString getMessageFrom(const QString& path, qint64 offset);
 
 private:
-  static void create(QString path);
-  static void writeHeader(QDataStream* pStream, DBHeader* pHeader);
   static DBHeader readHeader(QDataStream* pStream);
-  static qint64 insertData(QDataStream* pStream, QString* lpszData);
-  static qint64 insertIndex(QDataStream* pStream, qint64 dataPos, QString user, QDateTime timeStamp);
-  static void updateIndex(QDataStream* pData, qint64 oldIndex, qint64 newIndex);
 };
