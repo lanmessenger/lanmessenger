@@ -113,7 +113,6 @@ jobs:
         run: |
           export USER=ci
           cd release
-          export LD_LIBRARY_PATH="$PWD"
           timeout 60 xvfb-run -a ./lan-messenger /loopback /noconfig /quit
 
       - name: Build unit tests

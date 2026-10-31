@@ -1,6 +1,6 @@
 ---
 title: Building on Linux
-description: CMake build, launch scripts, debugging, and deb/rpm/Arch packaging.
+description: CMake build, launch, debugging, and deb/rpm/Arch packaging.
 ---
 
 Prerequisites first: [Build prerequisites](build-prerequisites.md) (OpenSSL layout, CMake,
