@@ -18,10 +18,10 @@
 #include <QToolTip>
 #include <QUrl>
 
-#include "core/shared.h"
-#include "core/stdlocation.h"
 #include "core/lmccategories.h"
 #include "gui/chat/chathelper.h"
+#include "legacy/historyparser.h"
+#include "storage/historystore.h"
 #include "gui/chat/rowhtmlbuilder.h"
 #include "gui/widgets/actionhelper.h"
 
@@ -153,8 +153,8 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
       if(messageText.isEmpty())
         messageText = xml.data(XN_GROUPMESSAGE);
       decodeForSave(&messageText);
-      //  Per-message own/time/type for history bubbles (.html export ignores it).
-      bool own = msg.userId == chatModel->localId;
+      // Per-message own/time/type for history bubbles (html export ignores it).
+      bool own = !msg.userId.isEmpty() && msg.userId == localId;
       html += QStringLiteral("<p data-own=\"%1\" data-ts=\"%2\" data-type=\"%3\">"
                              "<span class='salutation'>%4:</span>"
                              "<span class='time'>%5</span>"
@@ -185,6 +185,31 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
   return text;
 }
 
+QList<StoredMessage> ChatMessageView::storedMessages() const {
+  QList<StoredMessage> out;
+  const QList<SingleMessage> messages = chatModel->messages();
+  for(const SingleMessage& msg : messages) {
+    if(msg.type != MT_Message && msg.type != MT_GroupMessage)
+      continue;
+    XmlMessage xml = msg.message;
+    QString body = xml.data(XN_MESSAGE);
+    if(body.isEmpty())
+      body = xml.data(XN_GROUPMESSAGE);
+    if(body.isEmpty())
+      continue;
+    StoredMessage row;
+    row.senderId = msg.userId;
+    row.senderName = msg.userName;
+    // Empty userId (system rows) is never own: guards empty localId flipping sides.
+    row.isOwn = !msg.userId.isEmpty() && msg.userId == localId;
+    row.messageType = int(msg.type);
+    row.createdAt = xml.header(XN_TIME).toLongLong();
+    row.body = body;
+    out.append(row);
+  }
+  return out;
+}
+
 void ChatMessageView::setAutoScroll(bool enable) {
   autoScroll = enable;
 }
@@ -205,23 +230,64 @@ void ChatMessageView::saveMessageLog(QString filePath) {
     return;
   QDataStream stream(&file);
   stream.setVersion(QDataStream::Qt_5_15);
-  stream << peerId << peerName << messages;
+  // localId first: shutdown restore must score isOwn after pLocalUser is gone.
+  stream << QStringLiteral("lmc-msglog-v2") << localId << peerId << peerName << messages;
 }
 
-void ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
+bool ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
   QFile file(filePath);
-  if(!file.open(QIODevice::ReadOnly))
-    return;
+  if(!file.open(QIODevice::ReadOnly)) {
+    // The shutdown loop reuses one view: no stale rows or peer identity.
+    peerId.clear();
+    peerName.clear();
+    chatModel->setMessages(QList<SingleMessage>());
+    hasData = false;
+    return false;
+  }
   QDataStream stream(&file);
   stream.setVersion(QDataStream::Qt_5_15);
   QList<SingleMessage> messages;
-  stream >> peerId >> peerName >> messages;
+  QString magic;
+  stream >> magic;
+  if(magic == QStringLiteral("lmc-msglog-v2") && stream.status() == QDataStream::Ok) {
+    QString savedLocalId;
+    stream >> savedLocalId >> peerId >> peerName >> messages;
+    if(stream.status() == QDataStream::Ok) {
+      localId = savedLocalId;
+    } else {
+      // Corrupt v2 cache: clear rows and identity, keep localId (caller skips save).
+      peerId.clear();
+      peerName.clear();
+      messages.clear();
+      chatModel->setMessages(messages);
+      hasData = false;
+      syncModelIdentity();
+      return false;
+    }
+    syncModelIdentity();
+  } else {
+    // Pre-v2 cache: keep the localId already set on the view.
+    stream.device()->seek(0);
+    stream.resetStatus();
+    stream >> peerId >> peerName >> messages;
+    if(stream.status() != QDataStream::Ok) {
+      peerId.clear();
+      peerName.clear();
+      messages.clear();
+      chatModel->setMessages(messages);
+      hasData = false;
+      syncModelIdentity();
+      return false;
+    }
+    syncModelIdentity();
+  }
   chatModel->setMessages(messages);
   hasData = chatModel->hasData;
   if(reload)
     reloadMessageLog();
   if(autoScroll)
     scrollToBottom();
+  return true;
 }
 
 void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString* html) {
@@ -242,99 +308,8 @@ void ChatMessageView::showLegacyHtml(QString* userName, QDateTime* when, QString
   appendMessageLog(MT_Message, &userId, userName, &xmlMessage);
 }
 
-namespace {
-
-struct HistoryRecord {
-  QString userName;
-  bool own = false;
-  qint64 ts = 0;
-  MessageType type = MT_Message;
-  QString body;
-};
-
-QString historyAttr(const QString& attrs, const char* name) {
-  QRegularExpression re(QStringLiteral("\\b") + QLatin1String(name) +
-                        QStringLiteral("=\"([^\"]*)\""));
-  QRegularExpressionMatch m = re.match(attrs);
-  return m.hasMatch() ? m.captured(1) : QString();
-}
-
-QString historySpan(const QString& inner, const char* cls) {
-  QRegularExpression openRe(
-    QStringLiteral("<span class=['\"]") + QLatin1String(cls) + QStringLiteral("['\"]>"),
-    QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatch open = openRe.match(inner);
-  if(!open.hasMatch())
-    return QString();
-  //  Balanced close: S1 emoji spans nest inside the message span, so the
-  //  first </span> is not necessarily ours. Old blobs have no nesting
-  //  and behave exactly as before.
-  int depth = 1;
-  int pos = open.capturedEnd();
-  int contentEnd = -1;
-  while(depth > 0 && pos < inner.length()) {
-    int nested = inner.indexOf(QStringLiteral("<span"), pos, Qt::CaseInsensitive);
-    int close = inner.indexOf(QStringLiteral("</span>"), pos, Qt::CaseInsensitive);
-    if(close == -1)
-      return QString();
-    if(nested != -1 && nested < close) {
-      int tagEnd = inner.indexOf(QLatin1Char('>'), nested);
-      if(tagEnd == -1)
-        return QString();
-      //  A self-closed <span/> carries no content: no depth change.
-      if(inner.at(tagEnd - 1) != QLatin1Char('/'))
-        depth++;
-      pos = tagEnd + 1;
-    } else {
-      depth--;
-      if(depth == 0)
-        contentEnd = close;
-      pos = close + 7;
-    }
-  }
-  if(contentEnd == -1)
-    return QString();
-  QTextDocument doc;
-  doc.setHtml(inner.mid(open.capturedEnd(), contentEnd - open.capturedEnd()));
-  return BubbleDelegate::normalizePlainText(doc.toPlainText());
-}
-
-//  Envelope "2": one <p> per message; false when legacy or empty.
-bool parseStructuredHistory(const QString& html, QList<HistoryRecord>* out) {
-  if(!html.contains(QStringLiteral("data-lmc-history=\"2\"")))
-    return false;
-  static const QRegularExpression pRe(
-    QStringLiteral("<p\\b([^>]*)>(.*?)</p>"),
-    QRegularExpression::DotMatchesEverythingOption |
-      QRegularExpression::CaseInsensitiveOption);
-  QRegularExpressionMatchIterator it = pRe.globalMatch(html);
-  while(it.hasNext()) {
-    QRegularExpressionMatch pm = it.next();
-    HistoryRecord rec;
-    rec.own = historyAttr(pm.captured(1), "data-own") == QLatin1String("1");
-    rec.ts = historyAttr(pm.captured(1), "data-ts").toLongLong();
-    rec.type = historyAttr(pm.captured(1), "data-type").toInt() == int(MT_GroupMessage)
-                 ? MT_GroupMessage
-                 : MT_Message;
-    QString name = historySpan(pm.captured(2), "salutation");
-    if(name.endsWith(QLatin1Char(':')))
-      name.chop(1);
-    rec.userName = name;
-    QString body = historySpan(pm.captured(2), "message");
-    while(body.endsWith(QLatin1Char('\n')))
-      body.chop(1);
-    rec.body = body;
-    if(rec.body.isEmpty() || rec.userName.isEmpty())
-      continue;
-    out->append(rec);
-  }
-  return !out->isEmpty();
-}
-
-} // namespace
-
 bool ChatMessageView::isStructuredHistory(const QString* html) {
-  return html && html->contains(QStringLiteral("data-lmc-history=\"2\""));
+  return html && isStructuredHistoryBlob(*html);
 }
 
 QString ChatMessageView::historyLocalId() {
@@ -354,7 +329,9 @@ void ChatMessageView::showHistoryMessages(QString* userName, QDateTime* when, QS
       //  Own rows key on the sentinel (right); others on sender name (left).
       QString userId = rec.own ? local : rec.userName;
       QString name = rec.userName;
-      appendMessageLog(rec.type, &userId, &name, &xmlMessage);
+      MessageType type =
+        rec.type == int(MT_GroupMessage) ? MT_GroupMessage : MT_Message;
+      appendMessageLog(type, &userId, &name, &xmlMessage);
     }
     return;
   }

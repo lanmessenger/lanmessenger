@@ -1,12 +1,20 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
+//
+// LEGACY: binary messenger.db reader (QDataStream linked list).
+// Replaced by: src/storage/historystore.* (Qt Sql + SQLite, lanmessenger.db).
+// Delete after: the SQLite release + one successful legacy import cycle
+// (HistoryStore renames the legacy file to .bak; no writers remain).
+// New code must not use this except the one-shot import in
+// HistoryStore::open.
 #include "history.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDataStream>
 #include <QDir>
 #include <QDesktopServices>
+#include <QSet>
 #include <QStandardPaths>
 #include "core/settings.h"
 
@@ -19,31 +27,6 @@ QString History::historyFile(void) {
   if(!sysPath)
     path = settings.value(IDS_HISTORYPATH, path).toString();
   return path;
-}
-
-void History::create(QString path) {
-  QFile file(path);
-  if(!file.open(QIODevice::ReadWrite))
-    return;
-
-  QDataStream stream(&file);
-  stream.setVersion(QDataStream::Qt_5_15);
-
-  DBHeader header(HC_DBMARKER, HC_HDRSIZE, HC_VERSION, 0, 0, 0);
-  writeHeader(&stream, &header);
-
-  file.close();
-}
-
-void History::writeHeader(QDataStream* pStream, DBHeader* pHeader) {
-  pStream->device()->seek(0);
-
-  *pStream << pHeader->marker;
-  *pStream << pHeader->version;
-  *pStream << pHeader->headerSize;
-  *pStream << pHeader->count;
-  *pStream << pHeader->first;
-  *pStream << pHeader->last;
 }
 
 DBHeader History::readHeader(QDataStream* pStream) {
@@ -59,84 +42,28 @@ DBHeader History::readHeader(QDataStream* pStream) {
   return header;
 }
 
-int History::save(QString user, QDateTime date, QString* lpszData) {
-  QString path = historyFile();
-
-  QDir dir = QFileInfo(path).dir();
-  if(!dir.exists())
-    dir.mkpath(dir.absolutePath());
-
+bool History::hasDbMarker(const QString& path) {
   if(!QFile::exists(path))
-    create(path);
-
+    return false;
   QFile file(path);
-  if(!file.open(QIODevice::ReadWrite))
-    return -1;
-
+  if(!file.open(QIODevice::ReadOnly))
+    return false;
   QDataStream stream(&file);
   stream.setVersion(QDataStream::Qt_5_15);
-
   DBHeader header = readHeader(&stream);
-  if(header.marker.compare(HC_DBMARKER) != 0) {
-    file.close();
-    return -1;
-  }
-
-  qint64 dataPos = insertData(&stream, lpszData);
-  qint64 newIndex = insertIndex(&stream, dataPos, user, date);
-  updateIndex(&stream, header.last, newIndex);
-
-  header.count++;
-  header.first = (header.first == 0) ? newIndex : header.first;
-  header.last = newIndex;
-
-  writeHeader(&stream, &header);
-
-  file.close();
-  return 0;
-}
-
-qint64 History::insertData(QDataStream* pStream, QString* lpszData) {
-  qint64 lastPos = pStream->device()->size();
-  pStream->device()->seek(lastPos);
-
-  QByteArray data = lpszData->toUtf8();
-
-  *pStream << QString(HC_DTMARKER);
-  //  qint32: QByteArray::length() is 64-bit qsizetype since Qt6.
-  *pStream << static_cast<qint32>(data.size());
-  *pStream << data;
-
-  return lastPos;
-}
-
-qint64 History::insertIndex(QDataStream* pStream, qint64 dataPos, QString user, QDateTime date) {
-  qint64 lastPos = pStream->device()->size();
-  pStream->device()->seek(lastPos);
-
-  qint64 nextPos = 0;
-
-  *pStream << QString(HC_IDMARKER);
-  *pStream << nextPos;
-  *pStream << dataPos;
-  *pStream << date.toMSecsSinceEpoch();
-  *pStream << user;
-
-  return lastPos;
-}
-
-void History::updateIndex(QDataStream* pStream, qint64 oldIndex, qint64 newIndex) {
-  pStream->device()->seek(oldIndex);
-
-  *pStream << QString(HC_IDMARKER);
-  *pStream << newIndex;
+  return header.marker.compare(HC_DBMARKER) == 0;
 }
 
 QList<MsgInfo> History::getList(void) {
-  QList<MsgInfo> list;
+  return getListFrom(historyFile());
+}
 
-  lmcSettings settings;
-  QString path = historyFile();
+QString History::getMessage(qint64 offset) {
+  return getMessageFrom(historyFile(), offset);
+}
+
+QList<MsgInfo> History::getListFrom(const QString& path) {
+  QList<MsgInfo> list;
 
   if(!QFile::exists(path))
     return list;
@@ -149,32 +76,45 @@ QList<MsgInfo> History::getList(void) {
   stream.setVersion(QDataStream::Qt_5_15);
 
   DBHeader header = readHeader(&stream);
+  if(header.marker.compare(HC_DBMARKER) != 0)
+    return list;
   qint64 next = header.first;
+
+  // Corrupt offsets can cycle or run past EOF on the main thread:
+  // bound the walk by file size, break on a repeated offset.
+  const qint64 fileSize = file.size();
+  const qint64 maxSteps = fileSize / 16 + 64;
+  QSet<qint64> seen;
 
   QString marker;
   qint64 offset;
   qint64 date;
   QString name;
 
+  qint64 steps = 0;
   while(next != 0) {
-    stream.device()->seek(next);
+    if(next < 0 || next >= fileSize || seen.contains(next) || steps >= maxSteps)
+      break;
+    seen.insert(next);
+    ++steps;
+    if(!stream.device()->seek(next))
+      break;
     MsgInfo info;
     stream >> marker;
     stream >> next;
     stream >> offset;
     stream >> date;
     stream >> name;
+    if(stream.status() != QDataStream::Ok)
+      break;
     list.append(MsgInfo(name, QDateTime::fromMSecsSinceEpoch(date), offset));
   }
 
   return list;
 }
 
-QString History::getMessage(qint64 offset) {
+QString History::getMessageFrom(const QString& path, qint64 offset) {
   QString data;
-
-  lmcSettings settings;
-  QString path = historyFile();
 
   if(!QFile::exists(path))
     return data;
@@ -189,13 +129,23 @@ QString History::getMessage(qint64 offset) {
   QString marker;
   QByteArray buffer;
 
-  stream.device()->seek(offset);
+  const qint64 fileSize = file.size();
+  if(offset < 0 || offset >= fileSize)
+    return data;
+  if(!stream.device()->seek(offset))
+    return data;
   stream >> marker;
+  if(stream.status() != QDataStream::Ok)
+    return data;
+  if(marker.compare(HC_DTMARKER) != 0)
+    return data;
   //  Pre-fix Qt6 wrote 64-bit length, classic is 32-bit.
   qint64 afterMarker = stream.device()->pos();
   quint32 first = 0;
   quint32 second = 0;
   stream >> first >> second;
+  if(stream.status() != QDataStream::Ok)
+    return data;
   if(first == 0 && second != 0) {
     stream >> buffer;
   } else {

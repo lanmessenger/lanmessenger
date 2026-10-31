@@ -99,6 +99,7 @@ jobs:
             qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
             qt6-translations-l10n \
             qt6-multimedia-dev \
+            libqt6sql6-sqlite \
             libssl-dev libgl1-mesa-dev \
             xvfb xauth \
             fonts-noto-color-emoji
@@ -317,6 +318,7 @@ jobs:
           # the same silent way: exe present, agent never listens).
           if (-not (Test-Path "$stage\release\Qt6Core.dll")) { throw "Qt runtime missing beside test binary" }
           if (-not (Test-Path "$stage\release\platforms\qwindows.dll")) { throw "Qt platform plugin missing" }
+          if (-not (Test-Path "$stage\release\sqldrivers\qsqlite.dll")) { throw "Qt sqlite driver missing" }
           Copy-Item build/tools/lmc-agent/lan-messenger-test.exe "$stage\release\"
           Copy-Item openssl/bin/*.dll "$stage\release\"
           Copy-Item build/tools/lmm/lmmd.exe "$stage\build\tools\lmm\"

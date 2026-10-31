@@ -29,8 +29,7 @@ Related data lives next to it, not in it:
 | File | Contents |
 |---|---|
 | `group.cfg` (application data directory) | Contact groups and user-to-group mapping (see [Groups](#groups-separate-file) below) |
-| `messenger.db` (application data directory) | Chat history database |
-| `transfers.lst` (application data directory) | File transfer history |
+| `lanmessenger.db` (application data directory) | Chat history + file transfer history (SQLite via Qt Sql/QSQLITE, `sqldrivers` required) |
 | `avt_local.png` (application data directory) | Custom avatar image |
 
 On Linux the application data directory is typically
@@ -116,10 +115,10 @@ Keys without a section prefix.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `History` | bool, `true` | Save chat history to `messenger.db`. |
+| `History` | bool, `true` | Save chat history to `lanmessenger.db`. |
 | `SysHistoryPathDef` | bool, `true` | `true` keeps the database at its default location; `false` uses `HistoryPath`. |
 | `HistoryPath` | path, empty | Custom history database path. Used only when `SysHistoryPathDef` is `false`. |
-| `FileHistory` | bool, `true` | Keep the file transfer list (`transfers.lst`). |
+| `FileHistory` | bool, `true` | Keep the file transfer list (same `lanmessenger.db`, `transfers` table). |
 
 ## Alerts
 
@@ -264,8 +263,8 @@ managed automatically.
 |---|---|
 | `/config=<file>` | Imports a defined subset of keys (general, account, message, history, alert, network, file-transfer and appearance settings). Sound selections, custom sound files, window geometry, identity state, storage and history paths, and group data are not imported. |
 | `/noconfig` | Deletes the preferences file and the custom avatar, restoring defaults. |
-| `/nohistory` | Deletes the chat history database. |
-| `/nofilehistory` | Deletes the file transfer history. |
+| `/nohistory` | Clears chat history in `lanmessenger.db`. No-op with a log warning when the history store failed to open (e.g. missing QSQLITE driver). |
+| `/nofilehistory` | Clears file transfer history in `lanmessenger.db`. Same no-op condition as `/nohistory`. |
 | `/sync` | Re-applies external side effects of the settings (for example start-at-login). |
 | `/unsync` | Removes external side effects of the settings. |
 | `/udpport=<port>` | Overrides `Connection/UDPPort` for this launch only. |

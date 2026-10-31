@@ -7,6 +7,7 @@
 #include <QString>
 #include <QList>
 #include <QPixmap>
+#include <QSet>
 #include "ui_transferwindow.h"
 #include "core/definitions.h"
 #include "gui/files/filemodelview.h"
@@ -32,6 +33,13 @@ public:
   void receiveMessage(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void settingsChanged(void);
 
+  // Merge policy for updateList(), unit-tested in tst_transfermerge:
+  // store rows win for known keys (oldKeys), live active rows win over stale
+  // ones, unknown finished rows are kept; result ordered by startTime.
+  static QList<FileView> mergeTransferViews(const QList<FileView>& storeViews,
+                                            const QList<FileView>& snapshot,
+                                            const QSet<QString>& oldKeys);
+
 signals:
   void messageSent(MessageType type, QString* lpszUserId, XmlMessage* pMessage);
   void showTrayMessage(TrayMessageType type, QString szMessage, QString szTitle, TrayMessageIcon icon);
@@ -56,6 +64,10 @@ private:
   QPixmap getIcon(QString filePath);
   QString formatTime(qint64 size, qint64 speed);
   void clearList(void);
+  void loadFromStore(void);
+  QList<FileView> viewsFromStore(void);
+  void saveToStore(void);
+  static QString transferKey(const QString& id, int mode);
 
   Ui::TransferWindow ui;
   lmcSettings* pSettings;
@@ -64,4 +76,7 @@ private:
   QAction* pactShowFolder;
   QAction* pactRemove;
   QList<FileView> pendingSendList;
+  // Keys last seen in the store: trusted to the store, so an external
+  // clear/remove does not resurrect in the view.
+  QSet<QString> storeKeys;
 };

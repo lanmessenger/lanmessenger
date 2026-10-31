@@ -98,6 +98,13 @@ under `setup` expect the layout in `release`, so pass
 `-DLMC_RELEASE_DIR="$PWD/release"` when you plan to build the
 install packages (this is what the CI build does).
 
+History storage runs on SQLite via the Qt Sql driver (QSQLITE; the Qt Sql
+development files ship with `qt6-base-dev`). Linux runtime needs the
+distro driver (Debian/Ubuntu: `libqt6sql6-sqlite`, see `setup/linux/nfpm.yaml`;
+system packages do not bundle the plugin). On Windows/macOS the deploy
+tools (`windeployqt` / `macdeployqt`) stage the driver because lmc links
+`Qt6::Sql` — see [Building on Windows](build-windows.md).
+
 If OpenSSL is laid out in the `openssl` folder described above, pass
 `-DOPENSSL_ROOT_DIR=$PWD/openssl` to the configure command. Otherwise the
 system OpenSSL found by CMake is used.

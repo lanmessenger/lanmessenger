@@ -84,6 +84,14 @@ set_tests_properties(chatselectall PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offsc
 lmc_add_unit_test(history unit/tst_history.cpp ../src/resource.qrc)
 set_tests_properties(history PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# SQLite history store (sessions/messages/transfers + legacy import), offscreen.
+lmc_add_unit_test(historystore unit/tst_historystore.cpp ../src/resource.qrc)
+set_tests_properties(historystore PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# Transfer merge policy (static, no widgets), offscreen.
+lmc_add_unit_test(transfermerge unit/tst_transfermerge.cpp)
+set_tests_properties(transfermerge PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # Incoming XN_FONT/XN_COLOR guard (size clamp, opaque colors, contrast
 # floor), offscreen.
 lmc_add_unit_test(chattextguard unit/tst_chattextguard.cpp ../src/resource.qrc)

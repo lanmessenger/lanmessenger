@@ -5,12 +5,15 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 
 #include "core/settings.h"
+#include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessageview.h"
-#include "messaging/history.h"
+#include "legacy/history.h"
 #include "messaging/xmlmessage.h"
+#include "storage/historystore.h"
 
 namespace {
 
@@ -62,6 +65,110 @@ bool writeQt6BuggyFile(const QString& path, const QString& user, const QDateTime
   return true;
 }
 
+// Legacy writer lives in tests only (src/legacy is reader-only).
+bool appendClassicRecord(const QString& path, const QString& user, const QDateTime& date,
+                         const QString& html) {
+  if(!QDir().mkpath(QFileInfo(path).absolutePath()))
+    return false;
+  QFile file(path);
+  if(QFile::exists(path)) {
+    if(!file.open(QIODevice::ReadWrite))
+      return false;
+  } else {
+    if(!file.open(QIODevice::WriteOnly))
+      return false;
+    QDataStream init(&file);
+    init.setVersion(QDataStream::Qt_5_15);
+    init << QString(HC_DBMARKER);
+    init << HC_VERSION;
+    init << static_cast<qint16>(HC_HDRSIZE);
+    init << 0;
+    init << static_cast<qint64>(0);
+    init << static_cast<qint64>(0);
+    file.close();
+    if(!file.open(QIODevice::ReadWrite))
+      return false;
+  }
+  QDataStream stream(&file);
+  stream.setVersion(QDataStream::Qt_5_15);
+  QString marker;
+  int version = 0;
+  qint16 hdrSize = 0;
+  int count = 0;
+  qint64 first = 0;
+  qint64 last = 0;
+  stream >> marker >> version >> hdrSize >> count >> first >> last;
+  if(marker != QLatin1String(HC_DBMARKER))
+    return false;
+  const QByteArray payload = html.toUtf8();
+  qint64 dataPos = file.size();
+  file.seek(dataPos);
+  stream << QString(HC_DTMARKER);
+  stream << static_cast<qint32>(payload.size());
+  stream << payload;
+  qint64 newIndex = file.size();
+  file.seek(newIndex);
+  stream << QString(HC_IDMARKER);
+  stream << static_cast<qint64>(0);
+  stream << dataPos;
+  stream << date.toMSecsSinceEpoch();
+  stream << user;
+  if(last != 0) {
+    file.seek(last);
+    stream << QString(HC_IDMARKER);
+    stream << newIndex;
+  }
+  count++;
+  if(first == 0)
+    first = newIndex;
+  last = newIndex;
+  file.seek(0);
+  stream << QString(HC_DBMARKER);
+  stream << version;
+  stream << hdrSize;
+  stream << count;
+  stream << first;
+  stream << last;
+  return true;
+}
+
+// Cyclic index nodes: getListFrom must terminate, not hang startup.
+bool writeCyclicFile(const QString& path) {
+  QFile::remove(path);
+  if(!QDir().mkpath(QFileInfo(path).absolutePath()))
+    return false;
+  QFile file(path);
+  if(!file.open(QIODevice::WriteOnly))
+    return false;
+  QDataStream stream(&file);
+  stream.setVersion(QDataStream::Qt_5_15);
+  // Header: QString("DB") = 8, int = 4, qint16 = 2, int = 4, 2 x qint64 = 16.
+  const qint64 nodeA = 8 + 4 + 2 + 4 + 8 + 8;
+  // Index node: QString("ID") = 8, 3 x qint64 = 24, QString 1-char name = 6.
+  const qint64 nodeB = nodeA + 8 + 8 + 8 + 8 + 6;
+  stream << QString(HC_DBMARKER);
+  stream << HC_VERSION;
+  stream << static_cast<qint16>(HC_HDRSIZE);
+  stream << 2;
+  stream << nodeA;
+  stream << nodeB;
+  if(stream.device()->pos() != nodeA)
+    return false;
+  stream << QString(HC_IDMARKER);
+  stream << nodeB;
+  stream << nodeA;
+  stream << QDateTime::currentDateTime().toMSecsSinceEpoch();
+  stream << QStringLiteral("a");
+  if(stream.device()->pos() != nodeB)
+    return false;
+  stream << QString(HC_IDMARKER);
+  stream << nodeA;
+  stream << nodeA;
+  stream << QDateTime::currentDateTime().toMSecsSinceEpoch();
+  stream << QStringLiteral("b");
+  return true;
+}
+
 } // namespace
 
 class TstHistory : public QObject {
@@ -71,12 +178,15 @@ private slots:
   void initTestCase();
   void cleanupTestCase();
   void saveReturnsExactBlob();
+  void cyclicFileTerminates();
   void savedSessionShowsAsNonEmptyRow();
   void qt6BuggyRecordStillReads();
   void structuredHistoryShowsOneRowPerMessage();
   void structuredHistoryKeepsEmojiRuns();
   void unstructuredBlobFallsBackToSingleRow();
   void nbspNormalizesToSpace();
+  void tmpRoundtripKeepsLocalId();
+  void tmpOldFormatKeepsPresetLocalId();
 
 private:
   QString scratchPath;
@@ -119,11 +229,11 @@ void TstHistory::saveReturnsExactBlob() {
   QString user = QStringLiteral("Jack");
   QDateTime when = QDateTime::currentDateTime();
   QString html = kBlob;
-  QCOMPARE(History::save(user, when, &html), 0);
+  QVERIFY(appendClassicRecord(History::historyFile(), user, when, html));
 
   QString user2 = QStringLiteral("Group Conversation");
   QString html2 = kBlob + QStringLiteral("second");
-  QCOMPARE(History::save(user2, when, &html2), 0);
+  QVERIFY(appendClassicRecord(History::historyFile(), user2, when, html2));
 
   QList<MsgInfo> list = History::getList();
   QCOMPARE(list.count(), 2);
@@ -131,12 +241,22 @@ void TstHistory::saveReturnsExactBlob() {
   QCOMPARE(History::getMessage(list.at(1).offset), html2);
 }
 
+void TstHistory::cyclicFileTerminates() {
+  QString path = scratchPath + QStringLiteral("/cyclic.db");
+  QVERIFY(writeCyclicFile(path));
+  QElapsedTimer timer;
+  timer.start();
+  QList<MsgInfo> list = History::getListFrom(path);
+  QVERIFY(timer.elapsed() < 5000);
+  QVERIFY(list.count() <= 2);
+}
+
 void TstHistory::savedSessionShowsAsNonEmptyRow() {
   QFile::remove(History::historyFile());
   QString user = QStringLiteral("Jack");
   QDateTime when = QDateTime::currentDateTime();
   QString html = kBlob;
-  QCOMPARE(History::save(user, when, &html), 0);
+  QVERIFY(appendClassicRecord(History::historyFile(), user, when, html));
 
   QList<MsgInfo> list = History::getList();
   QCOMPARE(list.count(), 1);
@@ -302,6 +422,72 @@ void TstHistory::nbspNormalizesToSpace() {
   const QString body = view.messageAt(0);
   QVERIFY(!body.contains(QChar(0x00A0)));
   QCOMPARE(body, QStringLiteral("Jack:12:00hi there"));
+}
+
+void TstHistory::tmpRoundtripKeepsLocalId() {
+  ChatMessageView src;
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  src.localId = me;
+  src.peerId = jack;
+  src.peerName = jackName;
+  src.initChat();
+  XmlMessage m1;
+  m1.addHeader(XN_TIME, QString::number(1761300000000));
+  m1.addData(XN_MESSAGE, QStringLiteral("hi"));
+  XmlMessage m2;
+  m2.addHeader(XN_TIME, QString::number(1761300060000));
+  m2.addData(XN_MESSAGE, QStringLiteral("hello"));
+  src.appendMessageLog(MT_Message, &me, &meName, &m1);
+  src.appendMessageLog(MT_Message, &jack, &jackName, &m2);
+  QString path = scratchPath + QStringLiteral("/msg_jack.tmp");
+  src.saveMessageLog(path);
+
+  // Empty localId (shutdown with no local user): isOwn scores from the tmp file id.
+  ChatMessageView dst;
+  dst.initChat();
+  dst.restoreMessageLog(path, false);
+  QCOMPARE(dst.localId, me);
+  QCOMPARE(dst.peerId, jack);
+  QCOMPARE(dst.peerName, jackName);
+  QCOMPARE(dst.rowCount(), 2);
+  QList<StoredMessage> rows = dst.storedMessages();
+  QCOMPARE(rows.count(), 2);
+  QVERIFY(rows.at(0).isOwn);
+  QVERIFY(!rows.at(1).isOwn);
+}
+
+void TstHistory::tmpOldFormatKeepsPresetLocalId() {
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  XmlMessage m1;
+  m1.addHeader(XN_TIME, QString::number(1761300000000));
+  m1.addData(XN_MESSAGE, QStringLiteral("hi"));
+  QList<SingleMessage> msgs;
+  msgs << SingleMessage(MT_Message, me, meName, m1);
+  QString path = scratchPath + QStringLiteral("/msg_old.tmp");
+  {
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_5_15);
+    stream << jack << jackName << msgs;
+  }
+  ChatMessageView dst;
+  dst.localId = me;
+  dst.initChat();
+  dst.restoreMessageLog(path, false);
+  QCOMPARE(dst.localId, me);
+  QCOMPARE(dst.peerId, jack);
+  QCOMPARE(dst.peerName, jackName);
+  QCOMPARE(dst.rowCount(), 1);
+  QList<StoredMessage> rows = dst.storedMessages();
+  QCOMPARE(rows.count(), 1);
+  QVERIFY(rows.at(0).isOwn);
 }
 
 QTEST_MAIN(TstHistory)

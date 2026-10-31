@@ -1,4 +1,4 @@
-find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Widgets Network Xml LinguistTools)
+find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Widgets Network Xml Sql LinguistTools)
 if(UNIX)
     find_package(Qt6 6.2 REQUIRED COMPONENTS Multimedia)
 endif()
@@ -29,9 +29,11 @@ add_library(lmc_core STATIC
     core/crypto.cpp
     network/datagram.cpp
     messaging/filemessagingproc.cpp
+    storage/historystore.cpp
     gui/files/filemodelview.cpp
     gui/main/helpwindow.cpp
-    messaging/history.cpp
+    legacy/history.cpp
+    legacy/historyparser.cpp
     gui/history/historywindow.cpp
     gui/widgets/imagepicker.cpp
     gui/widgets/imagepickeraction.cpp
@@ -83,9 +85,11 @@ add_library(lmc_core STATIC
     core/crypto.h
     network/datagram.h
     core/definitions.h
+    storage/historystore.h
     gui/files/filemodelview.h
     gui/main/helpwindow.h
-    messaging/history.h
+    legacy/history.h
+    legacy/historyparser.h
     gui/history/historytreewidget.h
     gui/history/historywindow.h
     gui/widgets/imagepicker.h
@@ -150,7 +154,7 @@ target_include_directories(lmc_core PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/lmc_core_autogen/include_$<CONFIG>
 )
 
-# Qt6::Sql is not linked (unused; see qt6-migration-plan.md).
+# Qt6::Sql backs HistoryStore (SQLite/QSQLITE); see todo/history-sqlite-store.md.
 target_link_libraries(lmc_core
     PUBLIC
         Qt6::Core
@@ -158,6 +162,7 @@ target_link_libraries(lmc_core
         Qt6::Widgets
         Qt6::Network
         Qt6::Xml
+        Qt6::Sql
         OpenSSL::Crypto
 )
 

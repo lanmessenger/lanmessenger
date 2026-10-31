@@ -36,7 +36,10 @@ To gather the Qt libraries and plugins into the output folder, run
 build. The Qt 6 TLS backend plugins (the `tls` folder) are needed for SSL
 support; copy them from your Qt installation's `plugins\tls` folder into
 the output `tls` folder if `windeployqt` skipped them (the CI build does
-this as a separate step).
+this as a separate step). The SQLite driver (`sqldrivers\qsqlite.dll`,
+needed for history storage) is staged by `windeployqt` as well, because
+lmc links Qt6 Sql; the CI build asserts its presence and the installer
+check requires it.
 
 ## Installer
 

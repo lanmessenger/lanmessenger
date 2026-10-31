@@ -83,6 +83,10 @@ jobs:
                    /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
+          # No bundled sqldrivers/: the distro driver covers it (sqlite ships
+          # inside qt6-base on Arch — assert the file, not the assumption).
+          pacman -Ql qt6-base | grep -Eq 'libqsqlite\.so$' \
+            || { echo 'system QSQLite driver file missing (qt6-base)' >&2; exit 1; }
 
       - name: Validate AppStream metadata
         run: |

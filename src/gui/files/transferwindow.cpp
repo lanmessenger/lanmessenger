@@ -3,7 +3,9 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "transferwindow.h"
 #include <QDesktopServices>
+#include <QDateTime>
 #include <QGuiApplication>
+#include <QHash>
 #include <QScreen>
 #include <QUrl>
 #include <QDir>
@@ -12,12 +14,16 @@
 #include <QToolBar>
 #include <QFile>
 #include <QKeyEvent>
+#include <QSignalBlocker>
+#include <algorithm>
 #include "core/shared.h"
+#include "core/lmccategories.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "core/soundplayer.h"
 #include "messaging/xmlmessage.h"
 #include "gui/widgets/actionhelper.h"
+#include "storage/historystore.h"
 
 lmcTransferWindow::lmcTransferWindow(QWidget* parent)
     : QWidget(parent) {
@@ -50,15 +56,81 @@ void lmcTransferWindow::init(void) {
   restoreGeometry(pSettings->value(IDS_WINDOWTRANSFERS).toByteArray());
   setUIText();
 
-  ui.lvTransferList->loadData(StdLocation::transferHistory());
+  loadFromStore();
   if(ui.lvTransferList->count() > 0)
     ui.lvTransferList->setCurrentRow(0);
 
   pSoundPlayer = new lmcSoundPlayer();
+  connect(HistoryStore::instance(), &HistoryStore::transfersChanged, this,
+          &lmcTransferWindow::updateList);
 }
 
 void lmcTransferWindow::updateList(void) {
-  clearList();
+  // External change: store rows win for known keys (storeKeys), live active
+  // rows win over stale store rows, unsaved terminal rows are kept.
+  // Closed store: nothing to merge against, keep the view.
+  if(!HistoryStore::instance()->isOpen())
+    return;
+  QList<FileView> snapshot;
+  for(int i = 0; i < ui.lvTransferList->count(); i++) {
+    FileView* v = ui.lvTransferList->item(i);
+    if(v)
+      snapshot.append(*v);
+  }
+  QSet<QString> oldKeys = storeKeys;
+  QList<FileView> storeViews = viewsFromStore();
+  QList<FileView> merged = mergeTransferViews(storeViews, snapshot, oldKeys);
+  while(ui.lvTransferList->count() > 0)
+    ui.lvTransferList->removeItem(0);
+  for(int i = 0; i < merged.count(); i++)
+    ui.lvTransferList->insertItem(i, &merged[i]);
+  if(ui.lvTransferList->count() > 0 && ui.lvTransferList->currentRow() < 0)
+    ui.lvTransferList->setCurrentRow(0);
+}
+
+QList<FileView> lmcTransferWindow::mergeTransferViews(const QList<FileView>& storeViews,
+                                                      const QList<FileView>& snapshot,
+                                                      const QSet<QString>& oldKeys) {
+  QSet<QString> storeKeySet;
+  for(const FileView& v : storeViews)
+    storeKeySet.insert(transferKey(v.id, int(v.mode)));
+  // Live active rows win over stale store rows; unsaved terminal rows are kept.
+  QHash<QString, FileView> live;
+  QList<FileView> unsaved;
+  for(const FileView& row : snapshot) {
+    const QString key = transferKey(row.id, int(row.mode));
+    if(row.state < FileView::TS_Complete)
+      live.insert(key, row);
+    else if(!oldKeys.contains(key) && !storeKeySet.contains(key))
+      unsaved.append(row);
+  }
+  QList<FileView> merged;
+  QSet<QString> consumedLive;
+  for(const FileView& sv : storeViews) {
+    const QString key = transferKey(sv.id, int(sv.mode));
+    if(live.contains(key)) {
+      merged.append(live.value(key));
+      consumedLive.insert(key);
+    } else {
+      merged.append(sv);
+    }
+  }
+  // New active rows have no store row; the sort below slots them chronologically.
+  for(auto it = live.constBegin(); it != live.constEnd(); ++it) {
+    if(!consumedLive.contains(it.key()))
+      merged.append(it.value());
+  }
+  merged.append(unsaved);
+  // Stable sort by startTime (store is ORDER BY created_at); tie-break by id:
+  // QHash iteration is random, same-millisecond transfers must merge deterministically.
+  std::stable_sort(merged.begin(), merged.end(), [](const FileView& a, const FileView& b) {
+    return a.startTime != b.startTime ? a.startTime < b.startTime : a.id < b.id;
+  });
+  return merged;
+}
+
+QString lmcTransferWindow::transferKey(const QString& id, int mode) {
+  return id + QLatin1Char('\x1f') + QString::number(mode);
 }
 
 void lmcTransferWindow::stop(void) {
@@ -81,7 +153,7 @@ void lmcTransferWindow::stop(void) {
 
   bool saveHistory = pSettings->value(IDS_FILEHISTORY, IDS_FILEHISTORY_VAL).toBool();
   if(saveHistory)
-    ui.lvTransferList->saveData(StdLocation::transferHistory());
+    saveToStore();
   pSettings->setValue(IDS_WINDOWTRANSFERS, saveGeometry());
 }
 
@@ -244,6 +316,8 @@ void lmcTransferWindow::lvTransferList_activated(const QModelIndex& index) {
 
 void lmcTransferWindow::btnCancel_clicked(void) {
   FileView* view = ui.lvTransferList->currentItem();
+  if(!view)
+    return;
 
   int mode = view->mode == FileView::TM_Send ? FM_Send : FM_Receive;
   XmlMessage xmlMessage;
@@ -262,14 +336,50 @@ void lmcTransferWindow::btnCancel_clicked(void) {
 void lmcTransferWindow::btnRemove_clicked(void) {
   FileView* view = ui.lvTransferList->currentItem();
 
-  if(view->state < FileView::TS_Complete)
+  if(!view || view->state < FileView::TS_Complete)
     return;
 
+  // Block self-emit: the signal is for external changes.
+  const QSignalBlocker blocker(HistoryStore::instance());
+  if(!HistoryStore::instance()->removeTransfer(view->id, int(view->mode))) {
+    if(!HistoryStore::instance()->isOpen()) {
+      // Store closed: drop the view row only, keep storeKeys so disk rows resurrect on reopen.
+      qCWarning(lmcApp(), "Transfers: removeTransfer failed (store closed), "
+                          "removing from the view only");
+      ui.lvTransferList->removeItem(ui.lvTransferList->currentRow());
+      emit showTrayMessage(TM_Transfer,
+                           tr("History database is unavailable, the entry was "
+                              "removed from the view only."),
+                           tr("File Transfers"), TMI_Warning);
+    } else {
+      emit showTrayMessage(TM_Transfer, tr("Failed to remove the entry from history."),
+                           tr("File Transfers"), TMI_Warning);
+    }
+    return;
+  }
+  storeKeys.remove(transferKey(view->id, int(view->mode)));
   ui.lvTransferList->removeItem(ui.lvTransferList->currentRow());
 }
 
 void lmcTransferWindow::btnClear_clicked(void) {
-  QFile::remove(StdLocation::transferHistory());
+  const QSignalBlocker blocker(HistoryStore::instance());
+  if(!HistoryStore::instance()->clearTransfers()) {
+    if(!HistoryStore::instance()->isOpen()) {
+      // As above: view-only clear, disk rows resurrect on reopen.
+      qCWarning(lmcApp(), "Transfers: clearTransfers failed (store closed), "
+                          "clearing the view only");
+      clearList();
+      emit showTrayMessage(TM_Transfer,
+                           tr("History database is unavailable, the list was "
+                              "cleared in the view only."),
+                           tr("File Transfers"), TMI_Warning);
+    } else {
+      emit showTrayMessage(TM_Transfer, tr("Failed to clear file history."),
+                           tr("File Transfers"), TMI_Warning);
+    }
+    return;
+  }
+  storeKeys.clear();
   clearList();
 }
 
@@ -392,6 +502,76 @@ void lmcTransferWindow::clearList(void) {
     ui.lvTransferList->removeItem(index);
     index--;
   }
+}
+
+void lmcTransferWindow::loadFromStore(void) {
+  // Closed store: nothing to load; keep storeKeys for the next merge.
+  if(!HistoryStore::instance()->isOpen())
+    return;
+  QList<FileView> views = viewsFromStore();
+  for(int i = 0; i < views.count(); i++)
+    ui.lvTransferList->insertItem(ui.lvTransferList->count(), &views[i]);
+}
+
+QList<FileView> lmcTransferWindow::viewsFromStore(void) {
+  QList<FileView> views;
+  QList<TransferRecord> records = HistoryStore::instance()->loadTransfers();
+  storeKeys.clear();
+  for(const TransferRecord& r : records) {
+    FileView view(r.id);
+    view.type = (r.messageType == int(MT_Folder)) ? MT_Folder : MT_File;
+    if(r.mode == int(FileView::TM_Send) || r.mode == int(FileView::TM_Receive))
+      view.mode = (FileView::TransferMode)r.mode;
+    else
+      view.mode = FileView::TM_Send;
+    view.filePath = r.filePath;
+    view.fileName = QFileInfo(r.filePath).fileName();
+    view.fileDisplay = r.fileDisplay;
+    view.userId = r.userId;
+    view.userName = r.userName;
+    view.fileSize = r.fileSize;
+    if(r.state >= 0 && r.state < int(FileView::TS_Max))
+      view.state = (FileView::TransferState)r.state;
+    else
+      view.state = FileView::TS_Complete;
+    view.icon = getIcon(view.filePath);
+    view.sizeDisplay = Helper::formatSize(view.fileSize);
+    if(r.createdAt > 0)
+      view.startTime = QDateTime::fromMSecsSinceEpoch(r.createdAt);
+    else
+      view.startTime = QDateTime::currentDateTime();
+    storeKeys.insert(transferKey(view.id, int(view.mode)));
+    views.append(view);
+  }
+  return views;
+}
+
+void lmcTransferWindow::saveToStore(void) {
+  QList<TransferRecord> records;
+  for(int i = 0; i < ui.lvTransferList->count(); i++) {
+    FileView* v = ui.lvTransferList->item(i);
+    if(!v)
+      continue;
+    TransferRecord r;
+    r.id = v->id;
+    r.mode = int(v->mode);
+    r.messageType = int(v->type);
+    r.filePath = v->filePath;
+    r.fileDisplay = v->fileDisplay;
+    r.userId = v->userId;
+    r.userName = v->userName;
+    r.fileSize = v->fileSize;
+    r.state = int(v->state);
+    r.createdAt = v->startTime.isValid() ? v->startTime.toMSecsSinceEpoch()
+                                         : QDateTime::currentMSecsSinceEpoch();
+    records.append(r);
+  }
+  const QSignalBlocker blocker(HistoryStore::instance());
+  if(!HistoryStore::instance()->saveTransfers(records))
+    return;
+  storeKeys.clear();
+  for(const TransferRecord& r : records)
+    storeKeys.insert(transferKey(r.id, r.mode));
 }
 
 void lmcTransferWindow::updateProgress(FileView* view, qint64 currentPos) {

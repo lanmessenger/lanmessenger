@@ -11,15 +11,21 @@
 #include <QPixmap>
 #include <QDir>
 #include <QFileInfo>
+#include <QDateTime>
 #include <math.h>
 
 #include "filemodelview.h"
+#include "core/definitions.h"
 
 /****************************************************************************
 **	Class: FileView
 **	Description: Takes care of rendering the item
 ****************************************************************************/
 FileView::FileView(QString id) {
+  type = MT_File;
+  mode = TM_Send;
+  state = TS_Wait;
+  fileSize = 0;
   position = 0;
   speed = 0;
   posDisplay = tr("0 bytes");
@@ -102,7 +108,9 @@ void FileView::paint(QPainter* painter, const QRect& rect, const QPalette& palet
   painter->drawText(textRect, textFlags, text);
 
   if(drawProgress) {
-    int spanAngle = ((double)position / (double)fileSize) * 360;
+    int spanAngle = 0;
+    if(fileSize > 0)
+      spanAngle = ((double)position / (double)fileSize) * 360;
 
     painter->setBrush(QBrush(QColor(230, 230, 230)));
     painter->setPen(QPen(QColor(230, 230, 230)));
@@ -142,11 +150,23 @@ QDataStream& operator>>(QDataStream& in, FileView& view) {
   QPixmap icon;
   in >> id >> mode >> filePath >> userName >> fileDisplay >> state >> icon;
   view = FileView(id);
-  view.mode = (FileView::TransferMode)mode;
+  // Clamp: a corrupt transfers.lst must not smuggle an invalid enum into SQLite.
+  if(mode == int(FileView::TM_Send) || mode == int(FileView::TM_Receive))
+    view.mode = (FileView::TransferMode)mode;
+  else
+    view.mode = FileView::TM_Send;
   view.filePath = filePath;
+  view.fileName = QFileInfo(filePath).fileName();
   view.userName = userName;
+  // Legacy stream has no userId/fileSize/startTime: fall back to userName/0/now.
+  view.userId = userName;
+  view.fileSize = 0;
   view.fileDisplay = fileDisplay;
-  view.state = (FileView::TransferState)state;
+  view.startTime = QDateTime::currentDateTime();
+  if(state >= 0 && state < int(FileView::TS_Max))
+    view.state = (FileView::TransferState)state;
+  else
+    view.state = FileView::TS_Complete;
   view.icon = icon;
   return in;
 }

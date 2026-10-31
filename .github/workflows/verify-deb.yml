@@ -58,6 +58,12 @@ jobs:
                    /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
+          # No bundled sqldrivers/: system packages use the distro driver.
+          # Gate both the dependency metadata and the actual plugin file.
+          dpkg-deb -f dist/lmc_*.deb Depends | tr ',' '\n' | grep -Eq 'libqt6sql6-sqlite' \
+            || { echo 'deb missing Depends: libqt6sql6-sqlite' >&2; exit 1; }
+          dpkg -L libqt6sql6-sqlite | grep -Eq 'libqsqlite\.so$' \
+            || { echo 'system QSQLite driver file missing' >&2; exit 1; }
 
       - name: Validate AppStream metadata
         run: |

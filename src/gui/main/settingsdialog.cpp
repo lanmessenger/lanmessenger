@@ -17,11 +17,12 @@
 #include <QIcon>
 #include <QPixmap>
 #include "core/shared.h"
+#include "core/lmccategories.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "core/soundplayer.h"
 #include "app/application.h"
-#include "messaging/history.h"
+#include "storage/historystore.h"
 #include "gui/chat/chatmessageview.h"
 
 lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
@@ -212,7 +213,7 @@ void lmcSettingsDialog::rdbSysHistoryPath_toggled(bool checked) {
   ui.btnHistoryPath->setEnabled(!checked);
 
   if(!checked)
-    ui.txtHistoryPath->setText(History::historyFile());
+    ui.txtHistoryPath->setText(HistoryStore::databaseFile());
   else
     ui.txtHistoryPath->clear();
 }
@@ -232,12 +233,15 @@ void lmcSettingsDialog::btnFilePath_clicked(void) {
 }
 
 void lmcSettingsDialog::btnClearHistory_clicked(void) {
-  QFile::remove(History::historyFile());
+  // Still emit: views must resync to the store state, not a phantom empty list.
+  if(!HistoryStore::instance()->clearSessions())
+    qCWarning(lmcApp(), "Settings: clearSessions failed, views resync to stored data");
   emit historyCleared();
 }
 
 void lmcSettingsDialog::btnClearFileHistory_clicked(void) {
-  QFile::remove(StdLocation::transferHistory());
+  if(!HistoryStore::instance()->clearTransfers())
+    qCWarning(lmcApp(), "Settings: clearTransfers failed, views resync to stored data");
   emit fileHistoryCleared();
 }
 
