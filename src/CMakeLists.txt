@@ -406,14 +406,6 @@ if(WIN32)
     endif()
 endif()
 
-if(UNIX AND NOT APPLE)
-    # Launcher script (sets LD_LIBRARY_PATH).
-    install(PROGRAMS
-        scripts/lan-messenger.sh
-        DESTINATION .
-    )
-endif()
-
 # package-local: stage the layout in one command. LMC_RELEASE_DIR
 # defaults to <build>/release; CI points it at release where setup/**
 # expects the layout.

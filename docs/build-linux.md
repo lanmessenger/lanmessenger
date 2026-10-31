@@ -24,12 +24,14 @@ The packaging scripts read the layout from `release`, so pass that
 value for `LMC_RELEASE_DIR` when building packages (this is what the CI
 build does).
 
-## Launch scripts
+## Launch
 
-Launch the application through the `lan-messenger.sh` script in the
-release layout. It sets the load paths for the bundled libraries.
-The script is staged with executable permission by the
-`package-local` target.
+Run the `lan-messenger` binary in the release layout directly (all
+dependencies resolve via the system libraries, no wrapper needed):
+
+```bash
+./lan-messenger /loopback
+```
 
 ## Debugging
 

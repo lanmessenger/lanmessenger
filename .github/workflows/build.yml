@@ -114,7 +114,7 @@ jobs:
           export USER=ci
           cd release
           export LD_LIBRARY_PATH="$PWD"
-          timeout 60 xvfb-run -a ./lan-messenger.sh /loopback /noconfig /quit
+          timeout 60 xvfb-run -a ./lan-messenger /loopback /noconfig /quit
 
       - name: Build unit tests
         run: cmake --build build --config Release --target lmc_unit_tests --parallel
