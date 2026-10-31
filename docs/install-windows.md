@@ -30,7 +30,7 @@ first launch with a "Windows protected your PC" warning. This is about
 the missing publisher signature, not a broken download. Click `More
 info`, then `Run anyway` — the approval is one-time per install.
 
-> A paid certificate only proves who published a file. With LAN Messenger you can check what is inside instead. The full source is open under GPL-3.0, and every release is built automatically on GitHub servers, on a fresh machine for each run, then published untouched. Open code plus a clean build on infrastructure run by Microsoft is arguably a stronger guarantee than a signed binary from some vendor website.
+> The installer has no paid code signing certificate, so SmartScreen shows an unknown publisher. This is expected for a free open source app. The full source is open under GPL-3.0, and every release is built automatically on GitHub from that code using a fresh runner for each release and published as release assets. You can verify what you install instead of trusting a publisher name.
 
 ## Firewall
 

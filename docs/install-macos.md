@@ -21,6 +21,8 @@ This is Gatekeeper, not a broken download. The app is ad-hoc signed and
 not notarized, so macOS cannot verify the developer identity and errs on
 the side of blocking. It happens once per install, not on every launch.
 
+> The app has no paid Apple Developer ID and is not notarized, so Gatekeeper cannot verify the publisher. This is expected for a free open source app. The full source is open under GPL-3.0, and every release is built automatically on GitHub from that code using a fresh runner for each release and published as release assets. You can verify what you install instead of trusting a publisher name.
+
 ## Allow the app to run
 
 ### In Settings (no terminal needed)
