@@ -66,18 +66,14 @@ Supervisor::Supervisor(quint16 port, const QString& homeDir, QObject* parent)
 }
 
 bool Supervisor::start(QString* error) {
-  // Never steal the port from a live daemon. No stale-artifact cleanup:
-  // a TCP port frees itself when the process dies (unlike socket files).
-  {
-    QTcpSocket probe;
-    probe.connectToHost(QHostAddress::LocalHost, port_);
-    if(probe.waitForConnected(500)) {
-      probe.disconnectFromHost();
-      if(error)
-        *error = QString("port already taken by a live server: %1").arg(port_);
-      return false;
-    }
-  }
+  // No pre-listen probe: QTcpSocket::waitForConnected gives false
+  // positives on macos-15 arm64 (connects to closed loopback ports,
+  // GH E2E diag run 41230124626: python connect_ex 61 + lsof empty,
+  // yet probe claimed "already taken" on every port including 17801,
+  // while the x64 leg on the same image listened fine). listen()
+  // already refuses a truly busy port with "Address already in use".
+  // A TCP port frees itself when the process dies (unlike socket
+  // files), so no stale-artifact cleanup is needed either.
   server_ = new QTcpServer(this);
   connect(server_, &QTcpServer::newConnection, this, [this]() {
     while(QTcpSocket* sock = server_->nextPendingConnection()) {
