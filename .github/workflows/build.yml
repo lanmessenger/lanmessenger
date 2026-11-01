@@ -105,7 +105,7 @@ jobs:
             fonts-noto-color-emoji
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release" -DLMC_VERSION="$PKG_VERSION"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release" -DLMC_VERSION="$PKG_VERSION" -DLMC_QTEST_FILE_LOGS=ON
 
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
@@ -122,16 +122,12 @@ jobs:
       - name: Unit tests
         run: ctest --test-dir build -C Release --output-on-failure
 
-      # Failure-only diagnostics: rerun failed tests verbosely, keep LastTest.log.
+      # Failure-only: the gate run writes qtest-<name>.txt beside LastTest.log
+      # (see tests/CMakeLists.txt), grep the failing lines into the console.
       - name: Diagnose failed unit tests
         if: failure()
         run: |
-          ctest --test-dir build -N -C Release || true
-          ctest --test-dir build -C Release --rerun-failed -V || true
-          QT_QPA_PLATFORM=offscreen build/tests/tst_legacymigration -v2 || true
-          echo '--- LastTest.log (tail) ---'
-          tail -n 200 build/Testing/Temporary/LastTest.log || true
-          echo '--- LastTestsFailed.log ---'
+          grep -h -A1 -E '^FAIL!|^Totals:' build/Testing/Temporary/qtest-*.txt 2>/dev/null || echo 'no FAIL!/Totals in qtest-*.txt'
           cat build/Testing/Temporary/LastTestsFailed.log || true
 
       - name: Upload unit test diagnostics
@@ -142,6 +138,7 @@ jobs:
           path: |
             build/Testing/Temporary/LastTest.log
             build/Testing/Temporary/LastTestsFailed.log
+            build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
           retention-days: 3
 
@@ -285,7 +282,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION" -DLMC_QTEST_FILE_LOGS=ON)
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi
@@ -316,26 +313,15 @@ jobs:
       - name: Unit tests
         run: ctest --test-dir build -C Release --output-on-failure
 
-      # Failure-only diagnostics; ends with exit 0 so the upload below still runs.
+      # Failure-only: the gate run writes qtest-<name>.txt beside LastTest.log
+      # (see tests/CMakeLists.txt), grep the failing lines into the console.
+      # Ends with exit 0 so the upload below still runs.
       - name: Diagnose failed unit tests
         if: failure()
         shell: pwsh
         run: |
-          ctest --test-dir build -N -C Release
-          ctest --test-dir build -C Release --rerun-failed -V
-          $env:QT_QPA_PLATFORM = "offscreen"
-          $diag = "build\Testing\Temporary"
-          & build\tests\tst_legacymigration.exe -functions > "$diag\direct-functions.txt" 2>&1
-          Write-Host "direct -functions exit=$LASTEXITCODE"
-          Get-Content "$diag\direct-functions.txt"
-          & build\tests\tst_legacymigration.exe -v2 > "$diag\direct-v2.txt" 2>&1
-          Write-Host "direct -v2 exit=$LASTEXITCODE"
-          Write-Host "direct -v2 bytes=$((Get-Item "$diag\direct-v2.txt").Length)"
-          Get-Content "$diag\direct-v2.txt" -Tail 60
-          Write-Host '--- LastTest.log (tail) ---'
-          if (Test-Path "$diag\LastTest.log") { Get-Content "$diag\LastTest.log" -Tail 200 } else { Write-Host "no LastTest.log" }
-          Write-Host '--- LastTestsFailed.log ---'
-          if (Test-Path "$diag\LastTestsFailed.log") { Get-Content "$diag\LastTestsFailed.log" } else { Write-Host "no LastTestsFailed.log" }
+          if (Test-Path build\Testing\Temporary\qtest-*.txt) { Select-String -Path build\Testing\Temporary\qtest-*.txt -Pattern '^(FAIL!|Totals:)' -Context 0,1 | ForEach-Object { $_.Line; $_.Context.PostContext } } else { Write-Host 'no qtest-*.txt' }
+          if (Test-Path build\Testing\Temporary\LastTestsFailed.log) { Get-Content build\Testing\Temporary\LastTestsFailed.log } else { Write-Host 'no LastTestsFailed.log' }
           Write-Host '--- Application event log (errors) ---'
           try {
             Get-WinEvent -LogName Application -MaxEvents 200 | Where-Object { $_.LevelDisplayName -eq 'Error' } | Select-Object TimeCreated, ProviderName, Id, Message | Format-Table -AutoSize | Out-String -Width 300 | Write-Host
@@ -357,8 +343,7 @@ jobs:
           path: |
             build/Testing/Temporary/LastTest.log
             build/Testing/Temporary/LastTestsFailed.log
-            build/Testing/Temporary/direct-functions.txt
-            build/Testing/Temporary/direct-v2.txt
+            build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
           retention-days: 3
 
@@ -458,7 +443,7 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION")
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release "-DLMC_RELEASE_DIR=$PWD/release" "-DLMC_VERSION=$PKG_VERSION" -DLMC_QTEST_FILE_LOGS=ON)
           if [ -d openssl ]; then
             args+=("-DOPENSSL_ROOT_DIR=$PWD/openssl")
           fi
@@ -531,16 +516,12 @@ jobs:
       - name: Unit tests
         run: ctest --test-dir build -C Release --output-on-failure
 
-      # Failure-only diagnostics: rerun failed tests verbosely, keep LastTest.log.
+      # Failure-only: the gate run writes qtest-<name>.txt beside LastTest.log
+      # (see tests/CMakeLists.txt), grep the failing lines into the console.
       - name: Diagnose failed unit tests
         if: failure()
         run: |
-          ctest --test-dir build -N -C Release || true
-          ctest --test-dir build -C Release --rerun-failed -V || true
-          QT_QPA_PLATFORM=offscreen build/tests/tst_legacymigration -v2 || true
-          echo '--- LastTest.log (tail) ---'
-          tail -n 200 build/Testing/Temporary/LastTest.log || true
-          echo '--- LastTestsFailed.log ---'
+          grep -h -A1 -E '^FAIL!|^Totals:' build/Testing/Temporary/qtest-*.txt 2>/dev/null || echo 'no FAIL!/Totals in qtest-*.txt'
           cat build/Testing/Temporary/LastTestsFailed.log || true
 
       - name: Upload unit test diagnostics
@@ -551,6 +532,7 @@ jobs:
           path: |
             build/Testing/Temporary/LastTest.log
             build/Testing/Temporary/LastTestsFailed.log
+            build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
           retention-days: 3
 

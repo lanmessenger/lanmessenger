@@ -1,5 +1,7 @@
 find_package(Qt6 6.2 REQUIRED COMPONENTS Test)
 
+option(LMC_QTEST_FILE_LOGS "Write per-test QTest logs beside LastTest.log" OFF)
+
 # Thin wrapper: only the invariant shared by every unit test lives here
 # (link lmc_core + Qt6::Test, tests/ output dir, add_test registration,
 # aggregate list for CI). All variability stays at the call site as plain
@@ -20,7 +22,15 @@ function(lmc_add_unit_test TEST_NAME)
         RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/tests
         RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/tests
     )
-    add_test(NAME ${TEST_NAME} COMMAND tst_${TEST_NAME})
+    # Optional per-test QTest log next to LastTest.log (Windows runners swallow
+    # QtTest stdout, so ctest output alone cannot attribute a failure). Off by
+    # default; CI turns it on with -DLMC_QTEST_FILE_LOGS=ON.
+    if(LMC_QTEST_FILE_LOGS)
+        add_test(NAME ${TEST_NAME} COMMAND tst_${TEST_NAME}
+            -o "${CMAKE_BINARY_DIR}/Testing/Temporary/qtest-${TEST_NAME}.txt,txt" -o -,txt)
+    else()
+        add_test(NAME ${TEST_NAME} COMMAND tst_${TEST_NAME})
+    endif()
     set_property(GLOBAL APPEND PROPERTY LMC_UNIT_TEST_TARGETS tst_${TEST_NAME})
 endfunction()
 
