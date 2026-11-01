@@ -365,6 +365,10 @@ void TstLegacyMigration::partialFailureRestoresStashForRetry() {
   QVERIFY(!QFile::exists(stashed + QStringLiteral(".bak")));
   QVERIFY(!QFile::exists(lstPath + QStringLiteral(".bak")));
   QVERIFY(!QFile::exists(dbPath + QStringLiteral(".bak")));
+  // Fixed openHistory sequence: close before restore, an open SQLite file
+  // cannot be removed on Windows (see lmc.cpp).
+  store->close();
+  QVERIFY(!store->isOpen());
   QVERIFY(LegacyMigration::settleStash(dbPath, stashed, false));
   QVERIFY(History::hasDbMarker(dbPath));
   QString h;
