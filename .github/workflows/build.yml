@@ -324,11 +324,29 @@ jobs:
           ctest --test-dir build -N -C Release
           ctest --test-dir build -C Release --rerun-failed -V
           $env:QT_QPA_PLATFORM = "offscreen"
-          & build\tests\tst_legacymigration.exe -v2
+          $diag = "build\Testing\Temporary"
+          & build\tests\tst_legacymigration.exe -functions > "$diag\direct-functions.txt" 2>&1
+          Write-Host "direct -functions exit=$LASTEXITCODE"
+          Get-Content "$diag\direct-functions.txt"
+          & build\tests\tst_legacymigration.exe -v2 > "$diag\direct-v2.txt" 2>&1
+          Write-Host "direct -v2 exit=$LASTEXITCODE"
+          Write-Host "direct -v2 bytes=$((Get-Item "$diag\direct-v2.txt").Length)"
+          Get-Content "$diag\direct-v2.txt" -Tail 60
           Write-Host '--- LastTest.log (tail) ---'
-          if (Test-Path build\Testing\Temporary\LastTest.log) { Get-Content build\Testing\Temporary\LastTest.log -Tail 200 } else { Write-Host "no LastTest.log" }
+          if (Test-Path "$diag\LastTest.log") { Get-Content "$diag\LastTest.log" -Tail 200 } else { Write-Host "no LastTest.log" }
           Write-Host '--- LastTestsFailed.log ---'
-          if (Test-Path build\Testing\Temporary\LastTestsFailed.log) { Get-Content build\Testing\Temporary\LastTestsFailed.log } else { Write-Host "no LastTestsFailed.log" }
+          if (Test-Path "$diag\LastTestsFailed.log") { Get-Content "$diag\LastTestsFailed.log" } else { Write-Host "no LastTestsFailed.log" }
+          Write-Host '--- Application event log (errors) ---'
+          try {
+            Get-WinEvent -LogName Application -MaxEvents 200 | Where-Object { $_.LevelDisplayName -eq 'Error' } | Select-Object TimeCreated, ProviderName, Id, Message | Format-Table -AutoSize | Out-String -Width 300 | Write-Host
+          } catch {
+            Write-Host "eventlog unavailable: $_"
+          }
+          Write-Host '--- WER ReportQueue / CrashDumps ---'
+          $rq = "$env:ProgramData\Microsoft\Windows\WER\ReportQueue"
+          if (Test-Path $rq) { Get-ChildItem $rq | Select-Object Name, LastWriteTime } else { Write-Host "no ReportQueue" }
+          $cd = "$env:LOCALAPPDATA\CrashDumps"
+          if (Test-Path $cd) { Get-ChildItem $cd | Select-Object Name, Length, LastWriteTime } else { Write-Host "no CrashDumps dir" }
           exit 0
 
       - name: Upload unit test diagnostics
@@ -339,6 +357,8 @@ jobs:
           path: |
             build/Testing/Temporary/LastTest.log
             build/Testing/Temporary/LastTestsFailed.log
+            build/Testing/Temporary/direct-functions.txt
+            build/Testing/Temporary/direct-v2.txt
           if-no-files-found: warn
           retention-days: 3
 
