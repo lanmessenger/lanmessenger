@@ -140,7 +140,7 @@ jobs:
             build/Testing/Temporary/LastTestsFailed.log
             build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
-          retention-days: 3
+          retention-days: 1
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -322,17 +322,6 @@ jobs:
         run: |
           if (Test-Path build\Testing\Temporary\qtest-*.txt) { Select-String -Path build\Testing\Temporary\qtest-*.txt -Pattern '^(FAIL!|Totals:)' -Context 0,1 | ForEach-Object { $_.Line; $_.Context.PostContext } } else { Write-Host 'no qtest-*.txt' }
           if (Test-Path build\Testing\Temporary\LastTestsFailed.log) { Get-Content build\Testing\Temporary\LastTestsFailed.log } else { Write-Host 'no LastTestsFailed.log' }
-          Write-Host '--- Application event log (errors) ---'
-          try {
-            Get-WinEvent -LogName Application -MaxEvents 200 | Where-Object { $_.LevelDisplayName -eq 'Error' } | Select-Object TimeCreated, ProviderName, Id, Message | Format-Table -AutoSize | Out-String -Width 300 | Write-Host
-          } catch {
-            Write-Host "eventlog unavailable: $_"
-          }
-          Write-Host '--- WER ReportQueue / CrashDumps ---'
-          $rq = "$env:ProgramData\Microsoft\Windows\WER\ReportQueue"
-          if (Test-Path $rq) { Get-ChildItem $rq | Select-Object Name, LastWriteTime } else { Write-Host "no ReportQueue" }
-          $cd = "$env:LOCALAPPDATA\CrashDumps"
-          if (Test-Path $cd) { Get-ChildItem $cd | Select-Object Name, Length, LastWriteTime } else { Write-Host "no CrashDumps dir" }
           exit 0
 
       - name: Upload unit test diagnostics
@@ -345,7 +334,7 @@ jobs:
             build/Testing/Temporary/LastTestsFailed.log
             build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
-          retention-days: 3
+          retention-days: 1
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
@@ -534,7 +523,7 @@ jobs:
             build/Testing/Temporary/LastTestsFailed.log
             build/Testing/Temporary/qtest-*.txt
           if-no-files-found: warn
-          retention-days: 3
+          retention-days: 1
 
       - name: Build test binaries
         if: inputs.artifacts != 'release'
