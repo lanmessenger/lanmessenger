@@ -6,7 +6,7 @@
 // Replaced by: src/storage/historystore.* row storage (no HTML blobs).
 // Delete after: the SQLite release + one successful legacy import cycle.
 // New code must not use this except the one-shot import in
-// HistoryStore::open.
+// legacy/legacymigration.*.
 #include "historyparser.h"
 
 #include <QRegularExpression>

@@ -8,32 +8,21 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QStandardPaths>
 #include <QThread>
 
 #include "core/definitions.h"
 #include "core/lmccategories.h"
-#include "core/settings.h"
-#include "core/stdlocation.h"
 #include "gui/files/filemodelview.h"
-#include "legacy/history.h"
-#include "legacy/historyparser.h"
 
-#define HS_FILENAME "lanmessenger.db"
 #define HS_CONNECTION "lmc_history"
 
 namespace {
 
-QString defaultDatabasePath() {
-  return QDir::toNativeSeparators(
-    QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/" HS_FILENAME);
-}
+constexpr int kSchemaVersion = 1;
 
 } // namespace
 
 static HistoryStore* g_instance = nullptr;
-static QString g_testPath;
-static bool g_hasTestPath = false;
 
 HistoryStore::HistoryStore(QObject* parent)
     : QObject(parent), m_connectionName(HS_CONNECTION) {
@@ -43,11 +32,6 @@ HistoryStore* HistoryStore::instance() {
   if(!g_instance)
     g_instance = new HistoryStore();
   return g_instance;
-}
-
-void HistoryStore::setDatabasePathForTests(const QString& path) {
-  g_testPath = path;
-  g_hasTestPath = true;
 }
 
 void HistoryStore::resetForTests() {
@@ -60,8 +44,6 @@ void HistoryStore::resetForTests() {
   }
   delete g_instance;
   g_instance = nullptr;
-  g_testPath.clear();
-  g_hasTestPath = false;
 }
 
 QString HistoryStore::uniqueBackupPath(const QString& base) {
@@ -80,49 +62,29 @@ QString HistoryStore::uniqueBackupPath(const QString& base) {
   }
 }
 
-QString HistoryStore::databaseFile() {
-  if(g_hasTestPath)
-    return g_testPath;
-  lmcSettings settings;
-  bool sysPath = settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool();
-  if(sysPath)
-    return defaultDatabasePath();
-  return settings.value(IDS_HISTORYPATH, defaultDatabasePath()).toString();
-}
-
 void HistoryStore::checkAffinity() const {
   Q_ASSERT(thread() == QThread::currentThread());
 }
 
 bool HistoryStore::open(const QString& path) {
   checkAffinity();
-  const QString prevPath = m_path;
-  m_path = path.isEmpty() ? databaseFile() : path;
-
-  // A legacy messenger.db at the target path is not SQLite: stash it aside,
-  // create a fresh DB, then import from the stash.
-  QString legacyAtTarget;
-  if(m_path != QStringLiteral(":memory:") && !g_hasTestPath &&
-     QFile::exists(m_path) && History::hasDbMarker(m_path)) {
-    legacyAtTarget = m_path + QStringLiteral(".import-tmp");
-    QFile::remove(legacyAtTarget);
-    if(!QFile::rename(m_path, legacyAtTarget)) {
-      qCWarning(lmcApp(), "HistoryStore: cannot stash legacy %s", qPrintable(m_path));
-      m_path = prevPath;
-      return false;
-    }
+  if(path.isEmpty()) {
+    qCWarning(lmcApp(), "HistoryStore: refused to open with empty path");
+    return false;
   }
+  const QString prevPath = m_path;
+  m_path = path;
+  // Invariant: a failed open restores m_path below, so bookkeeping never
+  // claims a database that is not open. Callers must pass a real SQLite
+  // target: a legacy binary opened here would pass the version gate (0)
+  // and get our tables stamped into it. openHistory() stashes legacy
+  // binaries aside via stashLegacyAtTarget() before calling open().
 
   if(m_path != QStringLiteral(":memory:")) {
     QDir dir = QFileInfo(m_path).dir();
     if(!dir.exists() && !dir.mkpath(dir.absolutePath())) {
       qCWarning(lmcApp(), "HistoryStore: cannot create dir %s",
                 qPrintable(dir.absolutePath()));
-      // Restore path and stashed legacy: the old connection may still be open.
-      if(!legacyAtTarget.isEmpty()) {
-        QFile::remove(m_path);
-        QFile::rename(legacyAtTarget, m_path);
-      }
       m_path = prevPath;
       return false;
     }
@@ -135,56 +97,51 @@ bool HistoryStore::open(const QString& path) {
     }
     QSqlDatabase::removeDatabase(m_connectionName);
   }
-  QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_connectionName);
-  db.setDatabaseName(m_path);
-  if(!db.open()) {
-    qCWarning(lmcApp(), "HistoryStore: open failed %s: %s", qPrintable(m_path),
-              qPrintable(db.lastError().text()));
-    if(!legacyAtTarget.isEmpty()) {
-      QFile::remove(m_path);
-      QFile::rename(legacyAtTarget, m_path);
+  // Scope the handle/query: failure paths below call close() ->
+  // removeDatabase(), which warns if any handle is still alive.
+  {
+    QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_connectionName);
+    db.setDatabaseName(m_path);
+    if(!db.open()) {
+      qCWarning(lmcApp(), "HistoryStore: open failed %s: %s", qPrintable(m_path),
+                qPrintable(db.lastError().text()));
+      // Connection already removed: mark closed so reopen() retries.
+      m_open = false;
+      m_path = prevPath;
+      return false;
     }
-    // Connection already removed: mark closed so reopenIfPathChanged() retries.
-    m_open = false;
-    return false;
+
+    QSqlQuery pragma(db);
+    pragma.exec(QStringLiteral("PRAGMA journal_mode=WAL"));
+    pragma.exec(QStringLiteral("PRAGMA busy_timeout=5000"));
+    pragma.exec(QStringLiteral("PRAGMA foreign_keys=ON"));
   }
 
-  QSqlQuery pragma(db);
-  pragma.exec(QStringLiteral("PRAGMA journal_mode=WAL"));
-  pragma.exec(QStringLiteral("PRAGMA busy_timeout=5000"));
-  pragma.exec(QStringLiteral("PRAGMA foreign_keys=ON"));
-  m_open = true;
-
-  if(!ensureSchema()) {
+  const int stored = getUserVersion();
+  if(stored < 0 || stored > kSchemaVersion) {
+    qCWarning(lmcApp(), "HistoryStore: unsupported schema version %d (supported %d)", stored,
+              kSchemaVersion);
     close();
-    if(!legacyAtTarget.isEmpty()) {
-      QFile::remove(m_path);
-      QFile::rename(legacyAtTarget, m_path);
-    }
+    m_path = prevPath;
     return false;
   }
-  maybeImportLegacy(legacyAtTarget);
-  // Move stash leftovers next to the DB as <db>.bak (never overwrite).
-  if(!legacyAtTarget.isEmpty()) {
-    QString wrongBak = legacyAtTarget + QStringLiteral(".bak");
-    QString rightBak = m_path + QStringLiteral(".bak");
-    QString toPreserve;
-    if(QFile::exists(wrongBak))
-      toPreserve = wrongBak;
-    else if(QFile::exists(legacyAtTarget))
-      toPreserve = legacyAtTarget;
-    if(!toPreserve.isEmpty()) {
-      const QString dest = uniqueBackupPath(rightBak);
-      if(!QFile::rename(toPreserve, dest))
-        qCWarning(lmcApp(), "HistoryStore: cannot preserve %s as %s",
-                  qPrintable(toPreserve), qPrintable(dest));
-    }
+  if(!ensureSchema(stored)) {
+    close();
+    m_path = prevPath;
+    return false;
   }
+  m_open = true;
+  emit sessionsChanged();
+  emit transfersChanged();
   return true;
 }
 
 bool HistoryStore::isOpen() const {
   return m_open && QSqlDatabase::contains(m_connectionName);
+}
+
+QString HistoryStore::databasePath() const {
+  return m_path;
 }
 
 void HistoryStore::close() {
@@ -199,32 +156,17 @@ void HistoryStore::close() {
   QSqlDatabase::removeDatabase(m_connectionName);
 }
 
-bool HistoryStore::reopenIfPathChanged() {
+bool HistoryStore::reopen(const QString& wanted) {
   checkAffinity();
-  if(g_hasTestPath)
-    return true;
-  QString wanted = databaseFile();
   if(m_open && m_path == wanted)
     return true;
-  if(!m_open && m_path == wanted) {
-    // Retry the failed open; on success the views resync via the signals below.
-    bool ok = open(wanted);
-    if(ok) {
-      emit sessionsChanged();
-      emit transfersChanged();
-    }
-    return ok;
-  }
-  close();
-  bool ok = open(wanted);
-  if(ok) {
-    emit sessionsChanged();
-    emit transfersChanged();
-  }
-  return ok;
+  // Retry the failed open, or switch databases: on success open() notifies.
+  if(m_open)
+    close();
+  return open(wanted);
 }
 
-bool HistoryStore::ensureSchema() {
+bool HistoryStore::ensureSchema(int storedVersion) {
   QSqlDatabase db = QSqlDatabase::database(m_connectionName);
   QSqlQuery q(db);
   if(!q.exec(QStringLiteral("CREATE TABLE IF NOT EXISTS sessions("
@@ -271,27 +213,32 @@ bool HistoryStore::ensureSchema() {
               qPrintable(q.lastError().text()));
     return false;
   }
+  // Reached only for stored 0 or kSchemaVersion (open() refused the rest):
+  // create tables, stamp version, done.
+  if(storedVersion != 0)
+    return true;
+  QSqlQuery stamp(db);
+  if(!stamp.exec(QStringLiteral("PRAGMA user_version = %1").arg(kSchemaVersion))) {
+    qCWarning(lmcApp(), "HistoryStore: cannot stamp schema version: %s",
+              qPrintable(stamp.lastError().text()));
+    return false;
+  }
   return true;
 }
 
-bool HistoryStore::sessionsEmpty() const {
+int HistoryStore::getUserVersion() {
   QSqlDatabase db = QSqlDatabase::database(m_connectionName);
   QSqlQuery q(db);
-  if(!q.exec(QStringLiteral("SELECT COUNT(*) FROM sessions")))
-    return true;
-  if(q.next())
-    return q.value(0).toLongLong() == 0;
-  return true;
-}
-
-bool HistoryStore::transfersEmpty() const {
-  QSqlDatabase db = QSqlDatabase::database(m_connectionName);
-  QSqlQuery q(db);
-  if(!q.exec(QStringLiteral("SELECT COUNT(*) FROM transfers")))
-    return true;
-  if(q.next())
-    return q.value(0).toLongLong() == 0;
-  return true;
+  if(!q.exec(QStringLiteral("PRAGMA user_version"))) {
+    qCWarning(lmcApp(), "HistoryStore: cannot read schema version: %s",
+              qPrintable(q.lastError().text()));
+    return -1;
+  }
+  if(!q.next()) {
+    qCWarning(lmcApp(), "HistoryStore: schema version query returned no rows");
+    return -1;
+  }
+  return q.value(0).toInt();
 }
 
 bool HistoryStore::saveSession(const QString& name, const QDateTime& closedAt,
@@ -338,6 +285,60 @@ bool HistoryStore::saveSession(const QString& name, const QDateTime& closedAt,
   }
   if(!db.commit()) {
     qCWarning(lmcApp(), "HistoryStore: session commit failed: %s",
+              qPrintable(db.lastError().text()));
+    db.rollback();
+    return false;
+  }
+  emit sessionsChanged();
+  return true;
+}
+
+bool HistoryStore::saveSessionBatch(const QList<SessionToSave>& sessions) {
+  checkAffinity();
+  if(!isOpen())
+    return false;
+  if(sessions.isEmpty())
+    return true;
+  QSqlDatabase db = QSqlDatabase::database(m_connectionName);
+  if(!db.transaction()) {
+    qCWarning(lmcApp(), "HistoryStore: session batch transaction start failed: %s",
+              qPrintable(db.lastError().text()));
+    return false;
+  }
+  QSqlQuery sIns(db);
+  sIns.prepare(QStringLiteral("INSERT INTO sessions(name, closed_at) VALUES(?, ?)"));
+  QSqlQuery mIns(db);
+  mIns.prepare(QStringLiteral("INSERT INTO messages(session_id, sender_id, sender_name, "
+                              "is_own, message_type, created_at, body) "
+                              "VALUES(?, ?, ?, ?, ?, ?, ?)"));
+  for(const SessionToSave& session : sessions) {
+    sIns.addBindValue(session.name);
+    sIns.addBindValue(session.closedAt.toMSecsSinceEpoch());
+    if(!sIns.exec()) {
+      qCWarning(lmcApp(), "HistoryStore: batch session insert failed: %s",
+                qPrintable(sIns.lastError().text()));
+      db.rollback();
+      return false;
+    }
+    qint64 sessionId = sIns.lastInsertId().toLongLong();
+    for(const StoredMessage& msg : session.messages) {
+      mIns.addBindValue(sessionId);
+      mIns.addBindValue(msg.senderId);
+      mIns.addBindValue(msg.senderName);
+      mIns.addBindValue(msg.isOwn ? 1 : 0);
+      mIns.addBindValue(msg.messageType);
+      mIns.addBindValue(msg.createdAt);
+      mIns.addBindValue(msg.body);
+      if(!mIns.exec()) {
+        qCWarning(lmcApp(), "HistoryStore: batch message insert failed: %s",
+                  qPrintable(mIns.lastError().text()));
+        db.rollback();
+        return false;
+      }
+    }
+  }
+  if(!db.commit()) {
+    qCWarning(lmcApp(), "HistoryStore: session batch commit failed: %s",
               qPrintable(db.lastError().text()));
     db.rollback();
     return false;
@@ -544,234 +545,6 @@ bool HistoryStore::removeTransfer(const QString& id, int mode) {
   // "True" means SQL ok, not "a row existed": emit only when a stored row
   // actually disappeared, so a no-op delete does not reload the view.
   if(q.numRowsAffected() > 0)
-    emit transfersChanged();
-  return true;
-}
-
-void HistoryStore::maybeImportLegacy(const QString& stashedLegacy) {
-  // One-shot idempotent import; sessions and transfers gate independently.
-  if(g_hasTestPath)
-    return;
-  lmcSettings settings;
-  bool sysPath =
-    settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool();
-  QString candidate;
-  bool hasCandidate = false;
-  if(!stashedLegacy.isEmpty()) {
-    candidate = stashedLegacy;
-    hasCandidate = History::hasDbMarker(candidate);
-  } else if(!sysPath) {
-    // Empty custom path falls back to the default messenger.db.
-    candidate = History::historyFile();
-    if(candidate.isEmpty())
-      candidate = QDir::toNativeSeparators(
-        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) +
-        QStringLiteral("/messenger.db"));
-    hasCandidate = !candidate.isEmpty() && History::hasDbMarker(candidate);
-    // Never read the just-created SQLite file as legacy.
-    if(hasCandidate && !m_path.isEmpty() &&
-       QFileInfo(candidate).absoluteFilePath() == QFileInfo(m_path).absoluteFilePath())
-      hasCandidate = false;
-  } else {
-    candidate = QDir::toNativeSeparators(
-      QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) +
-      QStringLiteral("/messenger.db"));
-    hasCandidate = History::hasDbMarker(candidate);
-  }
-  QString transferPath = StdLocation::transferHistory();
-  bool hasTransferLegacy = QFile::exists(transferPath);
-  bool needSessions = hasCandidate && sessionsEmpty();
-  bool needTransfers = hasTransferLegacy && transfersEmpty();
-  if(!needSessions && !needTransfers) {
-    if(hasCandidate && !sessionsEmpty())
-      qCWarning(lmcApp(), "HistoryStore: legacy %s skipped, database not empty",
-                qPrintable(candidate));
-    return;
-  }
-  importLegacyFrom(needSessions ? candidate : QString(),
-                   needTransfers ? transferPath : QString());
-}
-
-bool HistoryStore::importLegacyFrom(const QString& historyPath,
-                                    const QString& transferPath) {
-  checkAffinity();
-  if(!isOpen())
-    return false;
-  bool hasCandidate = !historyPath.isEmpty() && QFile::exists(historyPath);
-  bool hasTransferLegacy = !transferPath.isEmpty() && QFile::exists(transferPath);
-  if(!hasCandidate && !hasTransferLegacy)
-    return true;
-  // Never import the open SQLite file itself.
-  if(hasCandidate && m_path != QStringLiteral(":memory:") &&
-     QFileInfo(historyPath).absoluteFilePath() == QFileInfo(m_path).absoluteFilePath()) {
-    qCWarning(lmcApp(), "HistoryStore: legacy %s is the open database, skipped",
-              qPrintable(historyPath));
-    hasCandidate = false;
-  }
-  bool needSessions = hasCandidate && sessionsEmpty();
-  bool needTransfers = hasTransferLegacy && transfersEmpty();
-  if(!needSessions && !needTransfers) {
-    if(hasCandidate && !sessionsEmpty())
-      qCWarning(lmcApp(), "HistoryStore: legacy %s skipped, database not empty",
-                qPrintable(historyPath));
-    return true;
-  }
-
-  QSqlDatabase db = QSqlDatabase::database(m_connectionName);
-  if(!db.transaction()) {
-    qCWarning(lmcApp(), "HistoryStore: legacy import cannot start transaction");
-    return false;
-  }
-
-  int importedSessions = 0;
-  int importedMessages = 0;
-  int skippedBlobs = 0;
-  int importedTransfers = 0;
-  int skippedTransfers = 0;
-  bool ok = true;
-
-  if(needSessions) {
-    QList<MsgInfo> legacy = History::getListFrom(historyPath);
-    QSqlQuery sIns(db);
-    sIns.prepare(QStringLiteral("INSERT INTO sessions(name, closed_at) VALUES(?, ?)"));
-    QSqlQuery mIns(db);
-    mIns.prepare(QStringLiteral("INSERT INTO messages(session_id, sender_id, sender_name, "
-                                "is_own, message_type, created_at, body) "
-                                "VALUES(?, ?, ?, ?, ?, ?, ?)"));
-    for(const MsgInfo& info : legacy) {
-      QString blob = History::getMessageFrom(historyPath, info.offset);
-      QList<HistoryRecord> records;
-      QList<StoredMessage> rows;
-      if(parseStructuredHistory(blob, &records)) {
-        for(const HistoryRecord& rec : records) {
-          StoredMessage m;
-          m.senderId = rec.userName;
-          m.senderName = rec.userName;
-          m.isOwn = rec.own;
-          m.messageType = rec.type;
-          m.createdAt = rec.ts > 0 ? rec.ts : info.date.toMSecsSinceEpoch();
-          m.body = rec.body;
-          rows.append(m);
-        }
-      } else {
-        QString plain = legacyHtmlToPlain(blob);
-        if(plain.isEmpty()) {
-          skippedBlobs++;
-          continue;
-        }
-        StoredMessage m;
-        m.senderId = info.name;
-        m.senderName = info.name;
-        m.isOwn = false;
-        m.messageType = int(MT_Message);
-        m.createdAt = info.date.toMSecsSinceEpoch();
-        m.body = plain;
-        rows.append(m);
-      }
-      if(rows.isEmpty()) {
-        skippedBlobs++;
-        continue;
-      }
-      sIns.addBindValue(info.name);
-      sIns.addBindValue(info.date.toMSecsSinceEpoch());
-      if(!sIns.exec()) {
-        qCWarning(lmcApp(), "HistoryStore: legacy session insert failed: %s",
-                  qPrintable(sIns.lastError().text()));
-        ok = false;
-        break;
-      }
-      qint64 sessionId = sIns.lastInsertId().toLongLong();
-      for(const StoredMessage& m : rows) {
-        mIns.addBindValue(sessionId);
-        mIns.addBindValue(m.senderId);
-        mIns.addBindValue(m.senderName);
-        mIns.addBindValue(m.isOwn ? 1 : 0);
-        mIns.addBindValue(m.messageType);
-        mIns.addBindValue(m.createdAt);
-        mIns.addBindValue(m.body);
-        if(!mIns.exec()) {
-          qCWarning(lmcApp(), "HistoryStore: legacy message insert failed: %s",
-                    qPrintable(mIns.lastError().text()));
-          ok = false;
-          break;
-        }
-        importedMessages++;
-      }
-      if(!ok)
-        break;
-      importedSessions++;
-    }
-  }
-
-  if(ok && needTransfers) {
-    FileModel model;
-    model.loadData(transferPath);
-    QSqlQuery tIns(db);
-    tIns.prepare(QStringLiteral("INSERT OR IGNORE INTO transfers(id, mode, message_type, "
-                                "file_path, file_display, user_id, user_name, "
-                                "file_size, state, created_at) "
-                                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
-    for(int i = 0; i < model.rowCount(); ++i) {
-      FileView* v = model.item(i);
-      if(!v || v->id.isEmpty()) {
-        skippedTransfers++;
-        continue;
-      }
-      // Clamp: never trust an enum from a legacy byte stream.
-      const int mode =
-        (v->mode == FileView::TM_Send || v->mode == FileView::TM_Receive)
-          ? int(v->mode)
-          : int(FileView::TM_Send);
-      const int state =
-        (v->state >= 0 && v->state < int(FileView::TS_Max)) ? int(v->state)
-                                                            : int(FileView::TS_Complete);
-      tIns.addBindValue(v->id);
-      tIns.addBindValue(mode);
-      // Legacy rows never stored a type: always files.
-      tIns.addBindValue(int(MT_File));
-      tIns.addBindValue(v->filePath);
-      tIns.addBindValue(v->fileDisplay);
-      // Legacy stream has no userId/fileSize: fall back to userName/0.
-      tIns.addBindValue(v->userId.isEmpty() ? v->userName : v->userId);
-      tIns.addBindValue(v->userName);
-      tIns.addBindValue(v->fileSize);
-      tIns.addBindValue(state);
-      tIns.addBindValue(QDateTime::currentMSecsSinceEpoch());
-      if(!tIns.exec()) {
-        qCWarning(lmcApp(), "HistoryStore: legacy transfer insert failed: %s",
-                  qPrintable(tIns.lastError().text()));
-        skippedTransfers++;
-        continue;
-      }
-      importedTransfers++;
-    }
-  }
-
-  if(!ok) {
-    db.rollback();
-    return false;
-  }
-  if(!db.commit()) {
-    qCWarning(lmcApp(), "HistoryStore: legacy import commit failed");
-    db.rollback();
-    return false;
-  }
-
-  // Rename sources to .bak even when empty, or they rescan every launch.
-  if(needSessions &&
-     !QFile::rename(historyPath, historyPath + QStringLiteral(".bak")))
-    qCWarning(lmcApp(), "HistoryStore: cannot rename %s to .bak", qPrintable(historyPath));
-  if(needTransfers &&
-     !QFile::rename(transferPath, transferPath + QStringLiteral(".bak")))
-    qCWarning(lmcApp(), "HistoryStore: cannot rename %s to .bak", qPrintable(transferPath));
-  qCInfo(lmcApp(),
-         "HistoryStore: legacy import sessions=%d messages=%d skippedBlobs=%d "
-         "transfers=%d skippedTransfers=%d",
-         importedSessions, importedMessages, skippedBlobs, importedTransfers,
-         skippedTransfers);
-  if(importedSessions > 0)
-    emit sessionsChanged();
-  if(importedTransfers > 0)
     emit transfersChanged();
   return true;
 }

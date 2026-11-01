@@ -9,6 +9,7 @@
 #include <QFile>
 
 #include "core/settings.h"
+#include "core/stdlocation.h"
 #include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessageview.h"
 #include "legacy/history.h"
@@ -171,6 +172,31 @@ bool writeCyclicFile(const QString& path) {
 
 } // namespace
 
+// Restores the suite-level lmcSettings on destruction (QVERIFY safe).
+struct HistorySettingsGuard {
+  lmcSettings settings;
+  bool hadSys;
+  QVariant oldSys;
+  bool hadPath;
+  QVariant oldPath;
+  HistorySettingsGuard()
+      : hadSys(settings.contains(IDS_SYSHISTORYPATH)),
+        oldSys(settings.value(IDS_SYSHISTORYPATH)),
+        hadPath(settings.contains(IDS_HISTORYPATH)),
+        oldPath(settings.value(IDS_HISTORYPATH)) {
+  }
+  ~HistorySettingsGuard() {
+    if(hadSys)
+      settings.setValue(IDS_SYSHISTORYPATH, oldSys);
+    else
+      settings.remove(IDS_SYSHISTORYPATH);
+    if(hadPath)
+      settings.setValue(IDS_HISTORYPATH, oldPath);
+    else
+      settings.remove(IDS_HISTORYPATH);
+  }
+};
+
 class TstHistory : public QObject {
   Q_OBJECT
 
@@ -187,6 +213,8 @@ private slots:
   void nbspNormalizesToSpace();
   void tmpRoundtripKeepsLocalId();
   void tmpOldFormatKeepsPresetLocalId();
+  void historyDatabaseEmptyCustomFallsBackToDefault();
+  void historyDatabaseMigratesMissingLegacyName();
 
 private:
   QString scratchPath;
@@ -488,6 +516,49 @@ void TstHistory::tmpOldFormatKeepsPresetLocalId() {
   QList<StoredMessage> rows = dst.storedMessages();
   QCOMPARE(rows.count(), 1);
   QVERIFY(rows.at(0).isOwn);
+}
+
+void TstHistory::historyDatabaseEmptyCustomFallsBackToDefault() {
+  HistorySettingsGuard guard;
+  lmcSettings settings;
+  settings.setValue(IDS_SYSHISTORYPATH, false);
+  settings.setValue(IDS_HISTORYPATH, QString());
+  const QString expected = QDir::toNativeSeparators(
+    QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) +
+    QStringLiteral("/lanmessenger.db"));
+  QCOMPARE(StdLocation::historyDatabase(), expected);
+}
+
+void TstHistory::historyDatabaseMigratesMissingLegacyName() {
+  HistorySettingsGuard guard;
+  lmcSettings settings;
+  settings.setValue(IDS_SYSHISTORYPATH, false);
+  const QString dir = scratchPath + QStringLiteral("/mig");
+  QVERIFY(QDir().mkpath(dir));
+  const QString legacy = QDir::toNativeSeparators(dir + QStringLiteral("/messenger.db"));
+  const QString migrated = QDir::toNativeSeparators(dir + QStringLiteral("/lanmessenger.db"));
+  QFile::remove(legacy);
+  QFile::remove(migrated);
+  settings.setValue(IDS_HISTORYPATH, legacy);
+  // Pure getter resolves without persisting.
+  QCOMPARE(StdLocation::historyDatabase(), migrated);
+  QCOMPARE(settings.value(IDS_HISTORYPATH).toString(), legacy);
+  // Explicit migration persists.
+  StdLocation::migrateHistoryDbName();
+  QCOMPARE(settings.value(IDS_HISTORYPATH).toString(), migrated);
+  QCOMPARE(StdLocation::historyDatabase(), migrated);
+  // Existing file under the legacy name is left alone (stash flow or live DB).
+  {
+    QFile file(legacy);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("x");
+  }
+  settings.setValue(IDS_HISTORYPATH, legacy);
+  QCOMPARE(StdLocation::historyDatabase(), legacy);
+  StdLocation::migrateHistoryDbName();
+  QCOMPARE(settings.value(IDS_HISTORYPATH).toString(), legacy);
+  QFile::remove(legacy);
+  QFile::remove(migrated);
 }
 
 QTEST_MAIN(TstHistory)

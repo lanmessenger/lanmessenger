@@ -7,11 +7,10 @@
 #include <QDir>
 #include <QFile>
 #include <QSignalSpy>
+#include <QSqlDatabase>
+#include <QSqlQuery>
 
 #include "core/definitions.h"
-#include "core/settings.h"
-#include "gui/files/filemodelview.h"
-#include "legacy/history.h"
 #include "storage/historystore.h"
 
 namespace {
@@ -21,68 +20,26 @@ QString tempRoot() {
          QString::number(QCoreApplication::applicationPid());
 }
 
-bool writeLegacyFile(const QString& path, const QString& user, const QDateTime& date,
-                     const QString& html, bool buggy64) {
-  QFile::remove(path);
-  if(!QDir().mkpath(QFileInfo(path).absolutePath()))
-    return false;
-  QFile file(path);
-  if(!file.open(QIODevice::WriteOnly))
-    return false;
-  QDataStream stream(&file);
-  stream.setVersion(QDataStream::Qt_5_15);
-  const QByteArray payload = html.toUtf8();
-  const qint64 dataPos = 8 + 4 + 2 + 4 + 8 + 8;
-  const qint64 indexPos = dataPos + 8 + (buggy64 ? 8 : 4) + 4 + payload.size();
-  stream << QString(HC_DBMARKER);
-  stream << HC_VERSION;
-  stream << static_cast<qint16>(HC_HDRSIZE);
-  stream << 1;
-  stream << indexPos;
-  stream << indexPos;
-  if(stream.device()->pos() != dataPos)
-    return false;
-  stream << QString(HC_DTMARKER);
-  if(buggy64)
-    stream << static_cast<qint64>(payload.size());
-  else
-    stream << static_cast<qint32>(payload.size());
-  stream << payload;
-  if(stream.device()->pos() != indexPos)
-    return false;
-  stream << QString(HC_IDMARKER);
-  stream << static_cast<qint64>(0);
-  stream << dataPos;
-  stream << date.toMSecsSinceEpoch();
-  stream << user;
-  return true;
-}
-
-QString structuredBlob(qint64 t1, qint64 t2) {
-  return QStringLiteral("<html data-lmc-history=\"2\"><head></head><body>"
-                        "<p data-own=\"1\" data-ts=\"%1\" data-type=\"%3\">"
-                        "<span class='salutation'>Me:</span>"
-                        "<span class='time'>12:00</span>"
-                        "<span class='message'>hi \U0001F600</span></p>"
-                        "<p data-own=\"0\" data-ts=\"%2\" data-type=\"%3\">"
-                        "<span class='salutation'>Jack:</span>"
-                        "<span class='time'>12:01</span>"
-                        "<span class='message'>hello</span></p>"
-                        "</body></html>")
-    .arg(t1)
-    .arg(t2)
-    .arg(int(MT_Message));
-}
-
-const QString kLegacyHtml = QStringLiteral(
-  "<html><head></head><body><p><span class='salutation'>Jack:</span>"
-  "<span class='time'>12:00</span>"
-  "<span class='message'>hi there</span></p></body></html>");
-
 bool openStore(const QString& dbPath) {
   HistoryStore::resetForTests();
-  HistoryStore::setDatabasePathForTests(dbPath);
-  return HistoryStore::instance()->open();
+  return HistoryStore::instance()->open(dbPath);
+}
+
+int schemaVersionOfOpenStore() {
+  // Same connection name as HistoryStore ("lmc_history"): SQL stays in storage + its tests.
+  QSqlDatabase db = QSqlDatabase::database(QStringLiteral("lmc_history"));
+  QSqlQuery q(db);
+  if(!q.exec(QStringLiteral("PRAGMA user_version")))
+    return -999;
+  if(!q.next())
+    return -999;
+  return q.value(0).toInt();
+}
+
+bool setSchemaVersionOfOpenStore(int version) {
+  QSqlDatabase db = QSqlDatabase::database(QStringLiteral("lmc_history"));
+  QSqlQuery q(db);
+  return q.exec(QStringLiteral("PRAGMA user_version = %1").arg(version));
 }
 
 } // namespace
@@ -97,16 +54,19 @@ private slots:
   void cleanup();
   void roundtripSessionRows();
   void clearSessionsEmits();
+  void saveSessionBatchStoresAllSessions();
+  void saveSessionBatchEmptyIsNoop();
   void transfersRoundtrip();
-  void legacyStructuredImport();
-  void legacyQt6BuggyImport();
-  void legacyUnstructuredFallsBackToSingleRow();
-  void legacyTransfersImport();
-  void importIdempotent();
-  void legacySkippedWhenDbNotEmpty();
   void emptySessionStillStored();
   void failedMkpathRestoresPath();
+  void unsupportedVersionRestoresPath();
   void backupPathIsCollisionFree();
+  void freshDbStampsSchemaVersion();
+  void unstampedDevDbIsStampedWithoutDataLoss();
+  void newerDbRefusesOpen();
+  void openEmitsOnceOnSuccess();
+  void reopenSamePathIsSilent();
+  void openTwiceEmitsTwice();
 
 private:
   QString root;
@@ -242,116 +202,47 @@ void TstHistoryStore::transfersRoundtrip() {
   QVERIFY(store->loadTransfers().isEmpty());
 }
 
-void TstHistoryStore::legacyStructuredImport() {
-  QString legacyPath = root + QStringLiteral("/structured.db");
-  qint64 t1 = 1761300000000;
-  qint64 t2 = 1761300060000;
-  QVERIFY(writeLegacyFile(legacyPath, QStringLiteral("Jack"),
-                          QDateTime::fromMSecsSinceEpoch(t1), structuredBlob(t1, t2),
-                          false));
+void TstHistoryStore::saveSessionBatchStoresAllSessions() {
   HistoryStore* store = HistoryStore::instance();
   QSignalSpy spy(store, &HistoryStore::sessionsChanged);
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  QVERIFY(spy.count() >= 1);
-  QList<SessionInfo> sessions = store->listSessions();
-  QCOMPARE(sessions.count(), 1);
-  QList<StoredMessage> rows = store->messagesForSession(sessions.first().id);
-  QCOMPARE(rows.count(), 2);
-  QVERIFY(rows.at(0).isOwn);
-  QVERIFY(!rows.at(1).isOwn);
-  QVERIFY(rows.at(0).body.contains(QStringLiteral("\U0001F600")));
-  QCOMPARE(rows.at(1).body, QStringLiteral("hello"));
-  QVERIFY(QFile::exists(legacyPath + QStringLiteral(".bak")));
-}
-
-void TstHistoryStore::legacyQt6BuggyImport() {
-  QString legacyPath = root + QStringLiteral("/buggy.db");
-  qint64 t1 = 1760960000000;
-  QVERIFY(writeLegacyFile(legacyPath, QStringLiteral("Jack"),
-                          QDateTime::fromMSecsSinceEpoch(t1), structuredBlob(t1, t1 + 60000),
-                          true));
-  HistoryStore* store = HistoryStore::instance();
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  QList<SessionInfo> sessions = store->listSessions();
-  QCOMPARE(sessions.count(), 1);
-  QCOMPARE(store->messagesForSession(sessions.first().id).count(), 2);
-}
-
-void TstHistoryStore::legacyUnstructuredFallsBackToSingleRow() {
-  QString legacyPath = root + QStringLiteral("/legacy.db");
-  qint64 t1 = 1760960000000;
-  QVERIFY(writeLegacyFile(legacyPath, QStringLiteral("Jack"),
-                          QDateTime::fromMSecsSinceEpoch(t1), kLegacyHtml, false));
-  HistoryStore* store = HistoryStore::instance();
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  QList<SessionInfo> sessions = store->listSessions();
-  QCOMPARE(sessions.count(), 1);
-  QList<StoredMessage> rows = store->messagesForSession(sessions.first().id);
-  QCOMPARE(rows.count(), 1);
-  QVERIFY(rows.first().body.contains(QStringLiteral("hi there")));
-  QVERIFY(!rows.first().isOwn);
-}
-
-void TstHistoryStore::legacyTransfersImport() {
-  QString lstPath = root + QStringLiteral("/transfers.lst");
-  {
-    FileModel model;
-    FileView v(QStringLiteral("tid-1"));
-    v.mode = FileView::TM_Send;
-    v.filePath = QStringLiteral("/tmp/a.txt");
-    v.userName = QStringLiteral("Jack");
-    v.fileDisplay = QStringLiteral("a.txt (1 KB)");
-    v.state = FileView::TS_Complete;
-    v.icon = QPixmap();
-    model.insertItem(0, &v);
-    model.saveData(lstPath);
-  }
-  QVERIFY(QFile::exists(lstPath));
-  HistoryStore* store = HistoryStore::instance();
-  QSignalSpy spy(store, &HistoryStore::transfersChanged);
-  QVERIFY(store->importLegacyFrom(QString(), lstPath));
-  QVERIFY(spy.count() >= 1);
-  QList<TransferRecord> back = store->loadTransfers();
-  QCOMPARE(back.count(), 1);
-  QCOMPARE(back.first().id, QStringLiteral("tid-1"));
-  QCOMPARE(back.first().userName, QStringLiteral("Jack"));
-  // Legacy stream never stored userId/fileSize: no garbage allowed.
-  QCOMPARE(back.first().userId, QStringLiteral("Jack"));
-  QCOMPARE(back.first().fileSize, 0);
-  QVERIFY(QFile::exists(lstPath + QStringLiteral(".bak")));
-}
-
-void TstHistoryStore::importIdempotent() {
-  QString legacyPath = root + QStringLiteral("/idem.db");
-  qint64 t1 = 1761300000000;
-  QVERIFY(writeLegacyFile(legacyPath, QStringLiteral("Jack"),
-                          QDateTime::fromMSecsSinceEpoch(t1), structuredBlob(t1, t1 + 60000),
-                          false));
-  HistoryStore* store = HistoryStore::instance();
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  QCOMPARE(store->listSessions().count(), 1);
-  // Second import: .bak exists, source gone, non-empty DB -> no duplicates.
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  QCOMPARE(store->listSessions().count(), 1);
-  QCOMPARE(store->messagesForSession(store->listSessions().first().id).count(), 2);
-}
-
-void TstHistoryStore::legacySkippedWhenDbNotEmpty() {
-  HistoryStore* store = HistoryStore::instance();
   StoredMessage m;
   m.senderId = m.senderName = QStringLiteral("Jack");
   m.messageType = int(MT_Message);
   m.createdAt = 1761300000000;
   m.body = QStringLiteral("hi");
-  QVERIFY(store->saveSession(QStringLiteral("Jack"), QDateTime::currentDateTime(), {m}));
-  QString legacyPath = root + QStringLiteral("/skip.db");
-  QVERIFY(writeLegacyFile(legacyPath, QStringLiteral("Other"),
-                          QDateTime::currentDateTime(), kLegacyHtml, false));
-  QVERIFY(store->importLegacyFrom(legacyPath, QString()));
-  // No duplicates, data untouched, source not renamed.
-  QCOMPARE(store->listSessions().count(), 1);
-  QCOMPARE(store->listSessions().first().name, QStringLiteral("Jack"));
-  QVERIFY(QFile::exists(legacyPath));
+  SessionToSave s1;
+  s1.name = QStringLiteral("Jack");
+  s1.closedAt = QDateTime::fromMSecsSinceEpoch(1761300000000);
+  s1.messages = {m, m};
+  SessionToSave s2;
+  s2.name = QStringLiteral("Group");
+  s2.closedAt = QDateTime::fromMSecsSinceEpoch(1761300100000);
+  QVERIFY(store->saveSessionBatch({s1, s2}));
+  QCOMPARE(spy.count(), 1);
+  QList<SessionInfo> sessions = store->listSessions();
+  QCOMPARE(sessions.count(), 2);
+  int withRows = 0;
+  int emptyRows = 0;
+  for(const SessionInfo& s : sessions) {
+    const int n = store->messagesForSession(s.id).count();
+    if(s.name == QStringLiteral("Jack")) {
+      QCOMPARE(n, 2);
+      withRows++;
+    } else {
+      QCOMPARE(n, 0);
+      emptyRows++;
+    }
+  }
+  QCOMPARE(withRows, 1);
+  QCOMPARE(emptyRows, 1);
+}
+
+void TstHistoryStore::saveSessionBatchEmptyIsNoop() {
+  HistoryStore* store = HistoryStore::instance();
+  QSignalSpy spy(store, &HistoryStore::sessionsChanged);
+  QVERIFY(store->saveSessionBatch({}));
+  QCOMPARE(spy.count(), 0);
+  QVERIFY(store->listSessions().isEmpty());
 }
 
 void TstHistoryStore::emptySessionStillStored() {
@@ -367,19 +258,12 @@ void TstHistoryStore::emptySessionStillStored() {
 }
 
 void TstHistoryStore::failedMkpathRestoresPath() {
-  // No test-path seam: a failed open must not strand m_path at the bad dir
+  // A failed open must not strand m_path at the bad dir
   // while the old database stays open.
   HistoryStore::resetForTests();
-  lmcSettings settings;
-  const bool hadSys = settings.contains(IDS_SYSHISTORYPATH);
-  const QVariant oldSys = settings.value(IDS_SYSHISTORYPATH);
-  const bool hadPath = settings.contains(IDS_HISTORYPATH);
-  const QVariant oldPath = settings.value(IDS_HISTORYPATH);
-  settings.setValue(IDS_SYSHISTORYPATH, false);
   const QString good = root + QStringLiteral("/mkpath-good/lanmessenger.db");
-  settings.setValue(IDS_HISTORYPATH, good);
   HistoryStore* store = HistoryStore::instance();
-  QVERIFY(store->open());
+  QVERIFY(store->open(good));
   StoredMessage m1;
   m1.senderId = m1.senderName = QStringLiteral("Jack");
   m1.messageType = int(MT_Message);
@@ -394,26 +278,34 @@ void TstHistoryStore::failedMkpathRestoresPath() {
     bf.write("x");
   }
   const QString bad = blocker + QStringLiteral("/x.db");
-  settings.setValue(IDS_HISTORYPATH, bad);
   QVERIFY(!store->open(bad));
   // Must retry the (still failing) wanted path, not claim the stale open DB.
-  QVERIFY(!store->reopenIfPathChanged());
+  QVERIFY(!store->reopen(bad));
   StoredMessage m2 = m1;
   m2.body = QStringLiteral("second");
   QVERIFY(!store->saveSession(QStringLiteral("Jack"), QDateTime::currentDateTime(), {m2}));
-  settings.setValue(IDS_HISTORYPATH, good);
-  QVERIFY(store->open());
+  QVERIFY(store->reopen(good));
   QCOMPARE(store->listSessions().count(), 1);
-  if(hadSys)
-    settings.setValue(IDS_SYSHISTORYPATH, oldSys);
-  else
-    settings.remove(IDS_SYSHISTORYPATH);
-  if(hadPath)
-    settings.setValue(IDS_HISTORYPATH, oldPath);
-  else
-    settings.remove(IDS_HISTORYPATH);
   QFile::remove(blocker);
   QDir(root + QStringLiteral("/mkpath-good")).removeRecursively();
+}
+
+void TstHistoryStore::unsupportedVersionRestoresPath() {
+  // Late failure (version gate) must restore bookkeeping like the mkpath one.
+  HistoryStore::resetForTests();
+  const QString good = root + QStringLiteral("/ver-good/lanmessenger.db");
+  HistoryStore* store = HistoryStore::instance();
+  QVERIFY(store->open(good));
+  const QString newer = root + QStringLiteral("/ver-new/lanmessenger.db");
+  QVERIFY(store->open(newer));
+  QVERIFY(setSchemaVersionOfOpenStore(99));
+  store->close();
+  QVERIFY(store->open(good));
+  QVERIFY(!store->open(newer));
+  QVERIFY(!store->isOpen());
+  QCOMPARE(store->databasePath(), good);
+  QVERIFY(store->reopen(good));
+  QVERIFY(store->isOpen());
 }
 
 void TstHistoryStore::backupPathIsCollisionFree() {
@@ -441,6 +333,71 @@ void TstHistoryStore::backupPathIsCollisionFree() {
   QVERIFY(second.startsWith(base + QStringLiteral(".")));
   QFile::remove(base);
   QFile::remove(stamped);
+}
+
+void TstHistoryStore::freshDbStampsSchemaVersion() {
+  QCOMPARE(schemaVersionOfOpenStore(), 1);
+  // Reopen keeps the stamp.
+  HistoryStore* store = HistoryStore::instance();
+  store->close();
+  QVERIFY(store->open(dbPath));
+  QCOMPARE(schemaVersionOfOpenStore(), 1);
+}
+
+void TstHistoryStore::unstampedDevDbIsStampedWithoutDataLoss() {
+  HistoryStore* store = HistoryStore::instance();
+  StoredMessage m;
+  m.senderId = m.senderName = QStringLiteral("Jack");
+  m.messageType = int(MT_Message);
+  m.createdAt = 1761300000000;
+  m.body = QStringLiteral("hi");
+  QVERIFY(store->saveSession(QStringLiteral("Jack"), QDateTime::currentDateTime(), {m}));
+  // Simulate a pre-stamp dev DB: strip the version, keep the rows.
+  QVERIFY(setSchemaVersionOfOpenStore(0));
+  store->close();
+  QVERIFY(store->open(dbPath));
+  QCOMPARE(schemaVersionOfOpenStore(), 1);
+  QCOMPARE(store->listSessions().count(), 1);
+  QCOMPARE(store->messagesForSession(store->listSessions().first().id).count(), 1);
+}
+
+void TstHistoryStore::newerDbRefusesOpen() {
+  QVERIFY(setSchemaVersionOfOpenStore(999));
+  HistoryStore* store = HistoryStore::instance();
+  store->close();
+  QVERIFY(!store->open(dbPath));
+  QVERIFY(!store->isOpen());
+  QVERIFY(QFile::exists(dbPath));
+}
+
+void TstHistoryStore::openEmitsOnceOnSuccess() {
+  HistoryStore* store = HistoryStore::instance();
+  store->close();
+  QSignalSpy sessionsSpy(store, &HistoryStore::sessionsChanged);
+  QSignalSpy transfersSpy(store, &HistoryStore::transfersChanged);
+  QVERIFY(store->open(dbPath));
+  QCOMPARE(sessionsSpy.count(), 1);
+  QCOMPARE(transfersSpy.count(), 1);
+}
+
+void TstHistoryStore::reopenSamePathIsSilent() {
+  HistoryStore* store = HistoryStore::instance();
+  QSignalSpy sessionsSpy(store, &HistoryStore::sessionsChanged);
+  QSignalSpy transfersSpy(store, &HistoryStore::transfersChanged);
+  QVERIFY(store->reopen(dbPath));
+  QVERIFY(sessionsSpy.isEmpty());
+  QVERIFY(transfersSpy.isEmpty());
+}
+
+void TstHistoryStore::openTwiceEmitsTwice() {
+  // open() is unconditional: no silent fast path inside, that lives in reopen().
+  HistoryStore* store = HistoryStore::instance();
+  QSignalSpy sessionsSpy(store, &HistoryStore::sessionsChanged);
+  QSignalSpy transfersSpy(store, &HistoryStore::transfersChanged);
+  QVERIFY(store->open(dbPath));
+  QVERIFY(store->open(dbPath));
+  QCOMPARE(sessionsSpy.count(), 2);
+  QCOMPARE(transfersSpy.count(), 2);
 }
 
 QTEST_MAIN(TstHistoryStore)

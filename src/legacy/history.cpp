@@ -5,9 +5,9 @@
 // LEGACY: binary messenger.db reader (QDataStream linked list).
 // Replaced by: src/storage/historystore.* (Qt Sql + SQLite, lanmessenger.db).
 // Delete after: the SQLite release + one successful legacy import cycle
-// (HistoryStore renames the legacy file to .bak; no writers remain).
+// (LegacyMigration renames the legacy file to .bak; no writers remain).
 // New code must not use this except the one-shot import in
-// HistoryStore::open.
+// legacy/legacymigration.*.
 #include "history.h"
 #include <QFile>
 #include <QFileInfo>

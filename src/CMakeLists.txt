@@ -34,6 +34,7 @@ add_library(lmc_core STATIC
     gui/main/helpwindow.cpp
     legacy/history.cpp
     legacy/historyparser.cpp
+    legacy/legacymigration.cpp
     gui/history/historywindow.cpp
     gui/widgets/imagepicker.cpp
     gui/widgets/imagepickeraction.cpp
@@ -90,6 +91,7 @@ add_library(lmc_core STATIC
     gui/main/helpwindow.h
     legacy/history.h
     legacy/historyparser.h
+    legacy/legacymigration.h
     gui/history/historytreewidget.h
     gui/history/historywindow.h
     gui/widgets/imagepicker.h

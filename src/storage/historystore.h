@@ -23,6 +23,12 @@ struct SessionInfo {
   QDateTime closedAt;
 };
 
+struct SessionToSave {
+  QString name;
+  QDateTime closedAt;
+  QList<StoredMessage> messages;
+};
+
 struct TransferRecord {
   QString id;
   int mode = 0;
@@ -41,19 +47,18 @@ class HistoryStore : public QObject {
 
 public:
   static HistoryStore* instance();
-  // Test seam: isolated DB path (:memory:/temp) + instance reset.
-  static void setDatabasePathForTests(const QString& path);
+  // Test seam: instance reset.
   static void resetForTests();
 
-  static QString databaseFile();
-
-  bool open(const QString& path = QString());
+  bool open(const QString& path);
   bool isOpen() const;
   void close();
-  bool reopenIfPathChanged();
+  bool reopen(const QString& wanted);
+  QString databasePath() const;
 
   bool saveSession(const QString& name, const QDateTime& closedAt,
                    const QList<StoredMessage>& messages);
+  bool saveSessionBatch(const QList<SessionToSave>& sessions);
   QList<SessionInfo> listSessions() const;
   QList<StoredMessage> messagesForSession(qint64 sessionId) const;
   bool clearSessions();
@@ -65,9 +70,6 @@ public:
   // True = SQL ok (not "a row existed"); emits only when a stored row disappeared.
   bool removeTransfer(const QString& id, int mode);
 
-  // Test seam: legacy import with explicit paths (no settings I/O).
-  bool importLegacyFrom(const QString& historyPath, const QString& transferPath);
-
   // Next free backup path for base (base, else base.<stamp>[-N]).
   static QString uniqueBackupPath(const QString& base);
 
@@ -78,10 +80,9 @@ signals:
 private:
   explicit HistoryStore(QObject* parent = nullptr);
   void checkAffinity() const;
-  bool ensureSchema();
-  bool sessionsEmpty() const;
-  bool transfersEmpty() const;
-  void maybeImportLegacy(const QString& stashedLegacy = QString());
+  bool ensureSchema(int storedVersion);
+  // -1 = PRAGMA unreadable.
+  int getUserVersion();
 
   QString m_connectionName;
   QString m_path;

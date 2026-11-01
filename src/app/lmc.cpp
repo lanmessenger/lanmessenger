@@ -17,6 +17,7 @@
 #include "core/settings.h"
 #include "core/stdlocation.h"
 #include "messaging/messaging.h"
+#include "legacy/legacymigration.h"
 #include "storage/historystore.h"
 #include "messaging/xmlmessage.h"
 #include "gui/main/mainwindow.h"
@@ -70,6 +71,55 @@ lmcCore::lmcCore(void) {
 lmcCore::~lmcCore(void) {
 }
 
+namespace {
+
+bool openHistory(HistoryStore& store) {
+  // Single settings resolution per event: stash, open and migrate agree.
+  // HistoryStore::open() notifies views on success. This sequence relies on
+  // startup having no listeners yet (History/Transfer windows are created
+  // lazily on first show); the migration below notifies itself via
+  // saveSessionBatch. Keep it that way or the views will reload twice
+  // (empty, then migrated). reopen() is the idempotent entry: already on
+  // target is a silent no-op, so unrelated settings changes cost nothing.
+  // Return value is only "store opened and usable": a failed import closes
+  // the store and is retried next start (an open handle on a deleted fresh
+  // DB would silently lose all writes of this run).
+  StdLocation::migrateHistoryDbName();
+  const QString dbTarget = StdLocation::historyDatabase();
+  QString legacyHistory;
+  QString legacyTransfers;
+  if(!LegacyMigration::hasLegacyWork(dbTarget, &legacyHistory, &legacyTransfers))
+    return store.reopen(dbTarget);
+  QString stashedLegacy;
+  if(!LegacyMigration::stashLegacyAtTarget(dbTarget, &stashedLegacy))
+    return false;
+  const bool opened = store.reopen(dbTarget);
+  if(!opened) {
+    LegacyMigration::restoreStashedLegacy(dbTarget, stashedLegacy);
+    return false;
+  }
+  if(!stashedLegacy.isEmpty())
+    legacyHistory = stashedLegacy;
+  const bool ok =
+    LegacyMigration::migrateLegacyHistory(store, legacyHistory, legacyTransfers);
+  if(!ok) {
+    // Close before restore: the fresh DB file is unlinked below, and on
+    // Windows an open SQLite file cannot be removed at all.
+    store.close();
+    const bool settled = LegacyMigration::settleStash(dbTarget, stashedLegacy, false);
+    qCWarning(lmcApp(), "LegacyMigration: import failed, source restored for retry");
+    if(!settled)
+      qCWarning(lmcApp(), "LegacyMigration: stash settle failed, retry next start");
+    return false;
+  }
+  const bool settled = LegacyMigration::settleStash(dbTarget, stashedLegacy, true);
+  if(!settled)
+    qCWarning(lmcApp(), "LegacyMigration: stash settle failed, retry next start");
+  return opened;
+}
+
+} // namespace
+
 void lmcCore::init(const QString& szCommandArgs) {
   //	prevent auto app exit when last visible window is closed
   qApp->setQuitOnLastWindowClosed(false);
@@ -101,7 +151,7 @@ void lmcCore::init(const QString& szCommandArgs) {
   qCInfo(lmcApp(), "Settings loaded");
 
   // Single-shot history open: schema + legacy import before first use.
-  if(!HistoryStore::instance()->open())
+  if(!openHistory(*HistoryStore::instance()))
     qCWarning(lmcApp(), "HistoryStore: open failed, history will be unavailable");
 
   pMessaging->init(pInitParams);
@@ -161,7 +211,7 @@ void lmcCore::loadSettings(void) {
 
 void lmcCore::settingsChanged(void) {
   pMessaging->settingsChanged();
-  if(!HistoryStore::instance()->reopenIfPathChanged())
+  if(!openHistory(*HistoryStore::instance()))
     qCWarning(lmcApp(), "HistoryStore: reopen after path change failed");
   pMainWindow->settingsChanged();
   if(pPublicChatWindow)

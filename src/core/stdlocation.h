@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDateTime>
@@ -11,6 +12,7 @@
 #include "settings.h"
 
 #define SL_TRANSFERHISTORY "transfers.lst"
+#define SL_HISTORYDB "lanmessenger.db"
 #define SL_FILESTORAGEDIR "Received Files"
 #define SL_CACHEDIR "cache"
 #define SL_RESOURCE "lmc.rcc"
@@ -23,10 +25,52 @@
 
 class StdLocation {
 public:
+  // Empty = nothing to migrate (no custom value, different file name, or
+  // the file exists: a legacy binary is consumed by the stash flow, an
+  // existing SQLite DB must not orphan).
+  static QString migratedDbName(const QString& custom) {
+    if(custom.isEmpty())
+      return QString();
+    if(QFileInfo(custom).fileName().compare(QStringLiteral("messenger.db"),
+                                            Qt::CaseInsensitive) != 0)
+      return QString();
+    if(QFile::exists(custom))
+      return QString();
+    // Legacy-named value with nothing there yet: resolve to the new name.
+    return custom.left(custom.length() - QStringLiteral("messenger.db").length()) +
+           QStringLiteral(SL_HISTORYDB);
+  }
+
   static QString transferHistory(void) {
     return QDir::toNativeSeparators(QStandardPaths::writableLocation(
                                       QStandardPaths::AppLocalDataLocation) +
                                     "/" SL_TRANSFERHISTORY);
+  }
+
+  static QString historyDatabase(void) {
+    QString path = QDir::toNativeSeparators(QStandardPaths::writableLocation(
+                                              QStandardPaths::AppLocalDataLocation) +
+                                            "/" SL_HISTORYDB);
+    lmcSettings settings;
+    if(settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool())
+      return path;
+    QString custom = settings.value(IDS_HISTORYPATH, path).toString();
+    if(custom.isEmpty())
+      return path;
+    // Pure resolver, no writes: persistence is migrateHistoryDbName's job.
+    const QString migrated = migratedDbName(custom);
+    return migrated.isEmpty() ? custom : migrated;
+  }
+
+  // One-shot persistence of the legacy-named setting (see historyDatabase).
+  static void migrateHistoryDbName(void) {
+    lmcSettings settings;
+    if(settings.value(IDS_SYSHISTORYPATH, IDS_SYSHISTORYPATH_VAL).toBool())
+      return;
+    const QString migrated =
+      migratedDbName(settings.value(IDS_HISTORYPATH).toString());
+    if(!migrated.isEmpty())
+      settings.setValue(IDS_HISTORYPATH, migrated);
   }
 
   static QString fileStorageDir(void) {

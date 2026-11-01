@@ -213,7 +213,7 @@ void lmcSettingsDialog::rdbSysHistoryPath_toggled(bool checked) {
   ui.btnHistoryPath->setEnabled(!checked);
 
   if(!checked)
-    ui.txtHistoryPath->setText(HistoryStore::databaseFile());
+    ui.txtHistoryPath->setText(StdLocation::historyDatabase());
   else
     ui.txtHistoryPath->clear();
 }
