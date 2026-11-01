@@ -470,10 +470,10 @@ void lmcCore::receiveRemoteMessage(const QString& message) {
     qCDebug(lmcApp(), "Remote command '%s' received", qPrintable(message));
   if(isTerm) {
     QWidget* modal = QApplication::activeModalWidget();
-    qCDebug(lmcApp(), "Shutdown: remote context: guiThread=%d modal=%s topLevel=%d",
+    qCDebug(lmcApp(), "Shutdown: remote context: guiThread=%d modal=%s topLevel=%lld",
             QThread::currentThread() == qApp->thread(),
             modal ? modal->metaObject()->className() : "(none)",
-            QApplication::topLevelWidgets().count());
+            static_cast<long long>(QApplication::topLevelWidgets().count()));
     for(QWidget* window : QApplication::topLevelWidgets())
       qCDebug(lmcApp(), "Shutdown: window: %s visible=%d minimized=%d",
               window->metaObject()->className(), window->isVisible(), window->isMinimized());
@@ -627,7 +627,7 @@ void lmcCore::chatWindow_closed(QString* lpszUserId) {
       break;
     }
   }
-  qCDebug(lmcApp(), "Chat closed, total=%d", chatWindows.count());
+  qCDebug(lmcApp(), "Chat closed, total=%lld", static_cast<long long>(chatWindows.count()));
 }
 
 void lmcCore::chatRoomWindow_closed(QString* lpszThreadId) {
@@ -940,7 +940,7 @@ void lmcCore::createChatWindow(QString* lpszUserId) {
   pChatWindow->init(pLocalUser, pRemoteUser, pMessaging->isConnected());
   if(pMessaging->isLoopback() && pLocalUser->id.compare(pRemoteUser->id) == 0)
     pChatWindow->enableLoopbackEcho();
-  qCDebug(lmcApp(), "Chat opened, total=%d", chatWindows.count());
+  qCDebug(lmcApp(), "Chat opened, total=%lld", static_cast<long long>(chatWindows.count()));
 }
 
 void lmcCore::showChatWindow(lmcChatWindow* chatWindow, bool show, bool alert) {

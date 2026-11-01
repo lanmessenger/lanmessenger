@@ -38,7 +38,8 @@ void handleSignal(int) {
 #else
   if(gSigFd[1] >= 0) {
     const char c = 1;
-    ::write(gSigFd[1], &c, sizeof(c));
+    const ssize_t written = ::write(gSigFd[1], &c, sizeof(c));
+    (void)written;
   }
 #endif
 }
@@ -89,7 +90,8 @@ bool setupSignals(QCoreApplication* app) {
   auto* sigWatch = new QSocketNotifier(gSigFd[0], QSocketNotifier::Read, app);
   QObject::connect(sigWatch, &QSocketNotifier::activated, app, [](int fd) {
     char c;
-    ::read(fd, &c, sizeof(c)); // drain
+    const ssize_t nread = ::read(fd, &c, sizeof(c)); // drain
+    (void)nread;
     QCoreApplication::quit();
   });
   ::signal(SIGINT, handleSignal);

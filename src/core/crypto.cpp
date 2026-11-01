@@ -4,6 +4,16 @@
 #include "core/lmccategories.h"
 #include "crypto.h"
 
+// Low-level RSA API is deprecated since OpenSSL 3.0, but the PKCS#1
+// "RSA PUBLIC KEY" wire format is pinned by tst_crypto (publicKeyIsPkcs1,
+// legacyPkcs1PublicKeyHandshake) and old peers. Migrate to EVP_PKEY only
+// with dual-format read + interop fixtures; until then silence the
+// deprecation noise locally instead of touching the protocol.
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 lmcCrypto::lmcCrypto(void) {
   pRsa = NULL;
   encryptMap.clear();
@@ -141,3 +151,7 @@ QByteArray lmcCrypto::decrypt(QString* lpszUserId, QByteArray& cipherData) {
   qCCritical(lmcCoreLog(), "Message decryption failed");
   return QByteArray();
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
