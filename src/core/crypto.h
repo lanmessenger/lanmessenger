@@ -3,7 +3,12 @@
 // Copyright (c) 2026 LAN Messenger.
 #include <QMap>
 #include <QDataStream>
+#include <openssl/decoder.h>
+#include <openssl/encoder.h>
+#include <openssl/evp.h>
 #include <openssl/rand.h>
+// rsa.h only for the RSA_PKCS1_OAEP_PADDING constant (not a deprecated
+// function); the low-level RSA_* API itself is gone, key handling is EVP_PKEY.
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/aes.h>
@@ -71,7 +76,7 @@ public:
   QByteArray publicKey;
 
 private:
-  RSA* pRsa;
+  EVP_PKEY* pKey;
   QMap<QString, EVP_CIPHER_CTX> encryptMap;
   QMap<QString, EVP_CIPHER_CTX> decryptMap;
   int bits;

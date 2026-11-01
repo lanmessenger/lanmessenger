@@ -127,6 +127,11 @@ private slots:
   void legacyPkcs1PublicKeyHandshake(void);
   void oldClientToNewServerHandshake(void);
   void generatedKeyIs2048(void);
+  void garbagePublicKeyFails(void);
+  void spkiPublicKeyAccepted(void);
+  void garbageSessionFailsClosed(void);
+  void smallPublicKeyFailsClosed(void);
+  void failedWrapPreservesSession(void);
 };
 
 void TstCrypto::publicKeyIsPkcs1(void) {
@@ -273,6 +278,77 @@ void TstCrypto::generatedKeyIs2048(void) {
   QVERIFY2(fixturePriv != nullptr, "fixture private key unreadable");
   QCOMPARE(stockDecryptOaepSha1(fixturePriv, session).size(), kSessionKeyIvSize);
   EVP_PKEY_free(fixturePriv);
+}
+
+void TstCrypto::garbagePublicKeyFails(void) {
+  // A peer public key that is not PEM at all must fail closed (empty
+  // envelope), not crash the wrapper.
+  lmcCrypto client;
+  QByteArray garbage = QByteArrayLiteral("not a key");
+  QString peer = QStringLiteral("peer");
+  QVERIFY2(wrapSession(client, peer, garbage).isEmpty(), "garbage public key must fail");
+  QVERIFY2(!client.hasSession(&peer), "no session must exist after failure");
+}
+
+void TstCrypto::spkiPublicKeyAccepted(void) {
+  // Liberal read: the same test 2048-bit key in SubjectPublicKeyInfo form
+  // wraps a 256-byte envelope our stock-OpenSSL oracle opens, even though
+  // generateRSA itself keeps emitting PKCS#1.
+  const QByteArray spkiPub = readFixture("test-rsa2048-pub-spki.pem");
+  QVERIFY2(spkiPub.startsWith("-----BEGIN PUBLIC KEY-----"), "fixture is not SPKI");
+
+  lmcCrypto client;
+  const QByteArray session = wrapSession(client, QStringLiteral("peer"), spkiPub);
+  QCOMPARE(session.size(), kSealedSessionSize2048);
+
+  EVP_PKEY* fixturePriv = loadPrivateKey(readFixture("test-rsa2048-priv.pem"));
+  QVERIFY2(fixturePriv != nullptr, "fixture private key unreadable");
+  QCOMPARE(stockDecryptOaepSha1(fixturePriv, session).size(), kSessionKeyIvSize);
+  EVP_PKEY_free(fixturePriv);
+}
+
+void TstCrypto::garbageSessionFailsClosed(void) {
+  // retreiveAES with a bogus envelope (bad size and right-size garbage)
+  // must leave no session behind instead of chaining key material.
+  lmcCrypto server;
+  QVERIFY2(!server.generateRSA().isEmpty(), "keygen failed");
+
+  QString peerId = QStringLiteral("mallory");
+  QByteArray shortBlob = QByteArrayLiteral("too short");
+  server.retreiveAES(&peerId, shortBlob);
+  QVERIFY2(!server.hasSession(&peerId), "short envelope must leave no session");
+
+  QByteArray zeroBlob(256, '\0'); // right size, wrong OAEP padding
+  server.retreiveAES(&peerId, zeroBlob);
+  QVERIFY2(!server.hasSession(&peerId), "garbage envelope must leave no session");
+}
+
+void TstCrypto::smallPublicKeyFailsClosed(void) {
+  // Parses fine (valid PKCS#1) but too small for the 48-byte keyIv under
+  // OAEP-SHA1 (512-bit: 64-42=22). The wrap must fail with no phantom
+  // session left behind.
+  const QByteArray smallPub = readFixture("test-rsa512-pub-pkcs1.pem");
+  QVERIFY2(smallPub.startsWith("-----BEGIN RSA PUBLIC KEY-----"), "fixture is not PKCS#1");
+
+  lmcCrypto client;
+  QString peer = QStringLiteral("peer");
+  QVERIFY2(wrapSession(client, peer, smallPub).isEmpty(), "small key must fail to wrap");
+  QVERIFY2(!client.hasSession(&peer), "failed wrap must leave no session");
+}
+
+void TstCrypto::failedWrapPreservesSession(void) {
+  // A failed wrap for an already-paired peer must not clobber the live
+  // session: the old envelope keeps working both ways.
+  PeerPair pair;
+  QVERIFY2(pair.shakeHands(), "handshake failed");
+
+  const QByteArray smallPub = readFixture("test-rsa512-pub-pkcs1.pem");
+  QVERIFY2(!smallPub.isEmpty(), "fixture missing");
+  QVERIFY2(wrapSession(pair.client, pair.serverId, smallPub).isEmpty(), "small key must fail");
+
+  const QByteArray message = QByteArrayLiteral("session survives failed re-wrap");
+  QCOMPARE(pair.clientToServer(message), message);
+  QCOMPARE(pair.serverToClient(message), message);
 }
 
 QTEST_MAIN(TstCrypto)
