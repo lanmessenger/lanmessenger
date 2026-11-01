@@ -529,6 +529,9 @@ void BubbleDelegate::setTextSelection(int row, int start, int end) {
   selRow = row;
   selStart = start;
   selEnd = end;
+  wordAnchor = -1;
+  wordAnchorStart = 0;
+  wordAnchorEnd = 0;
 }
 
 void BubbleDelegate::extendSelection(int pos) {
@@ -537,10 +540,88 @@ void BubbleDelegate::extendSelection(int pos) {
   selEnd = pos;
 }
 
+bool BubbleDelegate::selectWordAt(const QModelIndex& index,
+                                  const QStyleOptionViewItem& option, const QPoint& pos) {
+  if(!index.isValid())
+    return false;
+  const CacheEntry& e = entryFor(index, viewWidth(option));
+  if(e.doc == nullptr)
+    return false;
+  QRect docRect = e.geo.docRect.translated(0, option.rect.top());
+  if(!docRect.contains(pos))
+    return false;
+  int len = qMax(0, e.doc->characterCount() - 1);
+  int hit = e.doc->documentLayout()->hitTest(QPointF(pos - docRect.topLeft()), Qt::FuzzyHit);
+  if(hit < 0)
+    return false;
+  hit = qBound(0, hit, len);
+  QTextCursor cursor(e.doc);
+  cursor.setPosition(hit);
+  cursor.select(QTextCursor::WordUnderCursor);
+  if(!cursor.hasSelection())
+    return false;
+  selRow = index.row();
+  selStart = cursor.selectionStart();
+  selEnd = cursor.selectionEnd();
+  wordAnchor = hit;
+  wordAnchorStart = selStart;
+  wordAnchorEnd = selEnd;
+  return selStart != selEnd;
+}
+
+void BubbleDelegate::extendSelectionWordwise(int pos) {
+  if(selRow < 0 || wordAnchor < 0)
+    return;
+  const QListView* view = qobject_cast<const QListView*>(parent());
+  if(view == nullptr || view->model() == nullptr || view->viewport() == nullptr)
+    return;
+  QModelIndex idx = view->model()->index(selRow, 0);
+  if(!idx.isValid())
+    return;
+  const CacheEntry& e = entryFor(idx, view->viewport()->width());
+  if(e.doc == nullptr)
+    return;
+  int len = qMax(0, e.doc->characterCount() - 1);
+  int clamped = qBound(0, pos, len);
+  QTextCursor cursor(e.doc);
+  cursor.setPosition(clamped);
+  cursor.select(QTextCursor::WordUnderCursor);
+  int wordStart = clamped;
+  int wordEnd = clamped;
+  if(cursor.hasSelection()) {
+    wordStart = cursor.selectionStart();
+    wordEnd = cursor.selectionEnd();
+  } else if(clamped != wordAnchor) {
+    QTextCursor probe(e.doc);
+    probe.setPosition(clamped);
+    if(clamped > wordAnchor)
+      probe.movePosition(QTextCursor::PreviousWord);
+    else
+      probe.movePosition(QTextCursor::NextWord);
+    probe.select(QTextCursor::WordUnderCursor);
+    if(probe.hasSelection()) {
+      if(clamped > wordAnchor)
+        wordEnd = probe.selectionEnd();
+      else
+        wordStart = probe.selectionStart();
+    }
+  }
+  if(clamped >= wordAnchor) {
+    selStart = wordAnchorStart;
+    selEnd = wordEnd;
+  } else {
+    selStart = wordAnchorEnd;
+    selEnd = wordStart;
+  }
+}
+
 void BubbleDelegate::clearTextSelection() {
   selRow = -1;
   selStart = 0;
   selEnd = 0;
+  wordAnchor = -1;
+  wordAnchorStart = 0;
+  wordAnchorEnd = 0;
 }
 
 bool BubbleDelegate::hasTextSelection() const {
@@ -584,8 +665,13 @@ void BubbleDelegate::selectAllText(const QModelIndex& index,
   if(!index.isValid())
     return;
   const CacheEntry& e = entryFor(index, viewWidth(option));
+  if(e.doc == nullptr)
+    return;
   int len = qMax(0, e.doc->characterCount() - 1);
   selRow = index.row();
   selStart = 0;
   selEnd = len;
+  wordAnchor = -1;
+  wordAnchorStart = 0;
+  wordAnchorEnd = 0;
 }

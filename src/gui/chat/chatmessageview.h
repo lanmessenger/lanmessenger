@@ -74,6 +74,7 @@ signals:
 
 protected:
   void mousePressEvent(QMouseEvent* event) override;
+  void mouseDoubleClickEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
@@ -119,5 +120,6 @@ private:
   int focusRow = -1;
   QString focusHref;
   bool textSelecting = false;
+  bool wordSelecting = false;
   int contextRow = -1;
 };

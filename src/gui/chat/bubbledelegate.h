@@ -72,6 +72,9 @@ public:
                      const QModelIndex& index) const;
   void setTextSelection(int row, int start, int end);
   void extendSelection(int pos);
+  void extendSelectionWordwise(int pos);
+  bool selectWordAt(const QModelIndex& index, const QStyleOptionViewItem& option,
+                    const QPoint& pos);
   void clearTextSelection();
   bool hasTextSelection() const;
   int selectionRow() const;
@@ -109,6 +112,9 @@ private:
   int selRow = -1;
   int selStart = 0;
   int selEnd = 0;
+  int wordAnchor = -1;
+  int wordAnchorStart = 0;
+  int wordAnchorEnd = 0;
   mutable QMap<QString, CacheEntry> cache;
   mutable QMap<QString, QPixmap> avatars;
 };

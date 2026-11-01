@@ -98,6 +98,15 @@ void dragMove(ChatMessageView& view, const QPoint& pos) {
   QApplication::sendEvent(view.viewport(), &move);
 }
 
+void dblClick(ChatMessageView& view, const QPoint& pos) {
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, pos, view.viewport()->mapToGlobal(pos),
+                  Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+}
+
 void invoke(ChatMessageView& view, const char* slot) {
   QVERIFY(QMetaObject::invokeMethod(&view, slot));
 }
@@ -141,6 +150,11 @@ private slots:
   void fileUpdateMovesCurrentToCursorRow();
   void normalizeHelperUnifiesSpacesAndBreaks();
   void peerRenameKeepsSelection();
+  void doubleClickSelectsSingleWord();
+  void doubleClickDragExtendsByWholeWords();
+  void doubleClickDragExtendsBackwardByWholeWords();
+  void doubleClickOnLinkSelectsNothing();
+  void doubleClickOnFileLinkActivatesOnce();
 };
 
 //  KeyProbe exposes event() return value (swallowed vs propagated).
@@ -577,6 +591,168 @@ void TstChatSelectAll::peerRenameKeepsSelection() {
   QString jackRenamed = QStringLiteral("Jack the Second");
   view.updateUserName(&jack, &jackRenamed);
   QCOMPARE(copiedText(view), QStringLiteral("alpha bravo charlie delta echo"));
+}
+
+void TstChatSelectAll::doubleClickSelectsSingleWord() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
+  const QPoint miss(200, view.viewport()->height() - 10);
+  const QStringList words = body.split(QLatin1Char(' '));
+  QString word;
+  bool found = false;
+  for(int x = rowRect.left() + 10; x < rowRect.right() - 10 && !found; x += 8) {
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+    dblClick(view, QPoint(x, rowRect.center().y()));
+    const QString cand = copiedText(view);
+    if(!cand.isEmpty() && words.contains(cand)) {
+      word = cand;
+      found = true;
+    }
+  }
+  QVERIFY(found);
+  QVERIFY(!word.contains(QLatin1Char(' ')));
+}
+
+void TstChatSelectAll::doubleClickDragExtendsByWholeWords() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
+  const QPoint miss(200, view.viewport()->height() - 10);
+  QPoint anchorPos;
+  bool anchored = false;
+  for(int x = rowRect.left() + 10; x < rowRect.right() - 10 && !anchored; x += 8) {
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+    const QPoint pos(x, rowRect.center().y());
+    dblClick(view, pos);
+    if(copiedText(view) == QStringLiteral("alpha")) {
+      anchorPos = pos;
+      anchored = true;
+    }
+  }
+  QVERIFY(anchored);
+
+  QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, anchorPos,
+                  view.viewport()->mapToGlobal(anchorPos), Qt::LeftButton, Qt::LeftButton,
+                  Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  const QPoint end = anchorPos + QPoint(220, 0);
+  dragMove(view, end);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
+  const QString frag = copiedText(view);
+  QVERIFY(frag.startsWith(QStringLiteral("alpha")));
+  QVERIFY(frag.size() > QStringLiteral("alpha").size());
+  QVERIFY(body.contains(frag));
+  const int tail = body.indexOf(frag) + frag.size();
+  QVERIFY(tail == body.size() || body.at(tail) == QLatin1Char(' '));
+}
+
+void TstChatSelectAll::doubleClickDragExtendsBackwardByWholeWords() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
+  const QPoint miss(200, view.viewport()->height() - 10);
+  QPoint anchorPos;
+  bool anchored = false;
+  for(int x = rowRect.right() - 10; x > rowRect.left() + 10 && !anchored; x -= 8) {
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+    const QPoint pos(x, rowRect.center().y());
+    dblClick(view, pos);
+    if(copiedText(view) == QStringLiteral("echo")) {
+      anchorPos = pos;
+      anchored = true;
+    }
+  }
+  QVERIFY(anchored);
+
+  QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, anchorPos,
+                  view.viewport()->mapToGlobal(anchorPos), Qt::LeftButton, Qt::LeftButton,
+                  Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  const QPoint end = anchorPos - QPoint(220, 0);
+  dragMove(view, end);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
+  const QString frag = copiedText(view);
+  QVERIFY(frag.endsWith(QStringLiteral("echo")));
+  QVERIFY(frag.size() > QStringLiteral("echo").size());
+  QVERIFY(body.contains(frag));
+  const int head = body.indexOf(frag);
+  QVERIFY(head == 0 || body.at(head - 1) == QLatin1Char(' '));
+}
+
+void TstChatSelectAll::doubleClickOnLinkSelectsNothing() {
+  ChatMessageView view;
+  showView(view);
+  appendText(view, QStringLiteral("visit https://example.com today"));
+  QCOMPARE(view.rowCount(), 1);
+
+  auto* delegate = view.findChild<BubbleDelegate*>();
+  QVERIFY(delegate != nullptr);
+  const QModelIndex idx = view.model()->index(0, 0);
+  const QRect rowRect = view.visualRect(idx);
+  QStyleOptionViewItem opt;
+  opt.initFrom(&view);
+  opt.rect = rowRect;
+  opt.widget = view.viewport();
+  QPoint linkPos;
+  bool found = false;
+  const int rows[3] = {rowRect.top() + 12, rowRect.center().y(), rowRect.bottom() - 12};
+  for(int y : rows) {
+    for(int x = rowRect.left() + 5; x < rowRect.right() - 5 && !found; x += 4) {
+      const QPoint pos(x, y);
+      if(!delegate->anchorAt(pos, opt, idx).isEmpty()) {
+        linkPos = pos;
+        found = true;
+      }
+    }
+  }
+  QVERIFY(found);
+  dblClick(view, linkPos);
+  QVERIFY(copiedText(view).isEmpty());
+}
+
+void TstChatSelectAll::doubleClickOnFileLinkActivatesOnce() {
+  ChatMessageView view;
+  showView(view);
+  appendFile(view, QStringLiteral("fid-dblonce"));
+  QCOMPARE(view.rowCount(), 1);
+
+  auto* delegate = view.findChild<BubbleDelegate*>();
+  QVERIFY(delegate != nullptr);
+  const QModelIndex idx = view.model()->index(0, 0);
+  const QRect rowRect = view.visualRect(idx);
+  QStyleOptionViewItem opt;
+  opt.initFrom(&view);
+  opt.rect = rowRect;
+  opt.widget = view.viewport();
+  QPoint acceptPos;
+  bool found = false;
+  const int rows[3] = {rowRect.top() + 12, rowRect.center().y(), rowRect.bottom() - 12};
+  for(int y : rows) {
+    for(int x = rowRect.left() + 5; x < rowRect.right() - 5 && !found; x += 4) {
+      const QPoint pos(x, y);
+      if(delegate->anchorAt(pos, opt, idx).contains(QLatin1String("/accept/"))) {
+        acceptPos = pos;
+        found = true;
+      }
+    }
+  }
+  QVERIFY(found);
+  QSignalSpy sent(&view, &ChatMessageView::messageSent);
+  dblClick(view, acceptPos);
+  QCOMPARE(sent.count(), 1);
 }
 
 QTEST_MAIN(TstChatSelectAll)

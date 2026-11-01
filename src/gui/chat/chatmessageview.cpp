@@ -438,6 +438,7 @@ void ChatMessageView::selectAllAction_triggered() {
     return;
   setCurrentIndex(target);
   bubbleDelegate->selectAllText(target, indexOption(target));
+  wordSelecting = false;
   viewport()->update();
 }
 
@@ -466,6 +467,7 @@ void ChatMessageView::clearTextSelection() {
   const bool had = bubbleDelegate->hasTextSelection() || textSelecting;
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
+  wordSelecting = false;
   if(had)
     viewport()->update();
 }
@@ -516,6 +518,7 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   bubbleDelegate->clearFocusAnchor();
   focusRow = -1;
   focusHref.clear();
+  wordSelecting = false;
   if(textIdx.isValid()) {
     setCurrentIndex(textIdx);
     bubbleDelegate->setTextSelection(textIdx.row(), charPos, charPos);
@@ -527,6 +530,34 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   QListView::mousePressEvent(event);
 }
 
+void ChatMessageView::mouseDoubleClickEvent(QMouseEvent* event) {
+  if(event->button() != Qt::LeftButton) {
+    QListView::mouseDoubleClickEvent(event);
+    return;
+  }
+  QString href;
+  QModelIndex anchorIdx = anchorRowAt(event->pos(), &href);
+  if(anchorIdx.isValid() && !href.isEmpty()) {
+    clearTextSelection();
+    setCurrentIndex(anchorIdx);
+    return;
+  }
+  QModelIndex textIdx = textIndexAt(event->pos());
+  if(textIdx.isValid()) {
+    setCurrentIndex(textIdx);
+    bubbleDelegate->clearFocusAnchor();
+    focusRow = -1;
+    focusHref.clear();
+    if(bubbleDelegate->selectWordAt(textIdx, indexOption(textIdx), event->pos())) {
+      textSelecting = true;
+      wordSelecting = true;
+      viewport()->update();
+      return;
+    }
+  }
+  QListView::mouseDoubleClickEvent(event);
+}
+
 void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
   if(textSelecting && (event->buttons() & Qt::LeftButton)) {
     int row = bubbleDelegate->selectionRow();
@@ -534,7 +565,10 @@ void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
     if(idx.isValid()) {
       int clamped = bubbleDelegate->charPosClamped(event->pos(), indexOption(idx), idx);
       if(clamped >= 0) {
-        bubbleDelegate->extendSelection(clamped);
+        if(wordSelecting)
+          bubbleDelegate->extendSelectionWordwise(clamped);
+        else
+          bubbleDelegate->extendSelection(clamped);
         viewport()->update();
       }
     }
@@ -566,6 +600,7 @@ void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
 void ChatMessageView::mouseReleaseEvent(QMouseEvent* event) {
   if(textSelecting && event->button() == Qt::LeftButton) {
     textSelecting = false;
+    wordSelecting = false;
     if(!bubbleDelegate->hasTextSelection())
       bubbleDelegate->clearTextSelection();
     viewport()->unsetCursor();
@@ -742,6 +777,7 @@ void ChatMessageView::onModelReset() {
   bubbleDelegate->invalidateCache();
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
+  wordSelecting = false;
   requestRelayout();
 }
 
