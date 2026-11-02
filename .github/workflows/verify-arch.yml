@@ -64,12 +64,12 @@ jobs:
           tar -xOf "./${pkg[0]}" .PKGINFO
           echo '--- depends ---'
           for dep in qt6-base qt6-multimedia-ffmpeg openssl; do
-            tar -xOf "./${pkg[0]}" .PKGINFO | grep -Eq "^depend = ${dep}([ >=]|$)" \
+            tar -xOf "./${pkg[0]}" .PKGINFO | grep -E "^depend = ${dep}([ >=]|$)" \
               || { echo "missing depend: ${dep}" >&2; exit 1; }
           done
           echo '--- optdepends ---'
           tar -xOf "./${pkg[0]}" .PKGINFO | grep -E '^optdepend = ' || true
-          tar -xOf "./${pkg[0]}" .PKGINFO | grep -Eq '^optdepend = noto-fonts-emoji' \
+          tar -xOf "./${pkg[0]}" .PKGINFO | grep -E '^optdepend = noto-fonts-emoji' \
             || { echo 'missing optdepend: noto-fonts-emoji' >&2; exit 1; }
 
       - name: Verify installed layout
@@ -85,7 +85,7 @@ jobs:
           done
           # No bundled sqldrivers/: the distro driver covers it (sqlite ships
           # inside qt6-base on Arch — assert the file, not the assumption).
-          pacman -Ql qt6-base | grep -Eq 'libqsqlite\.so$' \
+          pacman -Ql qt6-base | grep -E 'libqsqlite\.so$' \
             || { echo 'system QSQLite driver file missing (qt6-base)' >&2; exit 1; }
 
       - name: Validate AppStream metadata

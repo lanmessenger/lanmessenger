@@ -62,12 +62,12 @@ jobs:
           echo '--- Requires ---'
           rpm -qpR "./${rpm[0]}"
           for dep in qt6-qtbase qt6-qtbase-gui qt6-qtmultimedia openssl-libs; do
-            rpm -qpR "./${rpm[0]}" | grep -Eq "^${dep}([ >=]|$)" \
+            rpm -qpR "./${rpm[0]}" | grep -E "^${dep}([ >=]|$)" \
               || { echo "missing Requires: ${dep}" >&2; exit 1; }
           done
           echo '--- Recommends ---'
           rpm -qp --recommends "./${rpm[0]}"
-          rpm -qp --recommends "./${rpm[0]}" | grep -Eq "^google-noto-color-emoji-fonts([ >=]|$)" \
+          rpm -qp --recommends "./${rpm[0]}" | grep -E "^google-noto-color-emoji-fonts([ >=]|$)" \
             || { echo "missing Recommends: google-noto-color-emoji-fonts" >&2; exit 1; }
           echo '--- scriptlets ---'
           rpm -qp --scripts "./${rpm[0]}"
@@ -87,7 +87,8 @@ jobs:
           done
           # No bundled sqldrivers/: the distro driver covers it (sqlite ships
           # inside qt6-qtbase on Fedora — assert the file, not the assumption).
-          rpm -ql qt6-qtbase | grep -Eq 'libqsqlite\.so$' \
+          # NOTE: no `-q`: grep -q exits early, producer gets SIGPIPE under pipefail.
+          rpm -ql qt6-qtbase | grep -E 'libqsqlite\.so$' \
             || { echo 'system QSQLite driver file missing (qt6-qtbase)' >&2; exit 1; }
 
       - name: Validate AppStream metadata

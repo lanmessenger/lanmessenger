@@ -443,7 +443,7 @@ jobs:
 
       - name: Verify native binary arch
         run: |
-          lipo -archs release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep -q ${{ matrix.arch }}
+          lipo -archs release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep ${{ matrix.arch }}
 
       - name: Stage macOS app
         if: inputs.artifacts != 'test'

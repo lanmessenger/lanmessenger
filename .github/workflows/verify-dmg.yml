@@ -83,7 +83,7 @@ jobs:
           # Regression gate for the missing-LC_RPATH packaging bug: the
           # main binary links Qt via @rpath, so it must carry an RPATH
           # into the bundled Frameworks or dyld aborts at launch.
-          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -q '@executable_path/../Frameworks' \
+          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep '@executable_path/../Frameworks' \
             || { echo 'missing Frameworks LC_RPATH in main binary' >&2; exit 1; }
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
