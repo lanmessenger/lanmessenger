@@ -676,12 +676,14 @@ bool postKey(QWidget* target, const QString& keyName,
     return false;
   QObject* receiver = target;
   if(!receiver)
+    receiver = QApplication::activePopupWidget();
+  if(!receiver)
     receiver = QApplication::focusWidget();
   if(!receiver)
     receiver = QApplication::activeWindow();
   if(!receiver) {
     if(error)
-      *error = QStringLiteral("no target widget (no focus, no active window)");
+      *error = QStringLiteral("no target widget (no popup, focus, or active window)");
     return false;
   }
   // Same fire-and-post shape as postClick: posted press+release land on
