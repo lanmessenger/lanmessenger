@@ -448,9 +448,14 @@ bool postHover(const QJsonObject& criteria, int row, int column,
   auto* move = new QMouseEvent(QEvent::MouseMove, QPointF(pos),
                                QPointF(global), Qt::NoButton, Qt::NoButton,
                                Qt::NoModifier);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
   auto* hover = new QHoverEvent(QEvent::HoverMove, QPointF(pos),
                                 QPointF(global),
                                 QPointF(pos - QPoint(1, 1)));
+#else
+  auto* hover = new QHoverEvent(QEvent::HoverMove, QPointF(pos),
+                                QPointF(pos - QPoint(1, 1)));
+#endif
   QCoreApplication::postEvent(target, move);
   QCoreApplication::postEvent(target, hover);
   if(hovered) {
