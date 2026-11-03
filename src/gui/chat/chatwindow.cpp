@@ -577,6 +577,7 @@ void lmcChatWindow::createToolBar(void) {
   pLeftBar->addSeparator();
 
   pbtnEmoji = new lmcToolButton(pLeftBar);
+  pbtnEmoji->setObjectName(QStringLiteral("btnEmoji"));
   pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
   pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
   pbtnEmoji->setMenu(pEmojiMenu);

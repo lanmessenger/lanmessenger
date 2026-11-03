@@ -286,6 +286,7 @@ void lmcBroadcastWindow::createToolBar(void) {
 
   //	create the emoji tool button
   pbtnEmoji = new lmcToolButton(pToolBar);
+  pbtnEmoji->setObjectName(QStringLiteral("btnEmoji"));
   pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
   pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
   pbtnEmoji->setMenu(pEmojiMenu);
