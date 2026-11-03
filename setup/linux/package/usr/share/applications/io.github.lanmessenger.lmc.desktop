@@ -1,0 +1,17 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LAN Messenger
+Name[en_US]=LAN Messenger
+GenericName=Instant Messenger
+GenericName[en_US]=Instant Messenger
+Comment=Send and receive instant messages.
+Comment[en_US]=Send and receive instant messages.
+Categories=Qt;Network;InstantMessaging;
+Exec=lmc
+Icon=io.github.lanmessenger.lmc
+StartupNotify=true
+# X11 WM_CLASS class is "lmc" (instance "lan-messenger"); Wayland app-id
+# comes from desktopFileName and equals this file's basename.
+StartupWMClass=lmc
+Terminal=false

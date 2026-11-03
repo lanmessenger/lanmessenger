@@ -103,7 +103,7 @@ bool setupSignals(QCoreApplication* app) {
 void setupApp(QCoreApplication* app) {
   app->setApplicationName(IDA_PRODUCT);
   app->setOrganizationName(IDA_COMPANY);
-  app->setOrganizationDomain(IDA_DOMAIN);
+  app->setOrganizationDomain(IDA_DOMAIN_HOST);
 }
 
 int runWorker(int argc, char** argv, const QString& peer, const QString& homeDir,

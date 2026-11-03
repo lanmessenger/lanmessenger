@@ -103,7 +103,8 @@ int lmcRunApplication(int argc, char* argv[],
 
   QApplication::setApplicationName(IDA_PRODUCT);
   QApplication::setOrganizationName(IDA_COMPANY);
-  QApplication::setOrganizationDomain(IDA_DOMAIN);
+  QApplication::setOrganizationDomain(QStringLiteral(IDA_DOMAIN_HOST));
+  QApplication::setDesktopFileName(QStringLiteral(LMC_DESKTOP_ID));
   QApplication::setWindowIcon(QIcon(IDR_APPICON));
 
   QString messageList;

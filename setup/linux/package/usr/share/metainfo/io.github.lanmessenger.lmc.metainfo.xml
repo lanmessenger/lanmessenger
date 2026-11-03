@@ -11,7 +11,7 @@
       over a local network.
     </p>
   </description>
-  <launchable type="desktop-id">lmc.desktop</launchable>
+  <launchable type="desktop-id">io.github.lanmessenger.lmc.desktop</launchable>
   <url type="homepage">https://lanmessenger.github.io/</url>
   <developer id="io.github.lanmessenger">
     <name>LAN Messenger</name>

@@ -55,6 +55,10 @@ lmc_add_unit_test(singleinstance unit/tst_singleinstance.cpp)
 lmc_add_unit_test(apprunner unit/tst_apprunner.cpp)
 set_tests_properties(apprunner PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# Autostart desktop entry: canonical-name migration + entry contents.
+lmc_add_unit_test(autostart unit/tst_autostart.cpp)
+set_tests_properties(autostart PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # macOS Dock/Finder reopen: in-process ApplicationActivate -> messageReceived.
 # Owns an Application (QApplication) instance: offscreen like apprunner.
 lmc_add_unit_test(application unit/tst_application.cpp)

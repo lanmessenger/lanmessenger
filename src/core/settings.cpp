@@ -3,6 +3,11 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "settings.h"
 #include "stdlocation.h"
+#include "core/lmccategories.h"
+#ifdef Q_OS_UNIX
+#include <pwd.h>
+#include <unistd.h>
+#endif
 
 lmcSettingsBase::lmcSettingsBase(void)
     : QSettings() {
@@ -212,6 +217,40 @@ bool lmcSettings::loadFromConfig(const QString& configFile) {
   return true;
 }
 
+QString lmcSettings::resolveAutoStartDir(const QString& xdgConfigHome, const QString& homeEnv,
+                                         const QString& fallbackHome) {
+  //  Per XDG: empty, whitespace-only or relative XDG_CONFIG_HOME is ignored.
+  const QString xdg = xdgConfigHome.trimmed();
+  if(!xdg.isEmpty() && QDir::isAbsolutePath(xdg))
+    return xdg + QStringLiteral("/autostart");
+  //  Same strictness for HOME: whitespace-only or relative values are ignored
+  //  so a bogus HOME cannot produce a relative autostart path.
+  const QString home = homeEnv.trimmed();
+  if(!home.isEmpty() && QDir::isAbsolutePath(home))
+    return home + QStringLiteral("/.config/autostart");
+  return fallbackHome + QStringLiteral("/.config/autostart");
+}
+
+QString lmcSettings::systemAutoStartDir(void) {
+  const QString xdg = qEnvironmentVariable("XDG_CONFIG_HOME");
+  const QString home = qEnvironmentVariable("HOME");
+  QString fallback = QDir::homePath();
+  //  QDir::homePath() echoes $HOME on Unix, so under a bogus HOME the
+  //  fallback itself would be whitespace-only or relative. Bypass the
+  //  environment via the passwd database to keep the result absolute.
+  if(fallback.trimmed().isEmpty() || !QDir::isAbsolutePath(fallback.trimmed())) {
+#ifdef Q_OS_UNIX
+    const struct passwd* pw = getpwuid(getuid());
+    if(pw && pw->pw_dir && *pw->pw_dir) {
+      const QString pwHome = QString::fromLocal8Bit(pw->pw_dir).trimmed();
+      if(!pwHome.isEmpty() && QDir::isAbsolutePath(pwHome))
+        fallback = pwHome;
+    }
+#endif
+  }
+  return resolveAutoStartDir(xdg, home, fallback);
+}
+
 void lmcSettings::setAutoStart(bool on) {
 #ifdef Q_OS_WIN
   QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
@@ -228,39 +267,53 @@ void lmcSettings::setAutoStart(bool on) {
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
   //  get the path of .desktop file
-  QString autoStartDir;
-  char* buffer = getenv("XDG_CONFIG_HOME");
-  if(buffer) {
-    autoStartDir = QString(buffer);
-    autoStartDir.append("/autostart");
-  } else {
-    buffer = getenv("HOME");
-    autoStartDir = QString(buffer);
-    autoStartDir.append("/.config/autostart");
+  QDir dir(systemAutoStartDir());
+  //  TODO(2027-11): drop this legacy migration (~1 year after the rename to
+  //  io.github.lanmessenger.lmc.desktop). One-shot migration from the
+  //  pre-canonical name. Runs on every start (see lmcCore::start) and on every
+  //  toggle, so an old entry left by a previous version cannot linger with a
+  //  stale Icon/StartupWMClass.
+  const QString oldFileName = dir.absoluteFilePath(QStringLiteral("lmc.desktop"));
+  if(QFile::exists(oldFileName)) {
+    QFile oldFile(oldFileName);
+    if(!oldFile.remove())
+      qCWarning(lmcApp) << "AutoStart: cannot remove old entry" << oldFileName
+                        << oldFile.errorString();
   }
-  QDir dir(autoStartDir);
-  QString fileName = dir.absoluteFilePath("lmc.desktop");
+  QString fileName = dir.absoluteFilePath(QStringLiteral(LMC_DESKTOP_ID ".desktop"));
   //	delete the file if autostart is set to false
   if(!on) {
-    QFile::remove(fileName);
+    if(QFile::exists(fileName)) {
+      QFile entry(fileName);
+      if(!entry.remove())
+        qCWarning(lmcApp) << "AutoStart: cannot remove entry" << fileName
+                          << entry.errorString();
+    }
     return;
   }
 
   if(!dir.exists())
-    dir.mkpath(dir.absolutePath());
+    if(!dir.mkpath(dir.absolutePath()))
+      qCWarning(lmcApp) << "AutoStart: cannot create dir" << dir.absolutePath();
   QFile file(fileName);
-  if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+  if(!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    qCWarning(lmcApp) << "AutoStart: cannot write" << fileName << file.errorString();
     return;
+  }
   QTextStream stream(&file);
   Helper::setUtf8Stream(stream);
   stream.setGenerateByteOrderMark(false);
   stream << "[Desktop Entry]\n";
-  stream << "Encoding=UTF-8\n";
+  stream << "Version=1.0\n";
   stream << "Type=Application\n";
   stream << "Name=" << IDA_TITLE << "\n";
   stream << "Comment=Send and receive instant messages\n";
-  stream << "Icon=lmc\n";
-  stream << "Exec=sh " << qApp->applicationDirPath() << "/lmc.sh\n";
+  stream << "Icon=" LMC_DESKTOP_ID "\n";
+  stream << "Exec=sh \"" << qApp->applicationDirPath() << "/lmc.sh\"\n";
+  //  Must match the X11 WM_CLASS class ("lmc"), not the desktop basename.
+  //  Verified with xprop: class = applicationName ("lmc"); desktopFileName
+  //  only drives the Wayland app-id.
+  stream << "StartupWMClass=lmc\n";
   stream << "Terminal=false\n";
   file.close();
 #endif

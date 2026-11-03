@@ -170,6 +170,13 @@ public:
   bool loadFromConfig(const QString& configFile);
 
   static void setAutoStart(bool on);
+  //  Pure resolver for the Unix autostart dir (testable without touching
+  //  the real home). Whitespace-only or relative XDG_CONFIG_HOME/HOME are
+  //  ignored; both empty -> fallbackHome/.config/autostart (caller passes
+  //  a validated home, see systemAutoStartDir).
+  static QString resolveAutoStartDir(const QString& xdgConfigHome, const QString& homeEnv,
+                                     const QString& fallbackHome);
+  static QString systemAutoStartDir(void);
 
 private:
   bool migrateSettings(const QString& configFile);

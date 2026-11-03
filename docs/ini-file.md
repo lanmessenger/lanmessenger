@@ -68,7 +68,7 @@ Keys without a section prefix.
 
 | Key | Type / Default | Meaning |
 |---|---|---|
-| `AutoStart` | bool, `true` | Start at login. Mirrored to the platform mechanism (Windows Run key, Linux `lmc.desktop` in `~/.config/autostart`). Not implemented on macOS; the checkbox is hidden there. |
+| `AutoStart` | bool, `true` | Start at login. Mirrored to the platform mechanism (Windows Run key, Linux `io.github.lanmessenger.lmc.desktop` in `~/.config/autostart`). Not implemented on macOS; the checkbox is hidden there. |
 | `AutoShow` | bool, `false` | Show the main window at startup instead of starting minimized. |
 | `RefreshInterval` | int seconds, `300` | How often the contacts list is refreshed. Values below 300 are raised to 300 when upgrading from very old versions. |
 

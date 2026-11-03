@@ -22,6 +22,17 @@
 #define IDA_COPYRIGHT "Copyright (C) 2010-2016 Qualia Digital Solutions."
 #define IDA_CONTACT "lanmsngr@gmail.com"
 #define IDA_DOMAIN "http://lanmessenger.github.io"
+//	Bare host for QGuiApplication::setOrganizationDomain (no scheme:
+//	organizationDomain is a domain name, IDA_DOMAIN above is a URL).
+//	Note: the previous value was the full URL. On macOS (NativeFormat)
+//	the domain derives the plist name, so this is a one-time intentional
+//	settings-path change there (the old value was never a valid domain).
+//	Linux IniFormat / Windows registry paths use organizationName +
+//	applicationName (no domain), so this change affects the macOS plist only.
+#define IDA_DOMAIN_HOST "lanmessenger.github.io"
+//	Canonical Linux desktop entry ID (reverse-DNS). File names are
+//	LMC_DESKTOP_ID ".desktop"; keep Icon/launchable/desktopFileName in sync.
+#define LMC_DESKTOP_ID "io.github.lanmessenger.lmc"
 
 #if defined Q_OS_WIN
 #define IDA_PLATFORM "Windows"

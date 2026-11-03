@@ -43,6 +43,21 @@ After install, launch LAN Messenger from the applications menu (or run
 `lmc` in a terminal). The menu entry, icons, and the `/usr/bin/lmc`
 launcher are part of the package.
 
+## Tiling window managers (niri)
+
+niri tiles windows by default. To open all LAN Messenger windows floating,
+add to `~/.config/niri/config.kdl`:
+
+```kdl
+window-rule {
+    match app-id=r#"^io\.github\.lanmessenger\.lmc$"#
+    open-floating true
+}
+```
+
+Then reload niri config (`niri msg action reload-config`). Check with
+`niri msg windows`: `App ID` must be `io.github.lanmessenger.lmc`.
+
 ## Firewall
 
 Unlike the Windows firewall, `ufw` and `firewalld` grant access by port,
