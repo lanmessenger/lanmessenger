@@ -3,6 +3,7 @@
 // Direct tests for pure chat units: no model, no delegate, no QTextDocument.
 
 #include <QtTest>
+#include <QFontMetrics>
 
 #include "core/definitions.h"
 #include "gui/chat/bubblegeometry.h"
@@ -70,6 +71,7 @@ private slots:
   void emojiFamiliesWithBaseOrder();
   void emojiMatcherStartersAndContinuations();
   void emojiMatcherAllPickerEmojis();
+  void emojiPickerCellFitsFont();
   void emojiRunLengthEdges();
   void wrapEmojiRunsSpans();
 };
@@ -323,6 +325,24 @@ void TstChatPure::emojiMatcherAllPickerEmojis() {
   for(const QString& e : emojis) {
     QVERIFY2(!e.isEmpty(), qPrintable(QStringLiteral("empty picker cell")));
     QCOMPARE(ChatHelper::emojiRunLength(e, 0), e.length());
+  }
+}
+
+void TstChatPure::emojiPickerCellFitsFont() {
+  //  Same 16pt emoji-first font as the picker; the cell must clear every
+  //  glyph with room to spare, no exact margin pinned here.
+  QFont emojiFont;
+  emojiFont.setPointSize(16);
+  emojiFont.setFamilies(ChatHelper::emojiFamiliesWithBase(emojiFont.family()));
+  const int cell = EmojiPicker::cellSize(emojiFont);
+  QVERIFY(cell >= 32);
+  const QFontMetrics metrics(emojiFont);
+  QVERIFY(metrics.height() <= cell);
+  for(const QString& e : EmojiPicker::emojis()) {
+    QVERIFY2(metrics.horizontalAdvance(e) < cell,
+             qPrintable(QStringLiteral("advance overflows %1px cell").arg(cell)));
+    QVERIFY2(metrics.boundingRect(e).width() <= cell,
+             qPrintable(QStringLiteral("bounds overflow %1px cell").arg(cell)));
   }
 }
 

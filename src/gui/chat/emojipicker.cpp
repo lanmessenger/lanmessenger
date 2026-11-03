@@ -3,10 +3,9 @@
 #include <QMenu>
 #include <QHeaderView>
 #include <QPainter>
-#include <QMouseEvent>
+#include <QFontMetrics>
 #include <QKeyEvent>
 #include <QShowEvent>
-#include <QStyleOptionMenuItem>
 #include <qmath.h>
 #include "emojipicker.h"
 #include "gui/chat/chathelper.h"
@@ -15,6 +14,7 @@ namespace {
 
 const int kColumns = 10;
 const int kCellSize = 32;
+const int kCellMargin = 8;
 const int kFontSizePt = 16;
 
 //  No flags, no ZWJ chains, no skin-tone variants.
@@ -119,41 +119,88 @@ int EmojiPicker::columns() {
   return kColumns;
 }
 
-EmojiPicker::EmojiPicker(QWidget* parent, int* selected, int actionIndex)
-    : QTableWidget(parent) {
-  setMouseTracking(true);
+EmojiCellDelegate::EmojiCellDelegate(QObject* parent)
+    : QStyledItemDelegate(parent) {
+}
 
-  setBackgroundRole(QPalette::Window);
-  setFrameShape(QFrame::NoFrame);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setEditTriggers(QAbstractItemView::NoEditTriggers);
-  setSelectionMode(QAbstractItemView::NoSelection);
-  setShowGrid(false);
-  horizontalHeader()->setVisible(false);
-  verticalHeader()->setVisible(false);
-  setStyleSheet("QTableWidget { padding: 4px }"); // padding around table
+void EmojiCellDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+                              const QModelIndex& index) const {
+  QStyleOptionViewItem opt(option);
+  initStyleOption(&opt, index);
+  const bool hasEmoji = index.data(Qt::UserRole).toInt() == 1;
+  QPalette::ColorRole bgRole = QPalette::Window;
+  QPalette::ColorRole fgRole = QPalette::Text;
+  if(hasEmoji &&
+     (opt.state &
+      (QStyle::State_Selected | QStyle::State_MouseOver | QStyle::State_HasFocus))) {
+    bgRole = QPalette::Highlight;
+    fgRole = QPalette::HighlightedText;
+  }
+  painter->fillRect(opt.rect, opt.palette.color(bgRole));
+  if(!hasEmoji)
+    return;
+  //  Never elided: the cell fits the widest glyph by construction.
+  painter->save();
+  painter->setFont(opt.font);
+  painter->setPen(opt.palette.color(fgRole));
+  painter->drawText(opt.rect, Qt::AlignCenter, opt.text);
+  painter->restore();
+}
 
-  max_col = kColumns;
-  int max_row = qCeil(kEmojis.count() / (qreal)max_col);
+int EmojiPicker::cellSize(const QFont& emojiFont) {
+  const QFontMetrics metrics(emojiFont);
+  int need = metrics.height();
+  for(const QString& emoji : kEmojis)
+    need = qMax(need, metrics.horizontalAdvance(emoji));
+  return qMax(kCellSize, need + kCellMargin);
+}
 
-  setColumnCount(max_col);
-  setRowCount(max_row);
-
+void EmojiPicker::updateCellSize() {
   QFont emojiFont = font();
   emojiFont.setPointSize(kFontSizePt);
   //  Emoji-first, base last: color when the color font is installed,
   //  monochrome instead of tofu when it is not.
   emojiFont.setFamilies(ChatHelper::emojiFamiliesWithBase(emojiFont.family()));
 
-  verticalHeader()->setDefaultSectionSize(kCellSize);
-  verticalHeader()->setMinimumSectionSize(kCellSize);
-  horizontalHeader()->setDefaultSectionSize(kCellSize);
-  horizontalHeader()->setMinimumSectionSize(kCellSize);
+  const int cell = cellSize(emojiFont);
+  const int max_row = qCeil(kEmojis.count() / (qreal)max_col);
+  verticalHeader()->setDefaultSectionSize(cell);
+  verticalHeader()->setMinimumSectionSize(cell);
+  horizontalHeader()->setDefaultSectionSize(cell);
+  horizontalHeader()->setMinimumSectionSize(cell);
 
-  //	set min and max size of table, with padding included
-  setMinimumSize(max_col * kCellSize + 8, max_row * kCellSize + 8);
-  setMaximumSize(max_col * kCellSize + 8, max_row * kCellSize + 8);
+  setMinimumSize(max_col * cell, max_row * cell);
+  setMaximumSize(max_col * cell, max_row * cell);
+
+  for(int i = 0; i < rowCount(); i++)
+    for(int j = 0; j < columnCount(); j++)
+      if(QTableWidgetItem* cellItem = item(i, j))
+        if(cellItem->data(Qt::UserRole).toInt() == 1)
+          cellItem->setFont(emojiFont);
+}
+
+EmojiPicker::EmojiPicker(QWidget* parent, int* selected, int actionIndex)
+    : QTableWidget(parent) {
+  setMouseTracking(true);
+  viewport()->setMouseTracking(true);
+
+  setFrameShape(QFrame::NoFrame);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setEditTriggers(QAbstractItemView::NoEditTriggers);
+  setSelectionMode(QAbstractItemView::NoSelection);
+  setTextElideMode(Qt::ElideNone);
+  setShowGrid(false);
+  horizontalHeader()->setVisible(false);
+  verticalHeader()->setVisible(false);
+  setStyleSheet(QStringLiteral("QTableWidget::item { padding: 0px; margin: 0px; border: 0px; }"));
+  setItemDelegate(new EmojiCellDelegate(this));
+
+  max_col = kColumns;
+  int max_row = qCeil(kEmojis.count() / (qreal)max_col);
+
+  setColumnCount(max_col);
+  setRowCount(max_row);
 
   for(int i = 0; i < max_row; i++) {
     for(int j = 0; j < max_col; j++) {
@@ -163,18 +210,16 @@ EmojiPicker::EmojiPicker(QWidget* parent, int* selected, int actionIndex)
       item->setData(Qt::UserRole, 0);
       if(k < kEmojis.count()) {
         item->setText(kEmojis.at(k));
-        item->setFont(emojiFont);
         item->setTextAlignment(Qt::AlignCenter);
         item->setData(Qt::UserRole, 1);
-        item->setBackground(this->palette().window());
       }
       setItem(i, j, item);
     }
   }
+  updateCellSize();
 
   this->actionIndex = actionIndex;
   this->selected = selected;
-  this->hoverItem = nullptr;
 
   connect(this, &QTableWidget::cellClicked, this,
           [this](int row, int column) { pickCell(row, column); });
@@ -183,22 +228,6 @@ EmojiPicker::EmojiPicker(QWidget* parent, int* selected, int actionIndex)
 }
 
 EmojiPicker::~EmojiPicker() {
-}
-
-void EmojiPicker::currentChanged(const QModelIndex& current, const QModelIndex& previous) {
-  QTableWidget::currentChanged(current, previous);
-  (void)previous;
-  //  Navigation only moves the highlight; picking is click/Enter in pickCell.
-  if(hoverItem)
-    viewport()->update(visualItemRect(hoverItem));
-  hoverItem = nullptr;
-  if(current.isValid()) {
-    QTableWidgetItem* cell = item(current.row(), current.column());
-    if(cell && cell->data(Qt::UserRole).toInt() == 1) {
-      hoverItem = cell;
-      viewport()->update(visualItemRect(hoverItem));
-    }
-  }
 }
 
 void EmojiPicker::pickCell(int row, int column) {
@@ -230,49 +259,11 @@ void EmojiPicker::keyPressEvent(QKeyEvent* e) {
   QTableWidget::keyPressEvent(e);
 }
 
-void EmojiPicker::mouseMoveEvent(QMouseEvent* e) {
-  QTableWidget::mouseMoveEvent(e);
-
-  QTableWidgetItem* currentItem = itemAt(e->position().toPoint());
-  if(currentItem != hoverItem) {
-    if(hoverItem)
-      viewport()->update(visualItemRect(hoverItem));
-    hoverItem = currentItem;
-    if(hoverItem)
-      viewport()->update(visualItemRect(hoverItem));
-  }
-}
-
-void EmojiPicker::paintEvent(QPaintEvent* e) {
-  QTableWidget::paintEvent(e);
-
-  if(hoverItem && !hoverItem->text().isEmpty()) {
-    QStyleOptionMenuItem opt;
-    opt.initFrom(this);
-    opt.rect = visualItemRect(hoverItem);
-    opt.state |= QStyle::State_Selected | QStyle::State_Enabled;
-    QPainter painter(viewport());
-    style()->drawControl(QStyle::CE_MenuItem, &opt, &painter);
-    //  Redraw the glyph on top of the highlight.
-    painter.setFont(hoverItem->font());
-    painter.setPen(palette().color(QPalette::HighlightedText));
-    painter.drawText(opt.rect, Qt::AlignCenter, hoverItem->text());
-  }
-}
-
-void EmojiPicker::leaveEvent(QEvent* e) {
-  QTableWidget::leaveEvent(e);
-
-  if(hoverItem)
-    viewport()->update(visualItemRect(hoverItem));
-  hoverItem = nullptr;
-}
-
 void EmojiPicker::showEvent(QShowEvent* e) {
   QTableWidget::showEvent(e);
 
   //  Widget is reused across popups, rearm the one-shot guard.
   picked = false;
-  hoverItem = nullptr;
+  updateCellSize();
   setCurrentIndex(QModelIndex());
 }

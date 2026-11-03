@@ -2,17 +2,28 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
+#include <QStyledItemDelegate>
 #include <QTableWidget>
 #include <QStringList>
 
-class QModelIndex;
+class QFont;
 class QKeyEvent;
-class QMouseEvent;
-class QPaintEvent;
 class QShowEvent;
-class QEvent;
+class QPainter;
+class QStyleOptionViewItem;
+class QModelIndex;
 
-//  Emoji picker: grid of Unicode glyphs rendered by the OS font.
+//  Grid of Unicode glyphs; the delegate draws them centered, never elided.
+class EmojiCellDelegate : public QStyledItemDelegate {
+  Q_OBJECT
+
+public:
+  explicit EmojiCellDelegate(QObject* parent = nullptr);
+
+  void paint(QPainter* painter, const QStyleOptionViewItem& option,
+             const QModelIndex& index) const override;
+};
+
 class EmojiPicker : public QTableWidget {
   Q_OBJECT
 
@@ -21,25 +32,22 @@ public:
   static const QStringList& emojis();
   static QString emojiAt(int index);
   static int columns();
+  //  Widest glyph plus margin, at least 32px.
+  static int cellSize(const QFont& emojiFont);
 
   EmojiPicker(QWidget* parent, int* selected, int actionIndex);
   ~EmojiPicker() override;
 
 protected:
-  void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
   void keyPressEvent(QKeyEvent* e) override;
-  void mouseMoveEvent(QMouseEvent* e) override;
-  void paintEvent(QPaintEvent* e) override;
   void showEvent(QShowEvent* e) override;
-  void leaveEvent(QEvent* e) override;
 
 private:
   void pickCell(int row, int column);
+  void updateCellSize();
 
   int* selected;
   int actionIndex;
   int max_col;
   bool picked = false;
-
-  QTableWidgetItem* hoverItem;
 };
