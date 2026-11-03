@@ -47,6 +47,23 @@ QJsonArray listWindows();
 // (or async trigger() for a QAction). Returns immediately.
 bool postClick(const QJsonObject& criteria, QString* error);
 
+// Fire-and-post hover: QMouseEvent MouseMove posted to the widget center
+// (a QTableWidget without a cell hovers its viewport center, where the
+// item-view mouse logic lives), or to a QTableWidget cell center
+// (viewport coords) when row/column >= 0.
+// Never blocks. Fills hovered with identity plus the hovered point/cell.
+bool postHover(const QJsonObject& criteria, int row, int column,
+               QJsonObject* hovered, QString* error);
+
+// Keyboard focus for screenshot states: QWidget::setFocus() on the widget
+// matching the locator (e.g. the EmojiPicker grid before an arrow-key
+// walk, so the current cell paints its Selected/HasFocus Highlight).
+// Synchronous, never blocks. Fails when the widget does not report
+// hasFocus() afterwards, so callers notice a raced popup instead of
+// screenshotting an unfocused grid.
+bool setFocus(const QJsonObject& criteria, QJsonObject* focused,
+              QString* error);
+
 // Key/modifier name tables for send_key. Key names: Return, Enter, Tab,
 // Backtab, Escape (Esc), Space, Backspace, Delete, Home, End, Left, Right,
 // Up, Down (case-insensitive). Modifier names: ctrl/control, shift, alt,

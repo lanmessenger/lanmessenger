@@ -208,6 +208,91 @@ class LmcLibrary:
         """Async in-process click (fire-and-post, never blocks on modals)."""
         self._request("click", {"locator": locator})
 
+    @staticmethod
+    def _parse_cell_index(name, value):
+        """Cell index or None when omitted. Fails loudly on garbage.
+
+        Omitted means the Robot default (``-1``/``-1`` int, ``None`` or
+        empty string). Anything else must be an ``int >= 0`` — a typo
+        like ``foo`` used to silently become a center-hover, masking the
+        mistake with a green test and a wrong screenshot.
+        """
+        if value is None:
+            return None
+        if isinstance(value, bool):
+            raise AssertionError(
+                "Hover Object: %s must be an int >= 0 (got %r)"
+                % (name, value))
+        if isinstance(value, int):
+            if value == -1:
+                return None
+            if value >= 0:
+                return value
+            raise AssertionError(
+                "Hover Object: %s must be an int >= 0 (got %r)"
+                % (name, value))
+        if isinstance(value, float):
+            if value.is_integer() and int(value) == -1:
+                return None
+            if value.is_integer() and int(value) >= 0:
+                return int(value)
+            raise AssertionError(
+                "Hover Object: %s must be an int >= 0 (got %r)"
+                % (name, value))
+        text = str(value).strip()
+        if text in ("", "-1"):
+            return None
+        try:
+            parsed = int(text)
+        except ValueError:
+            raise AssertionError(
+                "Hover Object: %s must be an int >= 0 (got %r)"
+                % (name, value))
+        if parsed < 0:
+            raise AssertionError(
+                "Hover Object: %s must be an int >= 0 (got %r)"
+                % (name, value))
+        return parsed
+
+    @keyword("Hover Object")
+    def hover_object(self, locator, row=-1, column=-1):
+        """Fire-and-post hover (MouseMove + HoverMove, never blocks).
+
+        Without ``row``/``column`` hovers the widget center; with both —
+        the ``QTableWidget`` cell center on its viewport (e.g. the
+        ``EmojiPicker`` grid: ``Hover Object  type=EmojiPicker  0  2``).
+        Returns the agent hover snapshot (objectName/class/x/y plus
+        row/column for cells). Callers sleep briefly, then grab a
+        screenshot — the highlight lands on later loop iterations.
+        """
+        params = {"locator": locator}
+        row_i = self._parse_cell_index("row", row)
+        col_i = self._parse_cell_index("column", column)
+        if row_i is not None and col_i is not None:
+            params["row"] = row_i
+            params["column"] = col_i
+        elif row_i is not None or col_i is not None:
+            raise AssertionError(
+                "Hover Object: row and column go together "
+                "(got row=%r column=%r)" % (row, column))
+        res = self._request("hover", params)
+        logger.info("hover %s -> %s"
+                    % (locator, json.dumps(res, ensure_ascii=False)))
+        return res
+
+    @keyword("Focus Object")
+    def focus_object(self, locator):
+        """Set keyboard focus on the widget (``QWidget::setFocus``).
+
+        Used before arrow-key walks over focus-highlighted grids (e.g.
+        the ``EmojiPicker``: ``Focus Object  type=EmojiPicker``), so the
+        current cell paints its Selected/HasFocus Highlight. Synchronous.
+        """
+        res = self._request("focus", {"locator": locator})
+        logger.info("focus %s -> %s"
+                    % (locator, json.dumps(res, ensure_ascii=False)))
+        return res
+
     @keyword("Trigger Action")
     def trigger_action(self, locator):
         """Trigger a menu/toolbar QAction by ``locator`` (e.g. ``text=History``,

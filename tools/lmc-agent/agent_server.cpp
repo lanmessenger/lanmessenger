@@ -18,6 +18,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QWindow>
+#include <cmath>
 
 #include "agent_core.h"
 
@@ -40,6 +41,28 @@ double timeoutParam(const QJsonObject& params) {
       return secs;
   }
   return kDefaultTimeoutSecs;
+}
+
+// One cell index for hover: accepts numbers and numeric strings
+// (QJsonValue::toInt(-1) returns the default for strings, so {"row":"0"}
+// would silently become -1; timeoutParam already parses strings the same
+// way). Rejects bools, nulls, negatives and fractional doubles.
+bool cellIndexValue(const QJsonValue& value, int* out) {
+  if(value.isBool() || value.isNull() || value.isUndefined())
+    return false;
+  if(value.isDouble()) {
+    const double d = value.toDouble();
+    if(d < 0.0 || d != std::trunc(d))
+      return false;
+    *out = int(d);
+    return true;
+  }
+  bool ok = false;
+  const int parsed = value.toVariant().toInt(&ok);
+  if(!ok || parsed < 0)
+    return false;
+  *out = parsed;
+  return true;
 }
 
 // One geometry int for set_geometry: presence checked first (toInt(-1)
@@ -252,6 +275,51 @@ private:
       QJsonObject result;
       result[QStringLiteral("clicked")] = true;
       return okReply(id, result);
+    }
+    if(cmd == QStringLiteral("hover")) {
+      const QString locator = params.value(QStringLiteral("locator")).toString();
+      if(locator.isEmpty())
+        return errorReply(id, QStringLiteral("hover: missing locator"));
+      const bool hasRow = params.contains(QStringLiteral("row"));
+      const bool hasColumn = params.contains(QStringLiteral("column")) ||
+                             params.contains(QStringLiteral("col"));
+      if(hasRow != hasColumn)
+        return errorReply(id, QStringLiteral("hover: row and column go together"));
+      int row = -1, column = -1;
+      if(hasRow) {
+        if(!cellIndexValue(params.value(QStringLiteral("row")), &row))
+          return errorReply(id, QStringLiteral("hover: row and column must be >= 0"));
+        const bool hasColumnKey = params.contains(QStringLiteral("column"));
+        const bool hasColAlias = params.contains(QStringLiteral("col"));
+        int fromColumn = -1, fromCol = -1;
+        const bool okColumn =
+          !hasColumnKey || cellIndexValue(params.value(QStringLiteral("column")), &fromColumn);
+        const bool okCol =
+          !hasColAlias || cellIndexValue(params.value(QStringLiteral("col")), &fromCol);
+        if(!okColumn || !okCol)
+          return errorReply(id, QStringLiteral("hover: row and column must be >= 0"));
+        if(hasColumnKey && hasColAlias && fromColumn != fromCol)
+          return errorReply(
+            id, QStringLiteral("hover: column and col differ, must match"));
+        column = hasColumnKey ? fromColumn : fromCol;
+      }
+      QString error;
+      QJsonObject hovered;
+      if(!postHover(parseLocator(locator), row, column, &hovered, &error))
+        return errorReply(id, error);
+      hovered[QStringLiteral("hovered")] = true;
+      return okReply(id, hovered);
+    }
+    if(cmd == QStringLiteral("focus")) {
+      const QString locator = params.value(QStringLiteral("locator")).toString();
+      if(locator.isEmpty())
+        return errorReply(id, QStringLiteral("focus: missing locator"));
+      QString error;
+      QJsonObject focused;
+      if(!setFocus(parseLocator(locator), &focused, &error))
+        return errorReply(id, error);
+      focused[QStringLiteral("focused")] = true;
+      return okReply(id, focused);
     }
     if(cmd == QStringLiteral("trigger_action")) {
       QString triggered;

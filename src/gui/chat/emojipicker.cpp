@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
 #include <QMenu>
+#include <QCoreApplication>
 #include <QHeaderView>
+#include <QHoverEvent>
 #include <QPainter>
 #include <QFontMetrics>
 #include <QKeyEvent>
@@ -225,6 +227,12 @@ EmojiPicker::EmojiPicker(QWidget* parent, int* selected, int actionIndex)
           [this](int row, int column) { pickCell(row, column); });
   connect(this, &QTableWidget::cellActivated, this,
           [this](int row, int column) { pickCell(row, column); });
+  //  Hovered cell becomes current, so arrows continue from it, not (0,0).
+  connect(this, &QTableWidget::cellEntered, this, [this](int row, int column) {
+    QTableWidgetItem* entered = item(row, column);
+    if(entered && entered->data(Qt::UserRole).toInt() == 1)
+      setCurrentCell(row, column);
+  });
 }
 
 EmojiPicker::~EmojiPicker() {
@@ -266,4 +274,7 @@ void EmojiPicker::showEvent(QShowEvent* e) {
   picked = false;
   updateCellSize();
   setCurrentIndex(QModelIndex());
+  //  Clear the stale hover from the previous popup (no real leave under Xvfb).
+  QHoverEvent leave(QEvent::HoverLeave, QPointF(-1, -1), QPointF(-1, -1));
+  QCoreApplication::sendEvent(viewport(), &leave);
 }

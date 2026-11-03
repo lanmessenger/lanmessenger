@@ -53,8 +53,9 @@ same):
 No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 `exec()` modals and asserts under Xvfb, see `done/spix-evaluation.md`):
 
-- `click`/`send_key` post `QMouseEvent`/`QKeyEvent` (press+release) and
-  return immediately.
+- `click` posts press+release `QMouseEvent`, `hover` posts a `MouseMove`
+  (+ `HoverMove`) pair, `send_key` posts press+release `QKeyEvent` — all
+  fire-and-post, the reply returns immediately.
 - Triggers that open `exec()` modals go through
   `QTimer::singleShot(0, ...)` — the reply is sent before the nested
   loop starts, so the connection stays alive.
@@ -75,6 +76,8 @@ No synchronous `QTest::mouseClick`/`keyClick` (that hangs the server on
 | `get_property` | `{locator, property}` | `{value: ...}`. `text`/`plainText` on a `QTextEdit`/`QPlainTextEdit`/`QLineEdit` reads its content (qtexpert parity: Qt has no `text` dynamic property on a `QTextEdit`); on a `ChatMessageView` (native chat, `type=lmcMessageLog` still matches via mapping) reads its `plainText` (app-side `model->data()` join); otherwise a plain Qt dynamic property |
 | `set_property` | `{locator, property, value}` | `{set: true}` |
 | `click` | `{locator}` | `{clicked: true}` (async post; for `QAction` — async `trigger()`) |
+| `hover` | `{locator, row?, column?}` (`col` alias for `column`) | `{hovered: true, objectName, class, x, y, row?, column?}` — post `MouseMove` (+ `HoverMove`) to the widget center (a `QTableWidget` without a cell hovers its `viewport()` center, where the item-view mouse logic lives), or to a `QTableWidget` cell center on its `viewport()` when `row`/`column` given (e.g. `EmojiPicker` grid). Fire-and-post, never blocks. `row`/`column` go together, both `>= 0` (numbers or numeric strings); a non-grid locator with `row`/`column` fails. When both `column` and `col` are present they must match, else the command fails |
+| `focus` | `{locator}` | `{focused: true, objectName, class, hasFocus}` — `QWidget::setFocus()` on the match (e.g. the `EmojiPicker` grid before an arrow-key walk, so the current cell paints its `Selected`/`HasFocus` Highlight). Synchronous, never blocks. Fails with `widget did not accept focus` when the widget does not report `hasFocus()` afterwards (popup not active yet) — retry the command instead of screenshotting an unfocused grid |
 | `trigger_action` | `{locator}` | `{triggered: "<action text>"}` — `QAction` only (menus/toolbars, matched by `text=` with `&` stripped, e.g. `text=History`); async `trigger()` via `singleShot(0)`, so an `exec()` modal opened by the slot cannot swallow the reply. Leaf commands win over same-named submenu titles (e.g. the `Help` item over the `Help` menu itself, whose trigger would only pop the dropdown): `topLevelWidgets()` order is not stable, so first-match would be a coin flip |
 | `dump_tree` | `{}` | `{tree: [...]}` — top-level widgets with children and actions (`objectName`, `class`, `visible`, `title`/`text`). The client library writes the `${OUTPUT_DIR}/*.json` files |
 | `get_log` | `{}` | `{path}` — this instance's trace file; empty when tracing is off (launch with `/trace`) |

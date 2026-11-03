@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QHoverEvent>
 #include <QJsonArray>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -21,6 +22,7 @@
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QTableWidget>
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolBar>
@@ -387,6 +389,108 @@ bool postClick(const QJsonObject& criteria, QString* error) {
   if(error)
     *error = QStringLiteral("no widget or action matches locator");
   return false;
+}
+
+bool postHover(const QJsonObject& criteria, int row, int column,
+               QJsonObject* hovered, QString* error) {
+  QWidget* widget = findWidget(criteria);
+  if(!widget) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  QWidget* target = widget;
+  QPoint pos;
+  bool hasCell = (row >= 0 && column >= 0);
+  if(row >= 0 || column >= 0) {
+    if(!hasCell) {
+      if(error)
+        *error = QStringLiteral("row and column go together");
+      return false;
+    }
+    auto* table = qobject_cast<QTableWidget*>(widget);
+    if(!table) {
+      if(error)
+        *error = QStringLiteral("row/column need a QTableWidget locator");
+      return false;
+    }
+    if(row >= table->rowCount() || column >= table->columnCount()) {
+      if(error)
+        *error = QStringLiteral("cell (%1,%2) outside %3x%4")
+                   .arg(row)
+                   .arg(column)
+                   .arg(table->rowCount())
+                   .arg(table->columnCount());
+      return false;
+    }
+    const QRect rect =
+      table->visualRect(table->model()->index(row, column));
+    if(!rect.isValid()) {
+      if(error)
+        *error = QStringLiteral("cell (%1,%2) not visible").arg(row).arg(column);
+      return false;
+    }
+    // visualRect() is already in viewport coordinates.
+    pos = rect.center();
+    target = table->viewport();
+  } else if(auto* table = qobject_cast<QTableWidget*>(widget)) {
+    // A bare hover on a table means its viewport: mouse/hover logic
+    // lives there (QAbstractScrollArea), posting to the frame itself
+    // never reaches the item delegate.
+    target = table->viewport();
+    pos = target->rect().center();
+  } else {
+    pos = widget->rect().center();
+  }
+  const QPoint global = target->mapToGlobal(pos);
+  // Fire-and-post like postClick: MouseMove drives the item-view hover
+  // index (mouseTracking), HoverMove carries State_MouseOver to delegates.
+  auto* move = new QMouseEvent(QEvent::MouseMove, QPointF(pos),
+                               QPointF(global), Qt::NoButton, Qt::NoButton,
+                               Qt::NoModifier);
+  auto* hover = new QHoverEvent(QEvent::HoverMove, QPointF(pos),
+                                QPointF(global),
+                                QPointF(pos - QPoint(1, 1)));
+  QCoreApplication::postEvent(target, move);
+  QCoreApplication::postEvent(target, hover);
+  if(hovered) {
+    (*hovered)[QStringLiteral("objectName")] = widget->objectName();
+    (*hovered)[QStringLiteral("class")] =
+      QString::fromLatin1(widget->metaObject()->className());
+    (*hovered)[QStringLiteral("x")] = pos.x();
+    (*hovered)[QStringLiteral("y")] = pos.y();
+    if(hasCell) {
+      (*hovered)[QStringLiteral("row")] = row;
+      (*hovered)[QStringLiteral("column")] = column;
+    }
+  }
+  return true;
+}
+
+bool setFocus(const QJsonObject& criteria, QJsonObject* focused,
+              QString* error) {
+  QWidget* widget = findWidget(criteria);
+  if(!widget) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  // Synchronous: runs in the GUI thread already, no nested loop needed.
+  widget->setFocus(Qt::OtherFocusReason);
+  const bool acquired = widget->hasFocus();
+  if(focused) {
+    (*focused)[QStringLiteral("objectName")] = widget->objectName();
+    (*focused)[QStringLiteral("class")] =
+      QString::fromLatin1(widget->metaObject()->className());
+    (*focused)[QStringLiteral("hasFocus")] = acquired;
+  }
+  if(!acquired) {
+    if(error)
+      *error = QStringLiteral("widget did not accept focus: %1")
+                 .arg(QString::fromLatin1(widget->metaObject()->className()));
+    return false;
+  }
+  return true;
 }
 
 bool triggerAction(const QJsonObject& criteria, QString* triggeredText,
