@@ -6,18 +6,18 @@ set -e
 cd "$(dirname "$0")"
 
 echo "COPYING FILES..."
-# Copy the shared payload; the lmc.sh launcher (the only launcher left)
-# stays tracked in package/ and is not staged from release/.
-# cp -r merges dirs: a .qm/sound removed from release/ would survive in
-# package/ and leak into both packages on re-staging. Single files below
-# are overwritten by cp, only the trees need a reset.
-rm -rf ./package/usr/lib/lmc/lang ./package/usr/lib/lmc/sounds
-cp -v ../../release/lmc.rcc ./package/usr/lib/lmc/lmc.rcc
-cp -v ../../release/lan-messenger ./package/usr/lib/lmc/lan-messenger
-cp -v ../../release/COPYING ./package/usr/lib/lmc/COPYING
-cp -v -r ../../release/lang ./package/usr/lib/lmc
-cp -v -r ../../release/sounds ./package/usr/lib/lmc
-chmod 755 ./package/usr/lib/lmc/lmc.sh
+# ELF goes to /usr/bin, data to /usr/share/lmc. Trees are reset first:
+# a .qm/sound removed from release/ would survive in package/ and leak
+# into all packages on re-staging. The stale /usr/lib/lmc tree from
+# pre-FHS packages is dropped as well.
+rm -rf ./package/usr/share/lmc ./package/usr/bin/lmc ./package/usr/lib/lmc
+rmdir ./package/usr/lib 2>/dev/null || true
+mkdir -p ./package/usr/bin ./package/usr/share/lmc
+install -m755 ../../release/lmc ./package/usr/bin/lmc
+cp -v ../../release/lmc.rcc ./package/usr/share/lmc/lmc.rcc
+cp -v ../../release/COPYING ./package/usr/share/lmc/COPYING
+cp -v -r ../../release/lang ./package/usr/share/lmc
+cp -v -r ../../release/sounds ./package/usr/share/lmc
 
 echo "DONE."
 exit 0

@@ -85,7 +85,12 @@ bool wantsTermWait(const QStringList& arguments) {
 int lmcRunApplication(int argc, char* argv[],
                       const std::function<void(QCoreApplication&)>& preExecHook) {
   Application application(appId, argc, argv);
-  QDir::setCurrent(QApplication::applicationDirPath());
+
+  // Org/app before the resource resolve (QStandardPaths fallback).
+  QApplication::setApplicationName(IDA_PRODUCT);
+  QApplication::setOrganizationName(IDA_COMPANY);
+  QApplication::setOrganizationDomain(QStringLiteral(IDA_DOMAIN_HOST));
+  QApplication::setDesktopFileName(QStringLiteral(LMC_DESKTOP_ID));
 
 #ifdef Q_OS_MAC
   // Bundled plugins only (PlugIns from macdeployqt); a bare bundle keeps
@@ -101,10 +106,6 @@ int lmcRunApplication(int argc, char* argv[],
 #endif
   QResource::registerResource(StdLocation::resourceFile());
 
-  QApplication::setApplicationName(IDA_PRODUCT);
-  QApplication::setOrganizationName(IDA_COMPANY);
-  QApplication::setOrganizationDomain(QStringLiteral(IDA_DOMAIN_HOST));
-  QApplication::setDesktopFileName(QStringLiteral(LMC_DESKTOP_ID));
   QApplication::setWindowIcon(QIcon(IDR_APPICON));
 
   QString messageList;

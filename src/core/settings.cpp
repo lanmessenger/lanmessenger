@@ -309,7 +309,7 @@ void lmcSettings::setAutoStart(bool on) {
   stream << "Name=" << IDA_TITLE << "\n";
   stream << "Comment=Send and receive instant messages\n";
   stream << "Icon=" LMC_DESKTOP_ID "\n";
-  stream << "Exec=sh \"" << qApp->applicationDirPath() << "/lmc.sh\"\n";
+  stream << "Exec=\"" << QDir::toNativeSeparators(QApplication::applicationFilePath()) << "\"\n";
   //  Must match the X11 WM_CLASS class ("lmc"), not the desktop basename.
   //  Verified with xprop: class = applicationName ("lmc"); desktopFileName
   //  only drives the Wayland app-id.

@@ -26,11 +26,11 @@ build does).
 
 ## Launch
 
-Run the `lan-messenger` binary in the release layout directly (all
+Run the `lmc` binary in the release layout directly (all
 dependencies resolve via the system libraries, no wrapper needed):
 
 ```bash
-./lan-messenger /loopback
+./lmc /loopback
 ```
 
 ## Debugging

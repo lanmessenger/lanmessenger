@@ -13,6 +13,8 @@
 #endif
 #include "soundplayer.h"
 #include "settings.h"
+#include "stdlocation.h"
+#include <QFile>
 
 #ifdef Q_OS_WIN
 typedef BOOL(WINAPI* sndPlaySoundFunc)(LPCSTR lpszSound, UINT fuSound);
@@ -64,7 +66,11 @@ void lmcSoundPlayer::play(SoundEvent event) {
   if(!eventState[event])
     return;
 
-  play(sounds[event]);
+  // Missing stored file falls back to the default.
+  QString file = StdLocation::resolveSoundFile(sounds[event]);
+  if(!QFile::exists(file))
+    file = StdLocation::resolveSoundFile(soundFile[event]);
+  play(file);
 }
 
 void lmcSoundPlayer::settingsChanged(void) {
@@ -78,7 +84,9 @@ void lmcSoundPlayer::settingsChanged(void) {
   size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), (int)SE_Max);
   for(int index = 0; index < size; index++) {
     pSettings->setArrayIndex(index);
-    sounds[index] = pSettings->value(IDS_SOUNDFILE, soundFile[index]).toString();
+    // Legacy "./sounds/..." normalizes to basename on load.
+    sounds[index] = StdLocation::normalizeSoundFile(
+      pSettings->value(IDS_SOUNDFILE, soundFile[index]).toString());
   }
   pSettings->endArray();
 

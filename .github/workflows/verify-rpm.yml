@@ -78,8 +78,8 @@ jobs:
         run: |
           set -euo pipefail
           command -v lmc
-          test -L /usr/bin/lmc
-          for f in /usr/lib/lmc/lan-messenger /usr/lib/lmc/lmc.sh /usr/lib/lmc/lmc.rcc \
+          test -f /usr/bin/lmc && test ! -L /usr/bin/lmc
+          for f in /usr/bin/lmc /usr/share/lmc/lmc.rcc \
                    /usr/share/applications/io.github.lanmessenger.lmc.desktop \
                    /usr/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml \
                    /usr/share/icons/hicolor/16x16/apps/io.github.lanmessenger.lmc.png \
@@ -89,7 +89,7 @@ jobs:
                    /usr/share/icons/hicolor/36x36/apps/io.github.lanmessenger.lmc.png \
                    /usr/share/icons/hicolor/48x48/apps/io.github.lanmessenger.lmc.png \
                    /usr/share/pixmaps/io.github.lanmessenger.lmc.xpm \
-                   /usr/lib/lmc/lang/de_DE.qm /usr/lib/lmc/lang/system/qtbase_de.qm; do
+                    /usr/share/lmc/lang/de_DE.qm /usr/share/lmc/lang/system/qtbase_de.qm; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }
           done
           # Content gates: the layout loop above only checks existence.
@@ -149,8 +149,7 @@ jobs:
       # (exec/IPC/SSL-backend dialog) is gated by verify-deb.yml and e2e on
       # the identical payload (all three formats are built from the same staged
       # tree by setup/linux, see nfpm.yaml).
-      # Runs through the real installed entry point (lmc -> lmc.sh), which
-      # also covers the LD_LIBRARY_PATH launcher.
+      # Runs through the real installed entry point (/usr/bin/lmc).
       - name: Smoke start installed app
         run: |
           set -euo pipefail
@@ -162,7 +161,9 @@ jobs:
           set -euo pipefail
           dnf -y remove lmc
           if rpm -q lmc >/dev/null 2>&1; then echo 'lmc still installed' >&2; exit 1; fi
-          test ! -e /usr/lib/lmc/lan-messenger
+          test ! -e /usr/lib/lmc
+          test ! -e /usr/bin/lmc
+          test ! -e /usr/share/lmc
 
       - name: Dump package state on failure
         if: failure()

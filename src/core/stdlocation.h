@@ -3,6 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -17,6 +18,7 @@
 #define SL_CACHEDIR "cache"
 #define SL_RESOURCE "lmc.rcc"
 #define SL_LANGDIR "lang"
+#define SL_SOUNDDIR "sounds"
 #define SL_THEMEDIR "themes"
 #define SL_GROUPFILE "group.cfg"
 #define SL_AVATARFILE "avt_local.png"
@@ -89,12 +91,86 @@ public:
                                     "/" SL_CACHEDIR);
   }
 
-  static QString libDir(void) {
-    return QDir::toNativeSeparators(QDir::currentPath());
+  // appDir -> appDir/../share/lmc (reloc, Unix-only) -> GenericDataLocation + "/lmc".
+  // AppDataLocation gives .../lmc/lmc, so it is not used.
+  static QStringList dataCandidateDirs(void) {
+    QStringList bases;
+    const QString appDir = QCoreApplication::applicationDirPath();
+    if(!appDir.isEmpty()) {
+      bases << QDir::cleanPath(appDir);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+      bases << QDir::cleanPath(appDir + "/../share/lmc");
+#endif
+    }
+    // NB: AppDataLocation resolves to .../lmc/lmc with org/app lmc/lmc.
+    const QStringList dataDirs =
+      QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    for(const QString& dir : dataDirs) {
+      const QString cand = QDir::cleanPath(dir + "/lmc");
+      if(!bases.contains(cand))
+        bases << cand;
+    }
+    return bases;
+  }
+
+  // First existing candidate, else the first one.
+  static QString firstExistingOrFirst(const QStringList& candidates) {
+    for(const QString& cand : candidates) {
+      if(QFile::exists(cand))
+        return QDir::toNativeSeparators(cand);
+    }
+    if(!candidates.isEmpty())
+      return QDir::toNativeSeparators(candidates.first());
+    return QString();
   }
 
   static QString resourceFile(void) {
-    return QDir::toNativeSeparators(QDir::current().absoluteFilePath(SL_RESOURCE));
+    QStringList candidates;
+    for(const QString& base : dataCandidateDirs())
+      candidates << QDir::cleanPath(base + "/" SL_RESOURCE);
+    return firstExistingOrFirst(candidates);
+  }
+
+  // Only the known legacy prefixes collapse to the basename; anything
+  // else relative is left untouched.
+  static QString normalizeSoundFile(const QString& stored) {
+    if(stored.isEmpty())
+      return stored;
+    if(QDir::isAbsolutePath(stored))
+      return QDir::toNativeSeparators(stored);
+    QString base = stored;
+    for(const QString& prefix : {QStringLiteral("./sounds/"), QStringLiteral("sounds/")}) {
+      if(base.startsWith(prefix)) {
+        base.remove(0, prefix.length());
+        break;
+      }
+    }
+    if(base.isEmpty() || base.contains(QLatin1Char('/')) || base.contains(QLatin1Char('\\')))
+      return stored;
+    return base;
+  }
+
+  static QString resolveSoundFile(const QString& stored) {
+    return resolveSoundFileFrom(stored, soundCandidateDirs());
+  }
+
+  static QString resolveSoundFileFrom(const QString& stored, const QStringList& soundDirs) {
+    if(stored.isEmpty())
+      return stored;
+    if(QDir::isAbsolutePath(stored))
+      return QDir::toNativeSeparators(stored);
+    const QString base = normalizeSoundFile(stored);
+    QStringList candidates;
+    for(const QString& dir : soundDirs)
+      candidates << QDir::cleanPath(dir + "/" + base);
+    return firstExistingOrFirst(candidates);
+  }
+
+  static QStringList soundCandidateDirs(void) {
+    QStringList dirs;
+    for(const QString& base : dataCandidateDirs())
+      dirs << QDir::cleanPath(base + "/" SL_SOUNDDIR);
+    return dirs;
   }
 
   static QString resLangDir(void) {
@@ -102,7 +178,10 @@ public:
   }
 
   static QString sysLangDir(void) {
-    return QDir::toNativeSeparators(QDir::currentPath() + "/" SL_LANGDIR);
+    QStringList candidates;
+    for(const QString& base : dataCandidateDirs())
+      candidates << QDir::cleanPath(base + "/" SL_LANGDIR);
+    return firstExistingOrFirst(candidates);
   }
 
   static QString userLangDir(void) {

@@ -134,11 +134,11 @@ enum SoundEvent {
   SE_Max
 };
 
-#define SND_NEWMESSAGE "./sounds/newmessage.wav"
-#define SND_USERONLINE "./sounds/useronline.wav"
-#define SND_USEROFFLINE "./sounds/useroffline.wav"
-#define SND_NEWFILE "./sounds/newfile.wav"
-#define SND_FILEDONE "./sounds/filedone.wav"
+#define SND_NEWMESSAGE "newmessage.wav"
+#define SND_USERONLINE "useronline.wav"
+#define SND_USEROFFLINE "useroffline.wav"
+#define SND_NEWFILE "newfile.wav"
+#define SND_FILEDONE "filedone.wav"
 #define SND_NEWPUBMESSAGE SND_NEWMESSAGE
 
 #define SE_COUNT 6

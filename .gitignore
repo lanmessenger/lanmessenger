@@ -46,8 +46,5 @@ __pycache__/
 /setup/lmc*.pkg.tar.zst
 
 # stage.sh output (staged payload tree, not tracked)
-setup/linux/package/usr/lib/lmc/lmc.rcc
-setup/linux/package/usr/lib/lmc/lan-messenger
-setup/linux/package/usr/lib/lmc/COPYING
-setup/linux/package/usr/lib/lmc/lang/
-setup/linux/package/usr/lib/lmc/sounds/
+setup/linux/package/usr/bin/lmc
+setup/linux/package/usr/share/lmc/

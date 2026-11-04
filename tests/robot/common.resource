@@ -100,7 +100,7 @@ Stash App Trace Path
 Close LMC
     [Documentation]    Quit the app through the agent and wait for the
     ...    process to be gone: the app owns the production
-    ...    single-instance socket (same appId as lan-messenger), so a
+    ...    single-instance socket (same appId as lmc), so a
     ...    stale instance would silently absorb the next launch instead of
     ...    showing a window. Fully guarded: teardown must not mask test
     ...    results. The agent stops last, only after the process is gone.

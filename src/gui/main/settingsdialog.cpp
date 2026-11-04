@@ -403,7 +403,8 @@ void lmcSettingsDialog::lvSounds_currentRowChanged(int index) {
     return;
   }
 
-  QFileInfo fileInfo(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
+  QFileInfo fileInfo(StdLocation::resolveSoundFile(
+    ui.lvSounds->currentItem()->data(Qt::UserRole).toString()));
   if(fileInfo.exists())
     ui.txtSoundFile->setText(fileInfo.fileName());
   else
@@ -414,7 +415,8 @@ void lmcSettingsDialog::btnPlaySound_clicked(void) {
   if(ui.lvSounds->currentRow() < 0)
     return;
 
-  lmcSoundPlayer::play(ui.lvSounds->currentItem()->data(Qt::UserRole).toString());
+  lmcSoundPlayer::play(StdLocation::resolveSoundFile(
+    ui.lvSounds->currentItem()->data(Qt::UserRole).toString()));
 }
 
 void lmcSettingsDialog::btnSoundPath_clicked(void) {
@@ -422,7 +424,9 @@ void lmcSettingsDialog::btnSoundPath_clicked(void) {
     return;
 
   QString soundPath = QFileDialog::getOpenFileName(this, tr("Select sound"),
-                                                   ui.lvSounds->currentItem()->data(Qt::UserRole).toString(), "Wave Files (*.wav)");
+                                                   StdLocation::resolveSoundFile(
+                                                     ui.lvSounds->currentItem()->data(Qt::UserRole).toString()),
+                                                   "Wave Files (*.wav)");
   if(!soundPath.isEmpty()) {
     ui.lvSounds->currentItem()->setData(Qt::UserRole, soundPath);
     lvSounds_currentRowChanged(ui.lvSounds->currentRow());
@@ -580,7 +584,9 @@ void lmcSettingsDialog::loadSettings(void) {
   size = qMin(pSettings->beginReadArray(IDS_SOUNDFILEHDR), ui.lvSounds->count());
   for(int index = 0; index < size; index++) {
     pSettings->setArrayIndex(index);
-    ui.lvSounds->item(index)->setData(Qt::UserRole, pSettings->value(IDS_SOUNDFILE).toString());
+    // Legacy "./sounds/..." normalizes to basename on load.
+    ui.lvSounds->item(index)->setData(Qt::UserRole, StdLocation::normalizeSoundFile(
+                                                      pSettings->value(IDS_SOUNDFILE).toString()));
   }
   pSettings->endArray();
   ui.chkNoBusySound->setChecked(pSettings->value(IDS_NOBUSYSOUND, IDS_NOBUSYSOUND_VAL).toBool());
@@ -673,7 +679,10 @@ void lmcSettingsDialog::saveSettings(void) {
     for(int index = 0; index < ui.lvSounds->count(); index++) {
       pSettings->setArrayIndex(index);
       pSettings->setValue(IDS_SOUNDFILE, ui.lvSounds->item(index)->data(Qt::UserRole).toString());
-      if(ui.lvSounds->item(index)->data(Qt::UserRole).toString().compare(soundFile[index]) == 0)
+      // Normalized compare: legacy "./sounds/..." counts as default.
+      if(StdLocation::normalizeSoundFile(
+           ui.lvSounds->item(index)->data(Qt::UserRole).toString())
+           .compare(StdLocation::normalizeSoundFile(soundFile[index])) == 0)
         soundFileCount++;
     }
     pSettings->endArray();

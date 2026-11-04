@@ -59,6 +59,10 @@ set_tests_properties(apprunner PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen
 lmc_add_unit_test(autostart unit/tst_autostart.cpp)
 set_tests_properties(autostart PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# StdLocation sound resolver: normalize + first-existing resolve, offscreen.
+lmc_add_unit_test(stdlocation unit/tst_stdlocation.cpp)
+set_tests_properties(stdlocation PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # macOS Dock/Finder reopen: in-process ApplicationActivate -> messageReceived.
 # Owns an Application (QApplication) instance: offscreen like apprunner.
 lmc_add_unit_test(application unit/tst_application.cpp)

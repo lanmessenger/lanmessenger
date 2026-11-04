@@ -76,7 +76,7 @@ internet. Check with:
 
 ```bash
 ss -ulnp | grep 50000          # UDP discovery listener
-ss -tlnp | grep lan-messenger  # TCP listener
+ss -tlnp | grep '"lmc"'  # TCP listener
 ```
 
 For machines on different subnets, add the remote broadcast addresses

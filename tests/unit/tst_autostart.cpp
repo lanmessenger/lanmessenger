@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
+#include <QApplication>
 
 #include "core/settings.h"
 #include "core/definitions.h"
@@ -51,8 +52,11 @@ void checkEntryContent(const QString& content) {
   QVERIFY(content.contains(QStringLiteral("\nType=Application\n")));
   QVERIFY(content.contains(QStringLiteral("\nIcon=" LMC_DESKTOP_ID "\n")));
   QVERIFY(content.contains(QStringLiteral("\nStartupWMClass=lmc\n")));
-  QVERIFY(content.contains(QStringLiteral("Exec=sh \"")));
-  QVERIFY(content.contains(QStringLiteral("lmc.sh\"\n")));
+  // Points at the binary that created the entry (installed: "/usr/bin/lmc").
+  QVERIFY(content.contains(QStringLiteral("\nExec=\"") +
+                           QDir::toNativeSeparators(QApplication::applicationFilePath()) +
+                           QStringLiteral("\"\n")));
+  QVERIFY(!content.contains(QStringLiteral("lmc.sh")));
 }
 
 } // namespace

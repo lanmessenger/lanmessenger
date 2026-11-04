@@ -240,13 +240,13 @@ elseif(APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${LMC_MACOS_SHORT_VERSION}"
     )
 else()
-    set_target_properties(lmc PROPERTIES OUTPUT_NAME lan-messenger)
+    set_target_properties(lmc PROPERTIES OUTPUT_NAME lmc)
 endif()
 
 # External resource bundle (2nd role of resource.qrc): looked up at runtime as
-# <appdir>/lmc.rcc (main sets cwd to applicationDirPath; StdLocation::resourceFile())
-# and registered via QResource::registerResource (main.cpp). The 1st role —
-# embedding into the binary — is done by AUTORCC (resource.qrc in the sources).
+# <appdir>/lmc.rcc, <appdir>/../share/lmc/lmc.rcc (Unix-only) or <datadir>/lmc/lmc.rcc
+# (StdLocation::resourceFile()) and registered via QResource::registerResource.
+# The 1st role — embedding into the binary — is done by AUTORCC (resource.qrc in the sources).
 add_custom_command(
     OUTPUT ${LMC_RUNTIME_DIR}/lmc.rcc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}
@@ -262,7 +262,7 @@ add_custom_command(
 # format, target-prefixed names; adding a file there is enough, this glob picks
 # it up (on the Visual Studio generator, re-run configure after add/remove).
 # The lrelease output keeps the runtime layout: lang/*.qm
-# (sysLangDir = <appdir>/lang, stdlocation.h).
+# (sysLangDir candidates, stdlocation.h).
 file(GLOB LMC_TS_FILES CONFIGURE_DEPENDS
      ${CMAKE_SOURCE_DIR}/translations/lmc_*.ts)
 list(SORT LMC_TS_FILES)
