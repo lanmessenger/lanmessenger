@@ -443,7 +443,7 @@ jobs:
 
       - name: Verify native binary arch
         run: |
-          lipo -archs release/LAN-Messenger.app/Contents/MacOS/LAN-Messenger | grep ${{ matrix.arch }}
+          lipo -archs "release/LAN Messenger.app/Contents/MacOS/LAN Messenger" | grep ${{ matrix.arch }}
 
       - name: Stage macOS app
         if: inputs.artifacts != 'test'
@@ -458,7 +458,7 @@ jobs:
         if: inputs.artifacts != 'test'
         run: |
           set -euo pipefail
-          app=setup/mac/LAN-Messenger.app
+          app="setup/mac/LAN Messenger.app"
           info="$app/Contents/Info.plist"
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -dv --verbose=4 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
@@ -468,10 +468,10 @@ jobs:
             exit 1
           fi
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN Messenger"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")" = "LAN Messenger"
           exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")"
-          test "$exe" = "LAN-Messenger"
+          test "$exe" = "LAN Messenger"
           test -x "$app/Contents/MacOS/$exe"
           short="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")"
           build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")"
@@ -492,7 +492,7 @@ jobs:
             "LAN Messenger" "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
           test -f "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
           ls -lh "../lmc_${PKG_VERSION}_${{ matrix.arch }}.dmg"
-          rm -rf LAN-Messenger.app
+          rm -rf "LAN Messenger.app"
 
       - name: List disk image artifacts
         if: always() && inputs.artifacts != 'test'
@@ -541,13 +541,13 @@ jobs:
         run: |
           STAGE="$RUNNER_TEMP/teststage"
           rm -rf "$STAGE"; mkdir -p "$STAGE/release" "$STAGE/build/tools/lmm"
-          cp -R release/LAN-Messenger.app "$STAGE/release/"
-          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/release/LAN-Messenger.app/Contents/MacOS/"
-          test -x "$STAGE/release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test"
+          cp -R "release/LAN Messenger.app" "$STAGE/release/"
+          cp build/tools/lmc-agent/lan-messenger-test "$STAGE/release/LAN Messenger.app/Contents/MacOS/"
+          test -x "$STAGE/release/LAN Messenger.app/Contents/MacOS/lan-messenger-test"
           cp build/tools/lmm/lmmd "$STAGE/build/tools/lmm/"
           test -x "$STAGE/build/tools/lmm/lmmd"
-          mkdir -p "$STAGE/release/LAN-Messenger.app/Contents/PlugIns"
-          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/release/LAN-Messenger.app/Contents/PlugIns/"
+          mkdir -p "$STAGE/release/LAN Messenger.app/Contents/PlugIns"
+          cp -R "$QT_ROOT_DIR/plugins/"* "$STAGE/release/LAN Messenger.app/Contents/PlugIns/"
           tar -C "$STAGE" -czf "test-layout-${{ matrix.leg }}.tar.gz" release build
 
       - name: Upload test layout

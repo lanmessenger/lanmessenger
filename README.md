@@ -35,7 +35,7 @@ local network. No dedicated messaging server or internet connection required.
 On macOS the DMG is ad-hoc signed and not notarized. If Gatekeeper blocks the first launch, clear the quarantine attribute once:
 
 ```bash
-sudo xattr -dr com.apple.quarantine "/Applications/LAN-Messenger.app"
+sudo xattr -dr com.apple.quarantine "/Applications/LAN Messenger.app"
 ```
 
 See [Installing on Windows](docs/install-windows.md), [Installing on macOS](docs/install-macos.md), and [Installing on Linux](docs/install-linux.md) for details.

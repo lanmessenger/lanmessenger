@@ -210,7 +210,7 @@ jobs:
         shell: bash
         run: |
           tar -xzf "_test-layout/test-layout-${{ matrix.leg }}.tar.gz"
-          test -x release/LAN-Messenger.app/Contents/MacOS/lan-messenger-test
+          test -x "release/LAN Messenger.app/Contents/MacOS/lan-messenger-test"
           test -x build/tools/lmm/lmmd
 
       - name: Set up Python and Robot Framework (Windows)
@@ -391,10 +391,10 @@ jobs:
           cd release
           export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
-          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
             --outputdir "$GITHUB_WORKSPACE/robot-results-full" \
-            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v APP_PATH:"$PWD/LAN Messenger.app/Contents/MacOS/lan-messenger-test" \
             -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
             "$GITHUB_WORKSPACE/tests/robot/"
 
@@ -440,11 +440,11 @@ jobs:
           cd release
           export LMC_NON_NATIVE_DIALOGS=1
           export DYLD_FRAMEWORK_PATH="$QT_ROOT_DIR/lib"
-          export DYLD_LIBRARY_PATH="$PWD/LAN-Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
+          export DYLD_LIBRARY_PATH="$PWD/LAN Messenger.app/Contents/MacOS:$QT_ROOT_DIR/lib"
           "$GITHUB_WORKSPACE/.venv-robot-ci/bin/robot" \
             --rerunfailed "$GITHUB_WORKSPACE/robot-results-full/output.xml" \
             --outputdir "$GITHUB_WORKSPACE/robot-results-rerun" \
-            -v APP_PATH:"$PWD/LAN-Messenger.app/Contents/MacOS/lan-messenger-test" \
+            -v APP_PATH:"$PWD/LAN Messenger.app/Contents/MacOS/lan-messenger-test" \
             -v LMMD_BIN:"$GITHUB_WORKSPACE/build/tools/lmm/lmmd" \
             "$GITHUB_WORKSPACE/tests/robot/"
 

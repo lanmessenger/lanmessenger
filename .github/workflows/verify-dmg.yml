@@ -55,18 +55,18 @@ jobs:
           echo Y | hdiutil attach "${dmg[0]}" -mountpoint /Volumes/lmc-smoke -nobrowse
           ls -la /Volumes/lmc-smoke
           test -L /Volumes/lmc-smoke/Applications
-          codesign --verify --deep --strict --verbose=2 /Volumes/lmc-smoke/LAN-Messenger.app
-          rm -rf /Applications/LAN-Messenger-smoke.app
-          cp -R /Volumes/lmc-smoke/LAN-Messenger.app /Applications/LAN-Messenger-smoke.app
-          xattr -dr com.apple.quarantine /Applications/LAN-Messenger-smoke.app || true
-          codesign --verify --deep --strict --verbose=2 /Applications/LAN-Messenger-smoke.app
+          codesign --verify --deep --strict --verbose=2 "/Volumes/lmc-smoke/LAN Messenger.app"
+          rm -rf "/Applications/LAN Messenger-smoke.app"
+          cp -R "/Volumes/lmc-smoke/LAN Messenger.app" "/Applications/LAN Messenger-smoke.app"
+          xattr -dr com.apple.quarantine "/Applications/LAN Messenger-smoke.app" || true
+          codesign --verify --deep --strict --verbose=2 "/Applications/LAN Messenger-smoke.app"
 
       - name: Verify bundle layout
         run: |
           set -euo pipefail
-          app=/Applications/LAN-Messenger-smoke.app
+          app="/Applications/LAN Messenger-smoke.app"
           info="$app/Contents/Info.plist"
-          test -x "$app/Contents/MacOS/LAN-Messenger"
+          test -x "$app/Contents/MacOS/LAN Messenger"
           test -d "$app/Contents/Frameworks"
           # The app blocks in the "missing openssl" modal when QSslSocket
           # finds no TLS backend (apprunner.cpp supportsSsl check), so the
@@ -83,13 +83,13 @@ jobs:
           # Regression gate for the missing-LC_RPATH packaging bug: the
           # main binary links Qt via @rpath, so it must carry an RPATH
           # into the bundled Frameworks or dyld aborts at launch.
-          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep '@executable_path/../Frameworks' \
+          otool -l "$app/Contents/MacOS/LAN Messenger" | grep '@executable_path/../Frameworks' \
             || { echo 'missing Frameworks LC_RPATH in main binary' >&2; exit 1; }
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")" = "io.github.lanmessenger.lmc"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN-Messenger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$info")" = "LAN Messenger"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")" = "LAN Messenger"
           exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$info")"
-          test "$exe" = "LAN-Messenger"
+          test "$exe" = "LAN Messenger"
           test -x "$app/Contents/MacOS/$exe"
           short="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")"
           build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")"
@@ -115,7 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           export USER=ci
-          bin=/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger
+          bin="/Applications/LAN Messenger-smoke.app/Contents/MacOS/LAN Messenger"
           python3 - "$bin" <<'EOF'
           import subprocess, sys
           try:
@@ -134,8 +134,8 @@ jobs:
       - name: Smoke launch via LaunchServices
         run: |
           set -euo pipefail
-          app=/Applications/LAN-Messenger-smoke.app
-          bin="$app/Contents/MacOS/LAN-Messenger"
+          app="/Applications/LAN Messenger-smoke.app"
+          bin="$app/Contents/MacOS/LAN Messenger"
           python3 - "$app" "$bin" <<'EOF'
           import subprocess, sys
           app, bin = sys.argv[1], sys.argv[2]
@@ -155,7 +155,7 @@ jobs:
           # really processed --args /quit: no lingering process and no
           # single-instance lock left behind.
           lingering = subprocess.run(
-            ['pgrep', '-x', 'LAN-Messenger'],
+            ['pgrep', '-x', 'LAN Messenger'],
             capture_output=True, text=True)
           if lingering.returncode == 0:
             print(f'LS instance still running: {lingering.stdout.strip()}', file=sys.stderr)
@@ -172,21 +172,21 @@ jobs:
       - name: Dump bundle linkage on failure
         if: failure()
         run: |
-          app=/Applications/LAN-Messenger-smoke.app
+          app="/Applications/LAN Messenger-smoke.app"
           ls "$app/Contents/Frameworks" || true
           ls "$app/Contents/PlugIns" || true
-          otool -L "$app/Contents/MacOS/LAN-Messenger" || true
-          otool -l "$app/Contents/MacOS/LAN-Messenger" | grep -A2 LC_RPATH || echo 'no LC_RPATH found'
+          otool -L "$app/Contents/MacOS/LAN Messenger" || true
+          otool -l "$app/Contents/MacOS/LAN Messenger" | grep -A2 LC_RPATH || echo 'no LC_RPATH found'
           codesign --verify --deep --strict --verbose=4 "$app" || true
           /usr/libexec/PlistBuddy -c 'Print' "$app/Contents/Info.plist" || true
 
       - name: Uninstall test app
         if: always()
         run: |
-          bin=/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger
+          bin="/Applications/LAN Messenger-smoke.app/Contents/MacOS/LAN Messenger"
           # Graceful close first (covers cold /termwait when nothing runs);
           # pkill stays as a fallback for a wedged instance.
           "$bin" /termwait || true
-          pkill -f '/Applications/LAN-Messenger-smoke.app/Contents/MacOS/LAN-Messenger' || true
-          rm -rf /Applications/LAN-Messenger-smoke.app
+          pkill -f '/Applications/LAN Messenger-smoke.app/Contents/MacOS/LAN Messenger' || true
+          rm -rf "/Applications/LAN Messenger-smoke.app"
           hdiutil detach /Volumes/lmc-smoke -force || true

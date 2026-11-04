@@ -87,7 +87,10 @@ int lmcRunApplication(int argc, char* argv[],
   Application application(appId, argc, argv);
 
   // Org/app before the resource resolve (QStandardPaths fallback).
+  // applicationName/organization* stay machine ids (QSettings paths);
+  // what the user sees (notably the macOS app menu) is DisplayName.
   QApplication::setApplicationName(IDA_PRODUCT);
+  QApplication::setApplicationDisplayName(IDA_TITLE);
   QApplication::setOrganizationName(IDA_COMPANY);
   QApplication::setOrganizationDomain(QStringLiteral(IDA_DOMAIN_HOST));
   QApplication::setDesktopFileName(QStringLiteral(LMC_DESKTOP_ID));

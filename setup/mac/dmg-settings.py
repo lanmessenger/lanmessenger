@@ -23,14 +23,13 @@ volume_name = 'LAN Messenger'
 format = 'UDBZ'
 filesystem = 'HFS+'
 
-# Bundle file keeps the hyphen (LAN-Messenger.app); the volume and the
-# Finder/Launchpad display name use the space ("LAN Messenger").
-files = [os.path.join(MACDIR, 'LAN-Messenger.app')]
+# Bundle, volume and Finder/Launchpad display name are all "LAN Messenger".
+files = [os.path.join(MACDIR, 'LAN Messenger.app')]
 symlinks = {'Applications': '/Applications'}
 
 # Former createdisk osascript layout, now declarative.
 icon_locations = {
-    'LAN-Messenger.app': (160, 205),
+    'LAN Messenger.app': (160, 205),
     'Applications': (360, 205),
 }
 icon_size = 72

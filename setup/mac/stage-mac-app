@@ -1,5 +1,5 @@
 #!/bin/bash
-# Prepare LAN-Messenger.app for DMG packaging: copy the release bundle,
+# Prepare LAN Messenger.app for DMG packaging: copy the release bundle,
 # deploy the Qt frameworks and fix library lookup paths.
 # No mounting, no Finder scripting; the image itself is built by dmgbuild
 # (see dmg-settings.py).
@@ -7,8 +7,8 @@ set -euo pipefail
 
 : "${QTDIR:?QTDIR must point at the Qt installation}"
 
-APP="LAN-Messenger.app"
-EXECUTABLE="LAN-Messenger"
+APP="LAN Messenger.app"
+EXECUTABLE="LAN Messenger"
 
 # Drop leftovers from a previous run so reruns are idempotent.
 rm -rf "$APP"

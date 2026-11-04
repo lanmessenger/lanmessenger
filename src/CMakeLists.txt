@@ -225,15 +225,15 @@ elseif(APPLE)
     if(NOT LMC_MACOS_BUNDLE_VERSION MATCHES "^[0-9]+(\\.[0-9]+)*$")
         set(LMC_MACOS_BUNDLE_VERSION "${LMC_MACOS_SHORT_VERSION}")
     endif()
-    # File names stay LAN-Messenger (bundle dir, executable); CFBundleName
-    # is the short name. What the user sees in Finder/Launchpad/Spotlight
-    # is CFBundleDisplayName (see setup/mac/Info.plist.in).
+    # Bundle dir, executable, CFBundleName and CFBundleDisplayName are all
+    # "LAN Messenger" (see setup/mac/Info.plist.in). Machine ids stay
+    # lowercase: the lmc target and the lan-messenger-test helper binary.
     set(LMC_MACOS_DISPLAY_NAME "LAN Messenger")
     set_target_properties(lmc PROPERTIES
-        OUTPUT_NAME "LAN-Messenger"
+        OUTPUT_NAME "LAN Messenger"
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE lmc.icns
-        MACOSX_BUNDLE_BUNDLE_NAME "LAN-Messenger"
+        MACOSX_BUNDLE_BUNDLE_NAME "LAN Messenger"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../setup/mac/Info.plist.in"
         MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.lanmessenger.lmc"
         MACOSX_BUNDLE_BUNDLE_VERSION "${LMC_MACOS_BUNDLE_VERSION}"
@@ -374,8 +374,8 @@ add_dependencies(lmc lmc_runtime_files)
 # on Linux it comes from the distro packages (see setup/linux/nfpm.yaml).
 # ---------------------------------------------------------------------------
 if(APPLE)
-    # macOS: everything goes into LAN-Messenger.app/Contents/MacOS.
-    set(LMC_LAYOUT_BIN_DIR LAN-Messenger.app/Contents/MacOS)
+    # macOS: everything goes into LAN Messenger.app/Contents/MacOS.
+    set(LMC_LAYOUT_BIN_DIR "LAN Messenger.app/Contents/MacOS")
     set(LMC_LAYOUT_LICENSE COPYING)
 elseif(WIN32)
     # Windows: the license file is named COPYING.txt.
@@ -392,15 +392,15 @@ else()
     install(TARGETS lmc RUNTIME DESTINATION .)
 endif()
 
-install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION ${LMC_LAYOUT_BIN_DIR})
+install(FILES ${LMC_RUNTIME_DIR}/lmc.rcc DESTINATION "${LMC_LAYOUT_BIN_DIR}")
 # The app's own lang/*.qm (lrelease) plus Qt's lang/system/*.qm (copied at
 # configure time from the Qt used for the build).
-install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION ${LMC_LAYOUT_BIN_DIR}/lang
+install(DIRECTORY ${LMC_RUNTIME_DIR}/lang/ DESTINATION "${LMC_LAYOUT_BIN_DIR}/lang"
         FILES_MATCHING PATTERN "*.qm")
 # Notification sounds. Chat themes ship embedded (:/themes) + user dir,
 # not staged here.
-install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION ${LMC_LAYOUT_BIN_DIR})
-install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION ${LMC_LAYOUT_BIN_DIR}
+install(DIRECTORY ${LMC_RES_DIR}/sounds DESTINATION "${LMC_LAYOUT_BIN_DIR}")
+install(FILES ${LMC_RES_DIR}/text/license.txt DESTINATION "${LMC_LAYOUT_BIN_DIR}"
         RENAME ${LMC_LAYOUT_LICENSE})
 
 if(WIN32)

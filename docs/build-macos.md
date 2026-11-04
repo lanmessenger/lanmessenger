@@ -11,23 +11,22 @@ configuring.
 ## Build
 
 The build is driven by CMake. The `package-local` target stages
-`LAN-Messenger.app` into the `LMC_RELEASE_DIR` directory (defaults to
-`<build-dir>/release`; use `release` for the packaging scripts). The
-bundle file and the executable keep the hyphen; in Finder, Launchpad,
-and Spotlight the app appears as LAN Messenger (via `CFBundleDisplayName`,
-see `setup/mac/Info.plist.in`):
+`LAN Messenger.app` into the `LMC_RELEASE_DIR` directory (defaults to
+`<build-dir>/release`; use `release` for the packaging scripts). Bundle,
+executable, `CFBundleName` and `CFBundleDisplayName` are all LAN Messenger
+(see `setup/mac/Info.plist.in`):
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLMC_RELEASE_DIR="$PWD/release"
 cmake --build build --config Release --target package-local --parallel
 ```
 
-No helper library ships inside `LAN-Messenger.app/Contents/MacOS`. The Qt
+No helper library ships inside `LAN Messenger.app/Contents/MacOS`. The Qt
 frameworks and plugins are collected by `stage-mac-app` via `macdeployqt`
 (the app points the plugin paths at the bundled `PlugIns` only
 when `Contents/PlugIns/platforms` and `Contents/PlugIns/tls` exist,
 see `setLibraryPaths` in `src/app/apprunner.cpp`). A bare
-`release/LAN-Messenger.app` runs against the build Qt (dev launch); the DMG
+`release/LAN Messenger.app` runs against the build Qt (dev launch); the DMG
 after `stage-mac-app` runs against the bundled Qt.
 
 ## Installer (DMG)
@@ -61,8 +60,8 @@ The DMG is ad-hoc signed and not notarized. After dragging the app to
 attribute once and open the app:
 
 ```bash
-sudo xattr -dr com.apple.quarantine "/Applications/LAN-Messenger.app"
-open "/Applications/LAN-Messenger.app"
+sudo xattr -dr com.apple.quarantine "/Applications/LAN Messenger.app"
+open "/Applications/LAN Messenger.app"
 ```
 
 A manual `codesign` is not needed. Removing the Gatekeeper warning
