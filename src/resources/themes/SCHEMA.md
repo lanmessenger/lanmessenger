@@ -21,8 +21,8 @@ Three forms, everywhere a color is accepted:
   invalidates the theme.
 - `"transparent"` is allowed only as a body/fileCard `bg` (system look).
 - A pair mixes either two solids or two gradients, never one of each.
-- Gradients are accepted only for `bg`. `border`/`textColor`/`senderColor`/
-  `timeColor` take the solid forms only.
+- Gradients are accepted only for `bg`. `border`/`textColor`/`linkColor`/
+  `senderColor`/`timeColor` take the solid forms only.
 
 ## Top level
 
@@ -34,14 +34,13 @@ Three forms, everywhere a color is accepted:
 | `avatar` | object | see below |
 | `header` | object | see below |
 | `text` | color | default body text, both forms |
-| `link` | color | links and the focus ring, both forms |
 | `page` | color | view fill, both forms |
 | `layout_incoming/outgoing[/_next]/system/broadcast/request` | object | all 7 required; each layout is a single root object holding exactly one rect: one `body` or `fileCard` node (the delegate always paints one). `layout_incoming_next`/`layout_outgoing_next` carry the in-series look: no header/avatar nodes, dense top gap. Missing layout falls back to `layout_incoming` + a log line. |
 
 Key rule: structural keys (`type`, layout name, `gap`,
-global `text`/`link`/`page`,
+global `text`/`page`,
 `header.senderColor`/`header.timeColor`) are required; overrides
-(node `senderColor`/`timeColor`/`textColor`/`border`/`bg`/
+(node `senderColor`/`timeColor`/`textColor`/`linkColor`/`border`/`bg`/
 `corners`/`padding`/`shadow`/`marginTop`/`maxWidthPct`,
 `viewPadding`) are optional-with-default
 (absent `bg` = `transparent`; absent `padding`/`shadow`/`marginTop` =
@@ -104,7 +103,8 @@ key invalidates the theme.
   `incoming` shows both, `outgoing` shows time).
 - Rect (`body`/`fileCard`) `bg`: optional — solid, transparent, or
   per-mode gradient pair (default `transparent`: flat text on the page).
-- Rect `textColor` / `border`: optional literal overrides.
+- Rect `textColor` / `linkColor` / `border`: `linkColor` is required
+  (link + focus ring); `textColor` / `border` are optional overrides.
 - Rect metrics: `padding` (4 ints ≥ 0 `[top, right, bottom,
   left]`, default `[0, 0, 0, 0]`), `shadow` (`[dx, dy, opacity]`,
   opacity 0..1; hard flat offset silhouette, black shadow, no blur:
@@ -135,8 +135,8 @@ key invalidates the theme.
 ## Errors
 
 Invalid JSON, `version != 1`, missing layout, layout as array, layout without a rect,
-bad color form, mixed solid/gradient pair, `transparent` outside rect `bg`,
-gradient outside `bg`, color/metric keys on the wrong node, `tail` keys
-present, bad rect numbers, depth > 4, unknown `type`, bad `corners` —
+missing rect `linkColor`, stale global `link`, bad color form, mixed solid/gradient pair,
+`transparent` outside rect `bg`, gradient outside `bg`, color/metric keys on the wrong node,
+`tail` keys present, bad rect numbers, depth > 4, unknown `type`, bad `corners` —
 the theme is invalid: built-in default + a log line, chat stays up.
 Validator unit test lives in S (otherwise it drifts from L).

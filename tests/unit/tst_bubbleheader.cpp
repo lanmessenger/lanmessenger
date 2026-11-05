@@ -14,6 +14,8 @@
 #include <QPainter>
 #include <QStyleOptionViewItem>
 
+#include <functional>
+
 #include "core/definitions.h"
 #include "core/theme.h"
 #include "gui/chat/bubbledelegate.h"
@@ -109,7 +111,11 @@ void TstBubbleHeader::headerFollowsLocalSize() {
 
 void TstBubbleHeader::shippedHeaderColorsResolve() {
   //  Header colors are literals now: both modes resolve on every theme.
+  //  Links live per rect: every layout rect carries a linkColor for both modes.
   const char* names[] = {"ClassicSlate", "MeshBlue", "NordicTerminal"};
+  const char* layouts[] = {"layout_incoming", "layout_incoming_next", "layout_outgoing",
+                           "layout_outgoing_next", "layout_system", "layout_broadcast",
+                           "layout_request"};
   for(const char* n : names) {
     QFile f(QString::fromLatin1(":/themes/%1.json").arg(QString::fromLatin1(n)));
     QVERIFY(f.open(QIODevice::ReadOnly));
@@ -120,8 +126,24 @@ void TstBubbleHeader::shippedHeaderColorsResolve() {
     QVERIFY(Theme::pick(t.header.timeColor, false).isValid());
     QVERIFY(Theme::pick(t.header.timeColor, true).isValid());
     QVERIFY(Theme::pick(t.text, false).isValid());
-    QVERIFY(Theme::pick(t.link, true).isValid());
     QVERIFY(Theme::pick(t.page, false).isValid());
+    for(const char* layout : layouts) {
+      const Theme::LayoutNode& root = t.compiledLayout(QString::fromLatin1(layout));
+      const Theme::LayoutNode* rect = nullptr;
+      std::function<void(const Theme::LayoutNode&)> find = [&](const Theme::LayoutNode& node) {
+        if(node.type == Theme::LayoutNode::Type::Body ||
+           node.type == Theme::LayoutNode::Type::FileCard)
+          rect = &node;
+        for(const Theme::LayoutNode& c : node.children)
+          find(c);
+      };
+      find(root);
+      QVERIFY2(rect != nullptr, qPrintable(QString::fromLatin1("%1 %2 without rect").arg(n, layout)));
+      QVERIFY2(rect->hasLinkColor,
+               qPrintable(QString::fromLatin1("%1 %2 without linkColor").arg(n, layout)));
+      QVERIFY(Theme::pick(rect->linkColor, false).isValid());
+      QVERIFY(Theme::pick(rect->linkColor, true).isValid());
+    }
   }
 }
 

@@ -10,6 +10,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QStyleOptionViewItem>
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QTextLayout>
 
@@ -54,6 +55,35 @@ QString renderedColor(ChatMessageModel& model, int row, Theme::Mode mode) {
   d.setMode(mode, false);
   QModelIndex idx = model.index(row, 0);
   return d.rowHtml(idx, d.resolveRow(idx));
+}
+
+XmlMessage linkMessage(const QString& text) {
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_MESSAGE, text);
+  return m;
+}
+
+//  Rendered anchor color, built exactly like BubbleDelegate::entryFor:
+//  per-row stylesheet first, then the row HTML.
+QColor renderedLinkColor(ChatMessageModel& model, int row, Theme::Mode mode) {
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  BubbleDelegate d;
+  d.setTheme(t);
+  d.setMode(mode, false);
+  QModelIndex idx = model.index(row, 0);
+  BubbleDelegate::ResolvedRow resolved = d.resolveRow(idx);
+  QTextDocument doc;
+  doc.setDefaultStyleSheet(d.linkStyleSheet(resolved));
+  doc.setHtml(d.rowHtml(idx, resolved));
+  for(QTextBlock block = doc.begin(); block != doc.end(); block = block.next()) {
+    for(QTextBlock::iterator it = block.begin(); !it.atEnd(); ++it) {
+      QTextFragment fragment = it.fragment();
+      if(fragment.isValid() && fragment.charFormat().isAnchor())
+        return fragment.charFormat().foreground().color();
+    }
+  }
+  return QColor();
 }
 
 int saturatedPixels(const QImage& img) {
@@ -106,6 +136,7 @@ private slots:
   void rowHtmlExplicitTransparentFallback();
   void rowHtmlEmojiPassthrough();
   void rowHtmlEmojiColor();
+  void renderedLinkColorPerBubble();
   void emojiHighlighterUsesWidgetBaseFamily();
 };
 
@@ -288,6 +319,7 @@ void TstChatTextGuard::rowHtmlExplicitTransparentFallback() {
   row.card = QStringLiteral("incoming");
   row.text = Theme::DualColor{QColor(QStringLiteral("#0F172A")),
                               QColor(QStringLiteral("#E2E8F0"))};
+  row.link = row.text;
   row.bg.kind = Theme::Bg::Kind::Transparent;
   QModelIndex idx = model.index(0, 0);
   QString html = d.rowHtml(idx, row);
@@ -349,6 +381,33 @@ void TstChatTextGuard::rowHtmlEmojiColor() {
   plainModel.appendMessageLog(MT_Message, &peer, &peerName, &plainMsg);
 
   QVERIFY(paintRowSaturated(emojiModel, 0) > paintRowSaturated(plainModel, 0));
+}
+
+void TstChatTextGuard::renderedLinkColorPerBubble() {
+  //  Anchors render in the per-bubble link color. The old <style> inject
+  //  never reached anchor fragments, so every card painted the palette
+  //  default: same color everywhere, in both modes.
+  ChatMessageModel model;
+  QString peer = QStringLiteral("peer");
+  QString peerName = QStringLiteral("Peer");
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  model.localId = me;
+  XmlMessage incoming = linkMessage(QStringLiteral("see https://example.com"));
+  model.appendMessageLog(MT_Message, &peer, &peerName, &incoming);
+  XmlMessage outgoing = linkMessage(QStringLiteral("see https://example.com"));
+  model.appendMessageLog(MT_Message, &me, &meName, &outgoing);
+  QColor incomingLight = renderedLinkColor(model, 0, Theme::Mode::Light);
+  QColor outgoingLight = renderedLinkColor(model, 1, Theme::Mode::Light);
+  QVERIFY(incomingLight.isValid());
+  QVERIFY(outgoingLight.isValid());
+  QCOMPARE(incomingLight, QColor(QStringLiteral("#0284c7")));
+  QCOMPARE(outgoingLight, QColor(QStringLiteral("#ffe082")));
+  QVERIFY(incomingLight != outgoingLight);
+  QCOMPARE(renderedLinkColor(model, 0, Theme::Mode::Dark),
+           QColor(QStringLiteral("#38bdf8")));
+  QCOMPARE(renderedLinkColor(model, 1, Theme::Mode::Dark),
+           QColor(QStringLiteral("#ffe082")));
 }
 
 void TstChatTextGuard::emojiHighlighterUsesWidgetBaseFamily() {

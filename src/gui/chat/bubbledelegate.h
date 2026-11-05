@@ -84,6 +84,9 @@ public:
   void selectAllText(const QModelIndex& index, const QStyleOptionViewItem& option);
   //  Final row HTML. Public for tests.
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
+  //  Per-row link color: set via setDefaultStyleSheet() before setHtml().
+  //  Public for tests.
+  QString linkStyleSheet(const ResolvedRow& row) const;
 
 private:
   struct CacheEntry {

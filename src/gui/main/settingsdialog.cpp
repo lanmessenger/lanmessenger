@@ -313,7 +313,8 @@ void lmcSettingsDialog::refreshPreview(void) {
   pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
   msg.removeData(XN_MESSAGE);
-  msg.addData(XN_MESSAGE, "Hello, this is a consecutive incoming message.");
+  msg.addData(XN_MESSAGE, "Hello, this is a consecutive incoming message with a link: "
+                          "https://example.com");
   pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
   msg.removeData(XN_MESSAGE);
@@ -328,7 +329,8 @@ void lmcSettingsDialog::refreshPreview(void) {
   pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
   msg.removeData(XN_MESSAGE);
-  msg.addData(XN_MESSAGE, "Hi, this is a consecutive outgoing message.");
+  msg.addData(XN_MESSAGE, "Hi, this is a consecutive outgoing message with a link: "
+                          "https://example.com");
   pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
   userId = "Jack";

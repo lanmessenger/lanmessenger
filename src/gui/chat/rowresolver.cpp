@@ -36,7 +36,9 @@ ResolvedRow RowResolver::resolve(const Theme& theme, const QString& card, bool g
   ResolvedRow r;
   r.card = card;
   //  Theme defaults first; layout nodes override below.
+  //  Fallback theme.text (valid rects always carry linkColor).
   r.text = theme.text;
+  r.link = theme.text;
   r.senderColor = theme.header.senderColor;
   r.timeColor = theme.header.timeColor;
   r.bg.kind = Theme::Bg::Kind::Solid;
@@ -92,6 +94,7 @@ ResolvedRow RowResolver::resolve(const Theme& theme, const QString& card, bool g
     } else if(c.type == Theme::LayoutNode::Type::Body ||
               c.type == Theme::LayoutNode::Type::FileCard) {
       r.text = c.hasTextColor ? c.textColor : theme.text;
+      r.link = c.hasLinkColor ? c.linkColor : theme.text;
       if(c.hasBg)
         r.bg = c.bg;
       for(int i = 0; i < 4; i++)

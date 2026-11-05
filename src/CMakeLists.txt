@@ -247,12 +247,15 @@ endif()
 # <appdir>/lmc.rcc, <appdir>/../share/lmc/lmc.rcc (Unix-only) or <datadir>/lmc/lmc.rcc
 # (StdLocation::resourceFile()) and registered via QResource::registerResource.
 # The 1st role — embedding into the binary — is done by AUTORCC (resource.qrc in the sources).
+# Themes override embedded resources, so track content changes.
+file(GLOB_RECURSE LMC_RCC_INPUTS CONFIGURE_DEPENDS
+     ${CMAKE_CURRENT_SOURCE_DIR}/resources/*)
 add_custom_command(
     OUTPUT ${LMC_RUNTIME_DIR}/lmc.rcc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${LMC_RUNTIME_DIR}
     COMMAND Qt6::rcc -binary ${CMAKE_CURRENT_SOURCE_DIR}/resource.qrc
             -o ${LMC_RUNTIME_DIR}/lmc.rcc
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resource.qrc
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resource.qrc ${LMC_RCC_INPUTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Building external resource bundle lmc.rcc"
     VERBATIM

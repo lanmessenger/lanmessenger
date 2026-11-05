@@ -202,7 +202,6 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
   bool fontExplicit = index.data(ChatMessageModel::FontRole).isValid();
   QString style = RowHtmlBuilder::fontStyleFor(font, color, display.fontSizeVal, own,
                                                fontExplicit);
-  QString linkColorName = Theme::pick(theme.link, darkMode).name();
   QString body;
   if(isFile) {
     body = fileCardHtml(index);
@@ -211,8 +210,15 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
                                       display.trimMessage, display.allowLinks,
                                       display.pathToLink, font.family());
   }
-  return QStringLiteral("<div style='%1'>%2</div>").arg(style, body) +
-         QStringLiteral("<style>a { color: %1; }</style>").arg(linkColorName);
+  return QStringLiteral("<div style='%1'>%2</div>").arg(style, body);
+}
+
+QString BubbleDelegate::linkStyleSheet(const ResolvedRow& row) const {
+  const bool darkMode = Theme::isDark(mode, systemDark);
+  const QColor color = Theme::pick(row.link, darkMode);
+  if(!color.isValid())
+    return {};
+  return QStringLiteral("a { color: %1 }").arg(color.name());
 }
 
 int BubbleDelegate::viewWidth(const QStyleOptionViewItem& option) const {
@@ -282,6 +288,7 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.width = viewportWidth;
   e.doc = new QTextDocument(const_cast<BubbleDelegate*>(this));
   ResolvedRow row = resolveRow(index);
+  e.doc->setDefaultStyleSheet(linkStyleSheet(row));
   e.doc->setHtml(rowHtml(index, row));
   const int contentW =
     BubbleGeometry::contentWidth(row, viewportWidth, theme.avatar.size);
@@ -451,7 +458,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   if(index.row() == focusRow && !focusHref.isEmpty()) {
     QRect focusRect = anchorRect(focusHref, option, index);
     if(!focusRect.isEmpty()) {
-      painter->setPen(QPen(Theme::pick(theme.link, darkMode), 2));
+      painter->setPen(QPen(Theme::pick(row.link, darkMode), 2));
       painter->setBrush(Qt::NoBrush);
       painter->drawRoundedRect(focusRect.adjusted(-2, -1, 2, 1), 3, 3);
     }

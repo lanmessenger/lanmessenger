@@ -21,32 +21,39 @@ QByteArray validJson() {
                "senderColor": ["#6B7280", "#9AA0A6"],
                "timeColor": ["#6B7280", "#9AA0A6"]},
     "text": ["#1A1D21", "#E8EAED"],
-    "link": ["#0B5FFF", "#8AB4F8"],
     "page": ["#EDEFF2", "#131518"],
     "layout_incoming": {"type": "hbox", "gap": 8, "children": [
       {"type": "avatar"},
       {"type": "vbox", "gap": 2, "stretch": 1, "children": [
         {"type": "header", "items": ["sender", "time"], "senderColor": ["#1A1D21", "#E8EAED"]},
-        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}]},
+        {"type": "body", "corners": [12, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "linkColor": ["#0B5FFF", "#8AB4F8"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}]},
     "layout_incoming_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [4, 12, 12, 4], "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "linkColor": ["#0B5FFF", "#8AB4F8"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
     "layout_outgoing": {"type": "vbox", "gap": 2, "children": [
       {"type": "header", "items": ["time"]},
-      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [12, 12, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "linkColor": "#0033CC", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_outgoing_next": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
+      {"type": "body", "corners": [12, 4, 4, 12], "bg": ["gradient(#D9F2C7, #C9E8B4)", "gradient(#1D4D2B, #1A4527)"], "textColor": "#1A1D21", "linkColor": "#0033CC", "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 2, "maxWidthPct": 75}]},
     "layout_system": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "bg": "transparent", "textColor": ["#6B7280", "#9AA0A6"], "linkColor": ["#0B5FFF", "#8AB4F8"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_broadcast": {"type": "vbox", "gap": 0, "children": [
-      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
+      {"type": "body", "bg": ["#E6F4EA", "#1A2E22"], "border": ["#2F9E44", "#3FB950"], "linkColor": ["#0B5FFF", "#8AB4F8"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]},
     "layout_request": {"type": "vbox", "gap": 0, "children": [
-      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}
+      {"type": "fileCard", "bg": ["gradient(#FFFFFF, #F1F4F8)", "gradient(#1F242B, #262D36)"], "border": ["#D8DEE5", "#3A424C"], "linkColor": ["#0B5FFF", "#8AB4F8"], "padding": [8, 10, 8, 10], "shadow": [0, 2, 0.18], "marginTop": 6, "maxWidthPct": 75}]}
   })JSON");
 }
 
 QByteArray withReplaced(const QByteArray& base, const QByteArray& from, const QByteArray& to) {
   QByteArray out = base;
   out.replace(from, to);
+  return out;
+}
+
+QByteArray withReplacedOnce(const QByteArray& base, const QByteArray& from, const QByteArray& to) {
+  QByteArray out = base;
+  const int at = out.indexOf(from);
+  if(at >= 0)
+    out.replace(at, from.size(), to);
   return out;
 }
 
@@ -78,6 +85,9 @@ private slots:
   void globalColorsParsed();
   void missingGlobalColorRejected();
   void badGlobalColorRejected();
+  void staleGlobalLinkRejected();
+  void linkColorParsed();
+  void linkColorRequired();
   void rectMarginTopParsed();
   void badMarginTopRejected();
   void splitEraShapesRejected();
@@ -249,14 +259,12 @@ void TstTheme::globalColorsParsed() {
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   QCOMPARE(t.text.light, QColor(QStringLiteral("#1A1D21")));
   QCOMPARE(t.text.dark, QColor(QStringLiteral("#E8EAED")));
-  QCOMPARE(t.link.light, QColor(QStringLiteral("#0B5FFF")));
-  QCOMPARE(t.link.dark, QColor(QStringLiteral("#8AB4F8")));
   QCOMPARE(t.page.light, QColor(QStringLiteral("#EDEFF2")));
   QCOMPARE(t.page.dark, QColor(QStringLiteral("#131518")));
 }
 
 void TstTheme::missingGlobalColorRejected() {
-  for(const char* key : {"\"text\"", "\"link\"", "\"page\""}) {
+  for(const char* key : {"\"text\"", "\"page\""}) {
     QByteArray base = validJson();
     //  Cut the whole line: "key": [...],
     int at = base.indexOf(QByteArray("\n    ") + key + ":");
@@ -274,6 +282,39 @@ void TstTheme::badGlobalColorRejected() {
     Theme t = Theme::loadFromJson(colored);
     QVERIFY2(!t.isValid, bad);
   }
+}
+
+void TstTheme::staleGlobalLinkRejected() {
+  //  Links moved into the bubble: a top-level link key invalidates the theme.
+  QByteArray linked = withReplaced(validJson(), "\"page\": [\"#EDEFF2\", \"#131518\"]",
+                                   "\"page\": [\"#EDEFF2\", \"#131518\"],\n    "
+                                   "\"link\": [\"#0B5FFF\", \"#8AB4F8\"]");
+  QVERIFY(!Theme::loadFromJson(linked).isValid);
+}
+
+void TstTheme::linkColorParsed() {
+  //  Per-bubble links: incoming carries the pair, outgoing the bare hex.
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  const Theme::LayoutNode& in = incomingBody(t);
+  QVERIFY(in.hasLinkColor);
+  QCOMPARE(in.linkColor.light, QColor(QStringLiteral("#0B5FFF")));
+  QCOMPARE(in.linkColor.dark, QColor(QStringLiteral("#8AB4F8")));
+  const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+  const Theme::LayoutNode& out = outgoing.children.at(1);
+  QVERIFY(out.hasLinkColor);
+  QCOMPARE(out.linkColor.light, QColor(QStringLiteral("#0033CC")));
+  QCOMPARE(out.linkColor.dark, QColor(QStringLiteral("#0033CC")));
+}
+
+void TstTheme::linkColorRequired() {
+  //  Every rect carries its own link color: a missing key invalidates.
+  QByteArray noLink =
+    withReplacedOnce(validJson(), ", \"linkColor\": [\"#0B5FFF\", \"#8AB4F8\"]", "");
+  QVERIFY(!Theme::loadFromJson(noLink).isValid);
+  QByteArray noOutLink =
+    withReplacedOnce(validJson(), ", \"linkColor\": \"#0033CC\"", "");
+  QVERIFY(!Theme::loadFromJson(noOutLink).isValid);
 }
 
 void TstTheme::rectMarginTopParsed() {
@@ -605,6 +646,9 @@ void TstTheme::transparentOutsideBgRejected() {
   QByteArray inText = withReplaced(validJson(), "\"textColor\": [\"#6B7280\", \"#9AA0A6\"]",
                                    "\"textColor\": \"transparent\"");
   QVERIFY(!Theme::loadFromJson(inText).isValid);
+  QByteArray inLink = withReplaced(validJson(), "\"linkColor\": [\"#0B5FFF\", \"#8AB4F8\"]",
+                                   "\"linkColor\": \"transparent\"");
+  QVERIFY(!Theme::loadFromJson(inLink).isValid);
   QByteArray inBorder = withReplaced(validJson(), "\"border\": [\"#2F9E44\", \"#3FB950\"]",
                                      "\"border\": \"transparent\"");
   QVERIFY(!Theme::loadFromJson(inBorder).isValid);
@@ -654,10 +698,13 @@ void TstTheme::gradientWhitespaceAccepted() {
 }
 
 void TstTheme::gradientOutsideBgRejected() {
-  //  Gradients paint fills only: text, border and header colors take solids.
+  //  Gradients paint fills only: text, link, border and header colors take solids.
   QByteArray inText = withReplaced(validJson(), "\"textColor\": \"#1A1D21\"",
                                    "\"textColor\": \"gradient(#1A1D21, #E8EAED)\"");
   QVERIFY(!Theme::loadFromJson(inText).isValid);
+  QByteArray inLink = withReplaced(validJson(), "\"linkColor\": \"#0033CC\"",
+                                   "\"linkColor\": \"gradient(#0033CC, #0033CC)\"");
+  QVERIFY(!Theme::loadFromJson(inLink).isValid);
   QByteArray inBorder = withReplaced(
     validJson(), "\"border\": [\"#2F9E44\", \"#3FB950\"]",
     "\"border\": [\"gradient(#2F9E44, #1A2E22)\", \"gradient(#3FB950, #1A2E22)\"]");
@@ -672,8 +719,9 @@ void TstTheme::missingBgDefaulted() {
   //  Absent bg = transparent (flat text on the page).
   QByteArray noBg = withReplaced(
     validJson(),
-    "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"], \"padding\"",
-    "\"padding\"");
+    "\"bg\": [\"gradient(#FFFFFF, #F1F4F8)\", \"gradient(#1F242B, #262D36)\"], "
+    "\"linkColor\": [\"#0B5FFF\", \"#8AB4F8\"], \"padding\"",
+    "\"linkColor\": [\"#0B5FFF\", \"#8AB4F8\"], \"padding\"");
   Theme t = Theme::loadFromJson(noBg);
   QVERIFY2(t.isValid, qPrintable(t.errorString));
   const Theme::LayoutNode& rect = incomingBody(t);
@@ -772,12 +820,16 @@ void TstTheme::tailRejected() {
 }
 
 void TstTheme::colorKeyOnWrongNodeRejected() {
-  //  Keys name the painted element: bg/text/border/metrics live on
+  //  Keys name the painted element: bg/text/link/border/metrics live on
   //  body/fileCard, sender/time on headers, tails nowhere.
   QByteArray bgOnHeader = withReplaced(
     validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
     "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"bg\": \"#FFFFFF\"");
   QVERIFY(!Theme::loadFromJson(bgOnHeader).isValid);
+  QByteArray linkOnHeader = withReplaced(
+    validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
+    "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"linkColor\": \"#FFFFFF\"");
+  QVERIFY(!Theme::loadFromJson(linkOnHeader).isValid);
   QByteArray senderOnRect = withReplaced(
     validJson(), "\"textColor\": \"#1A1D21\"",
     "\"textColor\": \"#1A1D21\", \"senderColor\": \"#FFFFFF\"");
@@ -785,6 +837,9 @@ void TstTheme::colorKeyOnWrongNodeRejected() {
   QByteArray textOnAvatar = withReplaced(validJson(), "{\"type\": \"avatar\"}",
                                          "{\"type\": \"avatar\", \"textColor\": \"#FFFFFF\"}");
   QVERIFY(!Theme::loadFromJson(textOnAvatar).isValid);
+  QByteArray linkOnAvatar = withReplaced(validJson(), "{\"type\": \"avatar\"}",
+                                         "{\"type\": \"avatar\", \"linkColor\": \"#FFFFFF\"}");
+  QVERIFY(!Theme::loadFromJson(linkOnAvatar).isValid);
   QByteArray tailOnHeader = withReplaced(
     validJson(), "{\"type\": \"header\", \"items\": [\"sender\", \"time\"]",
     "{\"type\": \"header\", \"items\": [\"sender\", \"time\"], \"tail\": \"left\"");
@@ -807,7 +862,7 @@ void TstTheme::layoutWithoutRectRejected() {
   //  The delegate always paints one rect: a layout without body/fileCard
   //  is invalid.
   QByteArray noRect = withReplaced(
-    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}",
+    validJson(), "{\"type\": \"body\", \"bg\": \"transparent\", \"textColor\": [\"#6B7280\", \"#9AA0A6\"], \"linkColor\": [\"#0B5FFF\", \"#8AB4F8\"], \"padding\": [8, 10, 8, 10], \"shadow\": [0, 2, 0.18], \"marginTop\": 6, \"maxWidthPct\": 75}",
     "{\"type\": \"header\", \"items\": [\"time\"]}");
   Theme t = Theme::loadFromJson(noRect);
   QVERIFY(!t.isValid);
@@ -884,6 +939,13 @@ void TstTheme::shippedMeshBlueSpotCheck() {
   QVERIFY(out.hasTextColor);
   QCOMPARE(out.textColor.light, QColor(QStringLiteral("#FFFFFF")));
   QCOMPARE(out.textColor.dark, QColor(QStringLiteral("#FFFFFF")));
+  //  Per-bubble links: incoming keeps the sky pair, outgoing is amber.
+  QVERIFY(in.hasLinkColor);
+  QCOMPARE(in.linkColor.light, QColor(QStringLiteral("#0284C7")));
+  QCOMPARE(in.linkColor.dark, QColor(QStringLiteral("#38BDF8")));
+  QVERIFY(out.hasLinkColor);
+  QCOMPARE(out.linkColor.light, QColor(QStringLiteral("#FFE082")));
+  QCOMPARE(out.linkColor.dark, QColor(QStringLiteral("#FFE082")));
 }
 
 void TstTheme::availableThemesListsUserAndSkipsBroken() {

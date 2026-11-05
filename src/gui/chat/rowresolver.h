@@ -18,6 +18,7 @@ struct ResolvedRow {
   int hboxGap = 8;
   int vboxGap = 2;
   Theme::DualColor text;        // body text: node value or theme default
+  Theme::DualColor link;        // links: per-rect linkColor, fallback is theme.text
   Theme::DualColor senderColor; // header name: node value or theme default
   Theme::DualColor timeColor;   // header time: node value or theme default
   Theme::DualColor border;      // bubble outline

@@ -253,9 +253,9 @@ bool validateHeader(const QJsonObject& node, QString& error) {
     }
   }
   for(auto key :
-      {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
-       QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("marginTop"),
-       QStringLiteral("maxWidthPct")}) {
+      {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("linkColor"),
+       QStringLiteral("border"), QStringLiteral("padding"), QStringLiteral("shadow"),
+       QStringLiteral("marginTop"), QStringLiteral("maxWidthPct")}) {
     if(node.contains(key)) {
       error = QStringLiteral("%1 only on body/fileCard").arg(key);
       return false;
@@ -272,7 +272,13 @@ bool validateRect(const QJsonObject& node, const QString& type, const QString& l
     if(!parseBg(node.value(QStringLiteral("bg")), what.constData(), error, unusedBg))
       return false;
   }
-  for(auto key : {QStringLiteral("textColor"), QStringLiteral("border")}) {
+  if(!node.contains(QStringLiteral("linkColor"))) {
+    error = QStringLiteral("bad %1: missing linkColor (add linkColor to each body/fileCard)")
+              .arg(type);
+    return false;
+  }
+  for(auto key :
+      {QStringLiteral("textColor"), QStringLiteral("linkColor"), QStringLiteral("border")}) {
     if(node.contains(key)) {
       Theme::DualColor unused;
       QByteArray keyWhat = type.toLatin1() + QByteArray(" ") + key.toLatin1();
@@ -348,9 +354,9 @@ bool validateColorPlacement(const QJsonObject& node, const QString& type, QStrin
      type == QLatin1String("fileCard"))
     return true;
   for(auto key :
-      {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("border"),
-       QStringLiteral("padding"), QStringLiteral("shadow"), QStringLiteral("marginTop"),
-       QStringLiteral("maxWidthPct"), QStringLiteral("senderColor"),
+      {QStringLiteral("bg"), QStringLiteral("textColor"), QStringLiteral("linkColor"),
+       QStringLiteral("border"), QStringLiteral("padding"), QStringLiteral("shadow"),
+       QStringLiteral("marginTop"), QStringLiteral("maxWidthPct"), QStringLiteral("senderColor"),
        QStringLiteral("timeColor")}) {
     if(node.contains(key)) {
       error = QStringLiteral("%1 only on body/fileCard or header").arg(key);
@@ -464,6 +470,12 @@ Theme::LayoutNode compileNode(const QJsonObject& obj) {
     parseDualColor(obj.value(QStringLiteral("textColor")), "body/fileCard textColor", dummy,
                    n.textColor);
     n.hasTextColor = true;
+  }
+  if(obj.contains(QStringLiteral("linkColor"))) {
+    QString dummy;
+    parseDualColor(obj.value(QStringLiteral("linkColor")), "body/fileCard linkColor", dummy,
+                   n.linkColor);
+    n.hasLinkColor = true;
   }
   if(obj.contains(QStringLiteral("border"))) {
     QString dummy;
@@ -611,18 +623,18 @@ bool parseHeader(const QJsonObject& root, Theme& t) {
 
 bool parseGlobalColors(const QJsonObject& root, Theme& t) {
   QString err;
-  for(auto key : {QStringLiteral("text"), QStringLiteral("link"), QStringLiteral("page")}) {
+  for(auto key : {QStringLiteral("text"), QStringLiteral("page")}) {
     QByteArray what = key.toLatin1();
     Theme::DualColor c;
     if(!root.contains(key) || !parseDualColor(root.value(key), what.constData(), err, c))
       return fail(t, err.isEmpty() ? QStringLiteral("missing %1").arg(key) : err);
     if(key == QLatin1String("text"))
       t.text = c;
-    else if(key == QLatin1String("link"))
-      t.link = c;
     else
       t.page = c;
   }
+  if(root.contains(QStringLiteral("link")))
+    return fail(t, QStringLiteral("link removed (use body/fileCard linkColor)"));
   return true;
 }
 

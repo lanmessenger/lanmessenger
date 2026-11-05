@@ -84,6 +84,8 @@ public:
     bool hasTimeColor = false;
     DualColor textColor; // body/fileCard only
     bool hasTextColor = false;
+    DualColor linkColor; // body/fileCard only, required per rect
+    bool hasLinkColor = false;
     DualColor border; // body/fileCard only
     bool hasBorder = false;
     Bg bg; // body/fileCard only, absent = transparent
@@ -127,9 +129,8 @@ public:
   View view;
   Avatar avatar;
   Header header;
-  //  Single-use global colors: default body text, links, view fill.
+  //  Single-use global colors: default body text, view fill.
   DualColor text;
-  DualColor link;
   DualColor page;
   //  Raw layout trees (kept for L) and the compiled engine input.
   //  Each layout_* is a single root object (hbox/vbox), not an array.

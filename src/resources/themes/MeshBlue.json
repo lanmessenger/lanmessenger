@@ -15,7 +15,6 @@
     "timeColor": ["#64748B", "#7DD3FC"]
   },
   "text": ["#0F172A", "#E2E8F0"],
-  "link": ["#0284C7", "#38BDF8"],
   "page": ["#EFF6FF", "#0B1320"],
   "layout_incoming": {
     "type": "hbox",
@@ -39,6 +38,7 @@
             "corners": [14, 14, 14, 3],
             "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
             "border": ["#E2E8F0", "#1E3A5F"],
+            "linkColor": ["#0284C7", "#38BDF8"],
             "padding": [10, 14, 10, 14],
             "marginTop": 9,
             "maxWidthPct": 80
@@ -56,6 +56,7 @@
         "corners": [3, 14, 14, 3],
         "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
         "border": ["#E2E8F0", "#1E3A5F"],
+        "linkColor": ["#0284C7", "#38BDF8"],
         "padding": [10, 14, 10, 14],
         "marginTop": 3,
         "maxWidthPct": 80
@@ -76,6 +77,7 @@
         "corners": [14, 14, 3, 14],
         "bg": ["gradient(#0284C7, #0369A1)", "gradient(#0EA5E9, #0284C7)"],
         "textColor": "#FFFFFF",
+        "linkColor": "#FFE082",
         "padding": [10, 14, 10, 14],
         "marginTop": 9,
         "maxWidthPct": 80
@@ -91,6 +93,7 @@
         "corners": [14, 3, 3, 14],
         "bg": ["gradient(#0284C7, #0369A1)", "gradient(#0EA5E9, #0284C7)"],
         "textColor": "#FFFFFF",
+        "linkColor": "#FFE082",
         "padding": [10, 14, 10, 14],
         "marginTop": 3,
         "maxWidthPct": 80
@@ -104,6 +107,7 @@
       {
         "type": "body",
         "textColor": ["#64748B", "#7DD3FC"],
+        "linkColor": ["#0284C7", "#38BDF8"],
         "padding": [0, 4, 4, 4],
         "marginTop": 0
       }
@@ -118,6 +122,7 @@
         "corners": [12, 12, 12, 12],
         "bg": ["#EFF6FF", "#082F49"],
         "border": "#0284C7",
+        "linkColor": ["#0284C7", "#38BDF8"],
         "padding": [10, 14, 10, 14],
         "marginTop": 9
       }
@@ -132,6 +137,7 @@
         "bg": ["gradient(#FFFFFF, #F0FDF4)", "gradient(#162235, #111A29)"],
         "border": ["#BAE6FD", "#1E3A5F"],
         "corners": [12, 12, 12, 12],
+        "linkColor": ["#0284C7", "#38BDF8"],
         "padding": [10, 14, 10, 14],
         "marginTop": 9,
         "maxWidthPct": 80
