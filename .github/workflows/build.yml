@@ -49,6 +49,10 @@ on:
         description: Git ref to build (defaults to the triggering commit)
         type: string
         default: ''
+      sign-test:
+        description: Submit the Windows installer to SignPath test signing (requires artifacts=release or release+test, no release impact)
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       artifacts:
@@ -71,10 +75,22 @@ on:
         description: Git ref to build (defaults to the triggering commit)
         type: string
         default: ''
+      sign-test:
+        description: Submit the Windows installer to SignPath test signing (requires artifacts=release or release+test, no release impact)
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+# SignPath test signing literals. Non-secret on purpose (no repo Variables):
+# switching test -> release = change the slugs below. The only secret,
+# SIGNPATH_API_TOKEN, lives in the repo Secrets (added manually, never here).
+env:
+  SIGNPATH_ORGANIZATION_ID: 014be942-e7b4-420f-81aa-69dad7f3aa57
+  SIGNPATH_PROJECT_SLUG: lanmessenger
+  SIGNPATH_TEST_POLICY_SLUG: test-signing
 
 jobs:
   # Linux, oldest baseline (Ubuntu 22.04, Qt 6.2, glibc 2.35): one system-Qt
@@ -385,6 +401,67 @@ jobs:
           choco install nsis -y --no-progress
           cd setup\win32
           call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
+
+      # Trial run of SignPath test signing (test certificate): signs ONLY the
+      # outer NSIS installer, publishes nothing. Gated by inputs.sign-test
+      # (default false), so release/nightly runs are untouched. Uses the
+      # project's DEFAULT artifact configuration (root <pe-file>), hence
+      # skip-decompress: true (the single-file artifact is taken as-is,
+      # not unwrapped from the GitHub download ZIP).
+      - name: Stage unsigned installer for test signing
+        if: inputs.sign-test
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem setup/lmc-*-win64.exe | Select-Object -First 1
+          if (-not $exe) { throw "unsigned installer not found in setup/ (sign-test requires artifacts=release or release+test)" }
+          New-Item -ItemType Directory -Force signing-unsigned | Out-Null
+          Copy-Item $exe.FullName signing-unsigned/
+          Get-ChildItem signing-unsigned
+
+      - name: Upload unsigned installer
+        if: inputs.sign-test
+        id: upload-unsigned
+        uses: actions/upload-artifact@v7
+        with:
+          name: unsigned-installer-windows
+          path: signing-unsigned/lmc-*-win64.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Submit test signing request
+        if: inputs.sign-test
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.SIGNPATH_TEST_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signing-signed/
+          skip-decompress: true
+
+      - name: Verify test signature present
+        if: inputs.sign-test
+        shell: pwsh
+        run: |
+          $signed = Get-ChildItem signing-signed/lmc-*-win64.exe | Select-Object -First 1
+          if (-not $signed) { throw "signed installer not found in signing-signed/" }
+          $sig = Get-AuthenticodeSignature $signed.FullName
+          $sig | Format-List Path, Status, SignerCertificate
+          if ($null -eq $sig.SignerCertificate) { throw "no Authenticode signature on $($signed.Name)" }
+          # NOTE: the test root is untrusted by design — expect
+          # UnknownError/UntrustedRoot here, NOT Valid. Presence of the
+          # signature is the trial's success criterion.
+
+      - name: Upload test-signed installer
+        if: inputs.sign-test
+        uses: actions/upload-artifact@v7
+        with:
+          name: signed-test-windows
+          path: signing-signed/lmc-*-win64.exe
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload packages
         if: inputs.artifacts != 'test'
