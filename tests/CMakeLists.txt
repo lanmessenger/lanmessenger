@@ -119,6 +119,11 @@ set_tests_properties(transfermerge PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offsc
 lmc_add_unit_test(chattextguard unit/tst_chattextguard.cpp ../src/resource.qrc)
 set_tests_properties(chattextguard PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# Chat input file drop (onto viewport sends, no caps swallows, http inserts),
+# offscreen.
+lmc_add_unit_test(chatdnd unit/tst_chatdnd.cpp ../src/resource.qrc)
+set_tests_properties(chatdnd PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # Aggregate for CI: `cmake --build build --target lmc_unit_tests` builds every
 # unit test without listing them in build.yml. This aggregate itself is not
 # part of ALL; the tst_* executables stay in ALL as before. `package-local`
