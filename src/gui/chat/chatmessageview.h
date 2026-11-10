@@ -15,6 +15,9 @@ struct StoredMessage;
 class QMenu;
 class QAction;
 class QDateTime;
+class QTimer;
+class QFocusEvent;
+class QHideEvent;
 
 //  Native chat view: QListView + ChatMessageModel + BubbleDelegate.
 //  Single view for chat/chatroom/history/settings-preview.
@@ -77,6 +80,8 @@ protected:
   void mouseDoubleClickEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
+  void focusOutEvent(QFocusEvent* event) override;
+  void hideEvent(QHideEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
   bool viewportEvent(QEvent* event) override;
   void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
@@ -91,8 +96,15 @@ private slots:
   void onPaletteChanged();
   void copyAction_triggered();
   void selectAllAction_triggered();
+  void onSelectionScrollTick();
 
 private:
+  void extendSelectionTo(const QPoint& pos);
+  void startOrUpdateSelectionScroll(const QPoint& pos);
+  void stopSelectionScroll();
+  void finishTextDrag();
+  void setCurrentWithoutScroll(const QModelIndex& index);
+  void scrollTo(const QModelIndex& index, ScrollHint hint = EnsureVisible) override;
   void syncToLayers();
   void syncModelIdentity();
   void requestRelayout();
@@ -122,4 +134,30 @@ private:
   bool textSelecting = false;
   bool wordSelecting = false;
   int contextRow = -1;
+  //  Viewport moves only through explicit paths (keyboard navigation,
+  //  auto-follow, anchor focus). EnsureVisible fired on our behalf — presses,
+  //  menus, focus transitions, layout replays, deferred Qt timers — must not
+  //  scroll: a press always lands on visible content.
+  bool allowScrollTo = false;
+  //  RAII gate for allowScrollTo: restores the previous value on scope exit,
+  //  so nested uses cannot clear an outer allowance early.
+  class ScrollToGuard {
+  public:
+    explicit ScrollToGuard(bool* flag)
+        : m_flag(flag), m_prev(*flag) {
+      *m_flag = true;
+    }
+    ~ScrollToGuard() {
+      *m_flag = m_prev;
+    }
+    ScrollToGuard(const ScrollToGuard&) = delete;
+    ScrollToGuard& operator=(const ScrollToGuard&) = delete;
+
+  private:
+    bool* m_flag;
+    bool m_prev;
+  };
+  QTimer* selectionScrollTimer = nullptr;
+  QPoint selectionScrollPos;
+  int selectionScrollDir = 0;
 };
