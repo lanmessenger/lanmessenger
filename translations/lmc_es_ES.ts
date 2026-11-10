@@ -424,8 +424,8 @@
         <translation>Un solo clic en el icono de la bandeja para abrir</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Mostrar el globo de notificaciones en la bandeja</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Mostrar las notificaciones de estado en la bandeja</translation>
     </message>
     <message>
         <source>Language</source>

@@ -424,8 +424,8 @@
         <translation>トレイアイコンを一度クリックするだけで表示</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>バルーン通知を利用</translation>
+        <source>Show status notifications in tray</source>
+        <translation>ステータス通知をトレイに表示</translation>
     </message>
     <message>
         <source>Language</source>

@@ -420,8 +420,8 @@
         <translation>원클릭으로 열기</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>풍선 도움말 보기</translation>
+        <source>Show status notifications in tray</source>
+        <translation>상태 알림을 트레이에 표시</translation>
     </message>
     <message>
         <source>Language</source>

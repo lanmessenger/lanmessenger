@@ -389,8 +389,8 @@
         <translation>Aktivovať program jedným kliknutím na ikonu</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Zobrazovať bublinové notifikácie v oblasti oznámení</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Zobrazovať stavové notifikácie v oblasti oznámení</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

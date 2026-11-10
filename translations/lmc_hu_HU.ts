@@ -373,8 +373,8 @@
         <translation>A %1 ablak mutatása induláskor</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Buborék üzenetek mutatása a tálcaikonból</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Állapotértesítések mutatása a tálcaikonból</translation>
     </message>
     <message>
         <source>History File Location</source>

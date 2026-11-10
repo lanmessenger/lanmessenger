@@ -420,8 +420,8 @@
         <translation>ഒറ്റ ക്ലിക്കില്‍ ജാലകം തുറക്കുക</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>സിസ്റ്റം ട്രേ സന്ദേശങ്ങള്‍ കാണിക്കുക</translation>
+        <source>Show status notifications in tray</source>
+        <translation>സ്റ്റാറ്റസ് അറിയിപ്പുകൾ സിസ്റ്റം ട്രേയിൽ കാണിക്കുക</translation>
     </message>
     <message>
         <source>Language</source>

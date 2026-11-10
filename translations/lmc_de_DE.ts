@@ -389,8 +389,8 @@
         <translation>Einmaliger Klick auf das Infobereichsymbol zum öffnen</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Zeige Benachrichtigungen im Infobereich</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Zeige Statusbenachrichtigungen im Infobereich</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

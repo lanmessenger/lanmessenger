@@ -425,8 +425,8 @@
         <translation>Открытие одиночным кликом на значке области уведомлений</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Показывать всплывающие сообщения в области уведомлений</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Показывать уведомления о статусах в области уведомлений</translation>
     </message>
     <message>
         <source>Language</source>

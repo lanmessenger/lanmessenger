@@ -428,8 +428,8 @@
         <translation>Μονό κλικ στο εικονίδιο για άνοιγμα</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Εμφάνιση ειδοποιήσεων στην περιοχή ειδοποιήσεων</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Εμφάνιση ειδοποιήσεων κατάστασης στην περιοχή ειδοποιήσεων</translation>
     </message>
     <message>
         <source>Language</source>

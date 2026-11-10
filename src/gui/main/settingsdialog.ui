@@ -204,7 +204,7 @@
             <item>
              <widget class="QCheckBox" name="chkSysTrayMsg">
               <property name="text">
-               <string>Show balloon notifications in tray</string>
+               <string>Show status notifications in tray</string>
               </property>
              </widget>
             </item>

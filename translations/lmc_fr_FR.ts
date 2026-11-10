@@ -424,8 +424,8 @@
         <translation>Simple clic sur l&apos;icône de l&apos;ouverture</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Afficher les notifications ballon dans le bac</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Afficher les notifications de statut dans le bac</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

@@ -428,8 +428,8 @@
         <translation>Pojedyńcze kliknięcie w ikonę w zasobniku otwiera aplikację</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Pokaż powiadomienie balonowe w zasobniku systemowym</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Pokaż powiadomienia o statusach w zasobniku systemowym</translation>
     </message>
     <message>
         <source>Language</source>

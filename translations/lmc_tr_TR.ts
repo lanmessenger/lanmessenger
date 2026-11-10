@@ -424,8 +424,8 @@
         <translation>Açmak için sistem simgesine tek tıkla</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Balon uyarıları bildirim alanında göster</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Durum bildirimlerini bildirim alanında göster</translation>
     </message>
     <message>
         <source>Language</source>

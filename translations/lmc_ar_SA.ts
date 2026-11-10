@@ -389,8 +389,8 @@
         <translation>ظغطة واحدة على رمز شريط المهام لاظهار النافذة الرئيسية</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>اظهار علامة البالون في شريط المهام</translation>
+        <source>Show status notifications in tray</source>
+        <translation>اظهار إشعارات الحالة في شريط المهام</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

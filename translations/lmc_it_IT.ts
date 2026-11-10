@@ -389,8 +389,8 @@
         <translation>Singolo click per aprire l&apos;icona dalla barra di sistema</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Mostra le notifiche come fumetto</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Mostra le notifiche di stato nella barra di sistema</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

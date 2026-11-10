@@ -389,8 +389,8 @@
         <translation>Enojni klik na ikono za odpiranje</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Pokaži opozorila v balonu</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Prikaži obvestila o stanju v opravilni vrstici</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

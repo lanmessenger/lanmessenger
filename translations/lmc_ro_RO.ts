@@ -389,8 +389,8 @@
         <translation>Un singur click pe pictogramă pentru a lansa aplicația</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Arată înștiințările în zona de notificare</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Arată notificările de stare în zona de notificare</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>

@@ -94,7 +94,7 @@ Keys without a section prefix.
 | `MinimizeTray` | bool, `false` | Minimizing the main window sends it to the tray. |
 | `SingleClickTray` | bool, `false` | Single click (instead of double click) activates the tray icon. |
 | `MinimizeMsg` | bool, `true` | Show the "window was minimized" hint. Managed automatically; there is no checkbox for it. |
-| `SysTrayMsg` | bool, `true` | Show tray notification popups. |
+| `SysTrayMsg` | bool, `true` | Show status tray notification popups (online/offline, connection, transfers). Chat messages are not shown in the tray; they follow Messages settings (foreground/taskbar) plus Alerts/sounds. |
 | `AllowMinimize` | bool, `false` | Allow minimizing the main window when the tray icon is disabled. |
 
 ## Messages

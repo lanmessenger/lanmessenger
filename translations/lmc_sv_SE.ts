@@ -424,8 +424,8 @@
         <translation>Enkelklick på ikonen för att öppna</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Visa aviseringsrutor i meddelandefältet</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Visa statusaviseringar i meddelandefältet</translation>
     </message>
     <message>
         <source>Language</source>

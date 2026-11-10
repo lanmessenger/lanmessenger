@@ -424,7 +424,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
+        <source>Show status notifications in tray</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -424,8 +424,8 @@
         <translation>Показвай при единично кликване на трей иконата</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Показвай информацйонни балони в трея</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Показвай известията за статус в трея</translation>
     </message>
     <message>
         <source>Language</source>

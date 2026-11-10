@@ -389,8 +389,8 @@
         <translation>Um clique no ícone da bandeja para abrir</translation>
     </message>
     <message>
-        <source>Show balloon notifications in tray</source>
-        <translation>Mostrar balões de notificações na bandeja</translation>
+        <source>Show status notifications in tray</source>
+        <translation>Mostrar notificações de status na bandeja</translation>
     </message>
     <message>
         <source>Minimize main window using tray icon</source>
