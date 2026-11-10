@@ -61,6 +61,23 @@ File Round Trip
     Should Be Equal   ${sent}    ${recv}
     Dump Object Tree    output_file=${OUTPUT_DIR}${/}files-roundtrip.json
 
+File Drop Round Trip
+    [Documentation]    Same round trip as File Round Trip, but the send goes
+    ...    through the real drag path: Drop Urls builds file:// mime and
+    ...    the agent sends one QDropEvent to the input viewport, so the
+    ...    chat input filter (filterInputFileDrag -> handleFileDrop ->
+    ...    sendObject) runs instead of the toolbar dialog. Covers the
+    ...    viewport drop that used to land in the QTextEdit as pasted text.
+    Open Self Chat
+    Drop File With Retry    ${SEND_DIR}${/}e2e-file-drop.bin    e2e-file-drop.bin
+    AcceptFileRequest
+    Wait Until Keyword Succeeds    30s    2s
+    ...    File Transfer Should Complete    e2e-file-drop.bin
+    ${sent}=          Get Binary File    ${SEND_DIR}${/}e2e-file-drop.bin
+    ${recv}=          Get Binary File    ${RECV_DIR}${/}e2e-file-drop.bin
+    Should Be Equal   ${sent}    ${recv}
+    Dump Object Tree    output_file=${OUTPUT_DIR}${/}files-drop-roundtrip.json
+
 File Decline
     [Documentation]    Send then decline: the log flips to Declined and no
     ...    file lands in the storage dir.
@@ -136,6 +153,42 @@ Send File
     Wait For Object    type=QFileDialog visible=true    timeout=10s
     Type Text    name=fileNameEdit    ${path}    send=False
     Send Key    Return    locator=name=fileNameEdit
+
+Drop File
+    [Documentation]    One drop attempt: send a synthetic QDropEvent with
+    ...    the file:// url to the chat input viewport (default target).
+    ...    Synchronous in the GUI thread, so handleFileDrop runs before
+    ...    the reply; the send-side log entry still needs polling like the
+    ...    dialog flow. Fails when the drop never reaches the app (bad
+    ...    locator); a swallowed drop (accepted=false) is not a failure
+    ...    here — the retry loop judges by the log entries instead.
+    [Arguments]    ${path}    ${target}=viewport
+    ${res}=    Drop Urls    name=txtMessage visible=true    ${path}    target=${target}
+    Log    Drop ${path} -> ${res}
+
+Drop File With Retry
+    [Documentation]    Drop until the request shows up. Same flake cover as
+    ...    Send File With Retry: the first send on a fresh self-connection
+    ...    can vanish before the TCP handshake completes (same flake as
+    ...    messages); a vanished drop leaves no log entry, so retries never
+    ...    pile up pending requests. Two-phase like the dialog flow: the
+    ...    send-side `Sending '...' to` entry proves the drop reached
+    ...    sendFile; the receive entry proves the loopback delivery.
+    [Arguments]    ${path}    ${filename}    ${target}=viewport
+    Create Payload File    ${path}
+    FOR    ${i}    IN RANGE    1    4
+        Drop File    ${path}    ${target}
+        ${sent}=    Run Keyword And Return Status
+        ...    Wait Until Keyword Succeeds    10s    2s
+        ...    Chat Log Should Contain    Sending '${filename}' to
+        IF    not ${sent}    CONTINUE
+        ${ok}=    Run Keyword And Return Status
+        ...    Wait Until Keyword Succeeds    10s    2s
+        ...    File Request Should Appear    ${filename}
+        IF    ${ok}    BREAK
+    END
+    Chat Log Should Contain    Sending '${filename}' to
+    File Request Should Appear    ${filename}
 
 File Request Should Appear
     [Documentation]    The loopback request round-tripped: the visible log

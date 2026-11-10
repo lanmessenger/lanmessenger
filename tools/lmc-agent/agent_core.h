@@ -112,6 +112,24 @@ bool closeWindow(const QJsonObject& criteria, QJsonObject* closed,
 bool setGeometry(const QJsonObject& criteria, int x, int y, int width,
                  int height, QJsonObject* placed, QString* error);
 
+// Synthetic file drop: build a QMimeData with file:// urls from paths
+// and deliver the real OS sequence DragEnter -> DragMove -> Drop
+// synchronously (QApplication::sendEvent) to the target, so the widget's
+// real drag path runs (ChatWindow eventFilter -> filterInputFileDrag ->
+// handleFileDrop, or the window dragEnter/dragMove/dropEvent for
+// target=widget on the ChatWindow itself). Synchronous: the QMimeData
+// lives on the stack, no postEvent lifetime hazard, and the reply
+// carries the Drop's isAccepted() right away (existence/caps checks stay
+// app-side). The full sequence matters: Qt only delivers a Drop to a
+// target that accepted the DragEnter, a lone synthetic Drop never
+// reaches widget event filters. Never blocks, no nested loop.
+// target: "viewport" (default: QAbstractScrollArea resolves to its
+// viewport, where QTextEdit drag events land) or "widget" (the matched
+// widget itself, e.g. the ChatWindow background).
+bool postDrop(const QJsonObject& criteria, const QStringList& paths,
+              const QString& targetMode, QJsonObject* dropped,
+              QString* error);
+
 // Blocking wait helpers (bounded local event loop, GUI thread).
 // wait_for_gone reports the stuck object on timeout (class/title/visible
 // plus sameWindow vs the object seen at entry), so a flaky close can be

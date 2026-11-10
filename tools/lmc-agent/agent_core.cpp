@@ -8,8 +8,12 @@
 // wrong literal here fails loudly (peer never resolves) instead of silently.
 
 #include <QAction>
+#include <QAbstractScrollArea>
 #include <QApplication>
 #include <QCoreApplication>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
 #include <QEventLoop>
 #include <QHoverEvent>
 #include <QJsonArray>
@@ -18,6 +22,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMetaObject>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -28,6 +33,7 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QTreeWidget>
+#include <QUrl>
 
 namespace lmc_agent {
 namespace {
@@ -613,6 +619,79 @@ bool setGeometry(const QJsonObject& criteria, int x, int y, int width,
     (*placed)[QStringLiteral("y")] = g.y();
     (*placed)[QStringLiteral("width")] = g.width();
     (*placed)[QStringLiteral("height")] = g.height();
+  }
+  return true;
+}
+
+bool postDrop(const QJsonObject& criteria, const QStringList& paths,
+              const QString& targetMode, QJsonObject* dropped,
+              QString* error) {
+  QWidget* widget = findWidget(criteria);
+  if(!widget) {
+    if(error)
+      *error = QStringLiteral("no widget matches locator");
+    return false;
+  }
+  if(paths.isEmpty()) {
+    if(error)
+      *error = QStringLiteral("drop_urls: missing paths");
+    return false;
+  }
+  for(const QString& path : paths) {
+    if(path.isEmpty()) {
+      if(error)
+        *error = QStringLiteral("drop_urls: empty path");
+      return false;
+    }
+  }
+  const QString mode = targetMode.isEmpty() ? QStringLiteral("viewport")
+                                            : targetMode.toLower();
+  QWidget* target = widget;
+  if(mode == QStringLiteral("viewport")) {
+    if(auto* scroll = qobject_cast<QAbstractScrollArea*>(widget))
+      target = scroll->viewport();
+  } else if(mode == QStringLiteral("widget")) {
+    target = widget;
+  } else {
+    if(error)
+      *error = QStringLiteral("drop_urls: unknown target: %1 (expected viewport|widget)")
+                 .arg(targetMode);
+    return false;
+  }
+  if(!target) {
+    if(error)
+      *error = QStringLiteral("drop_urls: no drop target");
+    return false;
+  }
+  QList<QUrl> urls;
+  urls.reserve(paths.size());
+  for(const QString& path : paths)
+    urls.append(QUrl::fromLocalFile(path));
+  QMimeData mime;
+  mime.setUrls(urls);
+  // Qt only delivers a Drop to a target that accepted the DragEnter
+  // (verified in isolation: a lone synthetic Drop never reaches widget
+  // event filters, via sendEvent or postEvent). Mirror the real OS
+  // sequence enter -> move -> drop in one synchronous block; the mime
+  // object stays alive on the stack for the whole dispatch.
+  const QPoint pos = target->rect().center();
+  QDragEnterEvent enterEvent(pos, Qt::CopyAction, &mime, Qt::NoButton,
+                             Qt::NoModifier);
+  QApplication::sendEvent(target, &enterEvent);
+  QDragMoveEvent moveEvent(pos, Qt::CopyAction, &mime, Qt::NoButton,
+                           Qt::NoModifier);
+  QApplication::sendEvent(target, &moveEvent);
+  QDropEvent dropEvent(QPointF(pos), Qt::CopyAction, &mime, Qt::NoButton,
+                       Qt::NoModifier);
+  QApplication::sendEvent(target, &dropEvent);
+  if(dropped) {
+    (*dropped)[QStringLiteral("objectName")] = widget->objectName();
+    (*dropped)[QStringLiteral("class")] =
+      QString::fromLatin1(widget->metaObject()->className());
+    (*dropped)[QStringLiteral("target")] =
+      QString::fromLatin1(target->metaObject()->className());
+    (*dropped)[QStringLiteral("urls")] = urls.size();
+    (*dropped)[QStringLiteral("accepted")] = dropEvent.isAccepted();
   }
   return true;
 }

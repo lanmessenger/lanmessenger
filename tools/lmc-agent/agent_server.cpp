@@ -368,6 +368,27 @@ private:
       result[QStringLiteral("sent")] = key;
       return okReply(id, result);
     }
+    if(cmd == QStringLiteral("drop_urls")) {
+      const QString locator = params.value(QStringLiteral("locator")).toString();
+      if(locator.isEmpty())
+        return errorReply(id, QStringLiteral("drop_urls: missing locator"));
+      const QJsonValue pathsValue = params.value(QStringLiteral("paths"));
+      if(!pathsValue.isArray() || pathsValue.toArray().isEmpty())
+        return errorReply(id, QStringLiteral("drop_urls: missing paths"));
+      QStringList paths;
+      for(const QJsonValue& value : pathsValue.toArray()) {
+        if(!value.isString() || value.toString().isEmpty())
+          return errorReply(id, QStringLiteral("drop_urls: empty path"));
+        paths.append(value.toString());
+      }
+      const QString target = params.value(QStringLiteral("target")).toString();
+      QString error;
+      QJsonObject dropped;
+      if(!postDrop(parseLocator(locator), paths, target, &dropped, &error))
+        return errorReply(id, error);
+      dropped[QStringLiteral("dropped")] = true;
+      return okReply(id, dropped);
+    }
     if(cmd == QStringLiteral("close_window")) {
       QJsonObject closed;
       QString error;

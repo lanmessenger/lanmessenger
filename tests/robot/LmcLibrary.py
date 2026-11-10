@@ -319,6 +319,31 @@ class LmcLibrary:
                     % (locator, json.dumps(res, ensure_ascii=False)))
         return res
 
+    @keyword("Drop Urls")
+    def drop_urls(self, locator, *paths, target="viewport"):
+        """Deliver a synthetic file drop to the widget matching ``locator``.
+
+        Builds a ``QMimeData`` with file:// urls from ``paths`` and sends
+        the real OS sequence (DragEnter, DragMove, Drop) synchronously in
+        the GUI thread, so the app's real drag path runs (chat input
+        filter -> ``handleFileDrop``). A lone Drop is not enough: Qt only
+        delivers it to a target that accepted the DragEnter.
+        ``target`` is ``viewport`` (default: scroll areas resolve to
+        their viewport, where ``QTextEdit`` drag events land) or
+        ``widget`` (the matched widget itself, e.g. the ``ChatWindow``
+        background). Returns the agent snapshot (``dropped``/``accepted``/
+        ``urls``); ``accepted=False`` with no error means the app saw the
+        drop and swallowed it (missing file, unsupported caps).
+        """
+        if not paths:
+            raise AssertionError("Drop Urls: no paths given")
+        params = {"locator": locator, "paths": list(paths),
+                  "target": target}
+        res = self._request("drop_urls", params)
+        logger.info("drop_urls %s -> %s"
+                    % (locator, json.dumps(res, ensure_ascii=False)))
+        return res
+
     @keyword("Place Window")
     def place_window(self, locator, x, y, width, height):
         """Deterministically place a top-level window (``set_geometry``):
