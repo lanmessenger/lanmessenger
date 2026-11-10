@@ -21,7 +21,8 @@ enum OutputFormat {
 
 //  Native chat log: a projection of SingleMessage/sendFileMap/receiveFileMap
 //  for QListView + BubbleDelegate. Network, XmlMessage and QDataStream
-//  save/restore are untouched. Grouping rule: same sender as previous row.
+//  save/restore are untouched. Grouping rule: same sender as previous row
+//  within a short time window (continuation), otherwise a new starter bubble.
 class ChatMessageModel : public QAbstractListModel {
   Q_OBJECT
 

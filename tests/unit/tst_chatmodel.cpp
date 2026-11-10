@@ -20,6 +20,23 @@ XmlMessage textMessage(const QString& text) {
   return m;
 }
 
+XmlMessage textMessageAt(const QString& text, qint64 msecsSinceEpoch) {
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(msecsSinceEpoch));
+  m.addData(XN_MESSAGE, text);
+  m.addData(XN_FONT, QFont().toString());
+  m.addData(XN_COLOR, QStringLiteral("#000000"));
+  return m;
+}
+
+XmlMessage textMessageNoTime(const QString& text) {
+  XmlMessage m;
+  m.addData(XN_MESSAGE, text);
+  m.addData(XN_FONT, QFont().toString());
+  m.addData(XN_COLOR, QStringLiteral("#000000"));
+  return m;
+}
+
 XmlMessage fileRequest(const QString& fileId, const QString& name) {
   XmlMessage m;
   m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
@@ -45,6 +62,7 @@ class TstChatModel : public QObject {
 
 private slots:
   void grouping();
+  void groupingTimeWindow();
   void plainTextJoins();
   void fileFlow();
   void folderKeepsType();
@@ -77,6 +95,86 @@ void TstChatModel::grouping() {
   QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::GroupedRole).toBool(), false);
   QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::OwnRole).toBool(), true);
   QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::OwnRole).toBool(), false);
+}
+
+void TstChatModel::groupingTimeWindow() {
+  //  Continuation only within 2 minutes from the previous row of the same
+  //  sender; a later message starts a new bubble.
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  const qint64 base = 1700000000000LL;
+
+  XmlMessage m1 = textMessageAt(QStringLiteral("one"), base);
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m1), 0);
+  XmlMessage m2 = textMessageAt(QStringLiteral("two"), base + 60 * 1000);
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m2), 1);
+  XmlMessage m3 = textMessageAt(QStringLiteral("three"), base + 60 * 1000 + 2 * 60 * 1000 + 1000);
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m3), 2);
+
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::GroupedRole).toBool(), false);
+  QCOMPARE(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
+  QCOMPARE(model.data(model.index(2, 0), ChatMessageModel::GroupedRole).toBool(), false);
+
+  //  Exact boundary (2 min) still groups, 1 ms over does not.
+  ChatMessageModel edge;
+  XmlMessage e1 = textMessageAt(QStringLiteral("one"), base);
+  XmlMessage e2 = textMessageAt(QStringLiteral("two"), base + 2 * 60 * 1000);
+  XmlMessage e3 = textMessageAt(QStringLiteral("three"), base + 2 * 60 * 1000 + 2 * 60 * 1000 + 1);
+  edge.appendMessageLog(MT_Message, &jack, &jackName, &e1);
+  edge.appendMessageLog(MT_Message, &jack, &jackName, &e2);
+  edge.appendMessageLog(MT_Message, &jack, &jackName, &e3);
+  QCOMPARE(edge.data(edge.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
+  QCOMPARE(edge.data(edge.index(2, 0), ChatMessageModel::GroupedRole).toBool(), false);
+
+  //  Out-of-order timestamps never group.
+  ChatMessageModel skewed;
+  XmlMessage s1 = textMessageAt(QStringLiteral("one"), base);
+  XmlMessage s2 = textMessageAt(QStringLiteral("two"), base - 1000);
+  skewed.appendMessageLog(MT_Message, &jack, &jackName, &s1);
+  skewed.appendMessageLog(MT_Message, &jack, &jackName, &s2);
+  QCOMPARE(skewed.data(skewed.index(1, 0), ChatMessageModel::GroupedRole).toBool(), false);
+
+  //  Missing timestamps keep the legacy sender-only behavior.
+  ChatMessageModel legacy;
+  XmlMessage l1 = textMessageNoTime(QStringLiteral("one"));
+  XmlMessage l2 = textMessageNoTime(QStringLiteral("two"));
+  legacy.appendMessageLog(MT_Message, &jack, &jackName, &l1);
+  legacy.appendMessageLog(MT_Message, &jack, &jackName, &l2);
+  QCOMPARE(legacy.data(legacy.index(1, 0), ChatMessageModel::GroupedRole).toBool(), true);
+
+  //  Mixed timestamps (one side missing) also keep the legacy behavior.
+  ChatMessageModel mixedPrevMissing;
+  XmlMessage pm1 = textMessageNoTime(QStringLiteral("one"));
+  XmlMessage pm2 = textMessageAt(QStringLiteral("two"), base);
+  mixedPrevMissing.appendMessageLog(MT_Message, &jack, &jackName, &pm1);
+  mixedPrevMissing.appendMessageLog(MT_Message, &jack, &jackName, &pm2);
+  QCOMPARE(mixedPrevMissing.data(mixedPrevMissing.index(1, 0), ChatMessageModel::GroupedRole).toBool(),
+           true);
+
+  ChatMessageModel mixedCurMissing;
+  XmlMessage cm1 = textMessageAt(QStringLiteral("one"), base);
+  XmlMessage cm2 = textMessageNoTime(QStringLiteral("two"));
+  mixedCurMissing.appendMessageLog(MT_Message, &jack, &jackName, &cm1);
+  mixedCurMissing.appendMessageLog(MT_Message, &jack, &jackName, &cm2);
+  QCOMPARE(mixedCurMissing.data(mixedCurMissing.index(1, 0), ChatMessageModel::GroupedRole).toBool(),
+           true);
+
+  //  A text row after a file/system row starts a new bubble even within
+  //  the window and from the same sender.
+  ChatMessageModel afterFile;
+  XmlMessage f1 = fileRequest(QStringLiteral("fid-time"), QStringLiteral("a.txt"));
+  XmlMessage f2 = textMessage(QStringLiteral("after file"));
+  afterFile.appendMessageLog(MT_File, &jack, &jackName, &f1);
+  afterFile.appendMessageLog(MT_Message, &jack, &jackName, &f2);
+  QCOMPARE(afterFile.data(afterFile.index(1, 0), ChatMessageModel::GroupedRole).toBool(), false);
+
+  ChatMessageModel afterJoin;
+  XmlMessage j1 = textMessage(QStringLiteral("joined"));
+  XmlMessage j2 = textMessage(QStringLiteral("after join"));
+  afterJoin.appendMessageLog(MT_Join, &jack, &jackName, &j1);
+  afterJoin.appendMessageLog(MT_Message, &jack, &jackName, &j2);
+  QCOMPARE(afterJoin.data(afterJoin.index(1, 0), ChatMessageModel::GroupedRole).toBool(), false);
 }
 
 void TstChatModel::plainTextJoins() {

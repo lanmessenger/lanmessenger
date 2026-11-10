@@ -10,6 +10,12 @@
 
 namespace {
 
+constexpr qint64 kGroupTimeWindowMs = 2 * 60 * 1000;
+
+bool isGroupableTextRow(MessageType type) {
+  return type == MT_Message || type == MT_PublicMessage || type == MT_GroupMessage;
+}
+
 QString bodyText(XmlMessage& msg) {
   QString text = msg.data(XN_MESSAGE);
   if(text.isEmpty())
@@ -80,10 +86,25 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   case GroupedRole: {
     if(index.row() == 0)
       return false;
-    //  Grouping by sender only (messagelog.cpp:546,581), no time window.
-    return msg.userId == messageLog.at(index.row() - 1).userId &&
-           (msg.type == MT_Message || msg.type == MT_PublicMessage ||
-            msg.type == MT_GroupMessage);
+    const SingleMessage& prev = messageLog.at(index.row() - 1);
+    if(msg.userId != prev.userId)
+      return false;
+    //  Both sides must be plain text rows: a text after a file/system row
+    //  starts a new bubble instead of continuing it without a header.
+    if(!isGroupableTextRow(msg.type) || !isGroupableTextRow(prev.type))
+      return false;
+    //  Continuation only within a short window after the previous row:
+    //  same sender but later than kGroupTimeWindowMs starts a new bubble.
+    XmlMessage curXml = msg.message;
+    XmlMessage prevXml = prev.message;
+    const qint64 curTs = curXml.header(XN_TIME).toLongLong();
+    const qint64 prevTs = prevXml.header(XN_TIME).toLongLong();
+    if(curTs <= 0 || prevTs <= 0)
+      return true;
+    const qint64 dt = curTs - prevTs;
+    if(dt < 0)
+      return false;
+    return dt <= kGroupTimeWindowMs;
   }
   case FileRole:
     return msg.type == MT_File || msg.type == MT_Folder;
