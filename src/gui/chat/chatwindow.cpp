@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
+#include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QDesktopServices>
 #include <QTimer>
@@ -69,6 +70,7 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   ui.lblInfo->setVisible(false);
   pMessageLog->installEventFilter(this);
   ui.txtMessage->installEventFilter(this);
+  ui.txtMessage->viewport()->installEventFilter(this);
   ui.btnSend->installEventFilter(this);
   connect(ui.btnSend, &QAbstractButton::clicked, this, &lmcChatWindow::btnSend_clicked);
   infoFlag = IT_Ok;
@@ -351,6 +353,11 @@ void lmcChatWindow::settingsChanged(void) {
 }
 
 bool lmcChatWindow::eventFilter(QObject* pObject, QEvent* pEvent) {
+  if(pObject == ui.txtMessage || pObject == ui.txtMessage->viewport()) {
+    QEvent::Type type = pEvent->type();
+    if(type == QEvent::DragEnter || type == QEvent::DragMove || type == QEvent::Drop)
+      return filterInputFileDrag(static_cast<QDropEvent*>(pEvent), type);
+  }
   if(pEvent->type() == QEvent::KeyPress) {
     QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
     if(pObject == ui.txtMessage) {
@@ -408,29 +415,89 @@ void lmcChatWindow::closeEvent(QCloseEvent* pEvent) {
 }
 
 void lmcChatWindow::dragEnterEvent(QDragEnterEvent* pEvent) {
-  if(pEvent->mimeData()->hasFormat("text/uri-list")) {
-    //  Check if the remote user has file transfer capability
-    if((peerCaps.value(peerId) & UC_File) != UC_File)
-      return;
-
-    QList<QUrl> urls = pEvent->mimeData()->urls();
-    if(urls.isEmpty())
-      return;
-
-    QString fileName = urls.first().toLocalFile();
-    if(fileName.isEmpty())
-      return;
-
+  if(fileDropAccepted(pEvent->mimeData()))
     pEvent->acceptProposedAction();
-  }
+}
+
+void lmcChatWindow::dragMoveEvent(QDragMoveEvent* pEvent) {
+  if(fileDropHint(pEvent->mimeData()))
+    pEvent->acceptProposedAction();
 }
 
 void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
-  QList<QUrl> urls = pEvent->mimeData()->urls();
+  if(!fileDropAccepted(pEvent->mimeData()))
+    return;
+  handleFileDrop(pEvent->mimeData());
+  pEvent->acceptProposedAction();
+}
+
+bool lmcChatWindow::fileDropAccepted(const QMimeData* pMime) const {
+  if(!pMime || !pMime->hasUrls())
+    return false;
+  uint caps = peerCaps.value(peerId);
+  for(const QUrl& url : pMime->urls()) {
+    QString path = url.toLocalFile();
+    if(path.isEmpty())
+      continue;
+    QFileInfo fileInfo(path);
+    if(!fileInfo.exists())
+      continue;
+    if(fileInfo.isDir()) {
+      if((caps & UC_Folder) == UC_Folder)
+        return true;
+    } else if(fileInfo.isFile()) {
+      if((caps & UC_File) == UC_File)
+        return true;
+    }
+  }
+  return false;
+}
+
+bool lmcChatWindow::fileDropHint(const QMimeData* pMime) const {
+  // Optimistic: type/exists unchecked, Enter/Drop revalidate.
+  if(!hasLocalFile(pMime))
+    return false;
+  uint caps = peerCaps.value(peerId);
+  return (caps & (UC_File | UC_Folder)) != 0;
+}
+
+bool lmcChatWindow::filterInputFileDrag(QDropEvent* pEvent, QEvent::Type type) {
+  const QMimeData* pMime = pEvent->mimeData();
+  if(type == QEvent::DragMove) {
+    if(fileDropHint(pMime)) {
+      pEvent->acceptProposedAction();
+      return true;
+    }
+  } else if(fileDropAccepted(pMime)) {
+    if(type == QEvent::Drop)
+      handleFileDrop(pMime);
+    pEvent->acceptProposedAction();
+    return true;
+  }
+  if(hasLocalFile(pMime))
+    return true;
+  return false;
+}
+
+bool lmcChatWindow::hasLocalFile(const QMimeData* pMime) {
+  if(!pMime || !pMime->hasUrls())
+    return false;
+  for(const QUrl& url : pMime->urls()) {
+    if(!url.toLocalFile().isEmpty())
+      return true;
+  }
+  return false;
+}
+
+void lmcChatWindow::handleFileDrop(const QMimeData* pMime) {
+  if(!pMime)
+    return;
+  const auto urls = pMime->urls();
   if(urls.isEmpty())
     return;
 
-  for(QUrl url : urls) {
+  uint caps = peerCaps.value(peerId);
+  for(const QUrl& url : urls) {
     QString path = url.toLocalFile();
     if(path.isEmpty())
       continue;
@@ -439,10 +506,15 @@ void lmcChatWindow::dropEvent(QDropEvent* pEvent) {
     if(!fileInfo.exists())
       continue;
 
-    if(fileInfo.isFile())
+    if(fileInfo.isFile()) {
+      if((caps & UC_File) != UC_File)
+        continue;
       sendFile(&path);
-    else if(fileInfo.isDir())
+    } else if(fileInfo.isDir()) {
+      if((caps & UC_Folder) != UC_Folder)
+        continue;
       sendFolder(&path);
+    }
   }
 }
 

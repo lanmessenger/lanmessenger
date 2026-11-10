@@ -26,7 +26,9 @@ class QFont;
 class QEvent;
 class QCloseEvent;
 class QDragEnterEvent;
+class QDragMoveEvent;
 class QDropEvent;
+class QMimeData;
 
 class lmcChatWindow : public QWidget {
   Q_OBJECT
@@ -63,6 +65,7 @@ protected:
   void changeEvent(QEvent* pEvent);
   void closeEvent(QCloseEvent* pEvent);
   void dragEnterEvent(QDragEnterEvent* pEvent);
+  void dragMoveEvent(QDragMoveEvent* pEvent);
   void dropEvent(QDropEvent* pEvent);
 
 private slots:
@@ -93,6 +96,11 @@ private:
   QString getWindowTitle(void);
   void setMessageFont(QFont& font);
   void setChatState(ChatState newChatState);
+  bool fileDropAccepted(const QMimeData* pMime) const;
+  bool fileDropHint(const QMimeData* pMime) const;
+  bool filterInputFileDrag(QDropEvent* pEvent, QEvent::Type type);
+  void handleFileDrop(const QMimeData* pMime);
+  static bool hasLocalFile(const QMimeData* pMime);
 
   QString peerId;
   QString localName;
