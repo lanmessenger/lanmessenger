@@ -2,6 +2,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
+#include <QElapsedTimer>
 #include <QHash>
 #include <QListView>
 
@@ -116,6 +117,8 @@ private:
   QModelIndex anchorRowAt(const QPoint& pos, QString* href = nullptr);
   QStyleOptionViewItem indexOption(const QModelIndex& idx) const;
   QModelIndex textIndexAt(const QPoint& pos, int* charPos = nullptr) const;
+  bool tryTripleSelect(const QModelIndex& textIdx);
+  void resetWordSelect();
   void clearTextSelection();
   QString themeFilePath() const;
 
@@ -133,6 +136,8 @@ private:
   QString focusHref;
   bool textSelecting = false;
   bool wordSelecting = false;
+  QElapsedTimer wordSelectTimer;
+  int wordSelectRow = -1;
   int contextRow = -1;
   //  Viewport moves only through explicit paths (keyboard navigation,
   //  auto-follow, anchor focus). EnsureVisible fired on our behalf — presses,

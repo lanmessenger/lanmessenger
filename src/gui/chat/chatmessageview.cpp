@@ -442,6 +442,7 @@ void ChatMessageView::copyAction_triggered() {
 void ChatMessageView::selectAllAction_triggered() {
   //  Mid-drag Ctrl+A must not inherit a stale scroll timer position.
   stopSelectionScroll();
+  resetWordSelect();
   QModelIndex target;
   //  Open menu wins: Select All means "the whole bubble under the cursor",
   //  not a stale selection from another bubble.
@@ -485,6 +486,7 @@ QModelIndex ChatMessageView::textIndexAt(const QPoint& pos, int* charPos) const 
 
 void ChatMessageView::clearTextSelection() {
   stopSelectionScroll();
+  resetWordSelect();
   const bool had = bubbleDelegate->hasTextSelection() || textSelecting;
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
@@ -492,6 +494,35 @@ void ChatMessageView::clearTextSelection() {
   if(had)
     viewport()->update();
 }
+
+void ChatMessageView::resetWordSelect() {
+  wordSelectTimer.invalidate();
+  wordSelectRow = -1;
+}
+
+bool ChatMessageView::tryTripleSelect(const QModelIndex& textIdx) {
+  if(!textIdx.isValid())
+    return false;
+  if(!bubbleDelegate->hasTextSelection())
+    return false;
+  if(textIdx.row() != bubbleDelegate->selectionRow() || textIdx.row() != wordSelectRow)
+    return false;
+  if(!wordSelectTimer.isValid() ||
+     wordSelectTimer.elapsed() > QApplication::doubleClickInterval())
+    return false;
+  stopSelectionScroll();
+  bubbleDelegate->clearFocusAnchor();
+  focusRow = -1;
+  focusHref.clear();
+  setCurrentWithoutScroll(textIdx);
+  bubbleDelegate->selectAllText(textIdx, indexOption(textIdx));
+  textSelecting = true;
+  wordSelecting = false;
+  resetWordSelect();
+  viewport()->update();
+  return true;
+}
+
 QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
   QModelIndex idx = indexAt(pos);
   if(!idx.isValid())
@@ -552,6 +583,9 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   focusHref.clear();
   wordSelecting = false;
   stopSelectionScroll();
+  if(tryTripleSelect(textIdx))
+    return;
+  resetWordSelect();
   if(textIdx.isValid()) {
     setCurrentWithoutScroll(textIdx);
     bubbleDelegate->setTextSelection(textIdx.row(), charPos, charPos);
@@ -576,6 +610,8 @@ void ChatMessageView::mouseDoubleClickEvent(QMouseEvent* event) {
     return;
   }
   QModelIndex textIdx = textIndexAt(event->pos());
+  if(tryTripleSelect(textIdx))
+    return;
   if(textIdx.isValid()) {
     setCurrentWithoutScroll(textIdx);
     bubbleDelegate->clearFocusAnchor();
@@ -584,10 +620,13 @@ void ChatMessageView::mouseDoubleClickEvent(QMouseEvent* event) {
     if(bubbleDelegate->selectWordAt(textIdx, indexOption(textIdx), event->pos())) {
       textSelecting = true;
       wordSelecting = true;
+      wordSelectTimer.restart();
+      wordSelectRow = textIdx.row();
       viewport()->update();
       return;
     }
   }
+  resetWordSelect();
   QListView::mouseDoubleClickEvent(event);
 }
 
@@ -631,6 +670,7 @@ void ChatMessageView::mouseReleaseEvent(QMouseEvent* event) {
 void ChatMessageView::focusOutEvent(QFocusEvent* event) {
   if(textSelecting)
     finishTextDrag();
+  resetWordSelect();
   QListView::focusOutEvent(event);
 }
 
@@ -646,6 +686,7 @@ void ChatMessageView::scrollTo(const QModelIndex& index, ScrollHint hint) {
 void ChatMessageView::hideEvent(QHideEvent* event) {
   if(textSelecting)
     finishTextDrag();
+  resetWordSelect();
   QListView::hideEvent(event);
 }
 
@@ -657,10 +698,12 @@ void ChatMessageView::extendSelectionTo(const QPoint& pos) {
   const int clamped = bubbleDelegate->charPosClamped(pos, indexOption(idx), idx);
   if(clamped < 0)
     return;
-  if(wordSelecting)
+  if(wordSelecting) {
+    resetWordSelect();
     bubbleDelegate->extendSelectionWordwise(clamped);
-  else
+  } else {
     bubbleDelegate->extendSelection(clamped);
+  }
   viewport()->update();
 }
 
@@ -905,6 +948,7 @@ void ChatMessageView::onDataChanged(const QModelIndex& topLeft, const QModelInde
 
 void ChatMessageView::onModelReset() {
   stopSelectionScroll();
+  resetWordSelect();
   bubbleDelegate->invalidateCache();
   bubbleDelegate->clearTextSelection();
   textSelecting = false;

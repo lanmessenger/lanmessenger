@@ -108,6 +108,12 @@ void dblClick(ChatMessageView& view, const QPoint& pos) {
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
 }
 
+//  Third fast press on the same bubble: must select the whole bubble.
+void triplePress(ChatMessageView& view, const QPoint& pos) {
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
+}
+
 bool findTextPos(ChatMessageView& view, int row, QPoint* out) {
   auto* delegate = view.findChild<BubbleDelegate*>();
   if(delegate == nullptr || out == nullptr)
@@ -170,6 +176,27 @@ QString copiedText(ChatMessageView& view) {
   return QApplication::clipboard()->text();
 }
 
+bool dblClickWord(ChatMessageView& view, const QString& body, int row, QPoint* out,
+                  const QString& expected = QString()) {
+  const QRect rowRect = view.visualRect(view.model()->index(row, 0));
+  const QPoint miss(200, view.viewport()->height() - 10);
+  const QStringList words = body.split(QLatin1Char(' '));
+  for(int x = rowRect.left() + 10; x < rowRect.right() - 10; x += 8) {
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+    const QPoint pos(x, rowRect.center().y());
+    dblClick(view, pos);
+    const QString cand = copiedText(view);
+    const bool match =
+      expected.isEmpty() ? (!cand.isEmpty() && words.contains(cand)) : (cand == expected);
+    if(match) {
+      if(out != nullptr)
+        *out = pos;
+      return true;
+    }
+  }
+  return false;
+}
+
 } // namespace
 
 class TstChatSelectAll : public QObject {
@@ -208,6 +235,13 @@ private slots:
   void doubleClickDragExtendsBackwardByWholeWords();
   void doubleClickOnLinkSelectsNothing();
   void doubleClickOnFileLinkActivatesOnce();
+  void tripleClickSelectsWholeBubble();
+  void tripleClickOtherRowStartsNewSelection();
+  void tripleClickAfterIntervalStartsNewSelection();
+  void repeatedDoubleClickSelectsWholeBubble();
+  void tripleAfterSelectAllStartsNewSelection();
+  void tripleAfterFailedDoubleStartsNewSelection();
+  void tripleAfterWordDragStartsNewSelection();
   void dragEdgeScrollsAndExtendsSelection();
   void dragTopEdgeScrollsAndExtendsSelection();
   void hideDuringDragRestoresAutoScroll();
@@ -658,21 +692,10 @@ void TstChatSelectAll::doubleClickSelectsSingleWord() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
-  const QPoint miss(200, view.viewport()->height() - 10);
-  const QStringList words = body.split(QLatin1Char(' '));
-  QString word;
-  bool found = false;
-  for(int x = rowRect.left() + 10; x < rowRect.right() - 10 && !found; x += 8) {
-    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
-    dblClick(view, QPoint(x, rowRect.center().y()));
-    const QString cand = copiedText(view);
-    if(!cand.isEmpty() && words.contains(cand)) {
-      word = cand;
-      found = true;
-    }
-  }
-  QVERIFY(found);
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  const QString word = copiedText(view);
+  QVERIFY(!word.isEmpty());
   QVERIFY(!word.contains(QLatin1Char(' ')));
 }
 
@@ -681,21 +704,10 @@ void TstChatSelectAll::doubleClickDragExtendsByWholeWords() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
-  const QPoint miss(200, view.viewport()->height() - 10);
   QPoint anchorPos;
-  bool anchored = false;
-  for(int x = rowRect.left() + 10; x < rowRect.right() - 10 && !anchored; x += 8) {
-    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
-    const QPoint pos(x, rowRect.center().y());
-    dblClick(view, pos);
-    if(copiedText(view) == QStringLiteral("alpha")) {
-      anchorPos = pos;
-      anchored = true;
-    }
-  }
-  QVERIFY(anchored);
+  QVERIFY(dblClickWord(view, body, 0, &anchorPos, QStringLiteral("alpha")));
 
+  const QPoint miss(200, view.viewport()->height() - 10);
   QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
@@ -719,21 +731,10 @@ void TstChatSelectAll::doubleClickDragExtendsBackwardByWholeWords() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QRect rowRect = view.visualRect(view.model()->index(0, 0));
-  const QPoint miss(200, view.viewport()->height() - 10);
   QPoint anchorPos;
-  bool anchored = false;
-  for(int x = rowRect.right() - 10; x > rowRect.left() + 10 && !anchored; x -= 8) {
-    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
-    const QPoint pos(x, rowRect.center().y());
-    dblClick(view, pos);
-    if(copiedText(view) == QStringLiteral("echo")) {
-      anchorPos = pos;
-      anchored = true;
-    }
-  }
-  QVERIFY(anchored);
+  QVERIFY(dblClickWord(view, body, 0, &anchorPos, QStringLiteral("echo")));
 
+  const QPoint miss(200, view.viewport()->height() - 10);
   QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
@@ -813,6 +814,112 @@ void TstChatSelectAll::doubleClickOnFileLinkActivatesOnce() {
   QSignalSpy sent(&view, &ChatMessageView::messageSent);
   dblClick(view, acceptPos);
   QCOMPARE(sent.count(), 1);
+}
+
+void TstChatSelectAll::tripleClickSelectsWholeBubble() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  triplePress(view, wordPos);
+  QCOMPARE(copiedText(view), body);
+}
+
+void TstChatSelectAll::tripleClickOtherRowStartsNewSelection() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QVERIFY(dblClickWord(view, body, 0, nullptr));
+
+  QPoint other;
+  QVERIFY(findTextPos(view, 1, &other));
+  triplePress(view, other);
+  QVERIFY(copiedText(view).isEmpty());
+}
+
+void TstChatSelectAll::tripleClickAfterIntervalStartsNewSelection() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  QTest::qWait(QApplication::doubleClickInterval() + 200);
+  triplePress(view, wordPos);
+  QVERIFY(copiedText(view).isEmpty());
+}
+
+void TstChatSelectAll::repeatedDoubleClickSelectsWholeBubble() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, wordPos,
+                  view.viewport()->mapToGlobal(wordPos), Qt::LeftButton, Qt::LeftButton,
+                  Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, wordPos);
+  QCOMPARE(copiedText(view), body);
+}
+
+void TstChatSelectAll::tripleAfterSelectAllStartsNewSelection() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  invoke(view, "selectAllAction_triggered");
+  QCOMPARE(copiedText(view), body);
+  triplePress(view, wordPos);
+  QVERIFY(copiedText(view).isEmpty());
+}
+
+void TstChatSelectAll::tripleAfterFailedDoubleStartsNewSelection() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint wordPos;
+  QVERIFY(dblClickWord(view, body, 0, &wordPos));
+  const QPoint miss(200, view.viewport()->height() - 10);
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, miss, view.viewport()->mapToGlobal(miss),
+                  Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+  triplePress(view, wordPos);
+  QVERIFY(copiedText(view).isEmpty());
+}
+
+void TstChatSelectAll::tripleAfterWordDragStartsNewSelection() {
+  ChatMessageView view;
+  const QString body = QStringLiteral("alpha bravo charlie delta echo");
+  setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
+
+  QPoint anchorPos;
+  QVERIFY(dblClickWord(view, body, 0, &anchorPos, QStringLiteral("alpha")));
+
+  const QPoint miss(200, view.viewport()->height() - 10);
+  QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, anchorPos);
+  QMouseEvent dbl(QEvent::MouseButtonDblClick, anchorPos,
+                  view.viewport()->mapToGlobal(anchorPos), Qt::LeftButton, Qt::LeftButton,
+                  Qt::NoModifier);
+  QApplication::sendEvent(view.viewport(), &dbl);
+  const QPoint end = anchorPos + QPoint(220, 0);
+  dragMove(view, end);
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, end);
+  const QString frag = copiedText(view);
+  QVERIFY(frag.startsWith(QStringLiteral("alpha")));
+  QVERIFY(frag.size() > QStringLiteral("alpha").size());
+  triplePress(view, anchorPos);
+  QVERIFY(copiedText(view).isEmpty());
 }
 
 void TstChatSelectAll::dragEdgeScrollsAndExtendsSelection() {
