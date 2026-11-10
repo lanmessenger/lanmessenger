@@ -9,6 +9,7 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QScrollBar>
 #include <QTimer>
 
 #include "core/definitions.h"
@@ -107,6 +108,58 @@ void dblClick(ChatMessageView& view, const QPoint& pos) {
   QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pos);
 }
 
+bool findTextPos(ChatMessageView& view, int row, QPoint* out) {
+  auto* delegate = view.findChild<BubbleDelegate*>();
+  if(delegate == nullptr || out == nullptr)
+    return false;
+  const QModelIndex idx = view.model()->index(row, 0);
+  if(!idx.isValid())
+    return false;
+  QStyleOptionViewItem opt;
+  opt.initFrom(&view);
+  opt.rect = view.visualRect(idx);
+  opt.widget = view.viewport();
+  for(int y = 8; y < view.viewport()->height() - 8; y += 4) {
+    for(int x = 16; x < view.viewport()->width() - 16; x += 8) {
+      const QPoint p(x, y);
+      if(delegate->charPosAt(p, opt, idx) >= 0) {
+        *out = p;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool findTextPosNearY(ChatMessageView& view, int row, int targetY, QPoint* out) {
+  auto* delegate = view.findChild<BubbleDelegate*>();
+  if(delegate == nullptr || out == nullptr)
+    return false;
+  const QModelIndex idx = view.model()->index(row, 0);
+  if(!idx.isValid())
+    return false;
+  QStyleOptionViewItem opt;
+  opt.initFrom(&view);
+  opt.rect = view.visualRect(idx);
+  opt.widget = view.viewport();
+  const int cx = view.viewport()->width() / 2;
+  int bestY = -1;
+  int bestDist = 1000000;
+  for(int y = 8; y < view.viewport()->height() - 8; y += 2) {
+    if(delegate->charPosAt(QPoint(cx, y), opt, idx) >= 0) {
+      const int d = qAbs(y - targetY);
+      if(d < bestDist) {
+        bestDist = d;
+        bestY = y;
+      }
+    }
+  }
+  if(bestY < 0)
+    return false;
+  *out = QPoint(cx, bestY);
+  return true;
+}
+
 void invoke(ChatMessageView& view, const char* slot) {
   QVERIFY(QMetaObject::invokeMethod(&view, slot));
 }
@@ -155,6 +208,13 @@ private slots:
   void doubleClickDragExtendsBackwardByWholeWords();
   void doubleClickOnLinkSelectsNothing();
   void doubleClickOnFileLinkActivatesOnce();
+  void dragEdgeScrollsAndExtendsSelection();
+  void dragTopEdgeScrollsAndExtendsSelection();
+  void hideDuringDragRestoresAutoScroll();
+  void selectAllDuringEdgeDragKeepsFullText();
+  void pressMidBubbleKeepsScrollPosition();
+  void pressWithCurrentPresetKeepsScrollPosition();
+  void unreleasedPressKeepsScrollPosition();
 };
 
 //  KeyProbe exposes event() return value (swallowed vs propagated).
@@ -753,6 +813,249 @@ void TstChatSelectAll::doubleClickOnFileLinkActivatesOnce() {
   QSignalSpy sent(&view, &ChatMessageView::messageSent);
   dblClick(view, acceptPos);
   QCOMPARE(sent.count(), 1);
+}
+
+void TstChatSelectAll::dragEdgeScrollsAndExtendsSelection() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  QStringList lines;
+  for(int i = 0; i < 120; ++i)
+    lines << QStringLiteral("line %1 lorem ipsum dolor").arg(i, 3, 10, QChar('0'));
+  appendText(view, lines.join(QChar('\n')));
+  QCOMPARE(view.rowCount(), 1);
+  view.scrollToTop();
+
+  QPoint pressPos;
+  QVERIFY(findTextPos(view, 0, &pressPos));
+  QVERIFY(view.verticalScrollBar()->maximum() > view.verticalScrollBar()->minimum());
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  //  Past the viewport edge, like a real drag out of the window.
+  const QPoint edgePos(pressPos.x(), view.viewport()->height() + 40);
+  dragMove(view, edgePos);
+  const QString before = copiedText(view);
+  QVERIFY(!before.isEmpty());
+  const int startValue = view.verticalScrollBar()->value();
+  for(int i = 0;
+      i < 400 && view.verticalScrollBar()->value() < view.verticalScrollBar()->maximum();
+      ++i)
+    QVERIFY(QMetaObject::invokeMethod(&view, "onSelectionScrollTick"));
+  QVERIFY(view.verticalScrollBar()->value() > startValue);
+  const QString after = copiedText(view);
+  QVERIFY(after.size() > before.size());
+  QVERIFY(after.endsWith(lines.last()));
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, edgePos);
+}
+
+void TstChatSelectAll::hideDuringDragRestoresAutoScroll() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(true);
+  for(int i = 0; i < 25; ++i)
+    appendText(view, QStringLiteral("row %1 alpha bravo charlie").arg(i));
+  view.scrollToTop();
+  QCOMPARE(view.verticalScrollBar()->value(), view.verticalScrollBar()->minimum());
+  QVERIFY(view.verticalScrollBar()->maximum() > view.verticalScrollBar()->minimum());
+
+  QPoint pressPos;
+  QVERIFY(findTextPos(view, 0, &pressPos));
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  dragMove(view, pressPos + QPoint(60, 0));
+  QVERIFY(!copiedText(view).isEmpty());
+  //  Hidden mid-drag: the release is lost, the drag still has to finish.
+  view.hide();
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view, 5000));
+  appendText(view, QStringLiteral("final row alpha bravo charlie"));
+  QCOMPARE(view.verticalScrollBar()->value(), view.verticalScrollBar()->maximum());
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+}
+
+void TstChatSelectAll::selectAllDuringEdgeDragKeepsFullText() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  for(int i = 0; i < 25; ++i)
+    appendText(view, QStringLiteral("row %1 alpha bravo charlie").arg(i));
+  view.scrollToTop();
+
+  QPoint pressPos;
+  QVERIFY(findTextPos(view, 0, &pressPos));
+  QVERIFY(view.verticalScrollBar()->maximum() > view.verticalScrollBar()->minimum());
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  dragMove(view, QPoint(pressPos.x(), view.viewport()->height() + 40));
+  QVERIFY(QMetaObject::invokeMethod(&view, "selectAllAction_triggered"));
+  const QString full = copiedText(view);
+  QCOMPARE(full, QStringLiteral("row 0 alpha bravo charlie"));
+  const int held = view.verticalScrollBar()->value();
+  QVERIFY(QMetaObject::invokeMethod(&view, "onSelectionScrollTick"));
+  QCOMPARE(view.verticalScrollBar()->value(), held);
+  QCOMPARE(copiedText(view), full);
+  //  Drag continues: the next move re-extends from the select-all anchor.
+  dragMove(view, pressPos + QPoint(60, 0));
+  const QString continued = copiedText(view);
+  QVERIFY(!continued.isEmpty());
+  QVERIFY(continued.size() < full.size());
+  QVERIFY(full.startsWith(continued));
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+}
+
+void TstChatSelectAll::dragTopEdgeScrollsAndExtendsSelection() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  QStringList lines;
+  for(int i = 0; i < 120; ++i)
+    lines << QStringLiteral("line %1 lorem ipsum dolor").arg(i, 3, 10, QChar('0'));
+  appendText(view, lines.join(QChar('\n')));
+  QCOMPARE(view.rowCount(), 1);
+  //  visualRect forces the deferred layout; scrollToBottom before it is a no-op.
+  QVERIFY(!view.visualRect(view.model()->index(0, 0)).isNull());
+  view.scrollToBottom();
+
+  QPoint pressPos;
+  QVERIFY(findTextPos(view, 0, &pressPos));
+  QVERIFY(view.verticalScrollBar()->maximum() > view.verticalScrollBar()->minimum());
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  //  Press keeps the scrollbar (setCurrentWithoutScroll); ensure the setup
+  //  starts from the bottom regardless.
+  view.scrollToBottom();
+  dragMove(view, QPoint(pressPos.x(), -40));
+  const QString before = copiedText(view);
+  QVERIFY(!before.isEmpty());
+  const int startValue = view.verticalScrollBar()->value();
+  QVERIFY(startValue > view.verticalScrollBar()->minimum());
+  for(int i = 0;
+      i < 400 && view.verticalScrollBar()->value() > view.verticalScrollBar()->minimum();
+      ++i)
+    QVERIFY(QMetaObject::invokeMethod(&view, "onSelectionScrollTick"));
+  QVERIFY(view.verticalScrollBar()->value() < startValue);
+  const QString after = copiedText(view);
+  QVERIFY(after.size() > before.size());
+  QVERIFY(after.startsWith(lines.first()));
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+}
+
+namespace {
+
+void appendSmallRows(ChatMessageView& view) {
+  for(int i = 0; i < 3; ++i)
+    appendText(view, QStringLiteral("row %1 alpha bravo charlie").arg(i));
+}
+
+QString bigBody() {
+  QStringList lines;
+  for(int i = 0; i < 150; ++i)
+    lines << QStringLiteral("line %1 lorem ipsum dolor sit amet").arg(i, 3, 10, QChar('0'));
+  return lines.join(QChar('\n'));
+}
+
+//  Big bubble is the last row: its top is above minimum, so a jump to the
+//  row top is distinguishable from a jump to the very top.
+bool positionMidBubble(ChatMessageView& view, int bigRow, int* midOut, int* rowTopOut) {
+  auto* sb = view.verticalScrollBar();
+  const QModelIndex bigIdx = view.model()->index(bigRow, 0);
+  //  visualRect forces the deferred layout; positioning before it is a no-op.
+  const QRect vr = view.visualRect(bigIdx);
+  if(vr.isNull() || midOut == nullptr)
+    return false;
+  const int rowTop = sb->value() + vr.top();
+  const int mid = rowTop + vr.height() / 2 - view.viewport()->height() / 2;
+  sb->setValue(mid);
+  if(rowTopOut != nullptr)
+    *rowTopOut = rowTop;
+  *midOut = sb->value();
+  return true;
+}
+
+} // namespace
+
+void TstChatSelectAll::pressMidBubbleKeepsScrollPosition() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  appendSmallRows(view);
+  appendText(view, bigBody());
+  QCOMPARE(view.rowCount(), 4);
+
+  auto* sb = view.verticalScrollBar();
+  int rowTop = 0;
+  int before = 0;
+  QVERIFY(positionMidBubble(view, 3, &before, &rowTop));
+  QVERIFY(sb->maximum() > sb->minimum());
+  QVERIFY(before > rowTop);
+  QVERIFY(before > sb->minimum());
+
+  QPoint pressPos;
+  QVERIFY(findTextPosNearY(view, 3, view.viewport()->height() / 2, &pressPos));
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  const int afterPress = sb->value();
+  auto* delegate = view.findChild<BubbleDelegate*>();
+  QVERIFY(delegate != nullptr);
+  const bool hit = delegate->hasTextSelection() || delegate->selectionRow() >= 0;
+  dragMove(view, pressPos + QPoint(30, 10));
+  const int afterMove = sb->value();
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  QVERIFY(hit);
+  QCOMPARE(afterPress, before);
+  QCOMPARE(afterMove, before);
+}
+
+void TstChatSelectAll::pressWithCurrentPresetKeepsScrollPosition() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  appendSmallRows(view);
+  appendText(view, bigBody());
+  QCOMPARE(view.rowCount(), 4);
+
+  auto* sb = view.verticalScrollBar();
+  //  Current already on the big row: taking it again must be a no-op.
+  view.setCurrentIndex(view.model()->index(3, 0));
+  int rowTop = 0;
+  int before = 0;
+  QVERIFY(positionMidBubble(view, 3, &before, &rowTop));
+  QVERIFY(sb->maximum() > sb->minimum());
+  QVERIFY(before > rowTop);
+
+  QPoint pressPos;
+  QVERIFY(findTextPosNearY(view, 3, view.viewport()->height() / 2, &pressPos));
+  QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  const int afterPress = sb->value();
+  dragMove(view, pressPos + QPoint(30, 10));
+  const int afterMove = sb->value();
+  QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::NoModifier, pressPos);
+  QCOMPARE(afterPress, before);
+  QCOMPARE(afterMove, before);
+}
+
+//  A press whose release never reaches the view (swallowed by a modal popup)
+//  must not scroll later: Qt fires a deferred timer that scrolls the row
+//  into view, and only the release stops it.
+void TstChatSelectAll::unreleasedPressKeepsScrollPosition() {
+  ChatMessageView view;
+  showView(view);
+  view.setAutoScroll(false);
+  appendSmallRows(view);
+  appendText(view, bigBody());
+  QCOMPARE(view.rowCount(), 4);
+
+  auto* sb = view.verticalScrollBar();
+  int rowTop = 0;
+  int before = 0;
+  QVERIFY(positionMidBubble(view, 3, &before, &rowTop));
+  QVERIFY(sb->maximum() > sb->minimum());
+  QVERIFY(before > rowTop);
+
+  QPoint pressPos;
+  QVERIFY(findTextPosNearY(view, 3, view.viewport()->height() / 2, &pressPos));
+  QTest::mousePress(view.viewport(), Qt::RightButton, Qt::NoModifier, pressPos);
+  QCOMPARE(sb->value(), before);
+  //  No release: outlive the deferred editing timer, let the loop pump.
+  QTest::qWait(QApplication::doubleClickInterval() + 500);
+  QCOMPARE(sb->value(), before);
+  QTest::mouseRelease(view.viewport(), Qt::RightButton, Qt::NoModifier, pressPos);
+  QCOMPARE(sb->value(), before);
 }
 
 QTEST_MAIN(TstChatSelectAll)

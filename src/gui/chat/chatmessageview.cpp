@@ -7,7 +7,9 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
+#include <QFocusEvent>
 #include <QHelpEvent>
+#include <QHideEvent>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMouseEvent>
@@ -15,6 +17,7 @@
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QTextDocument>
+#include <QTimer>
 #include <QToolTip>
 #include <QUrl>
 
@@ -33,6 +36,12 @@ void decodeForSave(QString* text) {
   *text = RowHtmlBuilder::decodeBody(*text, false, true, false, QString());
 }
 
+//  Timer moves the scrollbar, charPosClamped pins the edge to 0/len.
+constexpr int kSelectionScrollMargin = 20;
+constexpr int kSelectionScrollIntervalMs = 40;
+constexpr int kSelectionScrollMinStep = 12;
+constexpr int kSelectionScrollMaxStep = 80;
+
 } // namespace
 
 ChatMessageView::ChatMessageView(QWidget* parent)
@@ -46,12 +55,19 @@ ChatMessageView::ChatMessageView(QWidget* parent)
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setUniformItemSizes(false);
   setSelectionMode(QAbstractItemView::NoSelection);
+  //  Read-only bubbles: QStyledItemDelegate would otherwise spawn default
+  //  line-edit editors (e.g. on double-click), which have no meaning here.
+  setEditTriggers(QAbstractItemView::NoEditTriggers);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
   viewport()->setMouseTracking(true);
   setAcceptDrops(false);
 
   createContextMenu();
+  selectionScrollTimer = new QTimer(this);
+  selectionScrollTimer->setInterval(kSelectionScrollIntervalMs);
+  connect(selectionScrollTimer, &QTimer::timeout, this,
+          &ChatMessageView::onSelectionScrollTick);
   connect(chatModel, &QAbstractItemModel::rowsInserted, this, &ChatMessageView::onRowsInserted);
   connect(chatModel, &QAbstractItemModel::rowsRemoved, this, &ChatMessageView::onRowsRemoved);
   connect(chatModel, &QAbstractItemModel::modelReset, this, &ChatMessageView::onModelReset);
@@ -285,8 +301,10 @@ bool ChatMessageView::restoreMessageLog(QString filePath, bool reload) {
   hasData = chatModel->hasData;
   if(reload)
     reloadMessageLog();
-  if(autoScroll)
+  if(autoScroll) {
+    const ScrollToGuard guard(&allowScrollTo);
     scrollToBottom();
+  }
   return true;
 }
 
@@ -407,7 +425,7 @@ void ChatMessageView::showContextMenu(const QPoint& pos) {
   contextRow = menuRow.isValid() ? menuRow.row() : -1;
   if(!bubbleDelegate->hasTextSelection()) {
     if(menuRow.isValid())
-      setCurrentIndex(menuRow);
+      setCurrentWithoutScroll(menuRow);
   }
   copyAction->setEnabled(bubbleDelegate->hasTextSelection());
   selectAllAction->setEnabled(chatModel->rowCount() > 0);
@@ -422,6 +440,8 @@ void ChatMessageView::copyAction_triggered() {
 }
 
 void ChatMessageView::selectAllAction_triggered() {
+  //  Mid-drag Ctrl+A must not inherit a stale scroll timer position.
+  stopSelectionScroll();
   QModelIndex target;
   //  Open menu wins: Select All means "the whole bubble under the cursor",
   //  not a stale selection from another bubble.
@@ -436,7 +456,7 @@ void ChatMessageView::selectAllAction_triggered() {
   }
   if(!target.isValid())
     return;
-  setCurrentIndex(target);
+  setCurrentWithoutScroll(target);
   bubbleDelegate->selectAllText(target, indexOption(target));
   wordSelecting = false;
   viewport()->update();
@@ -464,6 +484,7 @@ QModelIndex ChatMessageView::textIndexAt(const QPoint& pos, int* charPos) const 
 }
 
 void ChatMessageView::clearTextSelection() {
+  stopSelectionScroll();
   const bool had = bubbleDelegate->hasTextSelection() || textSelecting;
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
@@ -487,6 +508,17 @@ QModelIndex ChatMessageView::anchorRowAt(const QPoint& pos, QString* href) {
   return idx;
 }
 
+//  Taking current on a row taller than the viewport scrolls it into view
+//  (Qt shows the row top); a press always lands on visible content, so the
+//  viewport must stay where it is. Conditional restore: no move, no churn.
+void ChatMessageView::setCurrentWithoutScroll(const QModelIndex& index) {
+  QScrollBar* sb = verticalScrollBar();
+  const int held = sb->value();
+  setCurrentIndex(index);
+  if(sb->value() != held)
+    sb->setValue(held);
+}
+
 void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   if(event->button() == Qt::RightButton) {
     QModelIndex menuRow = indexAt(event->pos());
@@ -496,7 +528,7 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
       if(bubbleDelegate->hasTextSelection() &&
          menuRow.row() != bubbleDelegate->selectionRow())
         clearTextSelection();
-      setCurrentIndex(menuRow);
+      setCurrentWithoutScroll(menuRow);
     }
     QListView::mousePressEvent(event);
     return;
@@ -509,7 +541,7 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   QModelIndex anchorIdx = anchorRowAt(event->pos(), &href);
   if(anchorIdx.isValid() && !href.isEmpty()) {
     clearTextSelection();
-    setCurrentIndex(anchorIdx);
+    setCurrentWithoutScroll(anchorIdx);
     activateHref(href);
     return;
   }
@@ -519,8 +551,9 @@ void ChatMessageView::mousePressEvent(QMouseEvent* event) {
   focusRow = -1;
   focusHref.clear();
   wordSelecting = false;
+  stopSelectionScroll();
   if(textIdx.isValid()) {
-    setCurrentIndex(textIdx);
+    setCurrentWithoutScroll(textIdx);
     bubbleDelegate->setTextSelection(textIdx.row(), charPos, charPos);
     textSelecting = true;
     viewport()->update();
@@ -539,12 +572,12 @@ void ChatMessageView::mouseDoubleClickEvent(QMouseEvent* event) {
   QModelIndex anchorIdx = anchorRowAt(event->pos(), &href);
   if(anchorIdx.isValid() && !href.isEmpty()) {
     clearTextSelection();
-    setCurrentIndex(anchorIdx);
+    setCurrentWithoutScroll(anchorIdx);
     return;
   }
   QModelIndex textIdx = textIndexAt(event->pos());
   if(textIdx.isValid()) {
-    setCurrentIndex(textIdx);
+    setCurrentWithoutScroll(textIdx);
     bubbleDelegate->clearFocusAnchor();
     focusRow = -1;
     focusHref.clear();
@@ -560,18 +593,8 @@ void ChatMessageView::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
   if(textSelecting && (event->buttons() & Qt::LeftButton)) {
-    int row = bubbleDelegate->selectionRow();
-    QModelIndex idx = chatModel->index(row, 0);
-    if(idx.isValid()) {
-      int clamped = bubbleDelegate->charPosClamped(event->pos(), indexOption(idx), idx);
-      if(clamped >= 0) {
-        if(wordSelecting)
-          bubbleDelegate->extendSelectionWordwise(clamped);
-        else
-          bubbleDelegate->extendSelection(clamped);
-        viewport()->update();
-      }
-    }
+    extendSelectionTo(event->pos());
+    startOrUpdateSelectionScroll(event->pos());
     viewport()->setCursor(Qt::IBeamCursor);
     return;
   }
@@ -599,15 +622,117 @@ void ChatMessageView::mouseMoveEvent(QMouseEvent* event) {
 
 void ChatMessageView::mouseReleaseEvent(QMouseEvent* event) {
   if(textSelecting && event->button() == Qt::LeftButton) {
-    textSelecting = false;
-    wordSelecting = false;
-    if(!bubbleDelegate->hasTextSelection())
-      bubbleDelegate->clearTextSelection();
-    viewport()->unsetCursor();
-    viewport()->update();
+    finishTextDrag();
     return;
   }
   QListView::mouseReleaseEvent(event);
+}
+
+void ChatMessageView::focusOutEvent(QFocusEvent* event) {
+  if(textSelecting)
+    finishTextDrag();
+  QListView::focusOutEvent(event);
+}
+
+void ChatMessageView::scrollTo(const QModelIndex& index, ScrollHint hint) {
+  //  EnsureVisible is what Qt fires on our behalf (current-taking, deferred
+  //  timers, layout replays): only explicit paths may move the viewport.
+  //  Other hints (follow-to-bottom etc.) always go through.
+  if(hint == EnsureVisible && !allowScrollTo)
+    return;
+  QListView::scrollTo(index, hint);
+}
+
+void ChatMessageView::hideEvent(QHideEvent* event) {
+  if(textSelecting)
+    finishTextDrag();
+  QListView::hideEvent(event);
+}
+
+void ChatMessageView::extendSelectionTo(const QPoint& pos) {
+  const int row = bubbleDelegate->selectionRow();
+  const QModelIndex idx = chatModel->index(row, 0);
+  if(!idx.isValid())
+    return;
+  const int clamped = bubbleDelegate->charPosClamped(pos, indexOption(idx), idx);
+  if(clamped < 0)
+    return;
+  if(wordSelecting)
+    bubbleDelegate->extendSelectionWordwise(clamped);
+  else
+    bubbleDelegate->extendSelection(clamped);
+  viewport()->update();
+}
+
+void ChatMessageView::startOrUpdateSelectionScroll(const QPoint& pos) {
+  selectionScrollPos = pos;
+  const int h = viewport()->height();
+  int dir = 0;
+  if(pos.y() < kSelectionScrollMargin)
+    dir = -1;
+  else if(pos.y() > h - kSelectionScrollMargin)
+    dir = 1;
+  selectionScrollDir = dir;
+  if(dir == 0 || verticalScrollBar()->minimum() == verticalScrollBar()->maximum()) {
+    stopSelectionScroll();
+    return;
+  }
+  if(!selectionScrollTimer->isActive())
+    selectionScrollTimer->start();
+}
+
+void ChatMessageView::stopSelectionScroll() {
+  selectionScrollDir = 0;
+  selectionScrollTimer->stop();
+}
+
+//  End of drag: the highlight stays, only the drag state dies.
+void ChatMessageView::finishTextDrag() {
+  stopSelectionScroll();
+  textSelecting = false;
+  wordSelecting = false;
+  if(!bubbleDelegate->hasTextSelection())
+    bubbleDelegate->clearTextSelection();
+  viewport()->unsetCursor();
+  viewport()->update();
+}
+
+void ChatMessageView::onSelectionScrollTick() {
+  if(!textSelecting || selectionScrollDir == 0) {
+    stopSelectionScroll();
+    return;
+  }
+  if(!(QApplication::mouseButtons() & Qt::LeftButton)) {
+    //  Release lost outside the window: finish like a release.
+    finishTextDrag();
+    return;
+  }
+  //  Re-derive: a stale tick must not scroll away.
+  const int h = viewport()->height();
+  if(selectionScrollPos.y() < kSelectionScrollMargin)
+    selectionScrollDir = -1;
+  else if(selectionScrollPos.y() > h - kSelectionScrollMargin)
+    selectionScrollDir = 1;
+  else {
+    stopSelectionScroll();
+    return;
+  }
+  QScrollBar* sb = verticalScrollBar();
+  if(sb->minimum() == sb->maximum()) {
+    stopSelectionScroll();
+    return;
+  }
+  const int over = (selectionScrollDir < 0)
+                     ? (kSelectionScrollMargin - selectionScrollPos.y())
+                     : (selectionScrollPos.y() - (h - kSelectionScrollMargin));
+  const int step = qBound(kSelectionScrollMinStep, over, kSelectionScrollMaxStep);
+  const int next = sb->value() + selectionScrollDir * step;
+  if(next != sb->value())
+    sb->setValue(next);
+  extendSelectionTo(selectionScrollPos);
+  if((selectionScrollDir < 0 && sb->value() <= sb->minimum()) ||
+     (selectionScrollDir > 0 && sb->value() >= sb->maximum()))
+    stopSelectionScroll();
 }
 
 bool ChatMessageView::viewportEvent(QEvent* event) {
@@ -683,6 +808,7 @@ bool ChatMessageView::moveAnchorFocus(int delta) {
   bubbleDelegate->setFocusAnchor(focusRow, focusHref);
   if(focusRow >= 0) {
     clearTextSelection();
+    const ScrollToGuard guard(&allowScrollTo);
     scrollTo(chatModel->index(focusRow, 0));
   }
   viewport()->update();
@@ -739,10 +865,14 @@ void ChatMessageView::onRowsInserted(const QModelIndex& parent, int first, int l
   //  Deliberately broad: an insert at/above the selection shifts content
   //  down, so the old index would mistarget another bubble; without a
   //  follow-shift API, dropping the highlight is the safe choice.
+  const bool wasSelecting = textSelecting;
   if(bubbleDelegate->hasTextSelection() && bubbleDelegate->selectionRow() >= first)
     clearTextSelection();
-  if(autoScroll)
+  //  A live drag owns the viewport; anything else may scroll.
+  if(autoScroll && !wasSelecting) {
+    const ScrollToGuard guard(&allowScrollTo);
     scrollToBottom();
+  }
   emit plainTextChanged();
 }
 
@@ -774,10 +904,12 @@ void ChatMessageView::onDataChanged(const QModelIndex& topLeft, const QModelInde
 }
 
 void ChatMessageView::onModelReset() {
+  stopSelectionScroll();
   bubbleDelegate->invalidateCache();
   bubbleDelegate->clearTextSelection();
   textSelecting = false;
   wordSelecting = false;
+  viewport()->unsetCursor();
   requestRelayout();
 }
 
@@ -856,6 +988,9 @@ bool ChatMessageView::event(QEvent* event) {
       selectAllAction_triggered();
       return true;
     }
+    //  Unhandled keys (arrows etc.): keyboard navigation owns its scrolling.
+    const ScrollToGuard guard(&allowScrollTo);
+    return QListView::event(event);
   }
   return QListView::event(event);
 }
