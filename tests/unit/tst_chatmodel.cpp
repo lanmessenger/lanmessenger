@@ -72,6 +72,8 @@ private slots:
   void typingNotStored();
   void typingDoesNotGroup();
   void textSigStable();
+  void dateBoundaryLabels();
+  void dateBoundaryTimeless();
 };
 
 
@@ -357,6 +359,54 @@ void TstChatModel::textSigStable() {
   size_t ph = typing.rowTextHash(0, &plen);
   QVERIFY(ch != ph);
   QVERIFY(clen != plen);
+}
+
+void TstChatModel::dateBoundaryLabels() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  const qint64 d1 = QDateTime(QDate(2024, 1, 10), QTime(12, 0)).toMSecsSinceEpoch();
+  const qint64 d2 = QDateTime(QDate(2024, 1, 11), QTime(9, 0)).toMSecsSinceEpoch();
+
+  XmlMessage m1 = textMessageAt(QStringLiteral("one"), d1);
+  XmlMessage m2 = textMessageAt(QStringLiteral("two"), d1 + 60 * 1000);
+  XmlMessage m3 = textMessageAt(QStringLiteral("three"), d2);
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m2);
+  model.appendMessageLog(MT_Message, &jack, &jackName, &m3);
+
+  QVERIFY(
+    !model.data(model.index(0, 0), ChatMessageModel::DateLabelRole).toString().isEmpty());
+  QVERIFY(
+    model.data(model.index(1, 0), ChatMessageModel::DateLabelRole).toString().isEmpty());
+  QVERIFY(
+    !model.data(model.index(2, 0), ChatMessageModel::DateLabelRole).toString().isEmpty());
+  QVERIFY(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool());
+  QVERIFY(!model.data(model.index(2, 0), ChatMessageModel::GroupedRole).toBool());
+}
+
+void TstChatModel::dateBoundaryTimeless() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage l1 = textMessageNoTime(QStringLiteral("one"));
+  XmlMessage l2 = textMessageNoTime(QStringLiteral("two"));
+  model.appendMessageLog(MT_Message, &jack, &jackName, &l1);
+  model.appendMessageLog(MT_Message, &jack, &jackName, &l2);
+  QVERIFY(
+    model.data(model.index(0, 0), ChatMessageModel::DateLabelRole).toString().isEmpty());
+  QVERIFY(
+    model.data(model.index(1, 0), ChatMessageModel::DateLabelRole).toString().isEmpty());
+  QVERIFY(model.data(model.index(1, 0), ChatMessageModel::GroupedRole).toBool());
+
+  XmlMessage composing = chatState(ChatStateNames[CS_Composing]);
+  model.appendMessageLog(MT_ChatState, &jack, &jackName, &composing);
+  QCOMPARE(model.rowCount(), 3);
+  QVERIFY(model.isTypingRow(2));
+  QVERIFY(model.data(model.index(2, 0), ChatMessageModel::DateLabelRole)
+            .toString()
+            .isEmpty());
 }
 
 QTEST_MAIN(TstChatModel)

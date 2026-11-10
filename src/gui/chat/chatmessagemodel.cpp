@@ -26,9 +26,7 @@ QString bodyText(XmlMessage& msg) {
 }
 
 QDateTime msgTime(XmlMessage& msg) {
-  QDateTime t;
-  t.setMSecsSinceEpoch(msg.header(XN_TIME).toLongLong());
-  return t;
+  return QDateTime::fromMSecsSinceEpoch(msg.header(XN_TIME).toLongLong());
 }
 
 } // namespace
@@ -86,6 +84,8 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   case GroupedRole: {
     if(index.row() == 0)
       return false;
+    if(isTypingRow(index.row()))
+      return false;
     const SingleMessage& prev = messageLog.at(index.row() - 1);
     if(msg.userId != prev.userId)
       return false;
@@ -99,8 +99,12 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
     XmlMessage prevXml = prev.message;
     const qint64 curTs = curXml.header(XN_TIME).toLongLong();
     const qint64 prevTs = prevXml.header(XN_TIME).toLongLong();
+    //  Decision A: timeless rows carry no date, so they join the previous
+    //  bubble and never open a date boundary themselves (see isDateBoundary).
     if(curTs <= 0 || prevTs <= 0)
       return true;
+    if(ChatHelper::isNewDay(curTs, prevTs))
+      return false;
     const qint64 dt = curTs - prevTs;
     if(dt < 0)
       return false;
@@ -124,6 +128,8 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
     return xml.data(XN_FILENAME);
   case FileSizeRole:
     return xml.data(XN_FILESIZE).toLongLong();
+  case DateLabelRole:
+    return dateLabelForRow(index.row());
   default:
     break;
   }
@@ -131,7 +137,7 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
 }
 
 QHash<int, QByteArray> ChatMessageModel::roleNames() const {
-  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}};
+  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}, {DateLabelRole, "dateLabel"}};
 }
 
 int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
@@ -351,6 +357,35 @@ const SingleMessage& ChatMessageModel::messageAt(int row) const {
   if(isTypingRow(row))
     return typingMsg;
   return messageLog.at(row);
+}
+
+bool ChatMessageModel::isDateBoundary(int row) const {
+  if(row < 0 || row >= messageLog.count())
+    return false;
+  if(isTypingRow(row))
+    return false;
+  XmlMessage curXml = messageLog.at(row).message;
+  const qint64 curTs = curXml.header(XN_TIME).toLongLong();
+  if(curTs <= 0)
+    return false;
+  if(row == 0)
+    return true;
+  XmlMessage prevXml = messageLog.at(row - 1).message;
+  const qint64 prevTs = prevXml.header(XN_TIME).toLongLong();
+  //  Decision A: a timeless predecessor bridges dates, no separator.
+  //  The boundary reappears once two dated rows are adjacent again.
+  if(prevTs <= 0)
+    return false;
+  return ChatHelper::isNewDay(curTs, prevTs);
+}
+
+QString ChatMessageModel::dateLabelForRow(int row) const {
+  if(!isDateBoundary(row))
+    return QString();
+  XmlMessage curXml = messageLog.at(row).message;
+  const qint64 curTs = curXml.header(XN_TIME).toLongLong();
+  const QDate date = ChatHelper::dateForMsecs(curTs);
+  return ChatHelper::dateSeparatorLabel(date, QDate::currentDate());
 }
 
 size_t ChatMessageModel::rowTextHash(int row, int* pLen) const {

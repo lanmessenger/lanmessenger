@@ -3,6 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
+#include <QDate>
 #include <QFont>
 #include <QStringList>
 #include <QTextBlockUserData>
@@ -48,6 +49,9 @@ QDataStream& operator>>(QDataStream& in, SingleMessage& message);
 class ChatHelper {
 public:
   static void makeHtmlSafe(QString* lpszMessage);
+  static QDate dateForMsecs(qint64 msecs);
+  static bool isNewDay(qint64 curMsecs, qint64 prevMsecs);
+  static QString dateSeparatorLabel(const QDate& date, const QDate& today);
   //  Color-emoji fallback families, emoji-first.
   static const QStringList& emojiFallbackFamilies();
   //  Emoji-first with the base family appended last: color emoji when the

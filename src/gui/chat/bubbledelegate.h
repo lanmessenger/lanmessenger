@@ -94,11 +94,16 @@ private:
     int width = -1;
     ResolvedRow row;
     RowGeometry geo;
+    QString dateLabel;
+    int dateH = 0;
   };
 
   double localPointSize() const;
   QString rowTime(const QModelIndex& index) const;
   QString fileCardHtml(const QModelIndex& index) const;
+  QFont dateFont() const;
+  QString dateLabelFor(const QModelIndex& index) const;
+  int dateStripHeight(const QString& label) const;
   int viewWidth(const QStyleOptionViewItem& option) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, contentRev).
   QString cacheKey(const QModelIndex& index, int viewportWidth) const;

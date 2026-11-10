@@ -129,7 +129,11 @@ bool findTextPos(ChatMessageView& view, int row, QPoint* out) {
     for(int x = 16; x < view.viewport()->width() - 16; x += 8) {
       const QPoint p(x, y);
       if(delegate->charPosAt(p, opt, idx) >= 0) {
-        *out = p;
+        const QPoint deeper(p.x(), p.y() + 8);
+        if(delegate->charPosAt(deeper, opt, idx) >= 0)
+          *out = deeper;
+        else
+          *out = p;
         return true;
       }
     }
@@ -181,17 +185,35 @@ bool dblClickWord(ChatMessageView& view, const QString& body, int row, QPoint* o
   const QRect rowRect = view.visualRect(view.model()->index(row, 0));
   const QPoint miss(200, view.viewport()->height() - 10);
   const QStringList words = body.split(QLatin1Char(' '));
-  for(int x = rowRect.left() + 10; x < rowRect.right() - 10; x += 8) {
-    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
-    const QPoint pos(x, rowRect.center().y());
-    dblClick(view, pos);
-    const QString cand = copiedText(view);
-    const bool match =
-      expected.isEmpty() ? (!cand.isEmpty() && words.contains(cand)) : (cand == expected);
-    if(match) {
-      if(out != nullptr)
-        *out = pos;
-      return true;
+  for(int y = rowRect.top() + 4; y < rowRect.bottom() - 2; y += 4) {
+    for(int x = rowRect.left() + 10; x < rowRect.right() - 10; x += 8) {
+      QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+      const QPoint pos(x, y);
+      dblClick(view, pos);
+      const QString cand = copiedText(view);
+      const bool match =
+        expected.isEmpty() ? (!cand.isEmpty() && words.contains(cand)) : (cand == expected);
+      if(match) {
+        QPoint anchor = pos;
+        const QPoint deeper(pos.x(), pos.y() + 8);
+        if(deeper.y() < rowRect.bottom() - 2) {
+          QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+          dblClick(view, deeper);
+          const QString deepCand = copiedText(view);
+          const bool deepMatch = expected.isEmpty()
+                                   ? (!deepCand.isEmpty() && words.contains(deepCand))
+                                   : (deepCand == expected);
+          if(deepMatch)
+            anchor = deeper;
+          else {
+            QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, miss);
+            dblClick(view, pos);
+          }
+        }
+        if(out != nullptr)
+          *out = anchor;
+        return true;
+      }
     }
   }
   return false;
@@ -344,7 +366,8 @@ void TstChatSelectAll::leftDragSelectsFragment() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QPoint start = rowCenter(view, 0);
+  QPoint start;
+  QVERIFY(findTextPos(view, 0, &start));
   const QPoint end = start + QPoint(80, 0);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
   dragMove(view, end);
@@ -494,7 +517,9 @@ void TstChatSelectAll::dragBackwardSelectsFragment() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QPoint start = rowCenter(view, 0) + QPoint(80, 0);
+  QPoint base;
+  QVERIFY(findTextPos(view, 0, &base));
+  const QPoint start = base + QPoint(80, 0);
   const QPoint end = start - QPoint(160, 0);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
   dragMove(view, end);
@@ -510,7 +535,8 @@ void TstChatSelectAll::dragClampTakesSuffix() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QPoint start = rowCenter(view, 0);
+  QPoint start;
+  QVERIFY(findTextPos(view, 0, &start));
   const int below = view.visualRect(view.model()->index(0, 0)).bottom() + 40;
   const QPoint end(start.x(), below);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
@@ -526,7 +552,8 @@ void TstChatSelectAll::dragStaysInStartRow() {
   const QString body = QStringLiteral("alpha bravo charlie delta echo");
   setupTwoRows(view, body, QStringLiteral("foxtrot golf hotel india juliet"));
 
-  const QPoint start = rowCenter(view, 0);
+  QPoint start;
+  QVERIFY(findTextPos(view, 0, &start));
   const QPoint end = rowCenter(view, 1);
   QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::NoModifier, start);
   dragMove(view, end);

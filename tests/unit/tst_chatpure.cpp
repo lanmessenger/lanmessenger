@@ -72,6 +72,7 @@ private slots:
   void emojiMatcherStartersAndContinuations();
   void emojiMatcherAllPickerEmojis();
   void emojiPickerCellFitsFont();
+  void dateSeparatorMath();
   void emojiRunLengthEdges();
   void wrapEmojiRunsSpans();
 };
@@ -422,6 +423,29 @@ void TstChatPure::wrapEmojiRunsSpans() {
   QCOMPARE(ChatHelper::wrapEmojiRuns(QStringLiteral("\U0001F600"),
                                      QStringLiteral("DejaVu Sans")),
            emojiSpanBase(QStringLiteral("\U0001F600"), QStringLiteral("DejaVu Sans")));
+}
+
+void TstChatPure::dateSeparatorMath() {
+  QVERIFY(!ChatHelper::dateForMsecs(0).isValid());
+  const qint64 noon =
+    QDateTime(QDate(2024, 3, 1), QTime(12, 0)).toMSecsSinceEpoch();
+  QCOMPARE(ChatHelper::dateForMsecs(noon), QDate(2024, 3, 1));
+  const qint64 nextMorning =
+    QDateTime(QDate(2024, 3, 2), QTime(0, 1)).toMSecsSinceEpoch();
+  QVERIFY(!ChatHelper::isNewDay(noon, noon));
+  QVERIFY(ChatHelper::isNewDay(nextMorning, noon));
+  QVERIFY(!ChatHelper::isNewDay(0, noon));
+  QVERIFY(ChatHelper::isNewDay(noon, 0));
+  QVERIFY(!ChatHelper::isNewDay(0, 0));
+  const QDate today(2026, 10, 5);
+  QCOMPARE(ChatHelper::dateSeparatorLabel(today, today), QStringLiteral("Today"));
+  QCOMPARE(ChatHelper::dateSeparatorLabel(today.addDays(-1), today),
+           QStringLiteral("Yesterday"));
+  const QString dated = ChatHelper::dateSeparatorLabel(QDate(2024, 1, 15), today);
+  QVERIFY(!dated.isEmpty());
+  QVERIFY(dated != QStringLiteral("Today"));
+  QVERIFY(dated != QStringLiteral("Yesterday"));
+  QVERIFY(ChatHelper::dateSeparatorLabel(QDate(), today).isEmpty());
 }
 
 QTEST_MAIN(TstChatPure)

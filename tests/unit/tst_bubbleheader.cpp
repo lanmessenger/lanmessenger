@@ -19,6 +19,7 @@
 #include "core/definitions.h"
 #include "core/theme.h"
 #include "gui/chat/bubbledelegate.h"
+#include "gui/chat/chatdefinitions.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "messaging/xmlmessage.h"
 
@@ -59,11 +60,20 @@ private slots:
   void resizeRecomputesHeight();
   void broadcastRectClearsViewportEdge();
   void paintRowsOffscreen();
+  void dateStripSkipsTimelessAndTyping();
 };
 
 XmlMessage textMessage(const QString& text) {
   XmlMessage m;
   m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_MESSAGE, text);
+  m.addData(XN_FONT, QFont().toString());
+  m.addData(XN_COLOR, QStringLiteral("#000000"));
+  return m;
+}
+
+XmlMessage textMessageNoTime(const QString& text) {
+  XmlMessage m;
   m.addData(XN_MESSAGE, text);
   m.addData(XN_FONT, QFont().toString());
   m.addData(XN_COLOR, QStringLiteral("#000000"));
@@ -544,6 +554,77 @@ void TstBubbleHeader::paintRowsOffscreen() {
       dark = img;
   }
   QVERIFY(light != dark);
+}
+
+void TstBubbleHeader::dateStripSkipsTimelessAndTyping() {
+  //  Delegate trusts DateLabelRole: timeless row0 and typing rows never
+  //  grow a date strip, even when their TimeRole would look like a new
+  //  day (epoch 1970 for missing XN_TIME, next-day stamp for typing).
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  QStyleOptionViewItem option;
+  option.rect = QRect(0, 0, 400, 10);
+
+  ChatMessageModel timeless;
+  XmlMessage l1 = textMessageNoTime(QStringLiteral("same"));
+  XmlMessage l2 = textMessageNoTime(QStringLiteral("same"));
+  timeless.appendMessageLog(MT_Message, &jack, &jackName, &l1);
+  timeless.appendMessageLog(MT_Message, &jack, &jackName, &l2);
+  QVERIFY(timeless.data(timeless.index(0, 0), ChatMessageModel::DateLabelRole)
+            .toString()
+            .isEmpty());
+  QVERIFY(timeless.data(timeless.index(1, 0), ChatMessageModel::DateLabelRole)
+            .toString()
+            .isEmpty());
+
+  ChatMessageModel dated;
+  const qint64 d1 =
+    QDateTime(QDate(2024, 1, 10), QTime(12, 0)).toMSecsSinceEpoch();
+  XmlMessage m1;
+  m1.addHeader(XN_TIME, QString::number(d1));
+  m1.addData(XN_MESSAGE, QStringLiteral("same"));
+  m1.addData(XN_FONT, QFont().toString());
+  m1.addData(XN_COLOR, QStringLiteral("#000000"));
+  XmlMessage m2 = m1;
+  dated.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  dated.appendMessageLog(MT_Message, &jack, &jackName, &m2);
+  QVERIFY(!dated.data(dated.index(0, 0), ChatMessageModel::DateLabelRole)
+             .toString()
+             .isEmpty());
+  QVERIFY(dated.data(dated.index(1, 0), ChatMessageModel::DateLabelRole)
+            .toString()
+            .isEmpty());
+  BubbleDelegate d;
+  d.setTheme(t);
+  //  Starter + strip is taller than starter without strip; grouped rows
+  //  without strip match each other regardless of timeless/dated.
+  QVERIFY(d.sizeHint(option, dated.index(0, 0)).height() >
+          d.sizeHint(option, timeless.index(0, 0)).height());
+  QCOMPARE(d.sizeHint(option, dated.index(1, 0)).height(),
+           d.sizeHint(option, timeless.index(1, 0)).height());
+
+  ChatMessageModel withTyping;
+  withTyping.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  XmlMessage typing;
+  typing.addHeader(XN_TIME, QString::number(d1 + 24 * 60 * 60 * 1000));
+  typing.addData(XN_CHATSTATE, ChatStateNames[CS_Composing]);
+  withTyping.appendMessageLog(MT_ChatState, &jack, &jackName, &typing);
+  QCOMPARE(withTyping.rowCount(), 2);
+  QVERIFY(withTyping.isTypingRow(1));
+  QVERIFY(withTyping.data(withTyping.index(1, 0), ChatMessageModel::DateLabelRole)
+            .toString()
+            .isEmpty());
+  ChatMessageModel sameDayTyping;
+  sameDayTyping.appendMessageLog(MT_Message, &jack, &jackName, &m1);
+  XmlMessage typingSameDay;
+  typingSameDay.addHeader(XN_TIME, QString::number(d1 + 60 * 1000));
+  typingSameDay.addData(XN_CHATSTATE, ChatStateNames[CS_Composing]);
+  sameDayTyping.appendMessageLog(MT_ChatState, &jack, &jackName, &typingSameDay);
+  //  Typing never carries a strip: same-day and next-day stamps match.
+  QCOMPARE(d.sizeHint(option, withTyping.index(1, 0)).height(),
+           d.sizeHint(option, sameDayTyping.index(1, 0)).height());
 }
 
 QTEST_MAIN(TstBubbleHeader)

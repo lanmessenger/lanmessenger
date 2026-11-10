@@ -2,7 +2,10 @@
 // Copyright (c) 2010 - 2012 Qualia Digital Solutions.
 // Copyright (c) 2026 LAN Messenger.
 #include <QFile>
+#include <QCoreApplication>
 #include <QDataStream>
+#include <QDateTime>
+#include <QLocale>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -30,6 +33,35 @@ QDataStream& operator>>(QDataStream& in, SingleMessage& message) {
 void ChatHelper::makeHtmlSafe(QString* lpszMessage) {
   for(int index = 0; index < HTMLESC_COUNT; index++)
     lpszMessage->replace(htmlSymbol[index], htmlEscape[index]);
+}
+
+QDate ChatHelper::dateForMsecs(qint64 msecs) {
+  if(msecs <= 0)
+    return QDate();
+  return QDateTime::fromMSecsSinceEpoch(msecs).date();
+}
+
+bool ChatHelper::isNewDay(qint64 curMsecs, qint64 prevMsecs) {
+  const QDate cur = dateForMsecs(curMsecs);
+  if(!cur.isValid())
+    return false;
+  if(prevMsecs <= 0)
+    return true;
+  const QDate prev = dateForMsecs(prevMsecs);
+  if(!prev.isValid())
+    return true;
+  return cur != prev;
+}
+
+QString ChatHelper::dateSeparatorLabel(const QDate& date, const QDate& today) {
+  if(!date.isValid())
+    return QString();
+  const QDate ref = today.isValid() ? today : QDate::currentDate();
+  if(date == ref)
+    return QCoreApplication::translate("ChatHelper", "Today");
+  if(date == ref.addDays(-1))
+    return QCoreApplication::translate("ChatHelper", "Yesterday");
+  return QLocale::system().toString(date, QLocale::LongFormat);
 }
 
 const QStringList& ChatHelper::emojiFallbackFamilies() {

@@ -44,7 +44,8 @@ public:
     FileOpRole,
     FileModeRole,
     FileNameRole,
-    FileSizeRole
+    FileSizeRole,
+    DateLabelRole
   };
 
   explicit ChatMessageModel(QObject* parent = nullptr);
@@ -69,6 +70,8 @@ public:
                          FileMode mode, XmlMessage* outMessage);
 
   const SingleMessage& messageAt(int row) const;
+  bool isDateBoundary(int row) const;
+  QString dateLabelForRow(int row) const;
   //  Lazy-once text signature, O(1) after the first call (stored text is immutable).
   //  Covers body text / chat-state only; file name/size are immutable after
   //  append and excluded by design (see SingleMessage::textSigHash).

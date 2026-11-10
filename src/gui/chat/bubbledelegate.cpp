@@ -3,6 +3,8 @@
 #include "bubbledelegate.h"
 
 #include <QAbstractTextDocumentLayout>
+#include <QDate>
+#include <QFontMetrics>
 #include <QListView>
 #include <QPainter>
 #include <QPainterPath>
@@ -18,6 +20,10 @@
 namespace {
 
 const int kMaxCacheEntries = 150;
+const int kDateTopGap = 8;
+const int kDateBottomGap = 8;
+const int kDatePadH = 12;
+const int kDatePadV = 4;
 
 //  Per-corner rounded rect: c is [TL, TR, BR, BL] in px, clamped to the rect.
 QPainterPath roundedCorners(const QRect& r, const int c[4]) {
@@ -103,6 +109,41 @@ QFont BubbleDelegate::headerTimeFont() const {
   QFont f;
   f.setPointSizeF(localPointSize() * theme.header.timeSize);
   return f;
+}
+
+QFont BubbleDelegate::dateFont() const {
+  QFont f = headerTimeFont();
+  f.setWeight(QFont::DemiBold);
+  return f;
+}
+
+QString BubbleDelegate::dateLabelFor(const QModelIndex& index) const {
+  QVariant v = index.data(ChatMessageModel::DateLabelRole);
+  if(v.isValid())
+    return v.toString();
+  QDateTime cur = index.data(ChatMessageModel::TimeRole).toDateTime();
+  if(!cur.isValid() || cur.toMSecsSinceEpoch() <= 0)
+    return QString();
+  QDate curDate = cur.date();
+  if(index.row() == 0)
+    return ChatHelper::dateSeparatorLabel(curDate, QDate::currentDate());
+  QDate prevDate;
+  if(index.model() != nullptr) {
+    QModelIndex prev = index.model()->index(index.row() - 1, 0);
+    if(prev.isValid())
+      prevDate = prev.data(ChatMessageModel::TimeRole).toDateTime().date();
+  }
+  if(!prevDate.isValid() || prevDate == curDate)
+    return QString();
+  return ChatHelper::dateSeparatorLabel(curDate, QDate::currentDate());
+}
+
+int BubbleDelegate::dateStripHeight(const QString& label) const {
+  if(label.isEmpty())
+    return 0;
+  QFontMetrics fm(dateFont());
+  const int pillH = fm.height() + 2 * kDatePadV;
+  return kDateTopGap + pillH + kDateBottomGap;
 }
 
 QString BubbleDelegate::rowTime(const QModelIndex& index) const {
@@ -253,13 +294,19 @@ QString BubbleDelegate::contentRev(const QModelIndex& index) const {
   QString fileOp = index.data(ChatMessageModel::FileOpRole).toString();
   QString user = index.data(ChatMessageModel::UserNameRole).toString();
   QString time = index.data(ChatMessageModel::TimeRole).toDateTime().toString(Qt::ISODate);
-  return QStringLiteral("%1|%2|%3|%4|%5|%6")
+  QString dateLabel = dateLabelFor(index);
+  QString today;
+  if(!dateLabel.isEmpty())
+    today = QDate::currentDate().toString(Qt::ISODate);
+  return QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
     .arg(textLen)
     .arg(static_cast<quint64>(textHash))
     .arg(static_cast<quint64>(qHash(avatar + fileOp + user + time)))
     .arg(index.data(ChatMessageModel::GroupedRole).toBool())
     .arg(index.data(ChatMessageModel::OwnRole).toBool())
-    .arg(index.data(ChatMessageModel::TypeRole).toInt());
+    .arg(index.data(ChatMessageModel::TypeRole).toInt())
+    .arg(dateLabel)
+    .arg(today);
 }
 
 QString BubbleDelegate::cacheKey(const QModelIndex& index, int viewportWidth) const {
@@ -297,6 +344,13 @@ const BubbleDelegate::CacheEntry& BubbleDelegate::entryFor(const QModelIndex& in
   e.row = row;
   e.geo = BubbleGeometry::buildLayout(row, viewportWidth, contentW, qCeil(docSize.height()),
                                       headerNameFont(), headerTimeFont(), theme.avatar.size);
+  e.dateLabel = dateLabelFor(index);
+  e.dateH = dateStripHeight(e.dateLabel);
+  if(e.dateH > 0) {
+    e.geo.bubbleRect.translate(0, e.dateH);
+    e.geo.docRect.translate(0, e.dateH);
+    e.geo.size.setHeight(e.geo.size.height() + e.dateH);
+  }
   cache.insert(key, e);
   return cache.constFind(key).value();
 }
@@ -345,6 +399,35 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 
   painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
 
+  if(!e.dateLabel.isEmpty() && e.dateH > 0) {
+    QFont df = dateFont();
+    QFontMetrics dfm(df);
+    const int pillH = dfm.height() + 2 * kDatePadV;
+    //  Long locale dates must not overflow a narrow viewport: clamp + elide.
+    const int availW = option.rect.width() - 2;
+    QString drawLabel = e.dateLabel;
+    int pillW = dfm.horizontalAdvance(drawLabel) + 2 * kDatePadH;
+    if(pillW > availW) {
+      const int textW = availW - 2 * kDatePadH;
+      if(textW <= 0)
+        drawLabel.clear();
+      else
+        drawLabel = dfm.elidedText(e.dateLabel, Qt::ElideRight, textW);
+      pillW = drawLabel.isEmpty() ? 0 : dfm.horizontalAdvance(drawLabel) + 2 * kDatePadH;
+    }
+    if(!drawLabel.isEmpty() && pillW > 0) {
+      const int pillX = option.rect.left() + (option.rect.width() - pillW) / 2;
+      const int pillY = top + kDateTopGap;
+      const QRect pillRect(pillX, pillY, pillW, pillH);
+      painter->setPen(Qt::NoPen);
+      painter->setBrush(Theme::pick(theme.header.timeColor, darkMode));
+      painter->drawRoundedRect(pillRect, pillH / 2, pillH / 2);
+      painter->setFont(df);
+      painter->setPen(Theme::pick(theme.page, darkMode));
+      painter->drawText(pillRect, Qt::AlignCenter, drawLabel);
+    }
+  }
+
   //  Header runs come from the layout header node (items + color
   //  overrides); series-start trees carry it, _next trees omit it.
   //  The theme header holds defaults. Name run is senderColor,
@@ -379,7 +462,7 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
     if(card == QLatin1String("outgoing"))
       hx = e.geo.bubbleRect.right() - nfm.horizontalAdvance(namePart) -
            tfm.horizontalAdvance(timePart);
-    int baseline = top + row.marginTop + e.geo.headerAscent;
+    int baseline = top + e.dateH + row.marginTop + e.geo.headerAscent;
     if(!namePart.isEmpty()) {
       painter->setFont(nf);
       painter->setPen(nameColor);
