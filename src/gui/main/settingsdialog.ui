@@ -1836,7 +1836,7 @@
                <item>
                 <widget class="QPushButton" name="btnRefreshTheme">
                  <property name="text">
-                  <string>Refresh</string>
+                  <string>Reset</string>
                  </property>
                 </widget>
                </item>
