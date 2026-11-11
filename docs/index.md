@@ -20,3 +20,4 @@ description: Guides and references for LAN Messenger.
 ## Configuration
 
 - [INI file reference](ini-file.md): location, format rules, and key-by-key reference for the preferences file.
+- [Chat themes](themes.md): user themes folder, adding a custom theme, and links to the shipped examples.
