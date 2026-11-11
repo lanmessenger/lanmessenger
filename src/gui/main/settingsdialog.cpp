@@ -66,8 +66,6 @@ lmcSettingsDialog::lmcSettingsDialog(QWidget* parent, Qt::WindowFlags flags)
   connect(ui.btnPlaySound, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnPlaySound_clicked);
   connect(ui.btnSoundPath, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnSoundPath_clicked);
   connect(ui.btnResetSounds, &QAbstractButton::clicked, this, &lmcSettingsDialog::btnResetSounds_clicked);
-  connect(ui.btnRefreshTheme, &QAbstractButton::clicked, this,
-          &lmcSettingsDialog::btnRefreshTheme_clicked);
 }
 
 lmcSettingsDialog::~lmcSettingsDialog(void) {
@@ -441,11 +439,6 @@ void lmcSettingsDialog::btnResetSounds_clicked(void) {
     pListItem->setData(Qt::UserRole, soundFile[index]);
   }
   lvSounds_currentRowChanged(ui.lvSounds->currentRow());
-}
-
-void lmcSettingsDialog::btnRefreshTheme_clicked(void) {
-  populateThemes();
-  refreshPreview();
 }
 
 void lmcSettingsDialog::populateThemes(void) {

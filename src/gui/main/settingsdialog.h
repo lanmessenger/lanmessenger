@@ -60,7 +60,6 @@ private slots:
   void btnPlaySound_clicked(void);
   void btnSoundPath_clicked(void);
   void btnResetSounds_clicked(void);
-  void btnRefreshTheme_clicked(void);
 
 private:
   void populateThemes(void);
