@@ -44,8 +44,8 @@ int showSwitches(void) {
                 "Start in loopback mode with default settings: lmc /loopback /noconfig\n"
                 "\n"
                 "Some command line switches are mutually exclusive. If multiple switches\n"
-                "are specified, they will take precedence in the order given above.\n"
-                "Copyright (C) 2010-2012 Qualia Digital Solutions.\n";
+                "are specified, they will take precedence in the order given above.\n" IDA_COPYRIGHT
+                "\n";
   QMessageBox::information(NULL, IDA_TITLE, msg, QMessageBox::Ok);
   return 0;
 }

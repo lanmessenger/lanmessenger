@@ -24,7 +24,7 @@ FILESUBTYPE     0x0L
             VALUE "FileDescription",  "LAN Messenger\0"
             VALUE "FileVersion",      "1.2.35\0"
             VALUE "InternalName",     "lanmsngr\0"
-            VALUE "LegalCopyright",   "Copyright © 2010-2012 Qualia Digital Solutions.\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2026 LAN Messenger Project.\0"
             VALUE "OriginalFilename", "lmc.exe\0"
             VALUE "ProductName",      "LAN Messenger\0"
             VALUE "ProductVersion",   "1.2.35\0"
