@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>Aujourd&apos;hui, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Hier, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,17 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>Annuler</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today, %1</source>
-        <translation>Aujourd&apos;hui, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>Hier, %1</translation>
     </message>
 </context>
 <context>
@@ -698,7 +698,7 @@
     </message>
     <message>
         <source>Show Send button in chat windows</source>
-        <translation>Afficher le bouton d'envoi dans les fenêtres de discussion</translation>
+        <translation>Afficher le bouton d&apos;envoi dans les fenêtres de discussion</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -711,10 +711,6 @@
     <message>
         <source>Mode:</source>
         <translation>Mode:</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Actualiser</translation>
     </message>
 </context>
 <context>
@@ -1380,12 +1376,8 @@ Désirez-vous vraiment continuer?</translation>
         <translation>LAN Messenger</translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN Messenger est une application gratuite de messagerie peer-to-peer pour
-les échanges intra-réseau de communication et ne nécessite pas un serveur.
-LAN Messenger fonctionne essentiellement sur chaque plate-forme de bureau populaire.</translation>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation>LAN Messenger est une application de messagerie instantanée gratuite et open source pour Windows, macOS et Linux. Discutez et transférez des fichiers sur votre réseau local sans serveur central ni connexion Internet.</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -1529,6 +1521,22 @@ LAN Messenger fonctionne essentiellement sur chaque plate-forme de bureau popula
     <message>
         <source>/sec</source>
         <translation>/ Sec</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>Dnes, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Včera, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,17 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>Zrušiť</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today, %1</source>
-        <translation>Dnes, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>Včera, %1</translation>
     </message>
 </context>
 <context>
@@ -705,10 +705,6 @@
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1374,14 +1370,6 @@ Súbor neexistuje alebo nie je kompatibilný s touto verziou programu %2.</trans
         <translation>LAN komunikátor</translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN komunikátor je bezplatná peer-to-peer komunikačná aplikácia pre
-vnútrosieťovú komunikáciu a nevyžaduje server.
-LAN komunikátor funguje na každej populárnej desktopovej platforme.</translation>
-    </message>
-    <message>
         <source>Automatic</source>
         <translation>Automaticky</translation>
     </message>
@@ -1485,6 +1473,10 @@ LAN komunikátor funguje na každej populárnej desktopovej platforme.</translat
         <source>Compact</source>
         <translation>Kompaktný</translation>
     </message>
+    <message>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcTransferWindow</name>
@@ -1523,6 +1515,22 @@ LAN komunikátor funguje na každej populárnej desktopovej platforme.</translat
     <message>
         <source>/sec</source>
         <translation>/s</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

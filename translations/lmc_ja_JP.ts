@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>今日, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>昨日, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,17 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today, %1</source>
-        <translation>今日, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>昨日, %1</translation>
     </message>
 </context>
 <context>
@@ -710,10 +710,6 @@
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1381,14 +1377,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation></translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN Messenger は、無料のピアツーピアの連絡用アプリケーションです。
-サーバーがなくても企業内でのネットワーク通信ができます。
-LAN Messenger は原則的にすべての一般的なデスクトップのシステムで動作します。</translation>
-    </message>
-    <message>
         <source>Automatic</source>
         <translation>自動</translation>
     </message>
@@ -1492,6 +1480,10 @@ LAN Messenger は原則的にすべての一般的なデスクトップのシス
         <source>Compact</source>
         <translation>コンパクト</translation>
     </message>
+    <message>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcTransferWindow</name>
@@ -1530,6 +1522,22 @@ LAN Messenger は原則的にすべての一般的なデスクトップのシス
     <message>
         <source>/sec</source>
         <translation>/秒</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

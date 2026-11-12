@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>ഇന്ന്, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>ഇന്നലെ, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,17 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>റദ്ദാക്കുക</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today, %1</source>
-        <translation>ഇന്ന്, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>ഇന്നലെ, %1</translation>
     </message>
 </context>
 <context>
@@ -710,10 +710,6 @@
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1385,14 +1381,6 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation>ലാന്‍ മെസ്സഞ്ചര്‍</translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>ലാന്‍ മെസ്സഞ്ചര്‍ സന്ദേശങ്ങള്‍ പരസ്പരം അയക്കാനുള്ള ഒരു സൌജന്യ പ്രോഗ്രാം ആണ്.
-ഒരു സര്‍വറിന്റ്റെ സഹായം ലാന്‍ മെസ്സഞ്ചറിന് ആവശ്യം ഇല്ല.
-എല്ലാ പ്രമുഖ ഡെസ്ക്ടോപ്പ് പ്ലാട്ഫോറത്തിലും ലാന്‍ മെസ്സഞ്ചര്‍ പ്രവര്‍ത്തിക്കും.</translation>
-    </message>
-    <message>
         <source>Automatic</source>
         <translation>സ്വമേധം തീരുമാനിക്കുക</translation>
     </message>
@@ -1496,6 +1484,10 @@ LAN Messenger works on essentially every popular desktop platform.</source>
         <source>Compact</source>
         <translation>ചുരുക്കം</translation>
     </message>
+    <message>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>lmcTransferWindow</name>
@@ -1534,6 +1526,22 @@ LAN Messenger works on essentially every popular desktop platform.</source>
     <message>
         <source>/sec</source>
         <translation>/നിമിഷം</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

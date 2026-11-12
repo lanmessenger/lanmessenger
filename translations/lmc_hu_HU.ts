@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>Ma, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Tegnap, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,17 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>Mégsem</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today, %1</source>
-        <translation>Ma, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>Tegnap, %1</translation>
     </message>
 </context>
 <context>
@@ -690,10 +690,6 @@
     <message>
         <source>Hotkeys</source>
         <translation>Gyorsbillentyűk</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Frissítés</translation>
     </message>
     <message>
         <source>Show Send button in chat windows</source>
@@ -1466,12 +1462,6 @@ A fájl nem létezik, vagy nem kompatibilis a %2 verzióval.</translation>
         <translation>Ne zavarj</translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>A LAN Messenger egy olyan Peer-to-Peer elven működő azonnali üzenetküldő alkalmazás belső hálózatok számára, amelynek nincs szüksége szerverre. Minden népszerű platformon működik.</translation>
-    </message>
-    <message>
         <source>Detailed</source>
         <translation>Részletes</translation>
     </message>
@@ -1482,6 +1472,10 @@ LAN Messenger works on essentially every popular desktop platform.</source>
     <message>
         <source>File transfer completed</source>
         <translation>Fájlküldés kész</translation>
+    </message>
+    <message>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1521,6 +1515,22 @@ LAN Messenger works on essentially every popular desktop platform.</source>
     <message>
         <source>Calculating time</source>
         <translation>Idő számítása</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

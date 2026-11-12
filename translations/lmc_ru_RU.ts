@@ -119,6 +119,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>Сегодня, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Вчера, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatMessageModel</name>
     <message>
         <source>Broadcast message from %1:</source>
@@ -198,25 +209,6 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
-    </message>
-</context>
-<context>
-    <name>ChatHelper</name>
-    <message>
-        <source>Today</source>
-        <translation type="vanished">Сегодня</translation>
-    </message>
-    <message>
-        <source>Yesterday</source>
-        <translation type="vanished">Вчера</translation>
-    </message>
-    <message>
-        <source>Today, %1</source>
-        <translation>Сегодня, %1</translation>
-    </message>
-    <message>
-        <source>Yesterday, %1</source>
-        <translation>Вчера, %1</translation>
     </message>
 </context>
 <context>
@@ -721,10 +713,6 @@
         <source>Mode:</source>
         <translation>Режим:</translation>
     </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Обновить</translation>
-    </message>
 </context>
 <context>
     <name>TransferWindow</name>
@@ -1122,7 +1110,7 @@
         <source>Preferences could not be imported from &apos;%1&apos;.
 
 File may not exist, or may not be compatible with this version of %2.</source>
-        <translation>Не удалось импортировать настройки из '%1'.
+        <translation>Не удалось импортировать настройки из &apos;%1&apos;.
 
 Файл может отсутствовать или быть несовместим с этой версией %2.</translation>
     </message>
@@ -1390,11 +1378,8 @@ File may not exist, or may not be compatible with this version of %2.</source>
         <translation>LAN Messenger</translation>
     </message>
     <message>
-        <source>LAN Messenger is a free peer-to-peer messaging application for
-intra-network communication and does not require a server.
-LAN Messenger works on essentially every popular desktop platform.</source>
-        <translation>LAN Messenger - это бесплатное приложение для одноранговых сообщений в локальной сети и не требующее сервера.
-LAN Messenger работает по существу во всех популярных операционных системах.</translation>
+        <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
+        <translation>LAN Messenger — бесплатное приложение с открытым исходным кодом для обмена мгновенными сообщениями в Windows, macOS и Linux. Общайтесь и передавайте файлы в локальной сети без центрального сервера и подключения к интернету.</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -1538,6 +1523,22 @@ LAN Messenger работает по существу во всех популя�
     <message>
         <source>/sec</source>
         <translation>/сек</translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the entry was removed from the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to remove the entry from history.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History database is unavailable, the list was cleared in the view only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to clear file history.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
