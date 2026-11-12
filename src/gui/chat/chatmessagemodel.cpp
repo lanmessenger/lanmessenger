@@ -99,8 +99,8 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
     XmlMessage prevXml = prev.message;
     const qint64 curTs = curXml.header(XN_TIME).toLongLong();
     const qint64 prevTs = prevXml.header(XN_TIME).toLongLong();
-    //  Decision A: timeless rows carry no date, so they join the previous
-    //  bubble and never open a date boundary themselves (see isDateBoundary).
+    //  Timeless-bridge rule: timeless rows carry no date, so they join the
+    //  previous bubble and never open a date boundary themselves (see isDateBoundary).
     if(curTs <= 0 || prevTs <= 0)
       return true;
     if(ChatHelper::isNewDay(curTs, prevTs))
@@ -360,23 +360,17 @@ const SingleMessage& ChatMessageModel::messageAt(int row) const {
 }
 
 bool ChatMessageModel::isDateBoundary(int row) const {
-  if(row < 0 || row >= messageLog.count())
-    return false;
   if(isTypingRow(row))
+    return false; //  Ephemeral typing row never carries a strip.
+  if(row < 0 || row >= messageLog.count())
     return false;
   XmlMessage curXml = messageLog.at(row).message;
   const qint64 curTs = curXml.header(XN_TIME).toLongLong();
-  if(curTs <= 0)
-    return false;
   if(row == 0)
-    return true;
+    return ChatHelper::shouldShowDateSeparator(curTs, 0, true, false);
   XmlMessage prevXml = messageLog.at(row - 1).message;
   const qint64 prevTs = prevXml.header(XN_TIME).toLongLong();
-  //  Decision A: a timeless predecessor bridges dates, no separator.
-  //  The boundary reappears once two dated rows are adjacent again.
-  if(prevTs <= 0)
-    return false;
-  return ChatHelper::isNewDay(curTs, prevTs);
+  return ChatHelper::shouldShowDateSeparator(curTs, prevTs, false, false);
 }
 
 QString ChatMessageModel::dateLabelForRow(int row) const {

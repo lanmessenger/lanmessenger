@@ -50,7 +50,14 @@ class ChatHelper {
 public:
   static void makeHtmlSafe(QString* lpszMessage);
   static QDate dateForMsecs(qint64 msecs);
+  //  Low-level day comparison: (valid, timeless) == true. Date-strip
+  //  decisions must use shouldShowDateSeparator() below, not this.
   static bool isNewDay(qint64 curMsecs, qint64 prevMsecs);
+  //  Single boundary rule for the day strip (timeless-bridge rule):
+  //  typing rows and timeless rows never open one, the first dated row
+  //  always does, otherwise only a new day after a dated predecessor.
+  static bool shouldShowDateSeparator(qint64 curMsecs, qint64 prevMsecs, bool isFirst,
+                                      bool isTyping);
   static QString dateSeparatorLabel(const QDate& date, const QDate& today);
   //  Color-emoji fallback families, emoji-first.
   static const QStringList& emojiFallbackFamilies();

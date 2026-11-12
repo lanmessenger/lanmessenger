@@ -53,6 +53,17 @@ bool ChatHelper::isNewDay(qint64 curMsecs, qint64 prevMsecs) {
   return cur != prev;
 }
 
+bool ChatHelper::shouldShowDateSeparator(qint64 curMsecs, qint64 prevMsecs, bool isFirst,
+                                         bool isTyping) {
+  if(isTyping || curMsecs <= 0)
+    return false;
+  if(isFirst)
+    return true;
+  if(prevMsecs <= 0)
+    return false;
+  return isNewDay(curMsecs, prevMsecs);
+}
+
 QString ChatHelper::dateSeparatorLabel(const QDate& date, const QDate& today) {
   if(!date.isValid())
     return QString();

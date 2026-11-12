@@ -84,6 +84,8 @@ public:
   void selectAllText(const QModelIndex& index, const QStyleOptionViewItem& option);
   //  Final row HTML. Public for tests.
   QString rowHtml(const QModelIndex& index, const ResolvedRow& row) const;
+  //  Day-strip label. Public for tests.
+  QString dateLabelFor(const QModelIndex& index) const;
   //  Per-row link color: set via setDefaultStyleSheet() before setHtml().
   //  Public for tests.
   QString linkStyleSheet(const ResolvedRow& row) const;
@@ -102,7 +104,6 @@ private:
   QString rowTime(const QModelIndex& index) const;
   QString fileCardHtml(const QModelIndex& index) const;
   QFont dateFont() const;
-  QString dateLabelFor(const QModelIndex& index) const;
   int dateStripHeight(const QString& label) const;
   int viewWidth(const QStyleOptionViewItem& option) const;
   //  sizeHint cache key: (row, viewportWidth, DPR, contentRev).

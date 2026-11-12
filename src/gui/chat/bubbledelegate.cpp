@@ -14,6 +14,7 @@
 
 #include "core/shared.h"
 #include "gui/chat/anchornavigator.h"
+#include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessagemodel.h"
 #include "gui/chat/rowhtmlbuilder.h"
 
@@ -117,21 +118,23 @@ QString BubbleDelegate::dateLabelFor(const QModelIndex& index) const {
   QVariant v = index.data(ChatMessageModel::DateLabelRole);
   if(v.isValid())
     return v.toString();
-  QDateTime cur = index.data(ChatMessageModel::TimeRole).toDateTime();
-  if(!cur.isValid() || cur.toMSecsSinceEpoch() <= 0)
-    return QString();
-  QDate curDate = cur.date();
-  if(index.row() == 0)
-    return ChatHelper::dateSeparatorLabel(curDate, QDate::currentDate());
-  QDate prevDate;
-  if(index.model() != nullptr) {
-    QModelIndex prev = index.model()->index(index.row() - 1, 0);
-    if(prev.isValid())
-      prevDate = prev.data(ChatMessageModel::TimeRole).toDateTime().date();
+  //  Fallback shares the boundary rule with ChatMessageModel::isDateBoundary.
+  const bool isTyping = index.data(ChatMessageModel::TypeRole).toInt() == MT_ChatState;
+  const QDateTime curDt = index.data(ChatMessageModel::TimeRole).toDateTime();
+  const qint64 curMsecs = curDt.isValid() ? curDt.toMSecsSinceEpoch() : 0;
+  const bool isFirst = (index.row() == 0);
+  qint64 prevMsecs = 0;
+  if(!isFirst && index.model() != nullptr) {
+    const QModelIndex prev = index.model()->index(index.row() - 1, 0);
+    if(prev.isValid()) {
+      const QDateTime prevDt = prev.data(ChatMessageModel::TimeRole).toDateTime();
+      prevMsecs = prevDt.isValid() ? prevDt.toMSecsSinceEpoch() : 0;
+    }
   }
-  if(!prevDate.isValid() || prevDate == curDate)
+  if(!ChatHelper::shouldShowDateSeparator(curMsecs, prevMsecs, isFirst, isTyping))
     return QString();
-  return ChatHelper::dateSeparatorLabel(curDate, QDate::currentDate());
+  return ChatHelper::dateSeparatorLabel(ChatHelper::dateForMsecs(curMsecs),
+                                        QDate::currentDate());
 }
 
 int BubbleDelegate::dateStripHeight(const QString& label) const {

@@ -438,6 +438,13 @@ void TstChatPure::dateSeparatorMath() {
   QVERIFY(!ChatHelper::isNewDay(0, noon));
   QVERIFY(ChatHelper::isNewDay(noon, 0));
   QVERIFY(!ChatHelper::isNewDay(0, 0));
+  QVERIFY(!ChatHelper::shouldShowDateSeparator(0, noon, true, false));
+  QVERIFY(!ChatHelper::shouldShowDateSeparator(noon, noon, true, true));
+  QVERIFY(ChatHelper::shouldShowDateSeparator(noon, noon, true, false));
+  QVERIFY(!ChatHelper::shouldShowDateSeparator(noon, 0, false, false));
+  QVERIFY(!ChatHelper::shouldShowDateSeparator(noon, noon, false, false));
+  QVERIFY(ChatHelper::shouldShowDateSeparator(nextMorning, noon, false, false));
+  QVERIFY(!ChatHelper::shouldShowDateSeparator(nextMorning, noon, false, true));
   const QDate today(2026, 10, 5);
   const QString dayMonth = QLocale::system().toString(today, QStringLiteral("d MMMM"));
   const QString prevDayMonth = QLocale::system().toString(today.addDays(-1), QStringLiteral("d MMMM"));

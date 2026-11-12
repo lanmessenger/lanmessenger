@@ -12,6 +12,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPainter>
+#include <QStandardItemModel>
 #include <QStyleOptionViewItem>
 
 #include <functional>
@@ -61,6 +62,7 @@ private slots:
   void broadcastRectClearsViewportEdge();
   void paintRowsOffscreen();
   void dateStripSkipsTimelessAndTyping();
+  void dateStripFallbackMirrorsModel();
 };
 
 XmlMessage textMessage(const QString& text) {
@@ -624,6 +626,89 @@ void TstBubbleHeader::dateStripSkipsTimelessAndTyping() {
   sameDayTyping.appendMessageLog(MT_ChatState, &jack, &jackName, &typingSameDay);
   //  Typing never carries a strip: same-day and next-day stamps match.
   QCOMPARE(d.sizeHint(option, withTyping.index(1, 0)).height(),
+           d.sizeHint(option, sameDayTyping.index(1, 0)).height());
+}
+
+void TstBubbleHeader::dateStripFallbackMirrorsModel() {
+  //  Generic models expose no DateLabelRole: the fallback must mirror
+  //  isDateBoundary (timeless-bridge rule + typing guard).
+  Theme t = Theme::loadFromJson(meshBlueBytes());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QStyleOptionViewItem option;
+  option.rect = QRect(0, 0, 400, 10);
+  const qint64 d1 = QDateTime(QDate(2024, 1, 10), QTime(12, 0)).toMSecsSinceEpoch();
+  const qint64 d2 = QDateTime(QDate(2024, 1, 11), QTime(9, 0)).toMSecsSinceEpoch();
+  auto fallbackRow = [](QStandardItemModel& m, int row, qint64 msecs, int type) {
+    m.setColumnCount(1);
+    const QModelIndex idx = m.index(row, 0);
+    m.setData(idx, QStringLiteral("same"), ChatMessageModel::TextRole);
+    m.setData(idx, type, ChatMessageModel::TypeRole);
+    if(msecs > 0)
+      m.setData(idx, QDateTime::fromMSecsSinceEpoch(msecs), ChatMessageModel::TimeRole);
+  };
+
+  QStandardItemModel bridged;
+  bridged.setRowCount(3);
+  fallbackRow(bridged, 0, d1, MT_Message);
+  fallbackRow(bridged, 1, 0, MT_Message);
+  fallbackRow(bridged, 2, d2, MT_Message);
+  QStandardItemModel sameDay;
+  sameDay.setRowCount(2);
+  fallbackRow(sameDay, 0, d1, MT_Message);
+  fallbackRow(sameDay, 1, d1 + 60 * 1000, MT_Message);
+
+  BubbleDelegate d;
+  d.setTheme(t);
+  //  Direct label checks (independent of theme margins/padding); the
+  //  sizeHint compares below additionally pin the dateH integration.
+  QVERIFY(!d.dateLabelFor(bridged.index(0, 0)).isEmpty());
+  QVERIFY(d.dateLabelFor(sameDay.index(1, 0)).isEmpty());
+  QVERIFY(d.dateLabelFor(bridged.index(1, 0)).isEmpty());
+  QVERIFY(d.dateLabelFor(bridged.index(2, 0)).isEmpty());
+  //  Row 0 opens a strip; same-day continuations and timeless rows do not.
+  QVERIFY(d.sizeHint(option, bridged.index(0, 0)).height() >
+          d.sizeHint(option, sameDay.index(1, 0)).height());
+  //  Timeless-bridge rule: D2 after a timeless predecessor carries no strip,
+  //  like a same-day continuation after a dated predecessor.
+  QCOMPARE(d.sizeHint(option, bridged.index(2, 0)).height(),
+           d.sizeHint(option, sameDay.index(1, 0)).height());
+  QCOMPARE(d.sizeHint(option, bridged.index(1, 0)).height(),
+           d.sizeHint(option, sameDay.index(1, 0)).height());
+
+  //  Same bridge with an epoch-valid TimeRole (as msgTime emits for missing
+  //  XN_TIME): 1970-01-01 is a valid QDate.
+  QStandardItemModel epochBridged;
+  epochBridged.setRowCount(3);
+  epochBridged.setColumnCount(1);
+  fallbackRow(epochBridged, 0, d1, MT_Message);
+  fallbackRow(epochBridged, 1, 0, MT_Message);
+  epochBridged.setData(epochBridged.index(1, 0), QDateTime::fromMSecsSinceEpoch(0),
+                       ChatMessageModel::TimeRole);
+  fallbackRow(epochBridged, 2, d2, MT_Message);
+  QVERIFY(d.dateLabelFor(epochBridged.index(2, 0)).isEmpty());
+  QCOMPARE(d.sizeHint(option, epochBridged.index(2, 0)).height(),
+           d.sizeHint(option, sameDay.index(1, 0)).height());
+
+  //  Timeless row 0 carries no strip either (cur <= 0).
+  QStandardItemModel timelessRow0;
+  timelessRow0.setRowCount(1);
+  fallbackRow(timelessRow0, 0, 0, MT_Message);
+  QVERIFY(d.dateLabelFor(timelessRow0.index(0, 0)).isEmpty());
+  QCOMPARE(d.sizeHint(option, timelessRow0.index(0, 0)).height(),
+           d.sizeHint(option, bridged.index(1, 0)).height());
+
+  QStandardItemModel nextDayTyping;
+  nextDayTyping.setRowCount(2);
+  fallbackRow(nextDayTyping, 0, d1, MT_Message);
+  fallbackRow(nextDayTyping, 1, d1 + 24 * 60 * 60 * 1000, MT_ChatState);
+  QStandardItemModel sameDayTyping;
+  sameDayTyping.setRowCount(2);
+  fallbackRow(sameDayTyping, 0, d1, MT_Message);
+  fallbackRow(sameDayTyping, 1, d1 + 60 * 1000, MT_ChatState);
+  //  Typing never carries a strip: next-day and same-day stamps match.
+  QVERIFY(d.dateLabelFor(nextDayTyping.index(1, 0)).isEmpty());
+  QVERIFY(d.dateLabelFor(sameDayTyping.index(1, 0)).isEmpty());
+  QCOMPARE(d.sizeHint(option, nextDayTyping.index(1, 0)).height(),
            d.sizeHint(option, sameDayTyping.index(1, 0)).height());
 }
 
