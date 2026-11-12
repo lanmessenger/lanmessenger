@@ -201,6 +201,17 @@
     </message>
 </context>
 <context>
+    <name>ChatHelper</name>
+    <message>
+        <source>Today, %1</source>
+        <translation>Σήμερα, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Χθες, %1</translation>
+    </message>
+</context>
+<context>
     <name>ChatRoomWindow</name>
     <message>
         <source>Form</source>

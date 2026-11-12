@@ -4,6 +4,7 @@
 
 #include <QtTest>
 #include <QFontMetrics>
+#include <QLocale>
 
 #include "core/definitions.h"
 #include "gui/chat/bubblegeometry.h"
@@ -438,13 +439,16 @@ void TstChatPure::dateSeparatorMath() {
   QVERIFY(ChatHelper::isNewDay(noon, 0));
   QVERIFY(!ChatHelper::isNewDay(0, 0));
   const QDate today(2026, 10, 5);
-  QCOMPARE(ChatHelper::dateSeparatorLabel(today, today), QStringLiteral("Today"));
+  const QString dayMonth = QLocale::system().toString(today, QStringLiteral("d MMMM"));
+  const QString prevDayMonth = QLocale::system().toString(today.addDays(-1), QStringLiteral("d MMMM"));
+  QCOMPARE(ChatHelper::dateSeparatorLabel(today, today),
+           QStringLiteral("Today, %1").arg(dayMonth));
   QCOMPARE(ChatHelper::dateSeparatorLabel(today.addDays(-1), today),
-           QStringLiteral("Yesterday"));
+           QStringLiteral("Yesterday, %1").arg(prevDayMonth));
   const QString dated = ChatHelper::dateSeparatorLabel(QDate(2024, 1, 15), today);
   QVERIFY(!dated.isEmpty());
-  QVERIFY(dated != QStringLiteral("Today"));
-  QVERIFY(dated != QStringLiteral("Yesterday"));
+  QVERIFY(!dated.startsWith(QStringLiteral("Today")));
+  QVERIFY(!dated.startsWith(QStringLiteral("Yesterday")));
   QVERIFY(ChatHelper::dateSeparatorLabel(QDate(), today).isEmpty());
 }
 

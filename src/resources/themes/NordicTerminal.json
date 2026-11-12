@@ -16,6 +16,15 @@
   },
   "text": ["#0F172A", "#E5E7EB"],
   "page": ["#FFFFFF", "#121417"],
+  "dateSeparator": {
+    "textColor": ["#64748B", "#94A3B8"],
+    "bg": ["#F1F5F9", "#0F172A"],
+    "border": ["#CBD5E1", "#334155"],
+    "corners": [2, 2, 2, 2],
+    "padding": [0, 8, 0, 8],
+    "margins": [10, 5],
+    "fontWeight": 500
+  },
   "layout_incoming": {
     "type": "hbox",
     "gap": 8,

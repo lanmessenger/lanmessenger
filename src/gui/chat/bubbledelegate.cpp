@@ -20,10 +20,6 @@
 namespace {
 
 const int kMaxCacheEntries = 150;
-const int kDateTopGap = 8;
-const int kDateBottomGap = 8;
-const int kDatePadH = 12;
-const int kDatePadV = 4;
 
 //  Per-corner rounded rect: c is [TL, TR, BR, BL] in px, clamped to the rect.
 QPainterPath roundedCorners(const QRect& r, const int c[4]) {
@@ -113,7 +109,7 @@ QFont BubbleDelegate::headerTimeFont() const {
 
 QFont BubbleDelegate::dateFont() const {
   QFont f = headerTimeFont();
-  f.setWeight(QFont::DemiBold);
+  f.setWeight(static_cast<QFont::Weight>(theme.dateSeparator.fontWeight));
   return f;
 }
 
@@ -141,9 +137,10 @@ QString BubbleDelegate::dateLabelFor(const QModelIndex& index) const {
 int BubbleDelegate::dateStripHeight(const QString& label) const {
   if(label.isEmpty())
     return 0;
-  QFontMetrics fm(dateFont());
-  const int pillH = fm.height() + 2 * kDatePadV;
-  return kDateTopGap + pillH + kDateBottomGap;
+  const Theme::DateSeparator& ds = theme.dateSeparator;
+  const int pillH =
+    QFontMetrics(dateFont()).height() + ds.padding[0] + ds.padding[2];
+  return ds.margins[0] + pillH + ds.margins[1];
 }
 
 QString BubbleDelegate::rowTime(const QModelIndex& index) const {
@@ -400,30 +397,46 @@ void BubbleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
   painter->fillRect(option.rect, Theme::pick(theme.page, darkMode));
 
   if(!e.dateLabel.isEmpty() && e.dateH > 0) {
+    const Theme::DateSeparator& ds = theme.dateSeparator;
     QFont df = dateFont();
     QFontMetrics dfm(df);
-    const int pillH = dfm.height() + 2 * kDatePadV;
+    const int pillH = dfm.height() + ds.padding[0] + ds.padding[2];
     //  Long locale dates must not overflow a narrow viewport: clamp + elide.
     const int availW = option.rect.width() - 2;
     QString drawLabel = e.dateLabel;
-    int pillW = dfm.horizontalAdvance(drawLabel) + 2 * kDatePadH;
+    int pillW = dfm.horizontalAdvance(drawLabel) + ds.padding[1] + ds.padding[3];
     if(pillW > availW) {
-      const int textW = availW - 2 * kDatePadH;
+      const int textW = availW - ds.padding[1] - ds.padding[3];
       if(textW <= 0)
         drawLabel.clear();
       else
         drawLabel = dfm.elidedText(e.dateLabel, Qt::ElideRight, textW);
-      pillW = drawLabel.isEmpty() ? 0 : dfm.horizontalAdvance(drawLabel) + 2 * kDatePadH;
+      pillW =
+        drawLabel.isEmpty() ? 0 : dfm.horizontalAdvance(drawLabel) + ds.padding[1] + ds.padding[3];
     }
     if(!drawLabel.isEmpty() && pillW > 0) {
       const int pillX = option.rect.left() + (option.rect.width() - pillW) / 2;
-      const int pillY = top + kDateTopGap;
+      const int pillY = top + ds.margins[0];
       const QRect pillRect(pillX, pillY, pillW, pillH);
-      painter->setPen(Qt::NoPen);
-      painter->setBrush(Theme::pick(theme.header.timeColor, darkMode));
-      painter->drawRoundedRect(pillRect, pillH / 2, pillH / 2);
+      if(ds.present) {
+        QColor bg, bg2;
+        Theme::pickBg(ds.bg, darkMode, bg, bg2);
+        painter->setBrush(bg.alpha() == 0 ? Qt::NoBrush : bg);
+        if(ds.hasBorder)
+          painter->setPen(Theme::pick(ds.border, darkMode));
+        else
+          painter->setPen(Qt::NoPen);
+      } else {
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(Theme::pick(theme.header.timeColor, darkMode));
+      }
+      int corners[4] = {ds.corners[0], ds.corners[1], ds.corners[2], ds.corners[3]};
+      painter->drawPath(roundedCorners(pillRect, corners));
       painter->setFont(df);
-      painter->setPen(Theme::pick(theme.page, darkMode));
+      if(ds.present)
+        painter->setPen(Theme::pick(ds.textColor, darkMode));
+      else
+        painter->setPen(Theme::pick(theme.page, darkMode));
       painter->drawText(pillRect, Qt::AlignCenter, drawLabel);
     }
   }

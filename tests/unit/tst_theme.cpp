@@ -130,6 +130,12 @@ private slots:
   void shippedMeshBlueSpotCheck();
   void availableThemesListsUserAndSkipsBroken();
   void realFileLoads();
+  void dateSeparatorAbsentDefaulted();
+  void dateSeparatorParsed();
+  void dateSeparatorRequiredRejected();
+  void dateSeparatorBadColorsRejected();
+  void dateSeparatorBadMetricsRejected();
+  void shippedDateSeparatorsSpotCheck();
 };
 
 void TstTheme::validTheme() {
@@ -985,6 +991,135 @@ void TstTheme::realFileLoads() {
     QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QStringLiteral("cannot open ") + file));
     Theme t = Theme::loadFromJson(f.readAll());
     QVERIFY2(t.isValid, qPrintable(file + QStringLiteral(": ") + t.errorString));
+  }
+}
+
+void TstTheme::dateSeparatorAbsentDefaulted() {
+  Theme t = Theme::loadFromJson(validJson());
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QVERIFY(!t.dateSeparator.present);
+  QCOMPARE(t.dateSeparator.corners[0], 12);
+  QCOMPARE(t.dateSeparator.padding[1], 12);
+  QCOMPARE(t.dateSeparator.margins[0], 8);
+  QCOMPARE(t.dateSeparator.margins[1], 8);
+  QCOMPARE(t.dateSeparator.fontWeight, 600);
+}
+
+QByteArray withDateSeparator(const QByteArray& body) {
+  return withReplaced(body, "\"page\": [\"#EDEFF2\", \"#131518\"],",
+                      "\"page\": [\"#EDEFF2\", \"#131518\"],\n"
+                      "    \"dateSeparator\": {\n"
+                      "      \"textColor\": [\"#64748B\", \"#94A3B8\"],\n"
+                      "      \"bg\": [\"#E6EBF1\", \"#1C2739\"],\n"
+                      "      \"border\": [\"#CBD5E1\", \"#334155\"],\n"
+                      "      \"corners\": [12, 12, 12, 12],\n"
+                      "      \"padding\": [2, 8, 2, 8],\n"
+                      "      \"margins\": [4, 4],\n"
+                      "      \"fontWeight\": 500\n"
+                      "    },");
+}
+
+void TstTheme::dateSeparatorParsed() {
+  Theme t = Theme::loadFromJson(withDateSeparator(validJson()));
+  QVERIFY2(t.isValid, qPrintable(t.errorString));
+  QVERIFY(t.dateSeparator.present);
+  QCOMPARE(t.dateSeparator.textColor.light, QColor(QStringLiteral("#64748B")));
+  QCOMPARE(t.dateSeparator.textColor.dark, QColor(QStringLiteral("#94A3B8")));
+  QCOMPARE(t.dateSeparator.bg.solid.light, QColor(QStringLiteral("#E6EBF1")));
+  QCOMPARE(t.dateSeparator.bg.solid.dark, QColor(QStringLiteral("#1C2739")));
+  QVERIFY(t.dateSeparator.hasBorder);
+  QCOMPARE(t.dateSeparator.border.dark, QColor(QStringLiteral("#334155")));
+  QCOMPARE(t.dateSeparator.corners[3], 12);
+  QCOMPARE(t.dateSeparator.padding[0], 2);
+  QCOMPARE(t.dateSeparator.padding[1], 8);
+  QCOMPARE(t.dateSeparator.margins[0], 4);
+  QCOMPARE(t.dateSeparator.margins[1], 4);
+  QCOMPARE(t.dateSeparator.fontWeight, 500);
+  //  Border is optional: absent keeps the legacy borderless chip.
+  QByteArray noBorder = withDateSeparator(validJson());
+  noBorder.replace("      \"border\": [\"#CBD5E1\", \"#334155\"],\n", "");
+  Theme b = Theme::loadFromJson(noBorder);
+  QVERIFY2(b.isValid, qPrintable(b.errorString));
+  QVERIFY(!b.dateSeparator.hasBorder);
+}
+
+void TstTheme::dateSeparatorRequiredRejected() {
+  QVERIFY(!Theme::loadFromJson(withReplaced(validJson(), "\"page\": [\"#EDEFF2\", \"#131518\"],",
+                                            "\"page\": [\"#EDEFF2\", \"#131518\"],\n"
+                                            "    \"dateSeparator\": 42,"))
+             .isValid);
+  QByteArray noText = withDateSeparator(validJson());
+  noText.replace("      \"textColor\": [\"#64748B\", \"#94A3B8\"],\n", "");
+  QVERIFY(!Theme::loadFromJson(noText).isValid);
+  QByteArray noBg = withDateSeparator(validJson());
+  noBg.replace("      \"bg\": [\"#E6EBF1\", \"#1C2739\"],\n", "");
+  QVERIFY(!Theme::loadFromJson(noBg).isValid);
+}
+
+void TstTheme::dateSeparatorBadColorsRejected() {
+  for(const char* bad : {"\"red\"", "[\"#E6EBF1\"]", "42"}) {
+    QByteArray colored = withDateSeparator(validJson());
+    colored.replace("[\"#E6EBF1\", \"#1C2739\"]", bad);
+    QVERIFY2(!Theme::loadFromJson(colored).isValid, bad);
+  }
+  //  Gradient chips read as bubbles; only solid or transparent pass.
+  QByteArray gradient = withDateSeparator(validJson());
+  gradient.replace("[\"#E6EBF1\", \"#1C2739\"]",
+                   "[\"gradient(#E6EBF1, #EDEFF2)\", \"gradient(#1C2739, #131518)\"]");
+  QVERIFY(!Theme::loadFromJson(gradient).isValid);
+  QByteArray transparent = withDateSeparator(validJson());
+  transparent.replace("[\"#E6EBF1\", \"#1C2739\"]", "\"transparent\"");
+  QVERIFY2(Theme::loadFromJson(transparent).isValid, "transparent bg");
+}
+
+void TstTheme::dateSeparatorBadMetricsRejected() {
+  for(const char* bad : {"[12, 12, 12]", "[12, 12, 12, -1]", "\"round\"", "[12, 12, 12, 1.5]"}) {
+    QByteArray cornered = withDateSeparator(validJson());
+    cornered.replace("[12, 12, 12, 12]", bad);
+    QVERIFY2(!Theme::loadFromJson(cornered).isValid, bad);
+  }
+  QByteArray padded = withDateSeparator(validJson());
+  padded.replace("[2, 8, 2, 8]", "[2, 8, 2]");
+  QVERIFY(!Theme::loadFromJson(padded).isValid);
+  QByteArray margined = withDateSeparator(validJson());
+  margined.replace("[4, 4]", "[4, -1]");
+  QVERIFY(!Theme::loadFromJson(margined).isValid);
+  for(const char* bad : {"99", "1000", "\"medium\"", "true", "500.5"}) {
+    QByteArray weighted = withDateSeparator(validJson());
+    weighted.replace("\"fontWeight\": 500", QByteArray("\"fontWeight\": ") + bad);
+    QVERIFY2(!Theme::loadFromJson(weighted).isValid, bad);
+  }
+  //  Shape was discussed and dropped in favor of corners.
+  QByteArray shaped = withDateSeparator(validJson());
+  shaped.replace("\"corners\": [12, 12, 12, 12],", "\"shape\": \"pill\",");
+  QVERIFY(!Theme::loadFromJson(shaped).isValid);
+}
+
+void TstTheme::shippedDateSeparatorsSpotCheck() {
+  //  Shipped themes carry a static centered chip (Stitch chat spec).
+  //  No concrete design values here, they live in JSON only. The test
+  //  pins the symmetry contract instead: the strip bottom margin plus
+  //  the series-start row margin must equal the top one, otherwise the
+  //  chip sticks to the previous day. System rows (marginTop 0) are
+  //  the accepted exception.
+  QDir themesDir(QString::fromLocal8Bit(LMC_THEME_DIR));
+  const char* files[] = {"ClassicSlate.json", "MeshBlue.json", "NordicTerminal.json"};
+  for(const char* file : files) {
+    QFile f(themesDir.absoluteFilePath(QString::fromLocal8Bit(file)));
+    QVERIFY2(f.open(QIODevice::ReadOnly), file);
+    Theme t = Theme::loadFromJson(f.readAll());
+    QVERIFY2(t.isValid, qPrintable(QByteArray(file) + ": " + t.errorString.toUtf8()));
+    QVERIFY2(t.dateSeparator.present, file);
+    QVERIFY2(t.dateSeparator.hasBorder, file);
+    const Theme::LayoutNode& incoming = t.compiledLayout(QStringLiteral("layout_incoming"));
+    QVERIFY2(incoming.children.size() == 2, file);
+    QVERIFY2(incoming.children.at(1).children.size() == 2, file);
+    const int inTop = incoming.children.at(1).children.at(1).marginTop;
+    const Theme::LayoutNode& outgoing = t.compiledLayout(QStringLiteral("layout_outgoing"));
+    QVERIFY2(outgoing.children.size() == 2, file);
+    const int outTop = outgoing.children.at(1).marginTop;
+    QVERIFY2(t.dateSeparator.margins[1] + inTop == t.dateSeparator.margins[0], file);
+    QVERIFY2(t.dateSeparator.margins[1] + outTop == t.dateSeparator.margins[0], file);
   }
 }
 

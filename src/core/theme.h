@@ -122,6 +122,24 @@ public:
     DualColor timeColor;
   };
 
+  //  Optional: absent = legacy look (pill, header-time DemiBold, gaps
+  //  8/8, padding 4/12, bg = header.timeColor, text = page).
+  struct DateSeparator {
+    bool present = false;
+    DualColor textColor;
+    //  Solid or transparent only, gradients rejected.
+    Bg bg;
+    bool hasBorder = false;
+    DualColor border;
+    //  Clamped to half the chip height, so 12 reads as a pill.
+    int corners[4] = {12, 12, 12, 12};
+    int padding[4] = {4, 12, 4, 12};
+    //  Gaps above/below the chip; body rows carry a single marginTop,
+    //  the strip owns both sides.
+    int margins[2] = {8, 8};
+    int fontWeight = 600;
+  };
+
   bool isValid = false;
   QString errorString;
   //  UI label; empty = ID fallback.
@@ -129,6 +147,7 @@ public:
   View view;
   Avatar avatar;
   Header header;
+  DateSeparator dateSeparator;
   //  Single-use global colors: default body text, view fill.
   DualColor text;
   DualColor page;

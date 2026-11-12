@@ -57,10 +57,11 @@ QString ChatHelper::dateSeparatorLabel(const QDate& date, const QDate& today) {
   if(!date.isValid())
     return QString();
   const QDate ref = today.isValid() ? today : QDate::currentDate();
+  const QString dayMonth = QLocale::system().toString(date, QStringLiteral("d MMMM"));
   if(date == ref)
-    return QCoreApplication::translate("ChatHelper", "Today");
+    return QCoreApplication::translate("ChatHelper", "Today, %1").arg(dayMonth);
   if(date == ref.addDays(-1))
-    return QCoreApplication::translate("ChatHelper", "Yesterday");
+    return QCoreApplication::translate("ChatHelper", "Yesterday, %1").arg(dayMonth);
   return QLocale::system().toString(date, QLocale::LongFormat);
 }
 

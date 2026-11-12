@@ -204,11 +204,19 @@
     <name>ChatHelper</name>
     <message>
         <source>Today</source>
-        <translation>Сегодня</translation>
+        <translation type="vanished">Сегодня</translation>
     </message>
     <message>
         <source>Yesterday</source>
-        <translation>Вчера</translation>
+        <translation type="vanished">Вчера</translation>
+    </message>
+    <message>
+        <source>Today, %1</source>
+        <translation>Сегодня, %1</translation>
+    </message>
+    <message>
+        <source>Yesterday, %1</source>
+        <translation>Вчера, %1</translation>
     </message>
 </context>
 <context>

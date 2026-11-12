@@ -72,6 +72,30 @@ key invalidates the theme.
 - Body text fallback chain: explicit per-message color, then the layout
   body/fileCard node's `textColor` (when present), then the global `text`.
 
+## `dateSeparator`
+
+Optional object: the static centered day chip (`"Today, May 14"`).
+Absent = legacy look (pill, header-time DemiBold, gaps 8/8, padding
+4/12, bg = `header.timeColor`, text = `page`, no border). Present =
+`textColor` + `bg` required, the rest defaulted.
+
+| Key | Type | Rule |
+|---|---|---|
+| `textColor` | color | required (solid forms) |
+| `bg` | color/`"transparent"` | required, solid only (no gradients) |
+| `border` | color | optional (absent = no border) |
+| `corners` | 4 ints ≥ 0 | optional (default `[12, 12, 12, 12]` = pill: clamped to half the chip height) |
+| `padding` | 4 ints ≥ 0 `[T, R, B, L]` | optional (default `[4, 12, 4, 12]`) |
+| `margins` | 2 ints ≥ 0 `[top, bottom]` | optional (default `[8, 8]`) |
+| `fontWeight` | int 100..900 | optional (default `600`) |
+
+`tail`/`shape`/`radius` keys and gradient `bg` invalidate the theme.
+
+The strip sits on top of the boundary row, ahead of that row's own
+`marginTop`: the visible gap below the chip is `margins[1]` plus the
+series-start `marginTop`. A centered chip wants
+`margins[1] = margins[0] − series marginTop`.
+
 ## `layout_*` (L-MVP boundary, do not extend without a separate decision)
 
 - Node: `{ "type": ... }`.

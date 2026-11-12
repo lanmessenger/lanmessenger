@@ -621,6 +621,80 @@ bool parseHeader(const QJsonObject& root, Theme& t) {
   return true;
 }
 
+bool parseDateSeparator(const QJsonObject& root, Theme& t) {
+  QJsonValue v = root.value(QStringLiteral("dateSeparator"));
+  if(v.isUndefined() || v.isNull())
+    return true;
+  if(!v.isObject())
+    return fail(t, QStringLiteral("bad dateSeparator (want object)"));
+  QJsonObject d = v.toObject();
+  for(auto key : {QStringLiteral("tail"), QStringLiteral("tailSize"),
+                  QStringLiteral("tailStyle")}) {
+    if(d.contains(key))
+      return fail(t, QStringLiteral("tail is not supported (tailless rows)"));
+  }
+  if(d.contains(QStringLiteral("shape")) || d.contains(QStringLiteral("radius")))
+    return fail(t, QStringLiteral("bad dateSeparator: use corners, not shape/radius"));
+  QString err;
+  if(!d.contains(QStringLiteral("textColor")) ||
+     !parseDualColor(d.value(QStringLiteral("textColor")), "dateSeparator.textColor", err,
+                     t.dateSeparator.textColor))
+    return fail(t, err.isEmpty() ? QStringLiteral("missing dateSeparator.textColor") : err);
+  if(!d.contains(QStringLiteral("bg")))
+    return fail(t, QStringLiteral("missing dateSeparator.bg"));
+  Theme::Bg bg;
+  if(!parseBg(d.value(QStringLiteral("bg")), "dateSeparator.bg", err, bg))
+    return fail(t, err);
+  if(bg.kind == Theme::Bg::Kind::Gradient)
+    return fail(t, QStringLiteral("bad dateSeparator.bg (want solid or transparent)"));
+  t.dateSeparator.bg = bg;
+  if(d.contains(QStringLiteral("border"))) {
+    if(!parseDualColor(d.value(QStringLiteral("border")), "dateSeparator.border", err,
+                       t.dateSeparator.border))
+      return fail(t, err);
+    t.dateSeparator.hasBorder = true;
+  }
+  if(d.contains(QStringLiteral("corners"))) {
+    if(!checkIntArray(d.value(QStringLiteral("corners")), 4, err, "dateSeparator.corners"))
+      return fail(t, err);
+    QJsonArray corners = d.value(QStringLiteral("corners")).toArray();
+    for(int i = 0; i < 4; i++) {
+      if(corners.at(i).toInt(-1) < 0)
+        return fail(t, QStringLiteral("dateSeparator.corners must be >= 0"));
+      t.dateSeparator.corners[i] = corners.at(i).toInt();
+    }
+  }
+  if(d.contains(QStringLiteral("padding"))) {
+    if(!checkIntArray(d.value(QStringLiteral("padding")), 4, err, "dateSeparator.padding"))
+      return fail(t, err);
+    QJsonArray padding = d.value(QStringLiteral("padding")).toArray();
+    for(int i = 0; i < 4; i++) {
+      if(padding.at(i).toInt(-1) < 0)
+        return fail(t, QStringLiteral("dateSeparator.padding must be >= 0"));
+      t.dateSeparator.padding[i] = padding.at(i).toInt();
+    }
+  }
+  if(d.contains(QStringLiteral("margins"))) {
+    if(!checkIntArray(d.value(QStringLiteral("margins")), 2, err, "dateSeparator.margins"))
+      return fail(t, err);
+    QJsonArray margins = d.value(QStringLiteral("margins")).toArray();
+    for(int i = 0; i < 2; i++) {
+      if(margins.at(i).toInt(-1) < 0)
+        return fail(t, QStringLiteral("dateSeparator.margins must be >= 0"));
+      t.dateSeparator.margins[i] = margins.at(i).toInt();
+    }
+  }
+  QJsonValue w = d.value(QStringLiteral("fontWeight"));
+  if(!w.isUndefined() && !w.isNull()) {
+    if(!w.isDouble() || std::floor(w.toDouble()) != w.toDouble() || w.toInt(-1) < 100 ||
+       w.toInt(-1) > 900)
+      return fail(t, QStringLiteral("bad dateSeparator fontWeight (want 100..900)"));
+    t.dateSeparator.fontWeight = w.toInt();
+  }
+  t.dateSeparator.present = true;
+  return true;
+}
+
 bool parseGlobalColors(const QJsonObject& root, Theme& t) {
   QString err;
   for(auto key : {QStringLiteral("text"), QStringLiteral("page")}) {
@@ -700,6 +774,8 @@ Theme Theme::loadFromJson(const QByteArray& data) {
   if(!parseAvatar(root, t))
     return t;
   if(!parseHeader(root, t))
+    return t;
+  if(!parseDateSeparator(root, t))
     return t;
   if(!parseGlobalColors(root, t))
     return t;
