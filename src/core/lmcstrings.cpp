@@ -37,9 +37,10 @@ const QString lmcStrings::appName(void) {
 
 const QString lmcStrings::appDesc(void) {
   if(m_appDesc.isEmpty())
-    m_appDesc = tr("LAN Messenger is a free peer-to-peer messaging application for\n"
-                   "intra-network communication and does not require a server.\n"
-                   "LAN Messenger works on essentially every popular desktop platform.");
+    m_appDesc = tr("LAN Messenger is a free, open-source instant messaging app "
+                   "for Windows, macOS and Linux. "
+                   "Chat and transfer files over your local network without "
+                   "a central server or internet connection.");
   return m_appDesc;
 }
 

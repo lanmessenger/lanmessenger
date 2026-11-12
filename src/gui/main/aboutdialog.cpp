@@ -63,19 +63,22 @@ void lmcAboutDialog::setUIText(void) {
                                   QSysInfo::productType(),
                                   QSysInfo::productVersion()));
 
-  QString description(lmcStrings::appDesc() + "\n\n");
-  description.append(IDA_COPYRIGHT "\n" IDA_DOMAIN);
+  QString description(lmcStrings::appDesc().toHtmlEscaped().replace("\n", "<br>") + "<br><br>");
+  description.append(QString(IDA_COPYRIGHT).toHtmlEscaped() + "<br><a href=\"" IDA_DOMAIN "\">" IDA_DOMAIN_HOST "</a>");
+  ui.lblDescription->setTextFormat(Qt::RichText);
+  ui.lblDescription->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
+  ui.lblDescription->setOpenExternalLinks(true);
   ui.lblDescription->setText(description);
 
   QFile thanks(IDR_THANKSTEXT);
   if(thanks.open(QIODevice::ReadOnly)) {
-    ui.txtThanks->setPlainText(QString(thanks.readAll().constData()));
+    ui.txtThanks->setPlainText(QString::fromUtf8(thanks.readAll()));
     thanks.close();
   }
 
   QFile license(IDR_LICENSETEXT);
   if(license.open(QIODevice::ReadOnly)) {
-    ui.txtLicense->setPlainText(QString(license.readAll().constData()));
+    ui.txtLicense->setPlainText(QString::fromUtf8(license.readAll()));
     license.close();
   }
 }

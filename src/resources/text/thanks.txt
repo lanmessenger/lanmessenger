@@ -1,6 +1,9 @@
 The author would like to thank the users who gave their valuable suggestions and feedback to help create better software.
 
 
+LAN Messenger was originally developed by Qualia Digital Solutions (2010-2016).
+
+
 This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit.
 (http://www.openssl.org/)
 
@@ -18,6 +21,11 @@ Inanc Tanriover - Turkish localization
 Kim Chul-Hyun - Korean localization
 Krasen Borisov - Bulgarian localization
 Victor Alekseevich Khokhlov - Russian localization
+Theofilos Intzoglou - Greek localization
+Tarjányi Csaba - Hungarian localization
+maboroshin - Japanese localization
+Jaroslaw Kaczmarek - Polish localization
+MarkoD - Slovak localization
 
 
 Some of the images used were created by Mythique Design and used under the Creative Commons Public License.
