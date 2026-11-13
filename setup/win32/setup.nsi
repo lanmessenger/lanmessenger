@@ -20,10 +20,10 @@ SetCompressor /SOLID lzma
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
   !ifndef ProductVersion
-    !error "ProductVersion is required (pass /DProductVersion=... via setup.bat)"
+    !error "ProductVersion is required (pass /DProductVersion=... via setup.ps1)"
   !endif
   !ifndef InstallerVersion
-    !error "InstallerVersion is required (pass /DInstallerVersion=... via setup.bat)"
+    !error "InstallerVersion is required (pass /DInstallerVersion=... via setup.ps1)"
   !endif
   !define ProductUrl "http://lanmessenger.github.io"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"

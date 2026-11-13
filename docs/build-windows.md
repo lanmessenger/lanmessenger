@@ -43,7 +43,8 @@ check requires it.
 
 ## Installer
 
-To build the installer, run `setup.bat` in the `setup\win32` folder.
+To build the installer, run `setup.bat` in the `setup\win32` folder
+(a thin wrapper over `setup.ps1`, PowerShell 5.1+).
 NSIS must be installed first. Usage:
 
 ```cmd
@@ -56,7 +57,13 @@ Example:
 setup.bat release 1.3.21
 ```
 
-The batch file executes an NSIS script (`setup.nsi`) which packages the
+From PowerShell directly (default policy blocks unsigned scripts):
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File setup.ps1 release 1.3.21
+```
+
+The script executes an NSIS script (`setup.nsi`) which packages the
 whole `ExeFolder` and generates the installer. `ProductVersion` is passed
 to `makensis` as a command line define; `InstallerVersion` is read from
 the `FILEVERSION` stamp of the built `lmc.exe` in `ExeFolder`. The installer generated will have the

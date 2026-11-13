@@ -190,7 +190,7 @@ target_link_libraries(lmc PRIVATE lmc_core)
 if(WIN32)
     # Numeric FILEVERSION/PRODUCTVERSION derive from LMC_VERSION:
     # 1.3.21 -> 1,3,21,0, 1.3.22~nightly.N -> 1,3,22,N.
-    # setup.bat reads the numeric stamp back from the built exe for NSIS.
+    # setup.ps1 reads the numeric stamp back from the built exe for NSIS.
     set(_lmc_rc_source "${LMC_VERSION}")
     string(REPLACE "." ";" _lmc_rc_parts "${_lmc_rc_source}")
     # Keep only the leading numeric prefix of each part; empty/non-numeric -> 0.
