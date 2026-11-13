@@ -41,10 +41,6 @@ on:
         description: Version string used in package names
         type: string
         default: ''
-      installer_version:
-        description: Four-part version for the Windows installer
-        type: string
-        default: ''
       ref:
         description: Git ref to build (defaults to the triggering commit)
         type: string
@@ -63,10 +59,6 @@ on:
         description: Version string used in package names
         type: string
         default: ''
-      installer_version:
-        description: Four-part version for the Windows installer
-        type: string
-        default: ''
       ref:
         description: Git ref to build (defaults to the triggering commit)
         type: string
@@ -83,7 +75,6 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
       QTDIR: /usr/lib/x86_64-linux-gnu/qt6
     steps:
       - uses: actions/checkout@v7
@@ -207,7 +198,6 @@ jobs:
     runs-on: windows-2022
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -290,6 +280,23 @@ jobs:
 
       - name: Build release layout
         run: cmake --build build --config Release --target package-local --parallel
+
+      # VERSIONINFO is generated at configure time from LMC_VERSION.
+      # Fail here, not after packaging, if the string stamp drifted.
+      # Numeric shape needs no check: derivation always emits 4xuint16
+      # (clamp collides above 65535 outside CI, strings still differ).
+      - name: Verify exe version stamp
+        shell: pwsh
+        run: |
+          $vi = (Get-Item release\lmc.exe).VersionInfo
+          Write-Host "FileVersionRaw: $($vi.FileVersionRaw)"
+          Write-Host "ProductVersionRaw: $($vi.ProductVersionRaw)"
+          Write-Host "FileVersion: $($vi.FileVersion)"
+          Write-Host "ProductVersion: $($vi.ProductVersion)"
+          if ($vi.FileVersion -ne $env:PKG_VERSION) {
+            throw "lmc.exe FileVersion '$($vi.FileVersion)' != PKG_VERSION '$env:PKG_VERSION'" }
+          if ($vi.ProductVersion -ne $env:PKG_VERSION) {
+            throw "lmc.exe ProductVersion '$($vi.ProductVersion)' != PKG_VERSION '$env:PKG_VERSION'" }
 
       - name: Deploy Qt runtime
         shell: cmd
@@ -384,7 +391,7 @@ jobs:
         run: |
           choco install nsis -y --no-progress
           cd setup\win32
-          call setup.bat release %PKG_VERSION% %PKG_INSTALLER_VERSION%
+          call setup.bat release %PKG_VERSION%
 
       - name: Upload packages
         if: inputs.artifacts != 'test'
@@ -409,7 +416,6 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     env:
       PKG_VERSION: ${{ inputs.version || format('0.0.0.{0}', github.run_number) }}
-      PKG_INSTALLER_VERSION: ${{ inputs.installer_version || format('0.0.0.{0}', github.run_number) }}
     steps:
       - uses: actions/checkout@v7
         with:

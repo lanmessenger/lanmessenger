@@ -55,7 +55,7 @@ above; CI does this in `build.yml`):
 ```bash
 cd setup/linux
 sh ./stage.sh
-NFPM=/path/to/nfpm sh ./package.sh 1.2.39
+NFPM=/path/to/nfpm sh ./package.sh 1.3.21
 ```
 
 `nfpm` is a single static binary, no root needed:
@@ -72,8 +72,8 @@ Only system-Qt packages are built; the `Depends`/`Requires` in
 `nfpm.yaml` pull the system Qt 6 libraries. Bundled Qt is not
 supported.
 
-Nightly versions look like `1.2.40~nightly.123` in deb/rpm and
-`1.2.40_nightly.123` in the Arch package (`pkgver` forbids `~` and `-`,
+Nightly versions look like `1.3.22~nightly.123` in deb/rpm and
+`1.3.22_nightly.123` in the Arch package (`pkgver` forbids `~` and `-`,
 so `package.sh` maps them to `_`). Nightly Arch packages sort newer than
 the matching release; switching from a nightly to that release looks
 like a downgrade to pacman.

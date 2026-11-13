@@ -92,6 +92,21 @@ jobs:
           if (-not (Get-ChildItem C:\lmc-smoke\libcrypto-*.dll -ErrorAction SilentlyContinue)) {
             throw 'missing openssl dlls' }
 
+      # Installed exe string stamp must match the installer filename version.
+      - name: Verify installed exe version stamp
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist/lmc-*-win64.exe | Select-Object -First 1
+          if (-not $exe) { throw 'installer not found in dist/' }
+          $ver = $exe.BaseName -replace '^lmc-(.*)-win64$','$1'
+          $vi = (Get-Item 'C:\lmc-smoke\lmc.exe').VersionInfo
+          Write-Host "installer version: $ver"
+          Write-Host "exe FileVersion: $($vi.FileVersion) / ProductVersion: $($vi.ProductVersion)"
+          if ($vi.FileVersion -ne $ver) {
+            throw "installed lmc.exe FileVersion '$($vi.FileVersion)' != installer version '$ver'" }
+          if ($vi.ProductVersion -ne $ver) {
+            throw "installed lmc.exe ProductVersion '$($vi.ProductVersion)' != installer version '$ver'" }
+
       # No console window allowed: the lmc target is built as a WIN32 GUI app,
       # so it must never spawn a conhost child. A console subsystem regression
       # (e.g. a lost WIN32 flag in CMake) shows up here as conhost.exe with

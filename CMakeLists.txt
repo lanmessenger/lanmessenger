@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.16)
 project(lmc VERSION 2.0.0 LANGUAGES CXX)
 
 # Display version: git tag (vX.Y.Z) via -DLMC_VERSION, else 0.0.0.
+# Windows numeric stamps derive from this in src/CMakeLists.txt.
 set(LMC_VERSION "0.0.0" CACHE STRING "Application display version (defaults to git tag)")
+# Single accepted format: no leading v (tags are vX.Y.Z, pass X.Y.Z).
+if(LMC_VERSION MATCHES "^[vV]")
+  message(FATAL_ERROR "LMC_VERSION '${LMC_VERSION}' must not have a leading v (tags are vX.Y.Z, pass X.Y.Z)")
+endif()
 message(STATUS "LMC version: ${LMC_VERSION}")
 
 set(CMAKE_CXX_STANDARD 17)

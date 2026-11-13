@@ -47,19 +47,18 @@ To build the installer, run `setup.bat` in the `setup\win32` folder.
 NSIS must be installed first. Usage:
 
 ```cmd
-setup.bat <ExeFolder> [ProductVersion] [InstallerVersion]
+setup.bat <ExeFolder> <ProductVersion>
 ```
 
 Example:
 
 ```cmd
-setup.bat release 1.2.39 1.2.3.9
+setup.bat release 1.3.21
 ```
 
 The batch file executes an NSIS script (`setup.nsi`) which packages the
-whole `ExeFolder` and generates the installer. `ProductVersion` and
-`InstallerVersion` are passed to `makensis` as command line defines; when
-omitted, the defaults in `setup.nsi` are used and must be set whenever
-the application version changes. The installer generated will have the
+whole `ExeFolder` and generates the installer. `ProductVersion` is passed
+to `makensis` as a command line define; `InstallerVersion` is read from
+the `FILEVERSION` stamp of the built `lmc.exe` in `ExeFolder`. The installer generated will have the
 name `lmc-<version>-win64.exe` and it will be saved to the `setup`
 folder.

@@ -1,21 +1,6 @@
-; LAN Messenger Installation Script
-; Version: 2.2
-; Copyright (C) 2010-2011 Dilip Radhakrishnan
-; Version History
-; 1.0
-;   -Initial release version
-; 2.0
-;   -Updated for new LAN Messenger(1.1.5 and above)
-; 2.1
-;   -Streamlined to include variable number of setup files
-; 2.2
-;   -Added support for silent install/uninstall
-; 2.3
-;	-Uses the /silent switch to execute the application exe silently
-; 2.4
-;	-Setup now takes care of the log folder while install/uninstall
-; 2.5
-;	-Added support for the /config switch to specify a config file during installation
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Copyright (c) 2010 - 2011 Dilip Radhakrishnan.
+; Copyright (c) 2026 LAN Messenger.
 
 
 ;Define the compression to be used (lzma gives best compression)
@@ -35,10 +20,10 @@ SetCompressor /SOLID lzma
   !define ProductName "LAN Messenger"
   !define CompanyName "LAN Messenger"
   !ifndef ProductVersion
-    !define ProductVersion "1.2.39"
+    !error "ProductVersion is required (pass /DProductVersion=... via setup.bat)"
   !endif
   !ifndef InstallerVersion
-    !define InstallerVersion "1.2.3.9"
+    !error "InstallerVersion is required (pass /DInstallerVersion=... via setup.bat)"
   !endif
   !define ProductUrl "http://lanmessenger.github.io"
   !define CompanyRegKey "SOFTWARE\${CompanyName}"

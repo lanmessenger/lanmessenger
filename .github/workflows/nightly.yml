@@ -26,7 +26,6 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.ver.outputs.version }}
-      installer_version: ${{ steps.ver.outputs.installer_version }}
       sha: ${{ steps.ver.outputs.sha }}
       date: ${{ steps.ver.outputs.date }}
       should_build: ${{ steps.ver.outputs.should_build }}
@@ -65,12 +64,12 @@ jobs:
           fi
           base_next="$maj.$min.$((pat + 1))"
 
-          # Version sorts after the last release (1.2.39 < 1.2.40~nightly.N)
-          # and before the upcoming one (1.2.40~nightly.N < 1.2.40) in both
+          # Version sorts after the last release (1.3.21 < 1.3.22~nightly.N)
+          # and before the upcoming one (1.3.22~nightly.N < 1.3.22) in both
           # dpkg and rpm (tilde semantics). No hyphens: they are not valid
-          # in rpm Version / deb upstream version.
+          # in rpm Version / deb upstream version. The Windows numeric stamp
+          # derives from this (1.3.22~nightly.N -> 1.3.22.N).
           version="${base_next}~nightly.${GITHUB_RUN_NUMBER}"
-          installer_version="${base_next}.${GITHUB_RUN_NUMBER}"
 
           prev=""
           body=$(gh release view nightly --json body -q .body 2>/dev/null || true)
@@ -85,7 +84,6 @@ jobs:
 
           {
             echo "version=$version"
-            echo "installer_version=$installer_version"
             echo "sha=$sha"
             echo "date=$date"
             echo "should_build=$should_build"
@@ -102,7 +100,6 @@ jobs:
       artifacts: release+test
       windows-ssl: vcpkg
       version: ${{ needs.plan.outputs.version }}
-      installer_version: ${{ needs.plan.outputs.installer_version }}
       ref: ${{ needs.plan.outputs.sha }}
 
   smoke-windows-installer:

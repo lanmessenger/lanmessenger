@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (e.g. 1.2.39)'
+        description: 'Version (e.g. 1.3.22)'
         required: true
       publish:
         description: 'Publish GitHub Release (only effective on master)'
@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.ver.outputs.version }}
-      installer_version: ${{ steps.ver.outputs.installer_version }}
     steps:
       - id: ver
         run: |
@@ -34,12 +33,7 @@ jobs:
             echo "version is empty" >&2
             exit 1
           fi
-          case "$ver" in
-            *.*.*.*) iv="$ver" ;;
-            *)       iv="$ver.0" ;;
-          esac
           echo "version=$ver" >> "$GITHUB_OUTPUT"
-          echo "installer_version=$iv" >> "$GITHUB_OUTPUT"
 
   check-branch:
     runs-on: ubuntu-24.04
@@ -64,7 +58,6 @@ jobs:
       artifacts: release+test
       windows-ssl: vcpkg
       version: ${{ needs.version.outputs.version }}
-      installer_version: ${{ needs.version.outputs.installer_version }}
 
   # Honest behavioral gate: full Robot suite against the vcpkg-linked test
   # layout built above (skip-build: same run, same artifact names).
