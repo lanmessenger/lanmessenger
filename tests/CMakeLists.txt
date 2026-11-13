@@ -97,6 +97,10 @@ set_tests_properties(bubbleheader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscr
 lmc_add_unit_test(chatselectall unit/tst_chatselectall.cpp ../src/resource.qrc)
 set_tests_properties(chatselectall PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# Settings theme preview (issue #106), offscreen.
+lmc_add_unit_test(themepreview unit/tst_themepreview.cpp ../src/resource.qrc)
+set_tests_properties(themepreview PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # History file round-trip (save/getList/getMessage + legacy view row),
 # offscreen.
 lmc_add_unit_test(history unit/tst_history.cpp ../src/resource.qrc)

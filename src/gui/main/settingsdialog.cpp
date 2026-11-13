@@ -353,6 +353,8 @@ void lmcSettingsDialog::refreshPreview(void) {
   msg.addData(XN_MESSAGE, "This is another incoming message.");
   pMessageLog->appendMessageLog(MT_Message, &userId, &userName, &msg, true);
 
+  pMessageLog->relayoutPreview();
+
   killTimer(statusTimerId);
   statusTimerId = startTimer(3000);
 }

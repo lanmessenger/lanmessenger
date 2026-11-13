@@ -99,6 +99,12 @@ void ChatMessageView::reloadTheme() {
   requestRelayout();
 }
 
+void ChatMessageView::relayoutPreview() {
+  doItemsLayout();
+  scrollToTop();
+  viewport()->update();
+}
+
 void ChatMessageView::appendMessageLog(MessageType type, QString* lpszUserId,
                                        QString* lpszUserName, XmlMessage* pMessage,
                                        bool bReload) {

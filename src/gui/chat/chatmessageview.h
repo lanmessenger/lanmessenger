@@ -32,6 +32,8 @@ public:
   //  lmcMessageLog compatibility.
   void initChat(bool clearLog = true);
   void reloadTheme();
+  //  Settings preview only: resync layout after a theme switch, pin to top.
+  void relayoutPreview();
   void syncBackground();
   void appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
                         XmlMessage* pMessage, bool bReload = false);
