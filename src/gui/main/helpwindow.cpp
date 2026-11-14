@@ -81,9 +81,16 @@ void lmcHelpWindow::setUIText(void) {
 
   setWindowTitle(tr("Help"));
 
-  QString helpLink = QString(IDA_DOMAIN "/help");
-  QString faqLink = QString(IDA_DOMAIN "/faq");
-  QString supportLink = QString(IDA_DOMAIN "/support");
+  const QString docsLink = QStringLiteral(IDA_DOCS_URL);
+#if defined Q_OS_WIN
+  const QString networkLink = docsLink + QStringLiteral("/install-windows#firewall");
+#elif defined Q_OS_MAC
+  const QString networkLink = docsLink + QStringLiteral("/install-macos");
+#else
+  const QString networkLink = docsLink + QStringLiteral("/install-linux#firewall");
+#endif
+  const QString issuesLink = QStringLiteral(IDA_ISSUES_URL);
+  const QString repoLink = QStringLiteral(IDA_REPO_URL);
 
   QString html = tr(
     "<html>"
@@ -92,21 +99,26 @@ void lmcHelpWindow::setUIText(void) {
     "</head>"
     "<body>"
     "<h2>Welcome to LAN Messenger Help</h2>"
-    "<h3>Help</h3>"
+    "<h3>Documentation</h3>"
     "<p>"
-    "You can find documentation on LAN Messenger's <a href='%1'>wiki</a> website."
+    "You can find guides and references in the <a href='%1'>documentation</a>."
     "</p>"
     "<p>"
-    "Before asking any question, please refer yourself to the <a href='%2'>FAQ</a>."
+    "No peers in the list? Check the <a href='%2'>network notes for your system</a>."
     "</p>"
+    "<h3>Report a problem</h3>"
     "<p>"
-    "You might then get (and give) help on the <a href='%3'>Support Forums</a>."
+    "Found a bug on your subnet? Please <a href='%3'>open an issue</a> and include "
+    "your operating system, app version, and network setup."
     "</p>"
     "<h3>Contribute to the project</h3>"
     "<p>"
     "You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can <b>promote</b> LAN Messenger."
     "</p>"
+    "<p>"
+    "If you find LAN Messenger useful, please <a href='%4'>star us on GitHub</a>."
+    "</p>"
     "</body>"
     "</html>");
-  ui.txtHelp->setHtml(html.arg(helpLink, faqLink, supportLink));
+  ui.txtHelp->setHtml(html.arg(docsLink, networkLink, issuesLink, repoLink));
 }

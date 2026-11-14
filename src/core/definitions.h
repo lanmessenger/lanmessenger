@@ -27,6 +27,10 @@
 //	Linux IniFormat / Windows registry paths use organizationName +
 //	applicationName (no domain), so this change affects the macOS plist only.
 #define IDA_DOMAIN_HOST "lanmessenger.github.io"
+//	Public URLs (single source of truth for in-app links).
+#define IDA_DOCS_URL "https://lanmessenger.github.io/docs"
+#define IDA_REPO_URL "https://github.com/lanmessenger/lanmessenger"
+#define IDA_ISSUES_URL "https://github.com/lanmessenger/lanmessenger/issues"
 //	Canonical Linux desktop entry ID (reverse-DNS). File names are
 //	LMC_DESKTOP_ID ".desktop"; keep Icon/launchable/desktopFileName in sync.
 #define LMC_DESKTOP_ID "io.github.lanmessenger.lmc"
