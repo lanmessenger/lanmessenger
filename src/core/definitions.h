@@ -18,7 +18,7 @@
 #endif
 #define IDA_COPYRIGHT "Copyright (C) 2026 LAN Messenger Project."
 #define IDA_CONTACT "lanmsngr@gmail.com"
-#define IDA_DOMAIN "http://lanmessenger.github.io"
+#define IDA_DOMAIN "https://lanmessenger.github.io"
 //	Bare host for QGuiApplication::setOrganizationDomain (no scheme:
 //	organizationDomain is a domain name, IDA_DOMAIN above is a URL).
 //	Note: the previous value was the full URL. On macOS (NativeFormat)
