@@ -26,6 +26,7 @@ Tarjányi Csaba - Hungarian localization
 maboroshin - Japanese localization
 Jaroslaw Kaczmarek - Polish localization
 MarkoD - Slovak localization
+TeamNITE - bug hunting, documentation
 
 
 Some of the images used were created by Mythique Design and used under the Creative Commons Public License.
