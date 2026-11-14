@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and answers
+    url: https://github.com/lanmessenger/lanmessenger/discussions
+    about: Usage questions, setup help and general discussion

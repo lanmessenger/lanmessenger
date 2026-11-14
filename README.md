@@ -51,7 +51,8 @@ See [docs/build.md](docs/build.md) for prerequisites and platform-specific build
 
 ## Support and Bug Reports
 
-Found a bug or have a question? Visit [GitHub Issues](https://github.com/lanmessenger/lanmessenger/issues).
+Found a bug? Visit [GitHub Issues](https://github.com/lanmessenger/lanmessenger/issues).
+Have a question? Join [GitHub Discussions](https://github.com/lanmessenger/lanmessenger/discussions).
 
 When reporting a bug, include your operating system, LAN Messenger version, and steps to reproduce the issue.
 
