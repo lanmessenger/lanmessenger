@@ -150,7 +150,7 @@ void lmcMessaging::prepareBroadcast(MessageType type, XmlMessage* pMessage) {
     qCWarning(lmcMsg(), "Not connected. Broadcast not sent");
     return;
   }
-  if(localUser->id.isNull()) {
+  if(localUser->id.isEmpty()) {
     qCWarning(lmcMsg(), "Local user not initialized. Broadcast not sent");
     return;
   }
@@ -175,7 +175,7 @@ void lmcMessaging::prepareMessage(MessageType type, qint64 msgId, bool retry, QS
     qCWarning(lmcMsg(), "Not connected. Message not sent");
     return;
   }
-  if(localUser->id.isNull()) {
+  if(localUser->id.isEmpty()) {
     qCWarning(lmcMsg(), "Local user not initialized. Message not sent");
     return;
   }

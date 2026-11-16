@@ -3,6 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "messaging.h"
 #include <QTimer>
+#include <QSysInfo>
 #include "network/network.h"
 #include "core/settings.h"
 #include "core/stdlocation.h"
@@ -18,6 +19,7 @@ lmcMessaging::lmcMessaging(void) {
   connect(pNetwork, &lmcNetwork::progressReceived, this, &lmcMessaging::receiveProgress);
   connect(pNetwork, &lmcNetwork::connectionStateChanged, this, &lmcMessaging::network_connectionStateChanged);
   pTimer = nullptr;
+  pSettings = nullptr;
   localUser = NULL;
   userList.clear();
   groupList.clear();
@@ -30,6 +32,7 @@ lmcMessaging::lmcMessaging(void) {
 }
 
 lmcMessaging::~lmcMessaging(void) {
+  delete pSettings;
 }
 
 void lmcMessaging::init(XmlMessage* pInitParams) {
@@ -37,13 +40,13 @@ void lmcMessaging::init(XmlMessage* pInitParams) {
 
   pNetwork->init(pInitParams);
 
+  pSettings = new lmcSettings();
   QString logonName = Helper::getLogonName();
   QString szAddress = pNetwork->physicalAddress();
   QString userId = createUserId(&szAddress, &logonName);
 
   pNetwork->setLocalId(&userId);
 
-  pSettings = new lmcSettings();
   QString userStatus = pSettings->value(IDS_STATUS, IDS_STATUS_VAL).toString();
   int sIndex = Helper::statusIndexFromCode(userStatus);
   //	if status not recognized, default to available
@@ -229,7 +232,7 @@ int lmcMessaging::userCount(void) {
 void lmcMessaging::network_connectionStateChanged(void) {
   if(isConnected()) {
     localUser->address = pNetwork->ipAddress;
-    if(localUser->id.isNull()) {
+    if(localUser->id.isEmpty()) {
       QString logonName = Helper::getLogonName();
       QString szAddress = pNetwork->physicalAddress();
       QString userId = createUserId(&szAddress, &logonName);
@@ -245,13 +248,38 @@ void lmcMessaging::timer_timeout(void) {
   checkPendingMsg();
 }
 
-QString lmcMessaging::createUserId(QString* lpszAddress, QString* lpszUserName) {
-  QString userId = *lpszAddress;
-  if(!userId.isNull()) {
-    userId.append(*lpszUserName);
-    userId.remove(":");
-  }
+static QString makeUserId(const QString& baseId, const QString& logonName) {
+  QString userId = baseId;
+  userId.append(logonName);
+  userId.remove(":");
   return userId;
+}
+
+QString lmcMessaging::createUserId(QString* lpszAddress, QString* lpszUserName) {
+  //	Sticky fallback: a once-generated persisted id wins over adapters.
+  if(pSettings) {
+    QString baseId = pSettings->value(IDS_USERID, IDS_USERID_VAL).toString();
+    if(!baseId.isEmpty())
+      return makeUserId(baseId, *lpszUserName);
+  }
+
+  if(!lpszAddress->isEmpty())
+    return makeUserId(*lpszAddress, *lpszUserName);
+
+  //	No MAC (e.g. EasyTier on Windows): fall back to machineUniqueId()+login.
+  QByteArray machineId = QSysInfo::machineUniqueId();
+  if(!machineId.isEmpty())
+    return makeUserId(QString::fromLatin1(machineId), *lpszUserName);
+
+  //	Last resort: persisted random id, stable across restarts.
+  if(pSettings) {
+    QString baseId = Helper::getUuid();
+    pSettings->setValue(IDS_USERID, baseId);
+    pSettings->sync();
+    return makeUserId(baseId, *lpszUserName);
+  }
+
+  return QString();
 }
 
 QString lmcMessaging::getUserName(void) {

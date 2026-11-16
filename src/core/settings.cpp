@@ -100,6 +100,9 @@ bool lmcSettings::loadFromConfig(const QString& configFile) {
   value = extSettings.value(IDS_USERABOUT);
   if(value.isValid())
     setValue(IDS_USERABOUT, value);
+  value = extSettings.value(IDS_USERID);
+  if(value.isValid())
+    setValue(IDS_USERID, value);
   value = extSettings.value(IDS_REFRESHTIME);
   if(value.isValid())
     setValue(IDS_REFRESHTIME, value);

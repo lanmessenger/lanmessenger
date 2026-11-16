@@ -140,6 +140,8 @@
 #define IDS_USERABOUT_VAL ""
 #define IDS_NOTE "User/Note"
 #define IDS_NOTE_VAL ""
+#define IDS_USERID "User/Id"
+#define IDS_USERID_VAL ""
 #define IDS_GROUPHDR "Groups"
 #define IDS_GROUP "Group"
 #define IDS_GROUPNAME "GroupName"
