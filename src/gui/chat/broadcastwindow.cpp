@@ -13,6 +13,7 @@
 #include <QCloseEvent>
 #include <QIcon>
 #include <QPixmap>
+#include <QPalette>
 #include "core/settings.h"
 #include "core/uidefinitions.h"
 #include "messaging/xmlmessage.h"
@@ -52,6 +53,8 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
   ui.btnSelectAll->installEventFilter(this);
   ui.btnSelectNone->installEventFilter(this);
 
+  ui.lblInfo->setBackgroundRole(QPalette::Base);
+  ui.lblInfo->setAutoFillBackground(true);
   ui.lblInfo->setVisible(false);
   infoFlag = IT_Ok;
 
@@ -344,7 +347,6 @@ void lmcBroadcastWindow::sendMessage(void) {
 void lmcBroadcastWindow::showStatus(int flag, bool add) {
   infoFlag = add ? infoFlag | flag : infoFlag & ~flag;
 
-  ui.lblInfo->setStyleSheet("QLabel { background-color:white;font-size:9pt; }");
   if(infoFlag & IT_Disconnected) {
     ui.lblInfo->setText("<span style='color:rgb(192, 0, 0);'>" +
                         tr("You are no longer connected. Broadcast message cannot be sent.") + "</span>");

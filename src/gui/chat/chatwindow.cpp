@@ -830,7 +830,6 @@ void lmcChatWindow::showStatus(int flag, bool add) {
   //	int relScrollPos = pMessageLog->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) -
   //			pMessageLog->page()->mainFrame()->scrollBarValue(Qt::Vertical);
 
-  //ui.lblInfo->setStyleSheet("QLabel { background-color:white; }");
   if(infoFlag & IT_Disconnected) {
     ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + tr("You are no longer connected.") + "</span>");
     ui.lblInfo->setVisible(true);
