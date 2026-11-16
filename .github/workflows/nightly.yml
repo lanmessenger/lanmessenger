@@ -150,6 +150,19 @@ jobs:
           manifest-path: setup/flatpak/io.github.lanmessenger.lmc.yml
           cache-key: flatpak-builder-kde-6.11-x86_64-${{ hashFiles('setup/flatpak/io.github.lanmessenger.lmc.yml') }}
           upload-artifact: false
+          verbose: true
+
+      - name: Flatpak infra diagnostics on failure
+        if: failure()
+        run: |
+          set -x
+          flatpak --version || true
+          ostree --version || true
+          df -h / /tmp /var/tmp /var/lib/flatpak "$GITHUB_WORKSPACE" || true
+          mount | grep -E ' /(|tmp|var) ' || true
+          flatpak remotes -d || true
+          flatpak list || true
+          ls -la .flatpak-builder repo flatpak_app || true
 
       - name: Upload bundle
         uses: actions/upload-artifact@v7
