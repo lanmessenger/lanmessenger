@@ -57,13 +57,6 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   ui.logLayout->addWidget(pMessageLog);
   connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatWindow::log_sendMessage);
 
-  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
-                          ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
-  QList<int> sizes;
-  sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
-  sizes.append(bottomPanelHeight);
-  ui.splitter->setSizes(sizes);
-
   ui.lblInfo->setBackgroundRole(QPalette::Base);
   ui.lblInfo->setAutoFillBackground(true);
   ui.lblInfo->setVisible(false);
@@ -115,6 +108,15 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 
   createEmojiMenu();
   createToolBar();
+
+  //	toolbar height is natural (no fixed size in ui), so measure after creation
+  ui.wgtToolBar->layout()->activate();
+  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
+                          ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+  QList<int> sizes;
+  sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
+  sizes.append(bottomPanelHeight);
+  ui.splitter->setSizes(sizes);
 
   bConnected = connected;
   if(!bConnected)
@@ -635,7 +637,6 @@ void lmcChatWindow::createEmojiMenu(void) {
 
 void lmcChatWindow::createToolBar(void) {
   QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
-  pLeftBar->setStyleSheet("QToolBar { border: 0px }");
   pLeftBar->setIconSize(QSize(16, 16));
   ui.toolBarLayout->addWidget(pLeftBar);
 
@@ -672,7 +673,6 @@ void lmcChatWindow::createToolBar(void) {
   pSaveAction->setEnabled(false);
 
   pRightBar = new QToolBar(ui.wgtToolBar);
-  pRightBar->setStyleSheet("QToolBar { border: 0px }");
   pRightBar->setIconSize(QSize(16, 16));
   pRightBar->setLayoutDirection(Qt::RightToLeft);
   ui.toolBarLayout->addWidget(pRightBar);

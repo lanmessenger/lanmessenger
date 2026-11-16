@@ -54,13 +54,7 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
   ui.logLayout->addWidget(pMessageLog);
   connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
 
-  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
-                          ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->minimumHeight();
   QList<int> sizes;
-  sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
-  sizes.append(bottomPanelHeight);
-  ui.hSplitter->setSizes(sizes);
-  sizes.clear();
   sizes.append(width() * 0.7);
   sizes.append(width() - width() * 0.7 - ui.vSplitter->handleWidth());
   ui.vSplitter->setSizes(sizes);
@@ -135,10 +129,22 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
   ui.btnSend->setVisible(showSendButton);
 
+  bool hRestored = false;
   if(!groupMode) {
     restoreGeometry(pSettings->value(IDS_WINDOWPUBLICCHAT).toByteArray());
     ui.vSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATV).toByteArray());
-    ui.hSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATH).toByteArray());
+    hRestored = ui.hSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATH).toByteArray());
+  }
+
+  if(groupMode || !hRestored) {
+    //	toolbar height is natural (no fixed size in ui), so measure after creation
+    ui.wgtToolBar->layout()->activate();
+    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
+                            ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+    QList<int> sizes;
+    sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
+    sizes.append(bottomPanelHeight);
+    ui.hSplitter->setSizes(sizes);
   }
 
   setUIText();
@@ -616,7 +622,6 @@ void lmcChatRoomWindow::createEmojiMenu(void) {
 
 void lmcChatRoomWindow::createToolBar(void) {
   QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
-  pLeftBar->setStyleSheet("QToolBar { border: 0px }");
   pLeftBar->setIconSize(QSize(16, 16));
   ui.toolBarLayout->addWidget(pLeftBar);
 
@@ -648,16 +653,12 @@ void lmcChatRoomWindow::createToolBar(void) {
 
   if(groupMode) {
     QToolBar* pContactsBar = new QToolBar(ui.wgtContactsBar);
-    pContactsBar->setStyleSheet("QToolBar { border: 0px }");
     pContactsBar->setIconSize(QSize(24, 24));
     ui.contactsBarLayout->addWidget(pContactsBar);
 
     addContactAction = ActionHelper::createAction(pContactsBar, "&Add Contacts...", this,
                                                   &lmcChatRoomWindow::addContactAction_triggered,
                                                   QIcon(QPixmap(IDR_ADDCONTACT, "PNG")));
-
-    QToolButton* pButton = (QToolButton*)pContactsBar->widgetForAction(addContactAction);
-    pButton->setAutoRaise(false);
   }
 }
 

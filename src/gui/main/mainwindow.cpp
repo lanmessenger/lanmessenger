@@ -848,7 +848,6 @@ void lmcMainWindow::createUserMenu(void) {
 
 void lmcMainWindow::createToolBar(void) {
   QToolBar* pStatusBar = new QToolBar(ui.frame);
-  pStatusBar->setStyleSheet("QToolBar { border: 0px; padding: 0px; }");
   ui.statusLayout->insertWidget(0, pStatusBar);
   QAction* pStatusAction = pStatusBar->addAction("");
   btnStatus = (QToolButton*)pStatusBar->widgetForAction(pStatusAction);
@@ -878,17 +877,6 @@ void lmcMainWindow::createToolBar(void) {
   toolPublicChatAction = ActionHelper::createAction(pToolBar, "&Public Chat", this,
                                                     &lmcMainWindow::publicChatAction_triggered,
                                                     QIcon(QPixmap(IDR_CHATROOM, "PNG")));
-
-  QToolButton* pButton = (QToolButton*)pToolBar->widgetForAction(toolChatAction);
-  pButton->setAutoRaise(false);
-  pButton = (QToolButton*)pToolBar->widgetForAction(toolFileAction);
-  pButton->setAutoRaise(false);
-  pButton = (QToolButton*)pToolBar->widgetForAction(toolBroadcastAction);
-  pButton->setAutoRaise(false);
-  pButton = (QToolButton*)pToolBar->widgetForAction(toolChatRoomAction);
-  pButton->setAutoRaise(false);
-  pButton = (QToolButton*)pToolBar->widgetForAction(toolPublicChatAction);
-  pButton->setAutoRaise(false);
 }
 
 void lmcMainWindow::setUIText(void) {

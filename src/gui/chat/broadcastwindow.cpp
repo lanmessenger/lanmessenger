@@ -251,7 +251,6 @@ void lmcBroadcastWindow::btnSend_clicked(void) {
 void lmcBroadcastWindow::createToolBar(void) {
   //	create the toolbar
   pToolBar = new QToolBar(ui.toolBarWidget);
-  pToolBar->setStyleSheet("QToolBar { border: 0px }");
   pToolBar->setIconSize(QSize(16, 16));
   ui.toolBarLayout->addWidget(pToolBar);
 

@@ -105,18 +105,6 @@
        </item>
        <item>
         <widget class="QWidget" name="wgtToolBar" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>24</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777214</width>
-           <height>24</height>
-          </size>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
            <number>0</number>
