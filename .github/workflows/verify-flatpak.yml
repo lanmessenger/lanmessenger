@@ -1,0 +1,139 @@
+# Smoke test for the Linux .flatpak bundle: installs the exact
+# packages-flatpak artifact built by the nightly build-flatpak job on a
+# fresh runner and starts the installed app.
+name: Verify flatpak
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-flatpak
+          path: dist
+          merge-multiple: true
+
+      - name: List package artifact
+        run: ls -la dist
+
+      - name: Install flatpak and bundle
+        run: |
+          set -euo pipefail
+          bundle=(dist/*.flatpak)
+          if [ ! -f "${bundle[0]}" ]; then echo 'flatpak bundle not found in dist/' >&2; exit 1; fi
+          sudo apt-get update
+          sudo apt-get install -y flatpak xvfb x11-utils appstream dbus-x11
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y "${bundle[0]}"
+          flatpak info io.github.lanmessenger.lmc
+
+      - name: Verify installed layout
+        run: |
+          set -euo pipefail
+          flatpak run --command=sh io.github.lanmessenger.lmc -c '
+            set -eu
+            test -x /app/bin/lmc
+            for f in /app/bin/lmc /app/share/lmc/lmc.rcc /app/share/lmc/COPYING \
+                     /app/share/applications/io.github.lanmessenger.lmc.desktop \
+                     /app/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml \
+                     /app/share/icons/hicolor/16x16/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/22x22/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/24x24/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/32x32/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/36x36/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/48x48/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/pixmaps/io.github.lanmessenger.lmc.xpm \
+                     /app/share/lmc/lang/de_DE.qm /app/share/lmc/lang/system/qtbase_de.qm \
+                     /app/share/lmc/sounds/filedone.wav; do
+              test -e "$f" || { echo "missing $f" >&2; exit 1; }
+            done
+          '
+          desktop=~/.local/share/flatpak/app/io.github.lanmessenger.lmc/current/active/files/share/applications/io.github.lanmessenger.lmc.desktop
+          grep -Fxq 'Icon=io.github.lanmessenger.lmc' "$desktop" \
+            || { echo 'desktop Icon= drifted' >&2; exit 1; }
+          grep -Fxq 'StartupWMClass=lmc' "$desktop" \
+            || { echo 'desktop StartupWMClass drifted' >&2; exit 1; }
+          flatpak run --command=sh io.github.lanmessenger.lmc -c '
+            grep -Fq "<launchable type=\"desktop-id\">io.github.lanmessenger.lmc.desktop</launchable>" \
+              /app/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml \
+              || { echo "metainfo launchable drifted" >&2; exit 1; }
+            test -n "$(find /usr /app -name libqsqlite.so 2>/dev/null | head -1)" \
+              || { echo "qsqlite driver missing" >&2; exit 1; }
+          '
+
+      - name: Validate AppStream metadata
+        run: |
+          set -euo pipefail
+          appstreamcli validate --no-net \
+            ~/.local/share/flatpak/app/io.github.lanmessenger.lmc/current/active/files/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml
+
+      - name: Start Xvfb
+        run: |
+          set -euo pipefail
+          disp=""
+          for n in 99 100 101 102; do
+            if [ ! -e /tmp/.X$n-lock ] && [ ! -S /tmp/.X11-unix/X$n ]; then disp=$n; break; fi
+          done
+          if [ -z "$disp" ]; then echo 'no free X display' >&2; exit 1; fi
+          Xvfb :$disp -screen 0 1280x1024x24 &
+          for _ in $(seq 1 30); do
+            xdpyinfo -display :$disp >/dev/null 2>&1 && break || sleep 1
+          done
+          xdpyinfo -display :$disp >/dev/null || { echo 'Xvfb did not start' >&2; exit 1; }
+          echo "DISPLAY=:$disp" >> "$GITHUB_ENV"
+          echo "USER=ci" >> "$GITHUB_ENV"
+          echo "QT_QPA_PLATFORM=xcb" >> "$GITHUB_ENV"
+
+      - name: Smoke start installed app
+        run: |
+          set -euo pipefail
+          eval "$(dbus-launch --sh-syntax)"
+          flatpak run io.github.lanmessenger.lmc /trace /loopback /noconfig &
+          app_pid=$!
+          rc=0
+          iter=0
+          for _ in $(seq 1 60); do
+            iter=$((iter + 1))
+            rc=0
+            flatpak run io.github.lanmessenger.lmc /inst >/dev/null 2>&1 || rc=$?
+            if [ "$rc" -eq 1 ]; then echo "app visible via /inst after ~$((iter * 3))s"; break; fi
+            if ! kill -0 $app_pid 2>/dev/null; then echo "first instance died during poll #$iter" >&2; break; fi
+            sleep 2
+          done
+          if [ "$rc" -ne 1 ]; then
+            echo 'app did not start' >&2
+            if kill -0 $app_pid 2>/dev/null; then kill -9 $app_pid 2>/dev/null || true; else wait $app_pid || echo "first exit=$?" >&2; fi
+            exit 1
+          fi
+          if ! kill -0 $app_pid 2>/dev/null; then
+            echo 'first instance died after taking the lock' >&2
+            wait $app_pid || echo "first exit=$?" >&2
+            exit 1
+          fi
+          timeout 60 flatpak run io.github.lanmessenger.lmc /termwait
+          for _ in $(seq 1 60); do
+            kill -0 $app_pid 2>/dev/null || break
+            sleep 0.5
+          done
+          if kill -0 $app_pid 2>/dev/null; then echo 'app did not exit on /termwait' >&2; kill -9 $app_pid; exit 1; fi
+          wait $app_pid
+          flatpak run io.github.lanmessenger.lmc /inst \
+            || { echo 'instance still running after termwait' >&2; exit 1; }
+
+      - name: Dump package state on failure
+        if: failure()
+        run: |
+          echo "DISPLAY=${DISPLAY:-<unset>}"
+          ls -la /tmp/.X11-unix/ || true
+          flatpak list --app --user || true
+          flatpak info io.github.lanmessenger.lmc || true
+          echo '--- app trace ---'
+          trace=$(ls -t ~/.var/app/io.github.lanmessenger.lmc/data/lmc/lmc/logs/lmc_*.log 2>/dev/null | head -1 || true)
+          if [ -n "${trace:-}" ]; then echo "== $trace"; cat "$trace"; else echo 'no trace file'; ls -la ~/.var/app/io.github.lanmessenger.lmc/data/lmc/lmc/logs/ 2>/dev/null || true; fi

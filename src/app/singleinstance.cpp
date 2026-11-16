@@ -6,8 +6,10 @@
 #include <QDeadlineTimer>
 #include <QDir>
 #include <QCryptographicHash>
+#include <QFile>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QStandardPaths>
 #include <QThread>
 
 #if defined(Q_OS_WIN)
@@ -17,6 +19,24 @@
 #endif
 
 namespace {
+
+bool inFlatpakSandbox() {
+  // No caching: the test binary toggles FLATPAK_ID per test.
+  return QFile::exists(QStringLiteral("/.flatpak-info")) ||
+         qEnvironmentVariableIsSet("FLATPAK_ID");
+}
+
+// Sandbox-shared, persistent IPC dir. Each `flatpak run` gets a private
+// /tmp, so tempPath() cannot host the lock/socket; $HOME (and the XDG
+// dirs under it) maps to ~/.var/app/<id> shared by all instances.
+// GenericCacheLocation carries no app-name suffix, so it is valid here
+// even though SingleInstance is built before setApplicationName().
+QString flatpakIpcDir() {
+  QString base = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation);
+  if(base.isEmpty())
+    base = QDir(QDir::homePath()).absoluteFilePath(QStringLiteral(".cache"));
+  return QDir(base).absoluteFilePath(QStringLiteral("lmc/ipc"));
+}
 
 constexpr char kAckOpcode = 'A';
 constexpr char kRaiseOpcode = 'R';
@@ -53,9 +73,16 @@ QString userTag() {
 
 SingleInstance::SingleInstance(const QString& appId, QObject* parent)
     : QObject(parent),
+      inFlatpak_(inFlatpakSandbox()),
       socketName_(socketNameFor(appId)),
+      serverPath_(serverPathFor(socketName_)),
       lockFile_(lockFileFor(socketName_)) {
   server_ = new QLocalServer(this);
+  if(inFlatpak_) {
+    const QString ipcDir = flatpakIpcDir();
+    if(!QDir().mkpath(ipcDir))
+      qCWarning(lmcApp(), "SingleInstance: cannot create IPC dir '%s'", qPrintable(ipcDir));
+  }
   connect(server_, &QLocalServer::newConnection, this, &SingleInstance::receiveConnection);
 }
 
@@ -76,16 +103,24 @@ QString SingleInstance::socketNameFor(const QString& appId) {
   return QStringLiteral("lmcsi-") + idHex + QLatin1Char('-') + userTag();
 }
 
-QString SingleInstance::lockFileFor(const QString& socketName) {
+QString SingleInstance::lockFileFor(const QString& socketName) const {
+  if(inFlatpak_)
+    return QDir(flatpakIpcDir()).absoluteFilePath(socketName + QStringLiteral("-lockfile"));
   return QDir(QDir::tempPath()).absoluteFilePath(socketName + QStringLiteral("-lockfile"));
+}
+
+QString SingleInstance::serverPathFor(const QString& socketName) const {
+  if(inFlatpak_)
+    return QDir(flatpakIpcDir()).absoluteFilePath(socketName);
+  return socketName;
 }
 
 bool SingleInstance::isServer() const {
   return lockFile_.isLocked() && listening_;
 }
 
-QString SingleInstance::socketName() const {
-  return socketName_;
+QString SingleInstance::endpoint() const {
+  return serverPath_;
 }
 
 bool SingleInstance::isLockedByOther() {
@@ -93,7 +128,7 @@ bool SingleInstance::isLockedByOther() {
   if(lockFile_.isLocked())
     return false;
   // Separate probe: never touches our own guard, never elects via listen().
-  QLockFile probe(lockFileFor(socketName_));
+  QLockFile probe(lockFile_.fileName());
   if(probe.tryLock()) {
     probe.unlock();
     return false;
@@ -107,7 +142,7 @@ bool SingleInstance::tryDeliver(const QString& message, int timeout) {
   bool connOk = false;
   for(int i = 0; i < 2; i++) {
     // Try twice, in case the other instance is just starting up.
-    socket.connectToServer(socketName_);
+    socket.connectToServer(serverPath_);
     connOk = socket.waitForConnected(timeout / 2);
     if(connOk || i)
       break;
@@ -171,7 +206,7 @@ SingleInstance::Election SingleInstance::tryBecomeServer(bool warn) {
   // Pathology: lock ours, socket unlistenable. Release it, warn, degrade.
   if(warn)
     qCWarning(lmcApp(), "SingleInstance: lock acquired but cannot listen on '%s': %s",
-              qPrintable(socketName_),
+              qPrintable(serverPath_),
               qPrintable(server_ ? server_->errorString() : QString()));
   lockFile_.unlock();
   return Election::ListenFailed;
@@ -180,13 +215,13 @@ SingleInstance::Election SingleInstance::tryBecomeServer(bool warn) {
 bool SingleInstance::listenWithRescue() {
   if(server_->isListening())
     return true;
-  if(server_->listen(socketName_))
+  if(server_->listen(serverPath_))
     return true;
   if(server_->serverError() != QAbstractSocket::AddressInUseError)
     return false;
   // Stale socket file; lock-gated, can't hijack a live server.
-  QLocalServer::removeServer(socketName_);
-  return server_->listen(socketName_);
+  QLocalServer::removeServer(serverPath_);
+  return server_->listen(serverPath_);
 }
 
 void SingleInstance::receiveConnection() {

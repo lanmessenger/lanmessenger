@@ -1,0 +1,53 @@
+# Flatpak manifest for LAN Messenger (nightly CI, x86_64).
+# Runtime 6.11 = Qt 6.11.x (6.10 is EOL, 6.12 too fresh for v1).
+# Layout /app/bin + /app/share/lmc matches StdLocation (appDir/../share/lmc).
+# LMC_VERSION token below is rewritten by nightly.yml before the build.
+# File dialogs go through the FileChooser portal, so dialog-picked dirs
+# need no extra permissions. xdg-download covers silent auto-save there.
+# v1 limitation: silent auto-save to other arbitrary host paths is denied
+# by the sandbox (same class as the AutoStart limit below).
+# LMM=OFF: the lmm test daemon has no sandbox role.
+# v1 limitation: the in-app AutoStart checkbox writes into the sandbox
+# config and does not autostart on the host.
+id: io.github.lanmessenger.lmc
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+command: lmc
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --device=dri
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.freedesktop.Notifications
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+  - '*.la'
+  - '*.a'
+modules:
+  - name: lmc
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../..
+        skip: [.git, build, _flatpak-build]
+    build-commands:
+      - cmake -S . -B _flatpak-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLMC_VERSION=0.0.0-flatpak-dev -DLMC_BUILD_LMM=OFF
+      - cmake --build _flatpak-build --target lmc lmc_runtime_files
+      - install -Dm755 _flatpak-build/src/lmc /app/bin/lmc
+      - install -Dm644 _flatpak-build/src/runtime/lmc.rcc /app/share/lmc/lmc.rcc
+      - mkdir -p /app/share/lmc
+      - cp -r _flatpak-build/src/runtime/lang /app/share/lmc/lang
+      - cp -r src/resources/sounds /app/share/lmc/sounds
+      - cp src/resources/text/license.txt /app/share/lmc/COPYING
+      - install -Dm644 setup/linux/package/usr/share/applications/io.github.lanmessenger.lmc.desktop /app/share/applications/io.github.lanmessenger.lmc.desktop
+      - install -Dm644 setup/linux/package/usr/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml /app/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml
+      - for s in 16 22 24 32 36 48; do install -Dm644 setup/linux/package/usr/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png /app/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png; done
+      - install -Dm644 setup/linux/package/usr/share/pixmaps/io.github.lanmessenger.lmc.xpm /app/share/pixmaps/io.github.lanmessenger.lmc.xpm

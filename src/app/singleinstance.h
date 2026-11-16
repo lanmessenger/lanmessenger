@@ -41,8 +41,9 @@ public:
   // reports false; the probe does a momentary tryLock/unlock on a separate
   // QLockFile and never calls listen()). Used by /termwait and peek tests.
   bool isLockedByOther();
-  // Local socket name (test hook).
-  QString socketName() const;
+  // Connect/listen endpoint (test hook): bare socket name on host,
+  // absolute path in the flatpak sandbox.
+  QString endpoint() const;
   // No election inside: call only from the HeldByOther branch.
   // Worst case ~15 s on a wedged lock-holder.
   bool tryDeliver(const QString& message, int timeout = 5000);
@@ -59,10 +60,15 @@ private:
   bool listenWithRescue();
   void receiveConnection();
   static QString socketNameFor(const QString& appId);
-  static QString lockFileFor(const QString& socketName);
+  QString serverPathFor(const QString& socketName) const;
+  QString lockFileFor(const QString& socketName) const;
 
   QLocalServer* server_ = nullptr;
+  // Evaluated once per object: lock/socket paths must agree with each other.
+  const bool inFlatpak_;
   QString socketName_;
+  // Connect/listen endpoint: bare name on host, absolute path in sandbox.
+  QString serverPath_;
   // After socketName_: the lock path derives from it.
   QLockFile lockFile_;
   bool listening_ = false;

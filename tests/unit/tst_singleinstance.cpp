@@ -8,8 +8,12 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QEventLoop>
+#include <QFile>
 #include <QLocalSocket>
 #include <QProcess>
+#include <QProcessEnvironment>
+#include <QScopeGuard>
+#include <QStandardPaths>
 #include <QTextStream>
 #include <QThread>
 #include <QTimer>
@@ -120,6 +124,7 @@ private slots:
   void peekSeesLiveHolder(void);
   void peekFreeWhenNobody(void);
   void peekFreeAfterRelease(void);
+  void flatpakSharedDir(void);
 };
 
 void TstSingleInstance::firstBecomesServer(void) {
@@ -291,7 +296,7 @@ void TstSingleInstance::unknownOpcodeDropped(void) {
   child.start(selfBinary(), {"--si-holder", id, "30"});
   QVERIFY2(child.waitForStarted(5000), "holder child failed to start");
   QVERIFY2(waitForLine(child, "READY", 15000), "holder did not elect");
-  const QString name = SingleInstance(id).socketName(); // no election here
+  const QString name = SingleInstance(id).endpoint(); // no election here
   {
     QLocalSocket raw;
     raw.connectToServer(name);
@@ -315,7 +320,7 @@ void TstSingleInstance::emptyDisconnectDropped(void) {
   child.start(selfBinary(), {"--si-holder", id, "30"});
   QVERIFY2(child.waitForStarted(5000), "holder child failed to start");
   QVERIFY2(waitForLine(child, "READY", 15000), "holder did not elect");
-  const QString name = SingleInstance(id).socketName(); // no election here
+  const QString name = SingleInstance(id).endpoint(); // no election here
   {
     QLocalSocket raw;
     raw.connectToServer(name);
@@ -362,6 +367,50 @@ void TstSingleInstance::peekFreeAfterRelease(void) {
   SingleInstance after(id);
   QVERIFY2(!after.isLockedByOther(), "lock must be free after destructor");
   QVERIFY2(!after.isServer(), "peek must not elect");
+}
+
+void TstSingleInstance::flatpakSharedDir(void) {
+  // Sandbox branch: lock/socket leave /tmp for the XDG cache dir, which
+  // is shared between `flatpak run` invocations. FLATPAK_ID fakes the
+  // sandbox on the host leg.
+  qputenv("FLATPAK_ID", QByteArray("io.github.lanmessenger.lmc"));
+  const auto unflatpak = qScopeGuard([] { qunsetenv("FLATPAK_ID"); });
+  const QString cacheDir =
+    QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation);
+  QVERIFY2(!cacheDir.isEmpty(), "cache dir must resolve");
+  const QString id = freshAppId("flatpak");
+  QString endpoint;
+  {
+    SingleInstance local(id);
+    endpoint = local.endpoint();
+    QVERIFY2(endpoint.startsWith(cacheDir), "endpoint must live under the shared cache dir");
+    QVERIFY2((endpoint + QStringLiteral("-lockfile")).startsWith(cacheDir),
+             "lock file must live under the shared cache dir");
+  }
+  QProcess child;
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  env.insert(QStringLiteral("FLATPAK_ID"), QStringLiteral("io.github.lanmessenger.lmc"));
+  child.setProcessEnvironment(env);
+  child.start(selfBinary(), {"--si-holder", id, "30"});
+  QVERIFY2(child.waitForStarted(5000), "holder child failed to start");
+  const auto cleaner = qScopeGuard([&] {
+    QFile::remove(endpoint);
+    QFile::remove(endpoint + QStringLiteral("-lockfile"));
+  });
+  const auto killer =
+    qScopeGuard([&] { if(child.state() != QProcess::NotRunning) { child.kill(); } });
+  QVERIFY2(waitForLine(child, "READY", 15000), "holder did not elect in flatpak mode");
+  SingleInstance client(id);
+  QVERIFY2(client.tryBecomeServer() == SingleInstance::Election::HeldByOther,
+           "second must see the holder in flatpak mode");
+  QVERIFY2(client.tryDeliver(QStringLiteral("raise")), "delivery must work in flatpak mode");
+  QByteArray got;
+  QVERIFY2(waitForLine(child, "GOT:", 15000, &got), "server did not receive raise");
+  QCOMPARE(got, QByteArray("GOT:raise"));
+  child.kill();
+  QVERIFY2(child.waitForFinished(5000), "holder did not die");
+  QFile::remove(endpoint);
+  QFile::remove(endpoint + QStringLiteral("-lockfile"));
 }
 
 int main(int argc, char* argv[]) {

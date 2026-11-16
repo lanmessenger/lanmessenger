@@ -122,6 +122,48 @@ jobs:
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
     uses: ./.github/workflows/verify-arch.yml
 
+  build-flatpak:
+    needs: [plan]
+    if: needs.plan.outputs.should_build == 'true'
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+
+      # The manifest carries the token 0.0.0-flatpak-dev as LMC_VERSION;
+      # stamp the nightly version in (same scheme as the system packages).
+      - name: Stamp nightly version
+        run: |
+          set -euo pipefail
+          ver='${{ needs.plan.outputs.version }}'
+          sed -i "s|0\.0\.0-flatpak-dev|${ver}|" setup/flatpak/io.github.lanmessenger.lmc.yml
+          grep -F "DLMC_VERSION=${ver}" setup/flatpak/io.github.lanmessenger.lmc.yml \
+            || { echo 'version stamp drifted' >&2; exit 1; }
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: lmc_${{ needs.plan.outputs.version }}_x86_64.flatpak
+          manifest-path: setup/flatpak/io.github.lanmessenger.lmc.yml
+          cache-key: flatpak-builder-kde-6.11-x86_64-${{ hashFiles('setup/flatpak/io.github.lanmessenger.lmc.yml') }}
+          upload-artifact: false
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages-flatpak
+          path: lmc_*.flatpak
+          if-no-files-found: error
+          retention-days: 3
+
+  smoke-linux-flatpak:
+    needs: [plan, build-flatpak]
+    if: needs.plan.outputs.should_build == 'true' && needs.build-flatpak.result == 'success'
+    uses: ./.github/workflows/verify-flatpak.yml
+
   smoke-macos-x86_64-dmg:
     needs: [plan, build]
     if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success'
@@ -152,8 +194,8 @@ jobs:
       skip-build: true
 
   publish:
-    needs: [plan, build, e2e, smoke-windows-installer, smoke-linux-deb, smoke-linux-rpm, smoke-linux-arch, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
-    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.e2e.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-linux-rpm.result == 'success' && needs.smoke-linux-arch.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
+    needs: [plan, build, build-flatpak, e2e, smoke-windows-installer, smoke-linux-deb, smoke-linux-rpm, smoke-linux-arch, smoke-linux-flatpak, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.build-flatpak.result == 'success' && needs.e2e.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-linux-rpm.result == 'success' && needs.smoke-linux-arch.result == 'success' && needs.smoke-linux-flatpak.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
