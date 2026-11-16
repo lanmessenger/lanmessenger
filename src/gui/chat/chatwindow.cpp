@@ -63,7 +63,6 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
   sizes.append(bottomPanelHeight);
   ui.splitter->setSizes(sizes);
-  ui.splitter->setStyleSheet("QSplitter::handle { image: url(" IDR_VGRIP "); }");
 
   ui.lblInfo->setBackgroundRole(QPalette::Base);
   ui.lblInfo->setAutoFillBackground(true);

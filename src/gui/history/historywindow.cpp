@@ -50,7 +50,6 @@ lmcHistoryWindow::~lmcHistoryWindow() {
 
 void lmcHistoryWindow::init(void) {
   setWindowIcon(QIcon(IDR_APPICON));
-  ui.splitter->setStyleSheet("QSplitter::handle { image: url(" IDR_HGRIP "); }");
 
   pMessageLog->setAutoScroll(false);
 

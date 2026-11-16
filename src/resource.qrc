@@ -44,8 +44,6 @@
         <file alias="question">resources/images/question.png</file>
         <file alias="themesettings">resources/images/themesettings.png</file>
         <file alias="chat">resources/images/chat.png</file>
-        <file alias="vgrip">resources/images/vgrip.png</file>
-        <file alias="hgrip">resources/images/hgrip.png</file>
         <file alias="hotkeysettings">resources/images/hotkeysettings.png</file>
         <file alias="chatroom">resources/images/chatroom.png</file>
         <file alias="addcontact">resources/images/addcontact.png</file>

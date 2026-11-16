@@ -48,8 +48,6 @@
 #define IDR_WEB ":/images/web"
 #define IDR_PIXEL ":/images/pixel"
 #define IDR_CHAT ":/images/chat"
-#define IDR_HGRIP ":/images/hgrip"
-#define IDR_VGRIP ":/images/vgrip"
 #define IDR_PLAY ":/images/play"
 #define IDR_SENDFOLDER ":/images/sendfolder"
 
