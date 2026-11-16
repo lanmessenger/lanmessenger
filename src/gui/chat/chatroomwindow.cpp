@@ -134,13 +134,16 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
     restoreGeometry(pSettings->value(IDS_WINDOWPUBLICCHAT).toByteArray());
     ui.vSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATV).toByteArray());
     hRestored = ui.hSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATH).toByteArray());
+    //	Forget pre-native handleWidth from saved state; follow the style.
+    ui.vSplitter->setHandleWidth(-1);
+    ui.hSplitter->setHandleWidth(-1);
   }
 
   if(groupMode || !hRestored) {
     //	toolbar height is natural (no fixed size in ui), so measure after creation
     ui.wgtToolBar->layout()->activate();
-    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
-                            ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->sizeHint().height() +
+                            ui.lblDividerTop->sizeHint().height() + ui.wgtToolBar->sizeHint().height();
     QList<int> sizes;
     sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
     sizes.append(bottomPanelHeight);
@@ -645,11 +648,6 @@ void lmcChatRoomWindow::createToolBar(void) {
   pSaveAction = ActionHelper::createAction(pLeftBar, "&Save As...", this, &lmcChatRoomWindow::btnSave_clicked,
                                            QIcon(QPixmap(IDR_SAVE, "PNG")), QKeySequence::Save);
   pSaveAction->setEnabled(false);
-
-  ui.lblDividerTop->setBackgroundRole(QPalette::Light);
-  ui.lblDividerTop->setAutoFillBackground(true);
-  ui.lblDividerBottom->setBackgroundRole(QPalette::Dark);
-  ui.lblDividerBottom->setAutoFillBackground(true);
 
   if(groupMode) {
     QToolBar* pContactsBar = new QToolBar(ui.wgtContactsBar);

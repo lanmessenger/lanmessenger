@@ -74,9 +74,6 @@ void lmcMainWindow::init(User* pLocalUser, QList<Group>* pGroupList, bool connec
   createGroupMenu();
   createUserMenu();
 
-  ui.lblDividerTop->setBackgroundRole(QPalette::Highlight);
-  ui.lblDividerTop->setAutoFillBackground(true);
-
   ui.tvUserList->setIconSize(QSize(16, 16));
   ui.tvUserList->header()->setSectionsMovable(false);
   ui.tvUserList->header()->setStretchLastSection(false);

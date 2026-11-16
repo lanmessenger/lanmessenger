@@ -63,6 +63,8 @@ void lmcHistoryWindow::init(void) {
   pMessageLog->initChat();
   restoreGeometry(pSettings->value(IDS_WINDOWHISTORY).toByteArray());
   ui.splitter->restoreState(pSettings->value(IDS_SPLITTERHISTORY).toByteArray());
+  //	Forget pre-native handleWidth from saved state; follow the style.
+  ui.splitter->setHandleWidth(-1);
   setUIText();
 
   displayList();

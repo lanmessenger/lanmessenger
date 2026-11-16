@@ -111,8 +111,8 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
 
   //	toolbar height is natural (no fixed size in ui), so measure after creation
   ui.wgtToolBar->layout()->activate();
-  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->minimumHeight() +
-                          ui.lblDividerTop->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->sizeHint().height() +
+                          ui.lblDividerTop->sizeHint().height() + ui.wgtToolBar->sizeHint().height();
   QList<int> sizes;
   sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
   sizes.append(bottomPanelHeight);
@@ -684,11 +684,6 @@ void lmcChatWindow::createToolBar(void) {
                                                &lmcChatWindow::btnTransfers_clicked,
                                                QIcon(QPixmap(IDR_TRANSFER, "PNG")),
                                                QKeySequence(Qt::CTRL | Qt::Key_J));
-
-  ui.lblDividerTop->setBackgroundRole(QPalette::Light);
-  ui.lblDividerTop->setAutoFillBackground(true);
-  ui.lblDividerBottom->setBackgroundRole(QPalette::Dark);
-  ui.lblDividerBottom->setAutoFillBackground(true);
 }
 
 void lmcChatWindow::setUIText(void) {

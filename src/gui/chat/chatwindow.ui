@@ -82,24 +82,12 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="lblDividerTop">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QFrame" name="lblDividerTop">
+         <property name="frameShape">
+          <enum>QFrame::HLine</enum>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>1</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>1</height>
-          </size>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
          </property>
         </widget>
        </item>
@@ -123,24 +111,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblDividerBottom">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QFrame" name="lblDividerBottom">
+         <property name="frameShape">
+          <enum>QFrame::HLine</enum>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>1</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>1</height>
-          </size>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
          </property>
         </widget>
        </item>

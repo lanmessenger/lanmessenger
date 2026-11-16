@@ -80,6 +80,8 @@ void lmcBroadcastWindow::init(bool connected) {
   pSettings = new lmcSettings();
   restoreGeometry(pSettings->value(IDS_WINDOWBROADCAST).toByteArray());
   ui.splitter->restoreState(pSettings->value(IDS_SPLITTERBROADCAST).toByteArray());
+  //	Forget pre-native handleWidth from saved state; follow the style.
+  ui.splitter->setHandleWidth(-1);
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
   pFontGroup->actions()[fontSizeVal]->setChecked(true);
