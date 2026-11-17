@@ -2,13 +2,11 @@
 <ui version="4.0">
  <class>ChatRoomWindow</class>
  <widget class="QWidget" name="ChatRoomWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
+  <property name="minimumSize">
+   <size>
     <width>587</width>
     <height>445</height>
-   </rect>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -110,8 +108,6 @@
            <widget class="QTextEdit" name="txtMessage">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">

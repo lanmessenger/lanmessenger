@@ -2,13 +2,11 @@
 <ui version="4.0">
  <class>HistoryWindow</class>
  <widget class="QWidget" name="HistoryWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
+  <property name="minimumSize">
+   <size>
     <width>627</width>
     <height>412</height>
-   </rect>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -46,8 +44,6 @@
      <widget class="QTreeWidget" name="tvMsgList">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-        <horstretch>1</horstretch>
-        <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="alternatingRowColors">
@@ -82,8 +78,6 @@
      <widget class="QFrame" name="fraMessageLog">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>2</horstretch>
-        <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="frameShape">

@@ -54,11 +54,6 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
   ui.logLayout->addWidget(pMessageLog);
   connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
 
-  QList<int> sizes;
-  sizes.append(width() * 0.7);
-  sizes.append(width() - width() * 0.7 - ui.vSplitter->handleWidth());
-  ui.vSplitter->setSizes(sizes);
-
   ui.lblInfo->setBackgroundRole(QPalette::Base);
   ui.lblInfo->setAutoFillBackground(true);
   ui.lblInfo->setVisible(false);
@@ -129,24 +124,25 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   showSendButton = pSettings->value(IDS_SHOWSENDBUTTON, IDS_SHOWSENDBUTTON_VAL).toBool();
   ui.btnSend->setVisible(showSendButton);
 
-  bool hRestored = false;
+  //	Left (log) takes ~70%, user list the rest; style/DPI agnostic.
+  ui.vSplitter->setStretchFactor(0, 7);
+  ui.vSplitter->setStretchFactor(1, 3);
+
+  //	Log takes extra space, composer collapses to its minimum.
+  ui.hSplitter->setStretchFactor(0, 1);
+  ui.hSplitter->setStretchFactor(1, 0);
+  QList<int> hSizes;
+  hSizes.append(1);
+  hSizes.append(0);
+  ui.hSplitter->setSizes(hSizes);
+
   if(!groupMode) {
     restoreGeometry(pSettings->value(IDS_WINDOWPUBLICCHAT).toByteArray());
     ui.vSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATV).toByteArray());
-    hRestored = ui.hSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATH).toByteArray());
+    ui.hSplitter->restoreState(pSettings->value(IDS_SPLITTERPUBLICCHATH).toByteArray());
     //	Forget pre-native handleWidth from saved state; follow the style.
     ui.vSplitter->setHandleWidth(-1);
     ui.hSplitter->setHandleWidth(-1);
-  }
-
-  if(groupMode || !hRestored) {
-    //	toolbar height is natural, so measure after creation
-    ui.toolBar->ensurePolished();
-    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.toolBar->sizeHint().height();
-    QList<int> sizes;
-    sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
-    sizes.append(bottomPanelHeight);
-    ui.hSplitter->setSizes(sizes);
   }
 
   setUIText();

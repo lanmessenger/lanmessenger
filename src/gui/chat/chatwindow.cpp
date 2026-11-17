@@ -109,12 +109,12 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   createEmojiMenu();
   createToolBar();
 
-  //	toolbar height is natural, so measure after creation
-  ui.toolBar->ensurePolished();
-  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.toolBar->sizeHint().height();
+  //	Log takes extra space, composer collapses to its minimum.
+  ui.splitter->setStretchFactor(0, 1);
+  ui.splitter->setStretchFactor(1, 0);
   QList<int> sizes;
-  sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
-  sizes.append(bottomPanelHeight);
+  sizes.append(1);
+  sizes.append(0);
   ui.splitter->setSizes(sizes);
 
   bConnected = connected;

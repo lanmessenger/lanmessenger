@@ -2,13 +2,11 @@
 <ui version="4.0">
  <class>BroadcastWindow</class>
  <widget class="QWidget" name="BroadcastWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
+  <property name="minimumSize">
+   <size>
     <width>504</width>
     <height>215</height>
-   </rect>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -86,8 +84,6 @@
         <widget class="QTextEdit" name="txtMessage">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>4</horstretch>
-           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">

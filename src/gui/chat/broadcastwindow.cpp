@@ -32,12 +32,9 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
   //	Destroy the window when it closes
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  //	set up the initial default size of splitter panels
-  //	left panel takes up 60% of total width, right panel the rest
-  QList<int> sizes;
-  sizes.append(width() * 0.6);
-  sizes.append(width() - width() * 0.6 - ui.splitter->handleWidth());
-  ui.splitter->setSizes(sizes);
+  //	Composer takes ~60%, user list the rest; style/DPI agnostic.
+  ui.splitter->setStretchFactor(0, 3);
+  ui.splitter->setStretchFactor(1, 2);
 
   connect(ui.btnSelectAll, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnSelectAll_clicked);
   connect(ui.btnSelectNone, &QAbstractButton::clicked, this, &lmcBroadcastWindow::btnSelectNone_clicked);

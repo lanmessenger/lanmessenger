@@ -25,10 +25,9 @@ lmcHistoryWindow::lmcHistoryWindow(QWidget* parent, Qt::WindowFlags flags)
   pMessageLog = new ChatMessageView(ui.fraMessageLog);
   ui.logLayout->addWidget(pMessageLog);
 
-  QList<int> sizes;
-  sizes.append(width() * 0.35);
-  sizes.append(width() - width() * 0.35 - ui.splitter->handleWidth());
-  ui.splitter->setSizes(sizes);
+  //	List takes ~1/3, log the rest; style/DPI agnostic.
+  ui.splitter->setStretchFactor(0, 1);
+  ui.splitter->setStretchFactor(1, 2);
   QRect scr = QGuiApplication::primaryScreen()->geometry();
   move(scr.center() - rect().center());
 
