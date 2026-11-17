@@ -24,7 +24,6 @@
 #include <QMimeData>
 #include <QDir>
 #include <QApplication>
-#include <QPalette>
 #include <QPixmap>
 #include <QIcon>
 #include <QDateTime>
@@ -42,6 +41,7 @@
 #include "gui/chat/emojihighlighter.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/actionhelper.h"
+#include "gui/widgets/infobar.h"
 #include "core/soundplayer.h"
 
 const qint64 pauseTime = 5000;
@@ -57,9 +57,6 @@ lmcChatWindow::lmcChatWindow(QWidget* parent, Qt::WindowFlags flags)
   ui.logLayout->addWidget(pMessageLog);
   connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatWindow::log_sendMessage);
 
-  ui.lblInfo->setBackgroundRole(QPalette::Base);
-  ui.lblInfo->setAutoFillBackground(true);
-  ui.lblInfo->setVisible(false);
   pMessageLog->installEventFilter(this);
   ui.txtMessage->installEventFilter(this);
   ui.txtMessage->viewport()->installEventFilter(this);
@@ -829,23 +826,18 @@ void lmcChatWindow::showStatus(int flag, bool add) {
   //			pMessageLog->page()->mainFrame()->scrollBarValue(Qt::Vertical);
 
   if(infoFlag & IT_Disconnected) {
-    ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + tr("You are no longer connected.") + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Info, tr("You are no longer connected."));
   } else if(!groupMode && (infoFlag & IT_Offline)) {
     QString msg = tr("%1 is offline.");
-    ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Info, msg.arg(peerNames.value(peerId)));
   } else if(!groupMode && (infoFlag & IT_Away)) {
     QString msg = tr("%1 is away.");
-    ui.lblInfo->setText("<span style='color:rgb(255,115,0);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Warning, msg.arg(peerNames.value(peerId)));
   } else if(!groupMode && (infoFlag & IT_Busy)) {
     QString msg = tr("%1 is busy. You may be interrupting.");
-    ui.lblInfo->setText("<span style='color:rgb(192,0,0);'>" + msg.arg(peerNames.value(peerId)) + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Error, msg.arg(peerNames.value(peerId)));
   } else {
-    ui.lblInfo->setText(QString());
-    ui.lblInfo->setVisible(false);
+    ui.lblInfo->clear();
   }
 
   // TODO

@@ -63,14 +63,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblInfo">
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
+        <widget class="lmcInfoBar" name="lblInfo"/>
        </item>
       </layout>
      </widget>
@@ -133,6 +126,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>lmcInfoBar</class>
+   <extends>QFrame</extends>
+   <header>gui/widgets/infobar.h</header>
+  </customwidget>
   <customwidget>
    <class>lmcSendButton</class>
    <extends>QToolButton</extends>

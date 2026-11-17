@@ -13,12 +13,12 @@
 #include <QCloseEvent>
 #include <QIcon>
 #include <QPixmap>
-#include <QPalette>
 #include "core/settings.h"
 #include "core/uidefinitions.h"
 #include "messaging/xmlmessage.h"
 #include "gui/chat/chatdefinitions.h"
 #include "gui/widgets/subcontrols.h"
+#include "gui/widgets/infobar.h"
 #include "gui/chat/emojipicker.h"
 #include "gui/chat/emojipickeraction.h"
 #include "gui/chat/emojihighlighter.h"
@@ -50,9 +50,6 @@ lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
   ui.btnSelectAll->installEventFilter(this);
   ui.btnSelectNone->installEventFilter(this);
 
-  ui.lblInfo->setBackgroundRole(QPalette::Base);
-  ui.lblInfo->setAutoFillBackground(true);
-  ui.lblInfo->setVisible(false);
   infoFlag = IT_Ok;
 
   parentToggling = false;
@@ -347,11 +344,9 @@ void lmcBroadcastWindow::showStatus(int flag, bool add) {
   infoFlag = add ? infoFlag | flag : infoFlag & ~flag;
 
   if(infoFlag & IT_Disconnected) {
-    ui.lblInfo->setText("<span style='color:rgb(192, 0, 0);'>" +
-                        tr("You are no longer connected. Broadcast message cannot be sent.") + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Error,
+                            tr("You are no longer connected. Broadcast message cannot be sent."));
   } else {
-    ui.lblInfo->setText(QString());
-    ui.lblInfo->setVisible(false);
+    ui.lblInfo->clear();
   }
 }

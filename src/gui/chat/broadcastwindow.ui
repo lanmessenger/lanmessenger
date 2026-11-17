@@ -28,20 +28,7 @@
     <number>3</number>
    </property>
    <item>
-    <widget class="QLabel" name="lblInfo">
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Panel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+    <widget class="lmcInfoBar" name="lblInfo"/>
    </item>
    <item>
     <widget class="QSplitter" name="splitter">
@@ -238,6 +225,11 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>lmcInfoBar</class>
+   <extends>QFrame</extends>
+   <header>gui/widgets/infobar.h</header>
+  </customwidget>
   <customwidget>
    <class>lmcUserTreeWidget</class>
    <extends>QTreeWidget</extends>

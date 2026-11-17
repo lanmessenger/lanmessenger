@@ -38,6 +38,7 @@ add_library(lmc_core STATIC
     gui/history/historywindow.cpp
     gui/widgets/imagepicker.cpp
     gui/widgets/imagepickeraction.cpp
+    gui/widgets/infobar.cpp
     app/apprunner.cpp
     app/application.cpp
     app/lmc.cpp
@@ -97,6 +98,7 @@ add_library(lmc_core STATIC
     gui/history/historywindow.h
     gui/widgets/imagepicker.h
     gui/widgets/imagepickeraction.h
+    gui/widgets/infobar.h
     app/apprunner.h
     app/application.h
     app/lmc.h

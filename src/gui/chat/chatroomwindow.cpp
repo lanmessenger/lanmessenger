@@ -18,7 +18,6 @@
 #include <QCloseEvent>
 #include <QTreeWidgetItem>
 #include <QApplication>
-#include <QPalette>
 #include <QHeaderView>
 #include <QPixmap>
 #include <QIcon>
@@ -37,6 +36,7 @@
 #include "gui/chat/emojihighlighter.h"
 #include "gui/chat/chathelper.h"
 #include "gui/widgets/actionhelper.h"
+#include "gui/widgets/infobar.h"
 #include "core/soundplayer.h"
 
 QString GroupId = "PARTICIPANTS";
@@ -54,9 +54,6 @@ lmcChatRoomWindow::lmcChatRoomWindow(QWidget* parent)
   ui.logLayout->addWidget(pMessageLog);
   connect(pMessageLog, &ChatMessageView::messageSent, this, &lmcChatRoomWindow::log_sendMessage);
 
-  ui.lblInfo->setBackgroundRole(QPalette::Base);
-  ui.lblInfo->setAutoFillBackground(true);
-  ui.lblInfo->setVisible(false);
   pMessageLog->installEventFilter(this);
   ui.tvUserList->installEventFilter(this);
   ui.txtMessage->installEventFilter(this);
@@ -759,11 +756,9 @@ void lmcChatRoomWindow::showStatus(int flag, bool add) {
   //			pMessageLog->page()->mainFrame()->scrollBarValue(Qt::Vertical);
 
   if(infoFlag & IT_Disconnected) {
-    ui.lblInfo->setText("<span style='color:rgb(96,96,96);'>" + tr("You are no longer connected.") + "</span>");
-    ui.lblInfo->setVisible(true);
+    ui.lblInfo->showMessage(lmcInfoBar::Info, tr("You are no longer connected."));
   } else {
-    ui.lblInfo->setText(QString());
-    ui.lblInfo->setVisible(false);
+    ui.lblInfo->clear();
   }
 
   // TODO
