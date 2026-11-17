@@ -119,7 +119,6 @@ private:
   QAction* pFileAction;
   QAction* pFolderAction;
   QAction* pSaveAction;
-  QToolBar* pRightBar;
   QAction* pHistoryAction;
   QAction* pTransferAction;
   QMenu* pEmojiMenu;

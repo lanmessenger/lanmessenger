@@ -140,9 +140,9 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   }
 
   if(groupMode || !hRestored) {
-    //	toolbar height is natural (no fixed size in ui), so measure after creation
-    ui.wgtToolBar->layout()->activate();
-    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+    //	toolbar height is natural, so measure after creation
+    ui.toolBar->ensurePolished();
+    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.toolBar->sizeHint().height();
     QList<int> sizes;
     sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
     sizes.append(bottomPanelHeight);
@@ -453,6 +453,10 @@ void lmcChatRoomWindow::changeEvent(QEvent* pEvent) {
   case QEvent::LanguageChange:
     setUIText();
     break;
+  case QEvent::StyleChange: {
+    ChatHelper::applyCompactToolBarIcons(ui.toolBar);
+    break;
+  }
   default:
     break;
   }
@@ -623,37 +627,40 @@ void lmcChatRoomWindow::createEmojiMenu(void) {
 }
 
 void lmcChatRoomWindow::createToolBar(void) {
-  QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
-  pLeftBar->setIconSize(QSize(16, 16));
-  ui.toolBarLayout->addWidget(pLeftBar);
+  QToolBar* pToolBar = ui.toolBar;
+  pToolBar->setMovable(false);
+  pToolBar->setFloatable(false);
+  pToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+  ChatHelper::applyCompactToolBarIcons(pToolBar);
 
-  pFontAction = ActionHelper::createAction(pLeftBar, "Change Font...", this, &lmcChatRoomWindow::btnFont_clicked,
+  pFontAction = ActionHelper::createAction(pToolBar, "Change Font...", this, &lmcChatRoomWindow::btnFont_clicked,
                                            QIcon(QPixmap(IDR_FONT, "PNG")));
-  pFontColorAction = ActionHelper::createAction(pLeftBar, "Change Color...", this,
+  pFontColorAction = ActionHelper::createAction(pToolBar, "Change Color...", this,
                                                 &lmcChatRoomWindow::btnFontColor_clicked,
                                                 QIcon(QPixmap(IDR_FONTCOLOR, "PNG")));
 
-  pLeftBar->addSeparator();
+  pToolBar->addSeparator();
 
-  pbtnEmoji = new lmcToolButton(pLeftBar);
+  pbtnEmoji = new lmcToolButton(pToolBar);
   pbtnEmoji->setObjectName(QStringLiteral("btnEmoji"));
   pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
   pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
   pbtnEmoji->setMenu(pEmojiMenu);
-  pLeftBar->addWidget(pbtnEmoji);
+  pToolBar->addWidget(pbtnEmoji);
 
-  pLeftBar->addSeparator();
+  pToolBar->addSeparator();
 
-  pSaveAction = ActionHelper::createAction(pLeftBar, "&Save As...", this, &lmcChatRoomWindow::btnSave_clicked,
+  pSaveAction = ActionHelper::createAction(pToolBar, "&Save As...", this, &lmcChatRoomWindow::btnSave_clicked,
                                            QIcon(QPixmap(IDR_SAVE, "PNG")), QKeySequence::Save);
   pSaveAction->setEnabled(false);
 
-  if(groupMode) {
-    QToolBar* pContactsBar = new QToolBar(ui.wgtContactsBar);
-    pContactsBar->setIconSize(QSize(24, 24));
-    ui.contactsBarLayout->addWidget(pContactsBar);
+  ui.contactsBar->setMovable(false);
+  ui.contactsBar->setFloatable(false);
+  ui.contactsBar->setContextMenuPolicy(Qt::PreventContextMenu);
+  ui.contactsBar->setVisible(groupMode);
 
-    addContactAction = ActionHelper::createAction(pContactsBar, "&Add Contacts...", this,
+  if(groupMode) {
+    addContactAction = ActionHelper::createAction(ui.contactsBar, "&Add Contacts...", this,
                                                   &lmcChatRoomWindow::addContactAction_triggered,
                                                   QIcon(QPixmap(IDR_ADDCONTACT, "PNG")));
   }

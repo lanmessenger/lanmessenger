@@ -109,9 +109,9 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   createEmojiMenu();
   createToolBar();
 
-  //	toolbar height is natural (no fixed size in ui), so measure after creation
-  ui.wgtToolBar->layout()->activate();
-  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.wgtToolBar->sizeHint().height();
+  //	toolbar height is natural, so measure after creation
+  ui.toolBar->ensurePolished();
+  int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.toolBar->sizeHint().height();
   QList<int> sizes;
   sizes.append(height() - bottomPanelHeight - ui.splitter->handleWidth());
   sizes.append(bottomPanelHeight);
@@ -398,6 +398,10 @@ void lmcChatWindow::changeEvent(QEvent* pEvent) {
   case QEvent::LanguageChange:
     setUIText();
     break;
+  case QEvent::StyleChange: {
+    ChatHelper::applyCompactToolBarIcons(ui.toolBar);
+    break;
+  }
   default:
     break;
   }
@@ -635,61 +639,61 @@ void lmcChatWindow::createEmojiMenu(void) {
 }
 
 void lmcChatWindow::createToolBar(void) {
-  QToolBar* pLeftBar = new QToolBar(ui.wgtToolBar);
-  pLeftBar->setIconSize(QSize(16, 16));
-  ui.toolBarLayout->addWidget(pLeftBar);
+  QToolBar* pToolBar = ui.toolBar;
+  pToolBar->setMovable(false);
+  pToolBar->setFloatable(false);
+  pToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+  ChatHelper::applyCompactToolBarIcons(pToolBar);
 
-  pFontAction = ActionHelper::createAction(pLeftBar, "Change Font...", this, &lmcChatWindow::btnFont_clicked,
+  pFontAction = ActionHelper::createAction(pToolBar, "Change Font...", this, &lmcChatWindow::btnFont_clicked,
                                            QIcon(QPixmap(IDR_FONT, "PNG")));
-  pFontColorAction = ActionHelper::createAction(pLeftBar, "Change Color...", this,
+  pFontColorAction = ActionHelper::createAction(pToolBar, "Change Color...", this,
                                                 &lmcChatWindow::btnFontColor_clicked,
                                                 QIcon(QPixmap(IDR_FONTCOLOR, "PNG")));
 
-  pLeftBar->addSeparator();
+  pToolBar->addSeparator();
 
-  pbtnEmoji = new lmcToolButton(pLeftBar);
+  pbtnEmoji = new lmcToolButton(pToolBar);
   pbtnEmoji->setObjectName(QStringLiteral("btnEmoji"));
   pbtnEmoji->setIcon(QIcon(QPixmap(IDR_SMILEY, "PNG")));
   pbtnEmoji->setPopupMode(QToolButton::InstantPopup);
   pbtnEmoji->setMenu(pEmojiMenu);
-  pLeftBar->addWidget(pbtnEmoji);
+  pToolBar->addWidget(pbtnEmoji);
 
-  pLeftBar->addSeparator();
+  pToolBar->addSeparator();
 
-  pFileAction = ActionHelper::createAction(pLeftBar, "Send A &File...", this, &lmcChatWindow::btnFile_clicked,
+  pFileAction = ActionHelper::createAction(pToolBar, "Send A &File...", this, &lmcChatWindow::btnFile_clicked,
                                            QIcon(QPixmap(IDR_FILE, "PNG")), QKeySequence::Open);
   bool fileCap = ((peerCaps.value(peerId) & UC_File) == UC_File);
   pFileAction->setEnabled(fileCap);
-  pFolderAction = ActionHelper::createAction(pLeftBar, "Send A Fol&der...", this, &lmcChatWindow::btnFolder_clicked,
+  pFolderAction = ActionHelper::createAction(pToolBar, "Send A Fol&der...", this, &lmcChatWindow::btnFolder_clicked,
                                              QIcon(QPixmap(IDR_SENDFOLDER, "PNG")));
   bool folderCap = ((peerCaps.value(peerId) & UC_Folder) == UC_Folder);
   pFolderAction->setEnabled(folderCap);
 
-  pLeftBar->addSeparator();
+  pToolBar->addSeparator();
 
-  pSaveAction = ActionHelper::createAction(pLeftBar, "&Save As...", this, &lmcChatWindow::btnSave_clicked,
+  pSaveAction = ActionHelper::createAction(pToolBar, "&Save As...", this, &lmcChatWindow::btnSave_clicked,
                                            QIcon(QPixmap(IDR_SAVE, "PNG")), QKeySequence::Save);
   pSaveAction->setEnabled(false);
 
-  pRightBar = new QToolBar(ui.wgtToolBar);
-  pRightBar->setIconSize(QSize(16, 16));
-  pRightBar->setLayoutDirection(Qt::RightToLeft);
-  ui.toolBarLayout->addWidget(pRightBar);
+  QWidget* pSpacer = new QWidget(pToolBar);
+  pSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  pToolBar->addWidget(pSpacer);
 
-  pHistoryAction = ActionHelper::createAction(pRightBar, "&History", this, &lmcChatWindow::btnHistory_clicked,
-                                              QIcon(QPixmap(IDR_HISTORY, "PNG")),
-                                              QKeySequence(Qt::CTRL | Qt::Key_H));
-  pTransferAction = ActionHelper::createAction(pRightBar, "File &Transfers", this,
+  pTransferAction = ActionHelper::createAction(pToolBar, "File &Transfers", this,
                                                &lmcChatWindow::btnTransfers_clicked,
                                                QIcon(QPixmap(IDR_TRANSFER, "PNG")),
                                                QKeySequence(Qt::CTRL | Qt::Key_J));
+  pHistoryAction = ActionHelper::createAction(pToolBar, "&History", this, &lmcChatWindow::btnHistory_clicked,
+                                              QIcon(QPixmap(IDR_HISTORY, "PNG")),
+                                              QKeySequence(Qt::CTRL | Qt::Key_H));
 }
 
 void lmcChatWindow::setUIText(void) {
   ui.retranslateUi(this);
 
   setWindowTitle(getWindowTitle());
-  pRightBar->setLayoutDirection((QApplication::layoutDirection() == Qt::LeftToRight ? Qt::RightToLeft : Qt::LeftToRight));
 
   pFileAction->setText(tr("Send A &File..."));
   pFolderAction->setText(tr("Send A Fol&der..."));

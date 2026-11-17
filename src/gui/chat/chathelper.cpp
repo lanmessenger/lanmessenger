@@ -11,6 +11,9 @@
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTextFragment>
+#include <QToolBar>
+#include <QSize>
+#include <QStyle>
 #include "chathelper.h"
 
 QDataStream& operator<<(QDataStream& out, const SingleMessage& message) {
@@ -371,4 +374,11 @@ void ChatHelper::clearFamiliesOverDocument(QTextEdit* edit) {
     current.clearProperty(QTextFormat::FontFamilies);
     edit->setCurrentCharFormat(current);
   }
+}
+
+void ChatHelper::applyCompactToolBarIcons(QToolBar* toolBar) {
+  if(!toolBar)
+    return;
+  const int extent = toolBar->style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, toolBar);
+  toolBar->setIconSize(QSize(extent, extent));
 }

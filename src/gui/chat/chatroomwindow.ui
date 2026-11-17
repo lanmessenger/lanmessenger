@@ -89,22 +89,13 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QWidget" name="wgtToolBar" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="toolBarLayout">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-            </layout>
-           </item>
-          </layout>
+         <widget class="QToolBar" name="toolBar">
+          <property name="movable">
+           <bool>false</bool>
+          </property>
+          <property name="floatable">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -164,18 +155,13 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="wgtContactsBar" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="margin">
-           <number>0</number>
-          </property>
-          <item>
-           <layout class="QHBoxLayout" name="contactsBarLayout"/>
-          </item>
-         </layout>
+        <widget class="QToolBar" name="contactsBar">
+         <property name="movable">
+          <bool>false</bool>
+         </property>
+         <property name="floatable">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
