@@ -54,8 +54,21 @@ private slots:
   void btnSend_clicked(void);
 
 private:
+  //  Composer size selector: Default follows the Messages/FontSize setting and
+  //  sends nothing; explicit sizes override the recipient theme via XN_FONTSIZE.
+  enum BroadcastFontSize {
+    BFS_Small = 0,
+    BFS_Default,
+    BFS_Medium,
+    BFS_Large,
+    BFS_COUNT
+  };
+
   void createToolBar(void);
   void setUIText(void);
+  void applyFontSize(void);
+  QString fontSizeName(int size) const;
+  qreal composerPointSize(void) const;
   void sendMessage(void);
   void showStatus(int flag, bool add);
 
@@ -66,7 +79,7 @@ private:
   lmcToolButton* pbtnEmoji;
   QMenu* pEmojiMenu;
   EmojiPickerAction* pEmojiAction;
-  int fontSizeVal;
+  int composerSizeVal;
   int nEmoji = -1;
   //  Created in init(); broadcast has no setMessageFont.
   EmojiHighlighter* emojiHighlighter = nullptr;

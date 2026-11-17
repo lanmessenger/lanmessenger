@@ -947,6 +947,7 @@ void ChatMessageView::onDataChanged(const QModelIndex& topLeft, const QModelInde
   //  Avatar-only updates keep the highlight; text changes drop it.
   if(!roles.isEmpty() && !roles.contains(Qt::DisplayRole) &&
      !roles.contains(ChatMessageModel::TextRole) &&
+     !roles.contains(ChatMessageModel::HeaderRole) &&
      !roles.contains(ChatMessageModel::FileOpRole))
     return;
   clearTextSelection();

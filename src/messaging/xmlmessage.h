@@ -47,6 +47,7 @@
 #define XN_QUERYOP "queryop"
 #define XN_GROUP "group"
 #define XN_FONT "font"
+#define XN_FONTSIZE "fontsize"
 #define XN_COLOR "color"
 #define XN_TEMPID "tempid"
 #define XN_ERROR "error"

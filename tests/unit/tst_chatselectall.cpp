@@ -252,6 +252,7 @@ private slots:
   void fileUpdateMovesCurrentToCursorRow();
   void normalizeHelperUnifiesSpacesAndBreaks();
   void peerRenameKeepsSelection();
+  void broadcastRenameRelayoutsRow();
   void doubleClickSelectsSingleWord();
   void doubleClickDragExtendsByWholeWords();
   void doubleClickDragExtendsBackwardByWholeWords();
@@ -712,6 +713,28 @@ void TstChatSelectAll::peerRenameKeepsSelection() {
   QString jackRenamed = QStringLiteral("Jack the Second");
   view.updateUserName(&jack, &jackRenamed);
   QCOMPARE(copiedText(view), QStringLiteral("alpha bravo charlie delta echo"));
+}
+
+void TstChatSelectAll::broadcastRenameRelayoutsRow() {
+  ChatMessageView view;
+  showView(view);
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_BROADCAST, QStringLiteral("hello"));
+  view.appendMessageLog(MT_Broadcast, &jack, &jackName, &m);
+  QCOMPARE(view.rowCount(), 1);
+  const int before = view.visualRect(view.model()->index(0, 0)).height();
+  QVERIFY(before > 0);
+  QString longName;
+  for(int i = 0; i < 20; i++)
+    longName += QStringLiteral("LongName ");
+  longName = longName.trimmed();
+  view.updateUserName(&jack, &longName);
+  QTest::qWait(300);
+  const int after = view.visualRect(view.model()->index(0, 0)).height();
+  QVERIFY(after > before);
 }
 
 void TstChatSelectAll::doubleClickSelectsSingleWord() {

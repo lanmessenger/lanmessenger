@@ -13,6 +13,7 @@
 #include <QtMath>
 
 #include "core/shared.h"
+#include "core/uidefinitions.h"
 #include "gui/chat/anchornavigator.h"
 #include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessagemodel.h"
@@ -90,8 +91,7 @@ void BubbleDelegate::noteViewportWidth(int viewportWidth) {
 }
 
 double BubbleDelegate::localPointSize() const {
-  static const double sizes[] = {8.25, 9.0, 10.5};
-  return sizes[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
+  return kThemePointSize[qBound(0, display.fontSizeVal, FS_COUNT - 1)];
 }
 
 QFont BubbleDelegate::headerNameFont() const {
@@ -251,7 +251,20 @@ QString BubbleDelegate::rowHtml(const QModelIndex& index, const ResolvedRow& row
                                       display.trimMessage, display.allowLinks,
                                       display.pathToLink, font.family());
   }
-  return QStringLiteral("<div style='%1'>%2</div>").arg(style, body);
+  QString html = QStringLiteral("<div style='%1'>%2</div>").arg(style, body);
+  const QString head = index.data(ChatMessageModel::HeaderRole).toString();
+  if(!isFile && !head.isEmpty()) {
+    //  Header is local meta, not peer content: never linkified, never peer-colored.
+    const QFont headFont =
+      RowHtmlBuilder::messageFont(QVariant(), localPointSize());
+    const QString headStyle =
+      RowHtmlBuilder::fontStyleFor(headFont, Theme::pick(row.text, darkMode),
+                                   display.fontSizeVal, own, false);
+    const QString headHtml = RowHtmlBuilder::decodeBody(head, display.trimMessage, false, false,
+                                                        headFont.family());
+    html = QStringLiteral("<div style='%1'>%2</div>").arg(headStyle, headHtml) + html;
+  }
+  return html;
 }
 
 QString BubbleDelegate::linkStyleSheet(const ResolvedRow& row) const {

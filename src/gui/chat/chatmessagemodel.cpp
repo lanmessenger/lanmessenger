@@ -52,8 +52,18 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   XmlMessage xml = msg.message;
   switch(role) {
   case Qt::DisplayRole:
-  case TextRole:
     return messageText(msg);
+  case TextRole:
+    //  Broadcast head line lives in HeaderRole (theme font); TextRole is body only.
+    if(msg.type == MT_Broadcast)
+      return bodyText(xml);
+    return messageText(msg);
+  case HeaderRole: {
+    const QString head = messageHeader(msg);
+    if(head.isEmpty())
+      return QVariant();
+    return head;
+  }
   case TypeRole:
     return int(msg.type);
   case UserIdRole:
@@ -63,15 +73,24 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
   case TimeRole:
     return msgTime(xml);
   case FontRole: {
-    //  Absent/unparsable XN_FONT: invalid marks the theme fallback.
+    //  XN_FONT (full font, explicit family) wins when parsable; XN_FONTSIZE carries a
+    //  family-less size override for any type (broadcast is the only sender so far)
+    //  and keeps the local family.
+    //  Absent/unparsable both: invalid marks the theme fallback.
     //  Parsed sizes clamp to [kMinFontPt, kMaxFontPt]; <= 0 maps to the
     //  theme size in rowFont.
     QString fontStr = xml.data(XN_FONT);
-    if(fontStr.isEmpty())
+    if(!fontStr.isEmpty()) {
+      QFont parsed;
+      if(parsed.fromString(fontStr))
+        return ChatTextGuard::sanitizeIncomingFont(parsed);
+    }
+    bool sizeOk = false;
+    const double sizePt = xml.data(XN_FONTSIZE).toDouble(&sizeOk);
+    if(!sizeOk || !(sizePt > 0.0))
       return QVariant();
     QFont f;
-    if(!f.fromString(fontStr))
-      return QVariant();
+    f.setPointSizeF(sizePt);
     return ChatTextGuard::sanitizeIncomingFont(f);
   }
   case ColorRole: {
@@ -137,7 +156,7 @@ QVariant ChatMessageModel::data(const QModelIndex& index, int role) const {
 }
 
 QHash<int, QByteArray> ChatMessageModel::roleNames() const {
-  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}, {DateLabelRole, "dateLabel"}};
+  return {{Qt::DisplayRole, "display"}, {TypeRole, "type"}, {UserIdRole, "userId"}, {UserNameRole, "userName"}, {TimeRole, "time"}, {TextRole, "text"}, {FontRole, "font"}, {ColorRole, "color"}, {AvatarRole, "avatar"}, {GroupedRole, "isGrouped"}, {FileRole, "isFile"}, {OwnRole, "isOwn"}, {PreviewRole, "preview"}, {IdRole, "id"}, {FileOpRole, "fileOp"}, {FileModeRole, "mode"}, {FileNameRole, "fileName"}, {FileSizeRole, "fileSize"}, {DateLabelRole, "dateLabel"}, {HeaderRole, "header"}};
 }
 
 int ChatMessageModel::appendMessageLog(MessageType type, QString* lpszUserId, QString* lpszUserName,
@@ -261,9 +280,13 @@ void ChatMessageModel::updateUserName(QString* lpszUserId, QString* lpszUserName
     SingleMessage msg = messageLog.at(i);
     msg.userName = *lpszUserName;
     //  Text-preserving mutation: user name is part of contentRev, not of textSig.
+    //  Broadcast header carries the name, so its rendered text changes too.
     messageLog[i] = msg;
     QModelIndex idx = index(i, 0);
-    emit dataChanged(idx, idx, {UserNameRole});
+    if(msg.type == MT_Broadcast)
+      emit dataChanged(idx, idx, {UserNameRole, HeaderRole, Qt::DisplayRole});
+    else
+      emit dataChanged(idx, idx, {UserNameRole});
   }
   //  No clear() and full rebuild (unlike reloadMessageLog).
 }
@@ -440,6 +463,12 @@ void ChatMessageModel::setMessages(const QList<SingleMessage>& messages) {
   typingMsg = SingleMessage();
   endResetModel();
 }
+QString ChatMessageModel::messageHeader(const SingleMessage& msg) const {
+  if(msg.type == MT_Broadcast)
+    return tr("Broadcast message from %1:").arg(msg.userName);
+  return QString();
+}
+
 QString ChatMessageModel::messageText(const SingleMessage& msg) const {
   XmlMessage xml = msg.message;
   switch(msg.type) {
@@ -448,8 +477,7 @@ QString ChatMessageModel::messageText(const SingleMessage& msg) const {
   case MT_GroupMessage:
     return bodyText(xml);
   case MT_Broadcast:
-    return tr("Broadcast message from %1:").arg(msg.userName) + QStringLiteral("\n") +
-           bodyText(xml);
+    return messageHeader(msg) + QStringLiteral("\n") + bodyText(xml);
   case MT_File:
   case MT_Folder: {
     bool incoming = xml.data(XN_MODE) == QLatin1String("receive");

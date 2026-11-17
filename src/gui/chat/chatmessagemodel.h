@@ -45,7 +45,8 @@ public:
     FileModeRole,
     FileNameRole,
     FileSizeRole,
-    DateLabelRole
+    DateLabelRole,
+    HeaderRole
   };
 
   explicit ChatMessageModel(QObject* parent = nullptr);
@@ -92,6 +93,7 @@ private:
   QString fileTempId(FileMode mode, const QString& fileId) const;
   QString fileTempId(XmlMessage* pMessage) const;
   QString statusText(const SingleMessage& msg) const;
+  QString messageHeader(const SingleMessage& msg) const;
   void clearTypingRow();
 
   QList<SingleMessage> messageLog;

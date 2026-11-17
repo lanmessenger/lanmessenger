@@ -3,6 +3,7 @@
 // Copyright (c) 2026 LAN Messenger.
 #pragma once
 
+#include <QtGlobal>
 #include <QString>
 #include "definitions.h"
 #include "lmcstrings.h"
@@ -73,8 +74,12 @@ enum ItemDataRole {
 #define FS_LARGE 2
 
 #define FS_COUNT 3
+//	Canonical theme point sizes; fontStyle[] is their generated CSS mirror.
+constexpr qreal kThemePointSize[FS_COUNT] = {8.25, 9.0, 10.5};
 //const QString fontSize[] = {"Small text", "Medium text", "Large text"};
-const QString fontStyle[] = {"font-size:8.25pt;", "font-size:9pt;", "font-size:10.5pt;"};
+const QString fontStyle[] = {QStringLiteral("font-size:%1pt;").arg(kThemePointSize[0]),
+                             QStringLiteral("font-size:%1pt;").arg(kThemePointSize[1]),
+                             QStringLiteral("font-size:%1pt;").arg(kThemePointSize[2])};
 
 //	status image definitions
 #define IDR_AVAILABLE ":/images/status/online"

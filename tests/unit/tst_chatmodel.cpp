@@ -74,6 +74,9 @@ private slots:
   void textSigStable();
   void dateBoundaryLabels();
   void dateBoundaryTimeless();
+  void broadcastHeaderSplit();
+  void broadcastFontPriority();
+  void broadcastFontSizeEdges();
 };
 
 
@@ -407,6 +410,79 @@ void TstChatModel::dateBoundaryTimeless() {
   QVERIFY(model.data(model.index(2, 0), ChatMessageModel::DateLabelRole)
             .toString()
             .isEmpty());
+}
+
+void TstChatModel::broadcastHeaderSplit() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_BROADCAST, QStringLiteral("hello all"));
+  m.addData(XN_FONTSIZE, QStringLiteral("11.00"));
+  QCOMPARE(model.appendMessageLog(MT_Broadcast, &jack, &jackName, &m), 0);
+
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::TextRole).toString(),
+           QStringLiteral("hello all"));
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::HeaderRole).toString(),
+           QStringLiteral("Broadcast message from Jack:"));
+  QCOMPARE(model.data(model.index(0, 0), ChatMessageModel::FontRole).value<QFont>().pointSizeF(),
+           11.0);
+
+  //  Regular message carries no header.
+  XmlMessage m2 = textMessage(QStringLiteral("hi"));
+  QCOMPARE(model.appendMessageLog(MT_Message, &jack, &jackName, &m2), 1);
+  QVERIFY(!model.data(model.index(1, 0), ChatMessageModel::HeaderRole).isValid());
+}
+
+void TstChatModel::broadcastFontPriority() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  //  Explicit XN_FONT wins over XN_FONTSIZE.
+  QFont explicitFont(QStringLiteral("DejaVu Sans"));
+  explicitFont.setPointSizeF(16.0);
+  XmlMessage m;
+  m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  m.addData(XN_BROADCAST, QStringLiteral("hello all"));
+  m.addData(XN_FONT, explicitFont.toString());
+  m.addData(XN_FONTSIZE, QStringLiteral("11.00"));
+  QCOMPARE(model.appendMessageLog(MT_Broadcast, &jack, &jackName, &m), 0);
+  const QFont out =
+    model.data(model.index(0, 0), ChatMessageModel::FontRole).value<QFont>();
+  QCOMPARE(out.family(), QStringLiteral("DejaVu Sans"));
+  QCOMPARE(out.pointSizeF(), 16.0);
+}
+
+void TstChatModel::broadcastFontSizeEdges() {
+  ChatMessageModel model;
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+
+  const QStringList badSizes = {QStringLiteral("abc"), QStringLiteral("0"),
+                                QStringLiteral("-5")};
+  for(int i = 0; i < badSizes.count(); i++) {
+    XmlMessage m;
+    m.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+    m.addData(XN_BROADCAST, QStringLiteral("hello all"));
+    m.addData(XN_FONTSIZE, badSizes.at(i));
+    QCOMPARE(model.appendMessageLog(MT_Broadcast, &jack, &jackName, &m), i);
+    QVERIFY(!model.data(model.index(i, 0), ChatMessageModel::FontRole).isValid());
+  }
+
+  //  Out-of-range clamps to kMaxFontPt, not theme fallback.
+  XmlMessage huge;
+  huge.addHeader(XN_TIME, QString::number(QDateTime::currentMSecsSinceEpoch()));
+  huge.addData(XN_BROADCAST, QStringLiteral("hello all"));
+  huge.addData(XN_FONTSIZE, QStringLiteral("100"));
+  QCOMPARE(model.appendMessageLog(MT_Broadcast, &jack, &jackName, &huge),
+           badSizes.count());
+  QCOMPARE(model.data(model.index(badSizes.count(), 0), ChatMessageModel::FontRole)
+             .value<QFont>()
+             .pointSizeF(),
+           24.0);
 }
 
 QTEST_MAIN(TstChatModel)

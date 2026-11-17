@@ -7,6 +7,7 @@
 #include <QLocale>
 
 #include "core/definitions.h"
+#include "core/uidefinitions.h"
 #include "gui/chat/bubblegeometry.h"
 #include "gui/chat/chathelper.h"
 #include "gui/chat/emojipicker.h"
@@ -76,6 +77,8 @@ private slots:
   void dateSeparatorMath();
   void emojiRunLengthEdges();
   void wrapEmojiRunsSpans();
+  void messageFontSizeOnlyKeepsLocalFamily();
+  void fontStyleForSkipsEmptyFamily();
 };
 
 void TstChatPure::roleForCard() {
@@ -457,6 +460,31 @@ void TstChatPure::dateSeparatorMath() {
   QVERIFY(!dated.startsWith(QStringLiteral("Today")));
   QVERIFY(!dated.startsWith(QStringLiteral("Yesterday")));
   QVERIFY(ChatHelper::dateSeparatorLabel(QDate(), today).isEmpty());
+}
+
+void TstChatPure::messageFontSizeOnlyKeepsLocalFamily() {
+  QFont familyLess;
+  familyLess.setFamily(QString());
+  familyLess.setPointSizeF(10.5);
+  const QFont out = RowHtmlBuilder::messageFont(QVariant::fromValue(familyLess), 9.0);
+  QCOMPARE(out.pointSizeF(), 10.5);
+  QVERIFY(out.family().isEmpty());
+  const QFont fallback = RowHtmlBuilder::messageFont(QVariant(), 9.0);
+  QCOMPARE(fallback.pointSizeF(), 9.0);
+}
+
+void TstChatPure::fontStyleForSkipsEmptyFamily() {
+  QFont familyLess;
+  familyLess.setFamily(QString());
+  familyLess.setPointSizeF(10.5);
+  const QString style =
+    RowHtmlBuilder::fontStyleFor(familyLess, QColor(), FS_MEDIUM, false, true);
+  QVERIFY(!style.contains(QStringLiteral("font-family")));
+  QVERIFY(style.contains(QStringLiteral("font-size:10.5pt")));
+  QFont explicitFont(QStringLiteral("DejaVu Sans"));
+  explicitFont.setPointSizeF(10.5);
+  QVERIFY(RowHtmlBuilder::fontStyleFor(explicitFont, QColor(), FS_MEDIUM, false, true)
+            .contains(QStringLiteral("font-family:\"DejaVu Sans\"")));
 }
 
 QTEST_MAIN(TstChatPure)

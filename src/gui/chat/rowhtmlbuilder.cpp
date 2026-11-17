@@ -12,7 +12,10 @@
 QString RowHtmlBuilder::fontStyleFor(const QFont& font, const QColor& color, int fontSizeVal,
                                      bool own, bool fontExplicit) {
   //  Base family only; emoji runs are covered by wrapEmojiRuns spans.
-  QString style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
+  //  Empty family (XN_FONTSIZE size-only override) keeps the local family.
+  QString style;
+  if(!font.family().isEmpty())
+    style = QStringLiteral("font-family:\"%1\"; ").arg(font.family());
   if(font.italic())
     style += QStringLiteral("font-style:italic; ");
   if(font.bold())

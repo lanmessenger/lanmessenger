@@ -24,6 +24,15 @@
 #include "gui/chat/emojihighlighter.h"
 #include "gui/chat/chathelper.h"
 
+namespace {
+
+//	Absolute composer scale, deliberately distinct from kThemePointSize.
+constexpr qreal kComposerSmallPt = 8.25;
+constexpr qreal kComposerMediumPt = 11.0;
+constexpr qreal kComposerLargePt = 14.0;
+
+} // namespace
+
 //	constructor
 lmcBroadcastWindow::lmcBroadcastWindow(QWidget* parent)
     : QWidget(parent) {
@@ -77,8 +86,8 @@ void lmcBroadcastWindow::init(bool connected) {
   //	Forget pre-native handleWidth from saved state; follow the style.
   ui.splitter->setHandleWidth(-1);
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
-  fontSizeVal = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
-  pFontGroup->actions()[fontSizeVal]->setChecked(true);
+  composerSizeVal = BFS_Default;
+  pFontGroup->actions()[composerSizeVal]->setChecked(true);
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
 
@@ -90,7 +99,7 @@ void lmcBroadcastWindow::init(bool connected) {
 
   setUIText();
 
-  ui.txtMessage->setStyleSheet("QTextEdit { " + fontStyle[fontSizeVal] + " }");
+  applyFontSize();
   //  Composer stays base-only; emoji runs are painted by the highlighter.
   emojiHighlighter = new EmojiHighlighter(ui.txtMessage->document());
   emojiHighlighter->setBaseFamily(ui.txtMessage->font().family());
@@ -133,6 +142,8 @@ void lmcBroadcastWindow::settingsChanged(void) {
   sendKeyMod = pSettings->value(IDS_SENDKEYMOD, IDS_SENDKEYMOD_VAL).toBool();
   int viewType = pSettings->value(IDS_USERLISTVIEW, IDS_USERLISTVIEW_VAL).toInt();
   ui.tvUserList->setView((UserListView)viewType);
+  if(composerSizeVal == BFS_Default)
+    applyFontSize();
 }
 
 //	this method receives keyboard events and check if Enter key or Escape key were pressed
@@ -180,17 +191,56 @@ void lmcBroadcastWindow::closeEvent(QCloseEvent* pEvent) {
 
 //	change the font size of the text box with toolbar button
 void lmcBroadcastWindow::btnFontSize_clicked(void) {
-  fontSizeVal = (fontSizeVal == FS_COUNT - 1) ? 0 : fontSizeVal + 1;
-  pFontGroup->actions()[fontSizeVal]->setChecked(true);
-  pbtnFontSize->setText(lmcStrings::fontSize()[fontSizeVal]);
-  ui.txtMessage->setStyleSheet("QTextEdit { " + fontStyle[fontSizeVal] + " }");
+  composerSizeVal = (composerSizeVal == BFS_COUNT - 1) ? 0 : composerSizeVal + 1;
+  pFontGroup->actions()[composerSizeVal]->setChecked(true);
+  pbtnFontSize->setText(fontSizeName(composerSizeVal));
+  applyFontSize();
 }
 
 //	change the font size of text box through menu
 void lmcBroadcastWindow::fontAction_triggered(QAction* action) {
-  fontSizeVal = action->data().toInt();
-  pbtnFontSize->setText(lmcStrings::fontSize()[fontSizeVal]);
-  ui.txtMessage->setStyleSheet("QTextEdit { " + fontStyle[fontSizeVal] + " }");
+  composerSizeVal = qBound(0, action->data().toInt(), int(BFS_COUNT) - 1);
+  pbtnFontSize->setText(fontSizeName(composerSizeVal));
+  applyFontSize();
+}
+
+void lmcBroadcastWindow::applyFontSize(void) {
+  const qreal size = composerPointSize();
+  QFont font = ui.txtMessage->font();
+  font.setPointSizeF(size);
+  ui.txtMessage->setFont(font);
+  QTextCharFormat format;
+  format.setFontPointSize(size);
+  ChatHelper::mergeFormatOverDocument(ui.txtMessage, format);
+}
+
+QString lmcBroadcastWindow::fontSizeName(int size) const {
+  switch(size) {
+  case BFS_Small:
+    return lmcStrings::fontSize()[FS_SMALL];
+  case BFS_Medium:
+    return lmcStrings::fontSize()[FS_MEDIUM];
+  case BFS_Large:
+    return lmcStrings::fontSize()[FS_LARGE];
+  default:
+    return tr("Default size");
+  }
+}
+
+qreal lmcBroadcastWindow::composerPointSize(void) const {
+  //  Default follows the Messages/FontSize setting; explicit sizes travel as XN_FONTSIZE.
+  switch(composerSizeVal) {
+  case BFS_Small:
+    return kComposerSmallPt;
+  case BFS_Medium:
+    return kComposerMediumPt;
+  case BFS_Large:
+    return kComposerLargePt;
+  default: {
+    const int settingsSize = pSettings->value(IDS_FONTSIZE, IDS_FONTSIZE_VAL).toInt();
+    return kThemePointSize[qBound(0, settingsSize, FS_COUNT - 1)];
+  }
+  }
 }
 
 //	insert an emoji into the text box
@@ -258,8 +308,8 @@ void lmcBroadcastWindow::createToolBar(void) {
   pFontGroup = new QActionGroup(this);
   connect(pFontGroup, &QActionGroup::triggered, this, &lmcBroadcastWindow::fontAction_triggered);
 
-  for(int index = 0; index < FS_COUNT; index++) {
-    QAction* pAction = new QAction(lmcStrings::fontSize()[index], this);
+  for(int index = 0; index < BFS_COUNT; index++) {
+    QAction* pAction = new QAction(fontSizeName(index), this);
     pAction->setCheckable(true);
     pAction->setData(index);
     pFontGroup->addAction(pAction);
@@ -295,12 +345,12 @@ void lmcBroadcastWindow::setUIText(void) {
 
   setWindowTitle(tr("Send Broadcast Message"));
 
-  pbtnFontSize->setText(lmcStrings::fontSize()[fontSizeVal]);
+  pbtnFontSize->setText(fontSizeName(composerSizeVal));
   pbtnFontSize->setToolTip(tr("Change Font Size"));
   pbtnEmoji->setToolTip(tr("Insert Emoji"));
 
   for(int index = 0; index < pFontGroup->actions().count(); index++)
-    pFontGroup->actions()[index]->setText(lmcStrings::fontSize()[index]);
+    pFontGroup->actions()[index]->setText(fontSizeName(index));
 }
 
 //	send the broadcast message to all selected users
@@ -317,6 +367,9 @@ void lmcBroadcastWindow::sendMessage(void) {
     int sendCount = 0;
     XmlMessage xmlMessage;
     xmlMessage.addData(XN_BROADCAST, szMessage);
+    //  Default follows the recipient theme; explicit sizes travel as XN_FONTSIZE.
+    if(composerSizeVal != BFS_Default)
+      xmlMessage.addData(XN_FONTSIZE, QString::number(composerPointSize(), 'f', 2));
     for(int index = 0; index < ui.tvUserList->topLevelItemCount(); index++) {
       for(int childIndex = 0; childIndex < ui.tvUserList->topLevelItem(index)->childCount(); childIndex++) {
         QTreeWidgetItem* item = ui.tvUserList->topLevelItem(index)->child(childIndex);
