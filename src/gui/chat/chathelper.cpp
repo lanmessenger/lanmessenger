@@ -11,6 +11,8 @@
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTextFragment>
+#include <QPalette>
+#include <QColor>
 #include <QToolBar>
 #include <QSize>
 #include <QStyle>
@@ -374,6 +376,15 @@ void ChatHelper::clearFamiliesOverDocument(QTextEdit* edit) {
     current.clearProperty(QTextFormat::FontFamilies);
     edit->setCurrentCharFormat(current);
   }
+}
+
+void ChatHelper::applyComposerColor(QTextEdit* edit, const QColor& color) {
+  if(!edit)
+    return;
+  QPalette pal = edit->palette();
+  pal.setColor(QPalette::Active, QPalette::Text, color);
+  pal.setColor(QPalette::Inactive, QPalette::Text, color);
+  edit->setPalette(pal);
 }
 
 void ChatHelper::applyCompactToolBarIcons(QToolBar* toolBar) {

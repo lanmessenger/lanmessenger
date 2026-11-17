@@ -14,6 +14,7 @@
 class QTextCharFormat;
 class QTextEdit;
 class QToolBar;
+class QColor;
 
 class QTextBlockData : public QTextBlockUserData {
 public:
@@ -83,6 +84,8 @@ public:
   static QString emojiSpan(const QString& run, const QString& baseFamily = QString());
   static void mergeFormatOverDocument(QTextEdit* edit, const QTextCharFormat& format);
   static void clearFamiliesOverDocument(QTextEdit* edit);
+  //  Composer color via palette, not stylesheet (keeps Disabled/placeholder native).
+  static void applyComposerColor(QTextEdit* edit, const QColor& color);
   //  Compact style icons (PM_SmallIconSize).
   static void applyCompactToolBarIcons(QToolBar* toolBar);
 };

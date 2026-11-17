@@ -151,7 +151,7 @@ void lmcChatWindow::init(User* pLocalUser, User* pRemoteUser, bool connected) {
   //  Highlighter owns the emoji runs; the widget font stays base-only.
   emojiHighlighter = new EmojiHighlighter(ui.txtMessage->document());
   setMessageFont(font);
-  ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+  ChatHelper::applyComposerColor(ui.txtMessage, messageColor);
   ui.txtMessage->setFocus();
 
   //  Theme by name (user dir wins over built-in qrc), mode is Appearance/Mode.
@@ -535,7 +535,7 @@ void lmcChatWindow::btnFontColor_clicked(void) {
   if(color.isValid()) {
     messageColor = color;
     messageColorSet = true;
-    ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+    ChatHelper::applyComposerColor(ui.txtMessage, messageColor);
     QTextCharFormat format;
     format.setForeground(color);
     ChatHelper::mergeFormatOverDocument(ui.txtMessage, format);
@@ -759,7 +759,7 @@ void lmcChatWindow::sendMessage(void) {
       messageColor = QApplication::palette().text().color();
       messageColor.setNamedColor(pSettings->value(IDS_COLOR, IDS_COLOR_VAL).toString());
       messageColorSet = false;
-      ui.txtMessage->setStyleSheet("QTextEdit {color: " + messageColor.name() + ";}");
+      ChatHelper::applyComposerColor(ui.txtMessage, messageColor);
     }
   } else
     appendMessageLog(MT_Error, NULL, NULL, NULL);
