@@ -13,6 +13,10 @@ on:
         description: Branch or SHA to build (default master; schedule always builds master)
         type: string
         default: master
+      flatpak:
+        description: Build flatpak bundle (unstable infra, opt-in)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -124,7 +128,7 @@ jobs:
 
   build-flatpak:
     needs: [plan]
-    if: needs.plan.outputs.should_build == 'true'
+    if: needs.plan.outputs.should_build == 'true' && inputs.flatpak == true
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11
@@ -208,7 +212,7 @@ jobs:
 
   publish:
     needs: [plan, build, build-flatpak, e2e, smoke-windows-installer, smoke-linux-deb, smoke-linux-rpm, smoke-linux-arch, smoke-linux-flatpak, smoke-macos-x86_64-dmg, smoke-macos-arm64-dmg]
-    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && needs.build-flatpak.result == 'success' && needs.e2e.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-linux-rpm.result == 'success' && needs.smoke-linux-arch.result == 'success' && needs.smoke-linux-flatpak.result == 'success' && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
+    if: needs.plan.outputs.should_build == 'true' && needs.build.result == 'success' && (needs.build-flatpak.result == 'success' || needs.build-flatpak.result == 'skipped') && needs.e2e.result == 'success' && needs.smoke-windows-installer.result == 'success' && needs.smoke-linux-deb.result == 'success' && needs.smoke-linux-rpm.result == 'success' && needs.smoke-linux-arch.result == 'success' && (needs.smoke-linux-flatpak.result == 'success' || needs.smoke-linux-flatpak.result == 'skipped') && needs.smoke-macos-x86_64-dmg.result == 'success' && needs.smoke-macos-arm64-dmg.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
