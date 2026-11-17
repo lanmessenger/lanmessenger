@@ -53,6 +53,7 @@ add_library(lmc_core STATIC
     gui/main/settingsdialog.cpp
     core/shared.cpp
     core/soundplayer.cpp
+    gui/widgets/sendbutton.cpp
     gui/widgets/subcontrols.cpp
     network/tcpnetwork.cpp
     core/theme.cpp
@@ -112,6 +113,7 @@ add_library(lmc_core STATIC
     core/shared.h
     core/soundplayer.h
     core/stdlocation.h
+    gui/widgets/sendbutton.h
     gui/widgets/subcontrols.h
     network/tcpnetwork.h
     core/theme.h

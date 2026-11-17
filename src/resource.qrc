@@ -50,6 +50,7 @@
         <file alias="newchatroom">resources/images/newchatroom.png</file>
         <file alias="play">resources/images/play.png</file>
         <file alias="sendfolder">resources/images/sendfolder.png</file>
+        <file alias="send">resources/images/send.png</file>
     </qresource>
     <qresource prefix="/images/status">
         <file alias="away">resources/images/away.png</file>

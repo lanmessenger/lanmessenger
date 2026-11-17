@@ -50,6 +50,7 @@
 #define IDR_CHAT ":/images/chat"
 #define IDR_PLAY ":/images/play"
 #define IDR_SENDFOLDER ":/images/sendfolder"
+#define IDR_SEND ":/images/send"
 
 #define IDR_LICENSETEXT ":/text/license"
 #define IDR_THANKSTEXT ":/text/thanks"

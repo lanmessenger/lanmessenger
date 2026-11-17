@@ -99,7 +99,7 @@
         <item>
          <layout class="QHBoxLayout" name="msgRowLayout">
           <property name="spacing">
-           <number>4</number>
+           <number>0</number>
           </property>
           <property name="margin">
            <number>0</number>
@@ -125,16 +125,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btnSend">
-            <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="lmcSendButton" name="btnSend">
             <property name="text">
              <string>Send</string>
             </property>
@@ -195,6 +186,11 @@
    <class>lmcUserTreeWidget</class>
    <extends>QTreeWidget</extends>
     <header>gui/contacts/usertreewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>lmcSendButton</class>
+   <extends>QToolButton</extends>
+    <header>gui/widgets/sendbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
