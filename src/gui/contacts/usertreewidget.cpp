@@ -3,6 +3,10 @@
 // Copyright (c) 2026 LAN Messenger.
 #include "usertreewidget.h"
 
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QStyle>
+#include <QtWidgets/QStyleOption>
+
 lmcUserTreeWidgetItem::lmcUserTreeWidgetItem()
     : QTreeWidgetItem(UserType + 1) {
   //	make item not user checkable
@@ -10,16 +14,29 @@ lmcUserTreeWidgetItem::lmcUserTreeWidgetItem()
 }
 
 QRect lmcUserTreeWidgetItem::checkBoxRect(const QRect& itemRect) {
+  lmcUserTreeWidget* treeWidget = static_cast<lmcUserTreeWidget*>(this->treeWidget());
+  int cbWidth = 12;
+  int cbHeight = 12;
+  if(treeWidget) {
+    QStyle* style = treeWidget->style();
+    cbWidth = style->pixelMetric(QStyle::PM_IndicatorWidth, nullptr, treeWidget);
+    cbHeight = style->pixelMetric(QStyle::PM_IndicatorHeight, nullptr, treeWidget);
+    //	Clamp to the row height so a large accessibility theme can never overflow the row.
+    cbWidth = qMin(cbWidth, itemRect.height());
+    cbHeight = qMin(cbHeight, itemRect.height());
+  }
+
   QRect checkBoxRect(0, 0, 0, 0);
 
-  if(data(0, TypeRole).toString() == "Group")
-    checkBoxRect = QRect(itemRect.left(), itemRect.top() + ((itemRect.height() - 12) / 2), 0, 0);
-  else if(data(0, TypeRole).toString() == "User")
-    checkBoxRect = QRect(itemRect.left(), itemRect.top() + 4, 0, 0);
+  QString itemType = data(0, TypeRole).toString();
+  if(itemType == "Group")
+    checkBoxRect = QRect(itemRect.left(), itemRect.top() + ((itemRect.height() - cbHeight) / 2), 0, 0);
+  else if(itemType == "User")
+    //	Top-aligned to sit on the same line as the status icon (top + padding), not centered.
+    checkBoxRect = QRect(itemRect.left(), itemRect.top() + qBound(0, itemRect.height() - cbHeight, 2), 0, 0);
 
-  lmcUserTreeWidget* treeWidget = static_cast<lmcUserTreeWidget*>(this->treeWidget());
-  if(treeWidget->checkable()) {
-    checkBoxRect.setSize(QSize(12, 12));
+  if(treeWidget && treeWidget->checkable()) {
+    checkBoxRect.setSize(QSize(cbWidth, cbHeight));
     checkBoxRect.moveLeft(checkBoxRect.left() + 3);
   }
 
@@ -50,77 +67,87 @@ bool lmcUserTreeWidgetUserItem::operator<(const QTreeWidgetItem& other) const {
 void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
   painter->save();
 
-  QPalette palette = QApplication::palette();
+  const QPalette& palette = option.palette;
+  bool isEnabled = option.state.testFlag(QStyle::State_Enabled);
+  bool isActive = option.state.testFlag(QStyle::State_Active);
+  QPalette::ColorGroup group = !isEnabled ? QPalette::Disabled : (isActive ? QPalette::Active : QPalette::Inactive);
   QRect itemRect = option.rect;
   lmcUserTreeWidgetItem* pItem = static_cast<lmcUserTreeWidgetItem*>(index.internalPointer());
+  if(!pItem) {
+    painter->restore();
+    QStyledItemDelegate::paint(painter, option, index);
+    return;
+  }
   lmcUserTreeWidget* pTreeWidget = static_cast<lmcUserTreeWidget*>(pItem->treeWidget());
+  if(!pTreeWidget) {
+    painter->restore();
+    QStyledItemDelegate::paint(painter, option, index);
+    return;
+  }
   QString type = pItem->data(0, TypeRole).toString();
   QString name = pItem->data(0, Qt::DisplayRole).toString();
+  bool isSelected = option.state.testFlag(QStyle::State_Selected);
+  const QWidget* widget = option.widget;
+  QStyle* style = widget ? widget->style() : QApplication::style();
 
   int padding = 2;
 
+  //	Native background (selection, hover, alternate, disabled) via style.
+  QStyleOptionViewItem backgroundOpt(option);
+  backgroundOpt.palette.setCurrentColorGroup(group);
+  backgroundOpt.text = QString();
+  backgroundOpt.icon = QIcon();
+  if(type == "Group")
+    backgroundOpt.features.setFlag(QStyleOptionViewItem::Alternate, false);
+  style->drawPrimitive(QStyle::PE_PanelItemViewItem, &backgroundOpt, painter, widget);
+
   if(type == "Group") {
-    //	fill the entire item area with window background color (usually white)
-    painter->fillRect(itemRect, palette.window());
+    //	Section header: neutral background from style, bold text, bottom separator.
+    if(!isSelected) {
+      painter->setPen(QPen(palette.color(group, QPalette::Mid)));
+      painter->drawLine(itemRect.left(), itemRect.bottom(), itemRect.right(), itemRect.bottom());
+    }
 
-    //	Fill the background of the item with highlight color, and draw a border with a darker shade
-    QColor fillColor = palette.color(QPalette::Highlight);
-    QColor borderColor = fillColor.darker(130);
-    painter->setPen(QPen(borderColor));
-    painter->setBrush(QBrush(fillColor));
-    itemRect.adjust(1, 1, -2, -1);
-    painter->drawRect(itemRect);
-
-    //	Draw checkbox if needed
+    //	Draw checkbox if needed (native indicator)
     QRect checkBoxRect = pItem->checkBoxRect(itemRect);
     if(pTreeWidget->checkable())
-      drawCheckBox(painter, palette, checkBoxRect, pItem->checkState(0));
+      drawCheckBox(painter, option, group, checkBoxRect, pItem->checkState(0));
 
-    //	Draw the expand/collapse arrow
-    painter->setBrush(QBrush(palette.color(QPalette::HighlightedText)));
-    painter->setPen(QPen(palette.color(QPalette::HighlightedText)));
-    QPoint points[3];
-    if(option.state.testFlag(QStyle::State_Children) && option.state.testFlag(QStyle::State_Open)) {
-      points[0] = QPoint(checkBoxRect.right() + 4, itemRect.top() + ((itemRect.height() - 4) / 2));
-      points[1] = QPoint(checkBoxRect.right() + 12, itemRect.top() + ((itemRect.height() - 4) / 2));
-      points[2] = QPoint(checkBoxRect.right() + 8, itemRect.top() + ((itemRect.height() - 4) / 2) + 4);
-    } else {
-      points[0] = QPoint(checkBoxRect.right() + 6, itemRect.top() + ((itemRect.height() - 7) / 2));
-      points[1] = QPoint(checkBoxRect.right() + 10, itemRect.top() + ((itemRect.height() - 7) / 2) + 4);
-      points[2] = QPoint(checkBoxRect.right() + 6, itemRect.top() + ((itemRect.height() - 7) / 2) + 8);
-    }
-    painter->drawPolygon(points, 3);
+    //	Draw the expand/collapse arrow via style. Qt has no dedicated branch-width metric
+    //	(SE_TreeViewDisclosureItem returns the full item rect), so use the DPI-aware
+    //	indicator width which matches the checkbox alignment.
+    QStyleOptionViewItem branchOpt(option);
+    int branchWidth = style->pixelMetric(QStyle::PM_IndicatorWidth, nullptr, widget);
+    if(branchWidth <= 0)
+      branchWidth = 12;
+    QRect branchRect(checkBoxRect.right() + 4, itemRect.top(), branchWidth, itemRect.height());
+    branchOpt.rect = branchRect;
+    branchOpt.palette.setCurrentColorGroup(group);
+    style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOpt, painter, widget);
 
     //	Draw the text
     QFont font = painter->font();
     font.setBold(true);
     painter->setFont(font);
     int textFlags = Qt::AlignLeft | Qt::AlignVCenter;
-    //	Leave a padding of 5px on left and right
-    int leftPad = checkBoxRect.width() > 0 ? checkBoxRect.right() + 16 : 16;
+    //	Leave a padding of 5px on left and right; clamp so a bad metric can never push the name out.
+    int leftPad = branchRect.right() + 4 - itemRect.left();
+    int maxPad = itemRect.width() - 5 - 24;
+    if(maxPad < padding)
+      maxPad = padding;
+    leftPad = qBound(padding, leftPad, maxPad);
     QRect textRect = itemRect.adjusted(leftPad, padding, -5, -padding);
-    painter->setPen(QPen(palette.color(QPalette::HighlightedText)));
+    if(isSelected)
+      painter->setPen(QPen(palette.color(group, QPalette::HighlightedText)));
+    else
+      painter->setPen(QPen(palette.color(group, QPalette::WindowText)));
     QString text = painter->fontMetrics().elidedText(name, Qt::ElideRight, textRect.width());
     painter->drawText(textRect, textFlags, text);
   } else if(type == "User") {
-    QColor fillColor, borderColor;
-    if(index.row() % 2 == 1)
-      borderColor = fillColor = palette.color(QPalette::AlternateBase);
-    else
-      borderColor = fillColor = palette.color(QPalette::Base);
-
-    if(option.state.testFlag(QStyle::State_Active) && option.state.testFlag(QStyle::State_Enabled) && option.state.testFlag(QStyle::State_Selected))
-      borderColor = palette.color(QPalette::Shadow);
-
-    painter->setPen(QPen(borderColor));
-    painter->setBrush(QBrush(fillColor));
-    itemRect.adjust(1, 0, -2, -1);
-    painter->drawRect(itemRect);
-
-    //	Draw checkbox if needed
+    //	Draw checkbox if needed (native indicator)
     QRect checkBoxRect = pItem->checkBoxRect(itemRect);
     if(pTreeWidget->checkable())
-      drawCheckBox(painter, palette, checkBoxRect, pItem->checkState(0));
+      drawCheckBox(painter, option, group, checkBoxRect, pItem->checkState(0));
 
     //	Draw the status image
     QPixmap statusImage = pItem->icon(0).pixmap(QSize(16, 16));
@@ -142,11 +169,20 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
     }
 
     //	Draw the text
-    painter->setPen(QPen(palette.color(QPalette::WindowText)));
+    if(isSelected)
+      painter->setPen(QPen(palette.color(group, QPalette::HighlightedText)));
+    else
+      painter->setPen(QPen(palette.color(group, QPalette::WindowText)));
     int textFlags = Qt::AlignLeft;
     textFlags |= (pTreeWidget->view() == ULV_Detailed ? Qt::AlignTop : Qt::AlignVCenter);
-    //	Leave a padding of 5px on left and right
-    QRect textRect = itemRect.adjusted(statusRect.right() + 5, padding, -(5 + avatarRect.width() + padding), -padding);
+    //	Leave a padding of 5px on left and right; clamp so a narrow viewport can never hide the name.
+    int rightReserve = 5 + avatarRect.width() + padding;
+    int textLeft = statusRect.right() + 5 - itemRect.left();
+    int maxLeft = itemRect.width() - 5 - rightReserve - 24;
+    if(maxLeft < padding)
+      maxLeft = padding;
+    textLeft = qBound(padding, textLeft, maxLeft);
+    QRect textRect = itemRect.adjusted(textLeft, padding, -rightReserve, -padding);
     QString text = painter->fontMetrics().elidedText(name, Qt::ElideRight, textRect.width());
     painter->drawText(textRect, textFlags, text);
 
@@ -155,7 +191,10 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
       QVariant note = pItem->data(0, SubtextRole);
       if(!note.isNull()) {
         QString userNote = note.toString();
-        painter->setPen(QPen(GRAY_TEXT_COLOR));
+        if(isSelected)
+          painter->setPen(QPen(palette.color(group, QPalette::HighlightedText)));
+        else
+          painter->setPen(QPen(palette.color(group, QPalette::PlaceholderText)));
         textFlags = Qt::AlignLeft | Qt::AlignBottom;
         text = painter->fontMetrics().elidedText(userNote, Qt::ElideRight, textRect.width());
         painter->drawText(textRect, textFlags, text);
@@ -163,30 +202,50 @@ void lmcUserTreeWidgetDelegate::paint(QPainter* painter, const QStyleOptionViewI
     }
   }
 
+  if(option.state.testFlag(QStyle::State_HasFocus)) {
+    QStyleOptionFocusRect focusOpt;
+    focusOpt.rect = itemRect;
+    focusOpt.state = option.state;
+    focusOpt.palette = palette;
+    focusOpt.palette.setCurrentColorGroup(group);
+    focusOpt.backgroundColor = palette.color(group, isSelected ? QPalette::Highlight : QPalette::Window);
+    style->drawPrimitive(QStyle::PE_FrameFocusRect, &focusOpt, painter, widget);
+  }
+
   painter->restore();
 }
 
-void lmcUserTreeWidgetDelegate::drawCheckBox(QPainter* painter, const QPalette& palette,
-                                             const QRect& checkBoxRect, Qt::CheckState checkState) const {
-  painter->setPen(QPen(palette.color(QPalette::Shadow)));
-  painter->setBrush(palette.base());
-  painter->drawRect(checkBoxRect);
-
-  if(checkState == Qt::Checked) {
-    painter->setPen(QPen(palette.text(), 1));
-    painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 6, checkBoxRect.left() + 4, checkBoxRect.top() + 8);
-    painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 7, checkBoxRect.left() + 4, checkBoxRect.top() + 9);
-    painter->drawLine(checkBoxRect.left() + 2, checkBoxRect.top() + 8, checkBoxRect.left() + 4, checkBoxRect.top() + 10);
-    painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 8, checkBoxRect.left() + 10, checkBoxRect.top() + 2);
-    painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 9, checkBoxRect.left() + 10, checkBoxRect.top() + 3);
-    painter->drawLine(checkBoxRect.left() + 4, checkBoxRect.top() + 10, checkBoxRect.left() + 10, checkBoxRect.top() + 4);
-  }
+void lmcUserTreeWidgetDelegate::drawCheckBox(QPainter* painter, const QStyleOptionViewItem& option,
+                                             QPalette::ColorGroup group, const QRect& checkBoxRect,
+                                             Qt::CheckState checkState) const {
+  QStyleOptionButton checkOpt;
+  checkOpt.rect = checkBoxRect;
+  checkOpt.palette = option.palette;
+  checkOpt.palette.setCurrentColorGroup(group);
+  checkOpt.direction = option.direction;
+  checkOpt.fontMetrics = option.fontMetrics;
+  checkOpt.styleObject = option.styleObject;
+  checkOpt.state = QStyle::State_Enabled;
+  if(!option.state.testFlag(QStyle::State_Enabled))
+    checkOpt.state = QStyle::State_None;
+  checkOpt.state |= (option.state & (QStyle::State_MouseOver | QStyle::State_HasFocus | QStyle::State_Selected |
+                                     QStyle::State_Sunken | QStyle::State_Active));
+  if(checkState == Qt::Checked)
+    checkOpt.state |= QStyle::State_On;
+  else if(checkState == Qt::PartiallyChecked)
+    checkOpt.state |= QStyle::State_NoChange;
+  else
+    checkOpt.state |= QStyle::State_Off;
+  const QWidget* widget = option.widget;
+  QStyle* style = widget ? widget->style() : QApplication::style();
+  style->drawPrimitive(QStyle::PE_IndicatorCheckBox, &checkOpt, painter, widget);
 }
 
 lmcUserTreeWidget::lmcUserTreeWidget(QWidget* parent)
     : QTreeWidget(parent) {
   itemDelegate = new lmcUserTreeWidgetDelegate();
   setItemDelegate(itemDelegate);
+  setAlternatingRowColors(true);
 
   isCheckable = false;
   viewType = ULV_Detailed;

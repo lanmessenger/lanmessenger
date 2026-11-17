@@ -44,7 +44,8 @@ public:
   void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
 private:
-  void drawCheckBox(QPainter* painter, const QPalette& palette, const QRect& checkBoxRect, Qt::CheckState checkState) const;
+  void drawCheckBox(QPainter* painter, const QStyleOptionViewItem& option, QPalette::ColorGroup group,
+                    const QRect& checkBoxRect, Qt::CheckState checkState) const;
 };
 
 class lmcUserTreeWidget : public QTreeWidget {
