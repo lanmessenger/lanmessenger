@@ -142,8 +142,7 @@ void lmcChatRoomWindow::init(User* pLocalUser, bool connected, QString thread) {
   if(groupMode || !hRestored) {
     //	toolbar height is natural (no fixed size in ui), so measure after creation
     ui.wgtToolBar->layout()->activate();
-    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.lblDividerBottom->sizeHint().height() +
-                            ui.lblDividerTop->sizeHint().height() + ui.wgtToolBar->sizeHint().height();
+    int bottomPanelHeight = ui.txtMessage->minimumHeight() + ui.wgtToolBar->sizeHint().height();
     QList<int> sizes;
     sizes.append(height() - bottomPanelHeight - ui.hSplitter->handleWidth());
     sizes.append(bottomPanelHeight);

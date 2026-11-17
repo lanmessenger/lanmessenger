@@ -89,16 +89,6 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="lblDividerTop">
-          <property name="frameShape">
-           <enum>QFrame::HLine</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QWidget" name="wgtToolBar" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <property name="spacing">
@@ -115,16 +105,6 @@
             </layout>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="lblDividerBottom">
-          <property name="frameShape">
-           <enum>QFrame::HLine</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
          </widget>
         </item>
         <item>
@@ -148,9 +128,6 @@
               <width>0</width>
               <height>36</height>
              </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="tabChangesFocus">
              <bool>true</bool>

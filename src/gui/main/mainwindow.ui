@@ -244,16 +244,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="lblDividerTop">
-     <property name="frameShape">
-      <enum>QFrame::HLine</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QWidget" name="wgtToolBar" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
