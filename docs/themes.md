@@ -43,6 +43,39 @@ and `logs` — look for those if the path above does not match.
 The exact rules for every field live next to the themes:
 [SCHEMA.md](https://github.com/lanmessenger/lanmessenger/blob/master/src/resources/themes/SCHEMA.md).
 
+## Custom QSS (custom.qss)
+
+JSON themes above style only the message area. The rest of the interface
+(toolbars, roster, status banners, composers) follows the system palette,
+with one opt-in exception: drop a `custom.qss` file next to the JSON themes
+(same folder from the table) and it is applied at startup via
+`QApplication::setStyleSheet()`.
+
+- Restart to apply; only the first instance applies it (a second launch
+  just raises the running window).
+- Unreadable or oversized (> 256 KB) files are skipped with a `CustomQss:`
+  line in the log (run with `/trace`). Syntactically broken QSS is silently
+  ignored by Qt itself — no log line in that case.
+- Hardcoded widget stylesheets (send button, emoji/image pickers) take
+  precedence over `custom.qss` for the same selectors.
+
+### Example
+
+MeshBlue-flavoured chrome for a light palette (dark mode needs its own
+values). Save as `custom.qss` in the folder from the table:
+
+```css
+QWidget#MainWindow, QFrame#frame, QWidget#wgtToolBar { background-color: #EFF6FF; }
+QMenuBar { background-color: #EFF6FF; }
+QToolBar { background-color: #E0F2FE; border-bottom: 2px solid #0284C7; }
+/* Send button and pickers keep their own hover: widget QSS wins. */
+QToolButton:hover { background-color: #BAE6FD; }
+QMenuBar::item:selected, QMenu::item:selected { background-color: #0284C7; color: #FFFFFF; }
+QTreeWidget { background-color: #F0F9FF; alternate-background-color: #E2F2FE; }
+QLineEdit#txtNote { background-color: #EFF6FF; border: none; }
+QSplitter::handle { background-color: #BAE6FD; }
+```
+
 ## If the theme does not appear
 
 - The JSON must be valid (watch for trailing commas) and

@@ -8,6 +8,7 @@
 #include "core/uidefinitions.h"
 #include "core/lmccategories.h"
 #include "core/lmclogging.h"
+#include <QFile>
 #include <QResource>
 #include <QMessageBox>
 #include <QIcon>
@@ -36,6 +37,9 @@ int showSwitches(void) {
                 "/trace - Enables debug logging to logs/lmc_*.log (disabled by default).\n"
                 "/? - Display this help.\n"
                 "\n"
+                "Custom QSS: themes/custom.qss (next to the JSON chat themes)\n"
+                "is applied at startup when present; restart to apply.\n"
+                "\n"
                 "If an instance is already running, a second launch only brings its window\n"
                 "to the front (or closes it with /term, waits with /termwait);\n"
                 "other switches apply at startup only.\n"
@@ -56,6 +60,29 @@ static void initTrace(const QStringList& arguments) {
     return;
   }
   LmcLogging::enable(StdLocation::freeLogFile());
+}
+
+// The message area is owned by JSON themes.
+static void applyCustomQss(Application& application) {
+  constexpr qint64 kMaxCustomQssBytes = 256 * 1024;
+  const QString path = StdLocation::userThemeDir() + QStringLiteral("/custom.qss");
+  QFile file(path);
+  if(!file.exists())
+    return;
+  if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qCWarning(lmcApp(), "CustomQss: cannot read %s", qUtf8Printable(path));
+    return;
+  }
+  const QByteArray data = file.read(kMaxCustomQssBytes + 1);
+  if(data.size() > kMaxCustomQssBytes) {
+    qCWarning(lmcApp(), "CustomQss: too large (over %lld bytes): %s",
+              static_cast<long long>(kMaxCustomQssBytes), qUtf8Printable(path));
+    return;
+  }
+  if(data.isEmpty())
+    return;
+  application.setStyleSheet(QString::fromUtf8(data));
+  qCInfo(lmcApp(), "CustomQss: applied from %s", qUtf8Printable(path));
 }
 
 static bool waitForFirstInstanceExit(Application& application, int timeoutMs) {
@@ -146,6 +173,7 @@ int lmcRunApplication(int argc, char* argv[],
   }
 
   initTrace(arguments);
+  applyCustomQss(application);
   if(outcome == SingleInstance::StartupOutcome::Pathology) {
     fprintf(stderr, "lmc: warning: single-instance server unavailable, continuing without it\n");
     qCWarning(lmcApp(), "Startup: single-instance pathology, continuing degraded");
