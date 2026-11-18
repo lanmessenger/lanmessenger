@@ -852,6 +852,7 @@ void lmcMainWindow::createToolBar(void) {
 
   QToolBar* pToolBar = new QToolBar(ui.wgtToolBar);
   pToolBar->setIconSize(QSize(40, 20));
+  pToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   ui.toolBarLayout->addWidget(pToolBar);
 
   pToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -863,11 +864,15 @@ void lmcMainWindow::createToolBar(void) {
                                               &lmcMainWindow::userFileAction_triggered,
                                               QIcon(QPixmap(IDR_FILE, "PNG")));
   toolFileAction->setEnabled(false);
-  pToolBar->addSeparator();
+  QWidget* pSpacer1 = new QWidget(pToolBar);
+  pSpacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  pToolBar->addWidget(pSpacer1);
   toolBroadcastAction = ActionHelper::createAction(pToolBar, "Send &Broadcast Message", this,
                                                    &lmcMainWindow::userBroadcastAction_triggered,
                                                    QIcon(QPixmap(IDR_BROADCASTMSG, "PNG")));
-  pToolBar->addSeparator();
+  QWidget* pSpacer2 = new QWidget(pToolBar);
+  pSpacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  pToolBar->addWidget(pSpacer2);
   toolChatRoomAction = ActionHelper::createAction(pToolBar, "&New Chat Room", this,
                                                   &lmcMainWindow::chatRoomAction_triggered,
                                                   QIcon(QPixmap(IDR_NEWCHATROOM, "PNG")));
