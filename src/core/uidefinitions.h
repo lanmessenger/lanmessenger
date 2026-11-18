@@ -162,9 +162,3 @@ enum UserListView {
 const int itemViewHeight[] = {36, 20};
 
 #define RTL_LAYOUT "RTL"
-
-#ifdef Q_OS_MAC
-#define GRAY_TEXT_COLOR QApplication::palette().color(QPalette::Shadow).darker(175)
-#else
-#define GRAY_TEXT_COLOR QApplication::palette().color(QPalette::Shadow)
-#endif
