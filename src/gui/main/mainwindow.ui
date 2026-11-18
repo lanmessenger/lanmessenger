@@ -176,6 +176,9 @@
         </item>
         <item>
          <widget class="lmcLineEdit" name="txtNote">
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -207,6 +210,9 @@
       </item>
       <item>
        <widget class="lmcToolButton" name="btnAvatar">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
         <property name="toolTip">
          <string>Change avatar</string>
         </property>
@@ -331,8 +337,6 @@
  </customwidgets>
  <tabstops>
   <tabstop>tvUserList</tabstop>
-  <tabstop>btnAvatar</tabstop>
-  <tabstop>txtNote</tabstop>
  </tabstops>
  <resources/>
  <connections/>

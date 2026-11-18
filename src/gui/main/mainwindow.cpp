@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QKeyEvent>
 #include <QCloseEvent>
+#include <QtGlobal>
 #include "core/lmccategories.h"
 #include "core/shared.h"
 #include "core/settings.h"
@@ -847,8 +848,7 @@ void lmcMainWindow::createToolBar(void) {
   QToolBar* pStatusBar = new QToolBar(ui.frame);
   ui.statusLayout->insertWidget(0, pStatusBar);
   QAction* pStatusAction = pStatusBar->addAction("");
-  btnStatus = (QToolButton*)pStatusBar->widgetForAction(pStatusAction);
-  btnStatus->setPopupMode(QToolButton::MenuButtonPopup);
+  btnStatus = qobject_cast<QToolButton*>(pStatusBar->widgetForAction(pStatusAction));
 
   QToolBar* pToolBar = new QToolBar(ui.wgtToolBar);
   pToolBar->setIconSize(QSize(40, 20));
@@ -874,6 +874,27 @@ void lmcMainWindow::createToolBar(void) {
   toolPublicChatAction = ActionHelper::createAction(pToolBar, "&Public Chat", this,
                                                     &lmcMainWindow::publicChatAction_triggered,
                                                     QIcon(QPixmap(IDR_CHATROOM, "PNG")));
+
+  //	QToolBar buttons do not take Tab focus by default, so enable it explicitly.
+  QToolButton* btnChat = qobject_cast<QToolButton*>(pToolBar->widgetForAction(toolChatAction));
+  QToolButton* btnFile = qobject_cast<QToolButton*>(pToolBar->widgetForAction(toolFileAction));
+  QToolButton* btnBroadcast = qobject_cast<QToolButton*>(pToolBar->widgetForAction(toolBroadcastAction));
+  QToolButton* btnChatRoom = qobject_cast<QToolButton*>(pToolBar->widgetForAction(toolChatRoomAction));
+  QToolButton* btnPublicChat = qobject_cast<QToolButton*>(pToolBar->widgetForAction(toolPublicChatAction));
+  Q_ASSERT(btnStatus && btnChat && btnFile && btnBroadcast && btnChatRoom && btnPublicChat);
+  btnStatus->setPopupMode(QToolButton::InstantPopup);
+  btnStatus->setFocusPolicy(Qt::StrongFocus);
+  btnChat->setFocusPolicy(Qt::StrongFocus);
+  btnFile->setFocusPolicy(Qt::StrongFocus);
+  btnBroadcast->setFocusPolicy(Qt::StrongFocus);
+  btnChatRoom->setFocusPolicy(Qt::StrongFocus);
+  btnPublicChat->setFocusPolicy(Qt::StrongFocus);
+  QWidget::setTabOrder(ui.tvUserList, btnStatus);
+  QWidget::setTabOrder(btnStatus, btnChat);
+  QWidget::setTabOrder(btnChat, btnFile);
+  QWidget::setTabOrder(btnFile, btnBroadcast);
+  QWidget::setTabOrder(btnBroadcast, btnChatRoom);
+  QWidget::setTabOrder(btnChatRoom, btnPublicChat);
 }
 
 void lmcMainWindow::setUIText(void) {
