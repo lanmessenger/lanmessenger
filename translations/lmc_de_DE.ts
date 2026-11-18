@@ -328,6 +328,10 @@
         <source>Contacts</source>
         <translation>Kontakte</translation>
     </message>
+    <message>
+        <source>Click to set your note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog</name>
@@ -876,6 +880,10 @@
     <message>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
         <translation>Die Verbindung wurde unterbrochen. Die Broadcast-Nachricht konnte nicht gesendet werden.</translation>
+    </message>
+    <message>
+        <source>Default size</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

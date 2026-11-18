@@ -328,6 +328,10 @@
         <source>Change avatar</source>
         <translation>Kép cseréje</translation>
     </message>
+    <message>
+        <source>Click to set your note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog</name>
@@ -876,6 +880,10 @@
     <message>
         <source>Send Broadcast Message</source>
         <translation>Körüzenet küldése</translation>
+    </message>
+    <message>
+        <source>Default size</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

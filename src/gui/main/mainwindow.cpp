@@ -695,6 +695,8 @@ void lmcMainWindow::txtNote_returnPressed(void) {
 
 void lmcMainWindow::txtNote_lostFocus(void) {
   QString note = ui.txtNote->text();
+  if(note == pLocalUser->note)
+    return;
   pSettings->setValue(IDS_NOTE, note, IDS_NOTE_VAL);
   pLocalUser->note = note;
   sendMessage(MT_Note, NULL, &note);
@@ -895,7 +897,8 @@ void lmcMainWindow::createToolBar(void) {
   btnChatRoom->setFocusPolicy(Qt::StrongFocus);
   btnPublicChat->setFocusPolicy(Qt::StrongFocus);
   QWidget::setTabOrder(ui.tvUserList, btnStatus);
-  QWidget::setTabOrder(btnStatus, btnChat);
+  QWidget::setTabOrder(btnStatus, ui.txtNote);
+  QWidget::setTabOrder(ui.txtNote, btnChat);
   QWidget::setTabOrder(btnChat, btnFile);
   QWidget::setTabOrder(btnFile, btnBroadcast);
   QWidget::setTabOrder(btnBroadcast, btnChatRoom);

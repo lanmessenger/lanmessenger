@@ -328,6 +328,10 @@
         <source>Contacts</source>
         <translation>Kişiler</translation>
     </message>
+    <message>
+        <source>Click to set your note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog</name>
@@ -881,6 +885,10 @@
     <message>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
         <translation>Yeteri süre bağlı kalamadınız. Yayın iletisi gönderilemedi.</translation>
+    </message>
+    <message>
+        <source>Default size</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

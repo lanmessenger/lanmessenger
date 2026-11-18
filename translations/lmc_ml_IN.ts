@@ -328,6 +328,10 @@
         <source>Contacts</source>
         <translation>സുഹൃത്തുക്കള്‍</translation>
     </message>
+    <message>
+        <source>Click to set your note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog</name>
@@ -881,6 +885,10 @@
     <message>
         <source>You are no longer connected. Broadcast message cannot be sent.</source>
         <translation>താങ്കളുടെ ബന്ധം നഷ്ടപ്പെട്ടിരിക്കുന്നു. പ്രക്ഷേപണം ചെയ്യാന്‍ കഴിയുകയില്ല.</translation>
+    </message>
+    <message>
+        <source>Default size</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

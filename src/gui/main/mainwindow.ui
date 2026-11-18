@@ -177,7 +177,7 @@
         <item>
          <widget class="lmcLineEdit" name="txtNote">
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::StrongFocus</enum>
           </property>
           <property name="maximumSize">
            <size>
@@ -187,6 +187,9 @@
           </property>
           <property name="placeholderText">
            <string>Type a note</string>
+          </property>
+          <property name="toolTip">
+           <string>Click to set your note</string>
           </property>
          </widget>
         </item>

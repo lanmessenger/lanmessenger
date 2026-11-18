@@ -5,12 +5,14 @@
 
 #pragma once
 
+#include <QEnterEvent>
+#include <QEvent>
+#include <QFocusEvent>
 #include <QStylePainter>
 #include <QStyleOption>
 #include <QToolButton>
 #include <QLabel>
 #include <QLineEdit>
-#include "core/uidefinitions.h"
 
 class lmcToolButton : public QToolButton {
 public:
@@ -48,6 +50,12 @@ signals:
   void lostFocus(void);
 
 protected:
-  void focusInEvent(QFocusEvent* event);
-  void focusOutEvent(QFocusEvent* event);
+  void focusInEvent(QFocusEvent* event) override;
+  void focusOutEvent(QFocusEvent* event) override;
+  void changeEvent(QEvent* event) override;
+  void enterEvent(QEnterEvent* event) override;
+  void leaveEvent(QEvent* event) override;
+
+private:
+  void applyUnfocusedLook(void);
 };
