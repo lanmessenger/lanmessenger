@@ -138,15 +138,16 @@ jobs:
         with:
           ref: ${{ needs.plan.outputs.sha }}
 
-      # The manifest carries the token 0.0.0-flatpak-dev as LMC_VERSION;
-      # stamp the nightly version in (same scheme as the system packages).
-      - name: Stamp nightly version
+      - name: Stamp nightly source and version
         run: |
           set -euo pipefail
-          ver='${{ needs.plan.outputs.version }}'
-          sed -i "s|0\.0\.0-flatpak-dev|${ver}|" setup/flatpak/io.github.lanmessenger.lmc.yml
-          grep -F "DLMC_VERSION=${ver}" setup/flatpak/io.github.lanmessenger.lmc.yml \
-            || { echo 'version stamp drifted' >&2; exit 1; }
+          f=setup/flatpak/io.github.lanmessenger.lmc.yml
+          grep -qF 'tag: "@TAG@"' "$f" || { echo 'stamp drifted: tag' >&2; exit 1; }
+          grep -qF 'commit: "@COMMIT@"' "$f" || { echo 'stamp drifted: commit' >&2; exit 1; }
+          grep -qF 'DLMC_VERSION=@VERSION@' "$f" || { echo 'stamp drifted: version' >&2; exit 1; }
+          sed -i -e '/^[[:space:]]*tag: /d' \
+                 -e "s|^[[:space:]]*commit: .*|        commit: ${{ needs.plan.outputs.sha }}|" \
+                 -e "s|-DLMC_VERSION=[^ \"']*|-DLMC_VERSION=${{ needs.plan.outputs.version }}|" "$f"
 
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:

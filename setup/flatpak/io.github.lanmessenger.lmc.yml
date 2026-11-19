@@ -1,14 +1,9 @@
-# Flatpak manifest for LAN Messenger (nightly CI, x86_64).
-# Runtime 6.11 = Qt 6.11.x (6.10 is EOL, 6.12 too fresh for v1).
+# Template: stamp "@TAG@"/"@COMMIT@"/@VERSION@ before build
+# Runtime 6.11 = Qt 6.11.x (6.10 EOL, 6.12 too fresh for v1).
 # Layout /app/bin + /app/share/lmc matches StdLocation (appDir/../share/lmc).
-# LMC_VERSION token below is rewritten by nightly.yml before the build.
-# File dialogs go through the FileChooser portal, so dialog-picked dirs
-# need no extra permissions. xdg-download covers silent auto-save there.
-# v1 limitation: silent auto-save to other arbitrary host paths is denied
-# by the sandbox (same class as the AutoStart limit below).
-# LMM=OFF: the lmm test daemon has no sandbox role.
-# v1 limitation: the in-app AutoStart checkbox writes into the sandbox
-# config and does not autostart on the host.
+# Dialog-picked dirs need no permissions (portal); silent auto-save is covered
+# by xdg-download, other host paths denied. AutoStart checkbox writes into the
+# sandbox config and does not autostart on the host (v1 limits).
 id: io.github.lanmessenger.lmc
 runtime: org.kde.Platform
 runtime-version: '6.11'
@@ -35,11 +30,12 @@ modules:
   - name: lmc
     buildsystem: simple
     sources:
-      - type: dir
-        path: ../..
-        skip: [.git, build, _flatpak-build]
+      - type: git
+        url: https://github.com/lanmessenger/lanmessenger.git
+        tag: "@TAG@"
+        commit: "@COMMIT@"
     build-commands:
-      - cmake -S . -B _flatpak-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLMC_VERSION=0.0.0-flatpak-dev -DLMC_BUILD_LMM=OFF
+      - cmake -S . -B _flatpak-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLMC_VERSION=@VERSION@ -DLMC_BUILD_LMM=OFF
       - cmake --build _flatpak-build --target lmc lmc_runtime_files
       - install -Dm755 _flatpak-build/src/lmc /app/bin/lmc
       - install -Dm644 _flatpak-build/src/runtime/lmc.rcc /app/share/lmc/lmc.rcc
