@@ -48,6 +48,26 @@ struct SingleMessage {
 QDataStream& operator<<(QDataStream& out, const SingleMessage& message);
 QDataStream& operator>>(QDataStream& in, SingleMessage& message);
 
+inline MessageType restoredHistoryType(int saved) {
+  if(saved == int(MT_GroupMessage))
+    return MT_GroupMessage;
+  if(saved == int(MT_Broadcast))
+    return MT_Broadcast;
+  return MT_Message;
+}
+
+inline bool isHistorySavable(MessageType type) {
+  return type == MT_Message || type == MT_GroupMessage || type == MT_Broadcast;
+}
+
+inline const char* historyDataKey(MessageType type) {
+  if(type == MT_Broadcast)
+    return XN_BROADCAST;
+  if(type == MT_GroupMessage)
+    return XN_GROUPMESSAGE;
+  return XN_MESSAGE;
+}
+
 class ChatHelper {
 public:
   static void makeHtmlSafe(QString* lpszMessage);

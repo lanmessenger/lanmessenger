@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QTextDocument>
 
 #include "core/settings.h"
 #include "core/stdlocation.h"
@@ -213,6 +214,8 @@ private slots:
   void nbspNormalizesToSpace();
   void tmpRoundtripKeepsLocalId();
   void tmpOldFormatKeepsPresetLocalId();
+  void broadcastMessagesStoredAndExported();
+  void historyHelpersMapTypesAndKeys();
   void historyDatabaseEmptyCustomFallsBackToDefault();
   void historyDatabaseMigratesMissingLegacyName();
 
@@ -559,6 +562,85 @@ void TstHistory::historyDatabaseMigratesMissingLegacyName() {
   QCOMPARE(settings.value(IDS_HISTORYPATH).toString(), legacy);
   QFile::remove(legacy);
   QFile::remove(migrated);
+}
+
+void TstHistory::broadcastMessagesStoredAndExported() {
+  ChatMessageView src;
+  src.resize(400, 300);
+  src.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&src, 5000));
+  QString me = QStringLiteral("me");
+  QString meName = QStringLiteral("Me");
+  QString jack = QStringLiteral("jack");
+  QString jackName = QStringLiteral("Jack");
+  src.localId = me;
+  src.initChat();
+
+  const qint64 t1 = 1761300000000;
+  const qint64 t2 = 1761300060000;
+  XmlMessage m1;
+  m1.addHeader(XN_TIME, QString::number(t1));
+  m1.addData(XN_MESSAGE, QStringLiteral("plain hi"));
+  XmlMessage m2;
+  m2.addHeader(XN_TIME, QString::number(t2));
+  m2.addData(XN_BROADCAST, QStringLiteral("news for all"));
+  src.appendMessageLog(MT_Message, &me, &meName, &m1);
+  src.appendMessageLog(MT_Broadcast, &jack, &jackName, &m2);
+
+  QList<StoredMessage> rows = src.storedMessages();
+  QCOMPARE(rows.count(), 2);
+  QCOMPARE(rows.at(0).messageType, int(MT_Message));
+  QCOMPARE(rows.at(0).body, QStringLiteral("plain hi"));
+  QVERIFY(rows.at(0).isOwn);
+  QCOMPARE(rows.at(1).messageType, int(MT_Broadcast));
+  QCOMPARE(rows.at(1).body, QStringLiteral("news for all"));
+  QVERIFY(!rows.at(1).isOwn);
+
+  const QString text = src.prepareMessageLogForSave(TextFormat);
+  QVERIFY(text.contains(QStringLiteral("news for all")));
+  const QString html = src.prepareMessageLogForSave(HtmlFormat);
+  QVERIFY(html.contains(QStringLiteral("data-type=\"%1\"").arg(int(MT_Broadcast))));
+  QTextDocument doc;
+  doc.setHtml(html);
+  const QString stripped = doc.toPlainText().replace(QChar(0x00A0), QLatin1Char(' '));
+  QVERIFY(stripped.contains(QStringLiteral("news for all")));
+
+  HistoryStore::resetForTests();
+  const QString dbPath = scratchPath + QStringLiteral("/broadcast-history.db");
+  QFile::remove(dbPath);
+  QVERIFY(HistoryStore::instance()->open(dbPath));
+  QVERIFY(HistoryStore::instance()->saveSession(QStringLiteral("Jack"),
+                                                QDateTime::currentDateTime(), rows));
+  const QList<SessionInfo> sessions = HistoryStore::instance()->listSessions();
+  QCOMPARE(sessions.count(), 1);
+  const QList<StoredMessage> reloaded =
+    HistoryStore::instance()->messagesForSession(sessions.first().id);
+  QCOMPARE(reloaded.count(), 2);
+  QCOMPARE(reloaded.at(1).messageType, int(MT_Broadcast));
+  QCOMPARE(reloaded.at(1).body, QStringLiteral("news for all"));
+  HistoryStore::instance()->close();
+  HistoryStore::resetForTests();
+}
+
+void TstHistory::historyHelpersMapTypesAndKeys() {
+  QCOMPARE(restoredHistoryType(int(MT_Message)), MT_Message);
+  QCOMPARE(restoredHistoryType(int(MT_GroupMessage)), MT_GroupMessage);
+  QCOMPARE(restoredHistoryType(int(MT_Broadcast)), MT_Broadcast);
+  QCOMPARE(restoredHistoryType(int(MT_ChatState)), MT_Message);
+  QCOMPARE(restoredHistoryType(int(MT_Blank)), MT_Message);
+  QCOMPARE(restoredHistoryType(9999), MT_Message);
+
+  QVERIFY(isHistorySavable(MT_Message));
+  QVERIFY(isHistorySavable(MT_GroupMessage));
+  QVERIFY(isHistorySavable(MT_Broadcast));
+  QVERIFY(!isHistorySavable(MT_ChatState));
+  QVERIFY(!isHistorySavable(MT_File));
+  QVERIFY(!isHistorySavable(MT_Blank));
+
+  QCOMPARE(QString::fromLatin1(historyDataKey(MT_Broadcast)), QString(XN_BROADCAST));
+  QCOMPARE(QString::fromLatin1(historyDataKey(MT_GroupMessage)), QString(XN_GROUPMESSAGE));
+  QCOMPARE(QString::fromLatin1(historyDataKey(MT_Message)), QString(XN_MESSAGE));
+  QCOMPARE(QString::fromLatin1(historyDataKey(MT_File)), QString(XN_MESSAGE));
 }
 
 QTEST_MAIN(TstHistory)

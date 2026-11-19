@@ -11,6 +11,7 @@
 #include "core/lmccategories.h"
 #include "core/definitions.h"
 #include "core/settings.h"
+#include "gui/chat/chathelper.h"
 #include "gui/chat/chatmessageview.h"
 #include "messaging/xmlmessage.h"
 #include "storage/historystore.h"
@@ -130,16 +131,15 @@ void lmcHistoryWindow::tvMsgList_currentItemChanged(QTreeWidgetItem* current, QT
     }
     pMessageLog->initChat();
     for(const StoredMessage& row : rows) {
+      MessageType type = restoredHistoryType(row.messageType);
       XmlMessage xml;
       qint64 ts = row.createdAt > 0 ? row.createdAt
                                     : (closedAt.isValid() ? closedAt.toMSecsSinceEpoch() : 0);
       xml.addHeader(XN_TIME, QString::number(ts));
-      xml.addData(XN_MESSAGE, row.body);
+      xml.addData(historyDataKey(type), row.body);
       QString userId = row.isOwn ? pMessageLog->localId
                                  : (!row.senderId.isEmpty() ? row.senderId : row.senderName);
       QString name = row.senderName;
-      MessageType type =
-        row.messageType == int(MT_GroupMessage) ? MT_GroupMessage : MT_Message;
       pMessageLog->appendMessageLog(type, &userId, &name, &xml);
     }
   }

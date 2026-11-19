@@ -164,7 +164,7 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
                      "span.message {clear: both; display: block;} p {border-bottom: 1px solid #CCC;}"
                      "</style></head><body>");
     for(const SingleMessage& msg : messages) {
-      if(msg.type != MT_Message && msg.type != MT_GroupMessage)
+      if(!isHistorySavable(msg.type))
         continue;
       XmlMessage xml = msg.message;
       // Numeric timestamp: no raw peer string reaches the saved attribute.
@@ -174,6 +174,8 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
       QString messageText = xml.data(XN_MESSAGE);
       if(messageText.isEmpty())
         messageText = xml.data(XN_GROUPMESSAGE);
+      if(messageText.isEmpty())
+        messageText = xml.data(XN_BROADCAST);
       decodeForSave(&messageText);
       // Per-message own/time/type for history bubbles (html export ignores it).
       bool own = !msg.userId.isEmpty() && msg.userId == localId;
@@ -192,7 +194,7 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
   }
   QString text;
   for(const SingleMessage& msg : messages) {
-    if(msg.type != MT_Message && msg.type != MT_GroupMessage)
+    if(!isHistorySavable(msg.type))
       continue;
     XmlMessage xml = msg.message;
     QDateTime time;
@@ -200,6 +202,8 @@ QString ChatMessageView::prepareMessageLogForSave(OutputFormat format) {
     QString body = xml.data(XN_MESSAGE);
     if(body.isEmpty())
       body = xml.data(XN_GROUPMESSAGE);
+    if(body.isEmpty())
+      body = xml.data(XN_BROADCAST);
     text += msg.userName + QStringLiteral(" [") +
             QLocale::system().toString(time.time(), QLocale::ShortFormat) +
             QStringLiteral("]:\n") + body + QStringLiteral("\n\n");
@@ -211,12 +215,14 @@ QList<StoredMessage> ChatMessageView::storedMessages() const {
   QList<StoredMessage> out;
   const QList<SingleMessage> messages = chatModel->messages();
   for(const SingleMessage& msg : messages) {
-    if(msg.type != MT_Message && msg.type != MT_GroupMessage)
+    if(!isHistorySavable(msg.type))
       continue;
     XmlMessage xml = msg.message;
     QString body = xml.data(XN_MESSAGE);
     if(body.isEmpty())
       body = xml.data(XN_GROUPMESSAGE);
+    if(body.isEmpty())
+      body = xml.data(XN_BROADCAST);
     if(body.isEmpty())
       continue;
     StoredMessage row;
@@ -346,15 +352,14 @@ void ChatMessageView::showHistoryMessages(QString* userName, QDateTime* when, QS
   if(html && parseStructuredHistory(*html, &records)) {
     QString local = historyLocalId();
     for(const HistoryRecord& rec : records) {
+      MessageType type = restoredHistoryType(rec.type);
       XmlMessage xmlMessage;
       qint64 ts = rec.ts > 0 ? rec.ts : (when ? when->toMSecsSinceEpoch() : 0);
       xmlMessage.addHeader(XN_TIME, QString::number(ts));
-      xmlMessage.addData(XN_MESSAGE, rec.body);
+      xmlMessage.addData(historyDataKey(type), rec.body);
       //  Own rows key on the sentinel (right); others on sender name (left).
       QString userId = rec.own ? local : rec.userName;
       QString name = rec.userName;
-      MessageType type =
-        rec.type == int(MT_GroupMessage) ? MT_GroupMessage : MT_Message;
       appendMessageLog(type, &userId, &name, &xmlMessage);
     }
     return;
