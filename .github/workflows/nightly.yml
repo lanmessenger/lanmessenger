@@ -133,10 +133,25 @@ jobs:
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11
       options: --privileged
+      # Runtimes ship in a read-only overlayfs layer; updating them fails
+      # with EXDEV on some runners (flatpak/flatpak-github-actions#267).
+      # A volume keeps the renames on one filesystem.
+      volumes:
+        - /var/lib/flatpak
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ needs.plan.outputs.sha }}
+
+      # ostree hardlinks TMPDIR into the installation: same filesystem.
+      - name: Stage flatpak downloads on the installation filesystem
+        run: |
+          set -euo pipefail
+          mkdir -p /var/lib/flatpak/ci-tmp
+          echo "TMPDIR=/var/lib/flatpak/ci-tmp" >> "$GITHUB_ENV"
+          df -h /var/lib/flatpak /tmp | tail -3
+          findmnt -T /var/lib/flatpak || true
+          flatpak --system list --columns=application,branch,installation || flatpak list --runtime || true
 
       - name: Stamp nightly source and version
         run: |
