@@ -49,5 +49,5 @@ modules:
       - cp src/resources/text/license.txt /app/share/lmc/COPYING
       - install -Dm644 setup/linux/package/usr/share/applications/io.github.lanmessenger.lmc.desktop /app/share/applications/io.github.lanmessenger.lmc.desktop
       - install -Dm644 setup/linux/package/usr/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml /app/share/metainfo/io.github.lanmessenger.lmc.metainfo.xml
-      - for s in 16 22 24 32 36 48; do install -Dm644 setup/linux/package/usr/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png /app/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png; done
+      - for s in 16 22 24 32 36 48 256; do install -Dm644 setup/linux/package/usr/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png /app/share/icons/hicolor/${s}x${s}/apps/io.github.lanmessenger.lmc.png; done
       - install -Dm644 setup/linux/package/usr/share/pixmaps/io.github.lanmessenger.lmc.xpm /app/share/pixmaps/io.github.lanmessenger.lmc.xpm

@@ -86,6 +86,7 @@ jobs:
                    /usr/share/icons/hicolor/32x32/apps/io.github.lanmessenger.lmc.png \
                    /usr/share/icons/hicolor/36x36/apps/io.github.lanmessenger.lmc.png \
                    /usr/share/icons/hicolor/48x48/apps/io.github.lanmessenger.lmc.png \
+                   /usr/share/icons/hicolor/256x256/apps/io.github.lanmessenger.lmc.png \
                    /usr/share/pixmaps/io.github.lanmessenger.lmc.xpm \
                     /usr/share/lmc/lang/de_DE.qm /usr/share/lmc/lang/system/qtbase_de.qm; do
             test -e "$f" || { echo "missing $f" >&2; exit 1; }

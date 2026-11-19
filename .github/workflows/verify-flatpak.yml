@@ -49,6 +49,7 @@ jobs:
                      /app/share/icons/hicolor/32x32/apps/io.github.lanmessenger.lmc.png \
                      /app/share/icons/hicolor/36x36/apps/io.github.lanmessenger.lmc.png \
                      /app/share/icons/hicolor/48x48/apps/io.github.lanmessenger.lmc.png \
+                     /app/share/icons/hicolor/256x256/apps/io.github.lanmessenger.lmc.png \
                      /app/share/pixmaps/io.github.lanmessenger.lmc.xpm \
                      /app/share/lmc/lang/de_DE.qm /app/share/lmc/lang/system/qtbase_de.qm \
                      /app/share/lmc/sounds/filedone.wav; do
