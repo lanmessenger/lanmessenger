@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 LAN Messenger.
+// Frozen: do not modify without extreme necessity; slated for removal.
 #include "legacy/legacymigration.h"
 
 #include <QDir>

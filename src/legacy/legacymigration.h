@@ -3,6 +3,7 @@
 //
 // One-shot legacy history import. Reads binary messenger.db / transfers.lst,
 // writes through the public HistoryStore API. QtSql stays inside the store.
+// Frozen: do not modify without extreme necessity; slated for removal.
 #pragma once
 
 #include <QString>

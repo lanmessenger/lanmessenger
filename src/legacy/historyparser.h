@@ -7,6 +7,7 @@
 // Delete after: the SQLite release + one successful legacy import cycle.
 // New code must not use this except the one-shot import in
 // legacy/legacymigration.*.
+// Frozen: do not modify without extreme necessity; slated for removal.
 #pragma once
 
 #include <QList>
