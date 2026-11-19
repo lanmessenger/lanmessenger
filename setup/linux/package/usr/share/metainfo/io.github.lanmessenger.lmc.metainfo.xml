@@ -13,6 +13,28 @@
   </description>
   <launchable type="desktop-id">io.github.lanmessenger.lmc.desktop</launchable>
   <url type="homepage">https://lanmessenger.github.io/</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://lanmessenger.github.io/images/screenshots/linux-chat.png</image>
+      <caption>Chat window with a contact</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://lanmessenger.github.io/images/screenshots/linux-main.png</image>
+      <caption>Main window with contact list</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.3.23" date="2026-11-17">
+      <description>
+        <p>Help window links to live docs, updated translations and misc fixes</p>
+      </description>
+    </release>
+    <release version="1.3.21" date="2026-11-12">
+      <description>
+        <p>Day separators in chat view, better bubble selection and file drop onto chat input</p>
+      </description>
+    </release>
+  </releases>
   <developer id="io.github.lanmessenger">
     <name>LAN Messenger</name>
   </developer>
