@@ -39,7 +39,13 @@ the output `tls` folder if `windeployqt` skipped them (the CI build does
 this as a separate step). The SQLite driver (`sqldrivers\qsqlite.dll`,
 needed for history storage) is staged by `windeployqt` as well, because
 lmc links Qt6 Sql; the CI build asserts its presence and the installer
-check requires it.
+check requires it. `windeployqt` also stages `vc_redist.x64.exe` next
+to the exe. It finds the redist via the toolchain environment, so run
+it from vcvars / Developer PowerShell — a plain Git Bash will not do
+(CI gets the same environment from setup-msvc-dev). Note the shell
+switch versus the build above; without the staged file `setup.ps1`
+fails its redist check, and the installer needs the redist to run on
+clean machines.
 
 ## Installer
 

@@ -21,6 +21,8 @@ Push-Location $PSScriptRoot
 try {
   $exe = Join-Path $PSScriptRoot "..\..\$ExeFolder\lmc.exe"
   if (-not (Test-Path $exe)) { throw "lmc.exe not found in $exe." }
+  $redist = Join-Path $PSScriptRoot "..\..\$ExeFolder\vc_redist.x64.exe"
+  if (-not (Test-Path $redist)) { throw "vc_redist.x64.exe not found in $ExeFolder. Run windeployqt from a Visual Studio environment (vcvars) first." }
 
   # Stamps come from the exe: FileVersion string must match the argument,
   # numeric FileVersionRaw becomes the InstallerVersion.

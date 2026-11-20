@@ -129,14 +129,39 @@ SetCompressor /SOLID lzma
 Section
   
   DetailPrint "Installing ${ProductName}"
+
+  ;Install the staged VC++ runtime first, before anything lands in
+  ;$INSTDIR: without it the app cannot start on clean Windows and
+  ;/sync below hangs. 1638/3010 are success (already installed /
+  ;reboot required). $PLUGINSDIR is per-run and auto-cleaned, so no
+  ;manual Delete is needed and parallel installs don't share the file.
+  SetOutPath $PLUGINSDIR
+  File "..\..\${ExeFolder}\vc_redist.x64.exe"
+  DetailPrint "Installing Visual C++ runtime..."
+  ClearErrors
+  ExecWait '"$PLUGINSDIR\vc_redist.x64.exe" /quiet /norestart' $0
+  IfErrors redistLaunchFailed
+  IntCmp $0 0 redistOk
+  IntCmp $0 1638 redistOk
+  IntCmp $0 3010 redistReboot
+  redistFailed:
+  MessageBox MB_OK|MB_ICONSTOP "Could not install Visual C++ runtime (exit code $0).$\n$\nSetup will now exit." /SD IDOK
+  Abort
+  redistLaunchFailed:
+  MessageBox MB_OK|MB_ICONSTOP "Could not start Visual C++ runtime installer.$\n$\nSetup will now exit." /SD IDOK
+  Abort
+  redistReboot:
+  SetRebootFlag true
+  redistOk:
   
   DetailPrint "Copying new files"
 
   ;Set output path to the installation directory
   SetOutPath $INSTDIR
   
-  ;Copy application files to the installation directory  
-  File /r "..\..\${ExeFolder}\*.*"
+  ;Copy application files to the installation directory
+  ;(vc_redist rides in $PLUGINSDIR only, keep it out of Program Files)
+  File /r /x vc_redist.x64.exe "..\..\${ExeFolder}\*.*"
   File "..\..\src\resources\text\license.txt"
   
   ;Create directories in user's Application Data folder
@@ -259,6 +284,7 @@ SectionEnd
 
   Function .onInit
   
+    InitPluginsDir
     StrCpy $BrandText "${ProductName} v${ProductVersion} Installer"
     Call IsAlreadyInstalled
     

@@ -91,6 +91,10 @@ jobs:
           if (-not (Test-Path 'C:\lmc-smoke\tls')) { throw 'missing tls plugins' }
           if (-not (Get-ChildItem C:\lmc-smoke\libcrypto-*.dll -ErrorAction SilentlyContinue)) {
             throw 'missing openssl dlls' }
+          # vc_redist rides in $PLUGINSDIR only (setup.nsi: File /r /x): it must
+          # never land in the install dir. Guards a silent +25 MB regression
+          # if the /x exclusion breaks.
+          if (Test-Path 'C:\lmc-smoke\vc_redist.x64.exe') { throw 'vc_redist.x64.exe must not be installed' }
 
       # Installed exe string stamp must match the installer filename version.
       - name: Verify installed exe version stamp

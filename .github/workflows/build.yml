@@ -304,6 +304,13 @@ jobs:
           set QTDIR=%QT_ROOT_DIR%
           windeployqt --release release\lmc.exe
 
+      # setup.nsi installs vc_redist.x64.exe from this tree: windeployqt
+      # stages it, fail fast if it didn't.
+      - name: Assert VC++ redist staged
+        shell: pwsh
+        run: |
+          if (-not (Test-Path release/vc_redist.x64.exe)) { throw 'vc_redist.x64.exe missing beside lmc.exe' }
+
       # QSslSocket needs the Qt 6 TLS backend plugins; deploy them explicitly
       # in case windeployqt skipped them.
       - name: Ensure TLS plugins
@@ -362,6 +369,12 @@ jobs:
           # release\* copies CONTENTS (dest exists); without the wildcard
           # Copy-Item would nest release inside release.
           Copy-Item -Recurse release\* "$stage\release"
+          # e2e runners carry their own VC++ redist: keep the 25 MB
+          # installer out of the test tarball. No SilentlyContinue: the
+          # file is guaranteed by the assert above, so a removal failure
+          # must fail the step instead of silently growing the tarball.
+          Remove-Item "$stage\release\vc_redist.x64.exe" -ErrorAction Stop
+          if (Test-Path "$stage\release\vc_redist.x64.exe") { throw "vc_redist.x64.exe still in test layout" }
           # e2e.yml runs Windows with no Qt install: the layout must carry
           # the windeployqt output beside the test binary. Assert that, not
           # just the absence of nesting (a broken windeployqt staging fails
