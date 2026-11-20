@@ -45,8 +45,8 @@ SetCompressor /SOLID lzma
   BrandingText $BrandText
   OutFile "lmc-${ProductVersion}-win64.exe"
 
-  ;Default installation folder
-  InstallDir "$PROGRAMFILES\${ProductName}"
+  ;Default installation folder (64-bit app: $PROGRAMFILES would resolve to x86)
+  InstallDir "$PROGRAMFILES64\${ProductName}"
 
   ;Get installation folder from registry if available
   InstallDirRegKey HKLM "${AppRegKey}" "InstallDir"
