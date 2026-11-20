@@ -118,6 +118,17 @@ jobs:
       - name: List release files
         run: ls -la dist
 
+      - name: Generate SHA256SUMS.txt
+        run: |
+          cd dist
+          sha256sum -- * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Verify SHA256SUMS.txt
+        run: |
+          test -s dist/SHA256SUMS.txt
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.version.outputs.version }}
