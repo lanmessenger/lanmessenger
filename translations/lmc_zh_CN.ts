@@ -335,7 +335,7 @@
 <context>
 <name>lmcHelpWindow</name>
 <message><source>Help</source><translation>帮助</translation></message>
-<message><source>&lt;html&gt;...（原 HTML 帮助文本）...&lt;/html&gt;</source><translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;欢迎使用lanmessenger帮助&lt;/h2&gt;&lt;h3&gt;文档&lt;/h3&gt;&lt;p&gt;您可以在&lt;a href=&apos;%1&apos;&gt;文档&lt;/a&gt;中查找指南和参考资料。&lt;/p&gt;&lt;p&gt;列表中没有其他用户？请查看&lt;a href=&apos;%2&apos;&gt;您所用系统的网络说明&lt;/a&gt;。&lt;/p&gt;&lt;h3&gt;报告问题&lt;/h3&gt;&lt;p&gt;在您的子网中发现问题？请&lt;a href=&apos;%3&apos;&gt;反馈问题&lt;/a&gt;，并注明您的操作系统、应用版本和网络配置。&lt;/p&gt;&lt;h3&gt;参与项目&lt;/h3&gt;&lt;p&gt;您可以贡献自己的时间来帮助lanmessenger项目，例如协助社区、翻译应用或文档、测试程序等。当然，您也可以&lt;b&gt;推广&lt;/b&gt;lanmessenger。&lt;/p&gt;&lt;p&gt;如果您觉得lanmessenger好用，请在 &lt;a href=&apos;%4&apos;&gt;GitHub 上为我们加星&lt;/a&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation></message>
+<message><source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Documentation&lt;/h3&gt;&lt;p&gt;You can find guides and references in the &lt;a href=&apos;%1&apos;&gt;documentation&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;No peers in the list? Check the &lt;a href=&apos;%2&apos;&gt;network notes for your system&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Report a problem&lt;/h3&gt;&lt;p&gt;Found a bug on your subnet? Please &lt;a href=&apos;%3&apos;&gt;open an issue&lt;/a&gt; and include your operating system, app version, and network setup.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;p&gt;If you find LAN Messenger useful, please &lt;a href=&apos;%4&apos;&gt;star us on GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source><translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;欢迎使用LAN Messenger帮助&lt;/h2&gt;&lt;h3&gt;文档&lt;/h3&gt;&lt;p&gt;您可以在&lt;a href=&apos;%1&apos;&gt;文档&lt;/a&gt;中查找指南和参考资料。&lt;/p&gt;&lt;p&gt;列表中没有其他用户？请查看&lt;a href=&apos;%2&apos;&gt;您所用系统的网络说明&lt;/a&gt;。&lt;/p&gt;&lt;h3&gt;报告问题&lt;/h3&gt;&lt;p&gt;在您的子网中发现问题？请&lt;a href=&apos;%3&apos;&gt;反馈问题&lt;/a&gt;，并注明您的操作系统、应用版本和网络配置。&lt;/p&gt;&lt;h3&gt;参与项目&lt;/h3&gt;&lt;p&gt;您可以贡献自己的时间来帮助LAN Messenger项目，例如协助社区、翻译应用或文档、测试程序等。当然，您也可以&lt;b&gt;推广&lt;/b&gt;LAN Messenger。&lt;/p&gt;&lt;p&gt;如果您觉得LAN Messenger好用，请在 &lt;a href=&apos;%4&apos;&gt;GitHub 上为我们加星&lt;/a&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation></message>
 </context>
 <context>
 <name>lmcHistoryWindow</name>
@@ -402,7 +402,7 @@
 </context>
 <context>
 <name>lmcStrings</name>
-<message><source>LAN Messenger</source><translation>lanmessenger</translation></message>
+<message><source>LAN Messenger</source><translation>LAN Messenger</translation></message>
 <message><source>Automatic</source><translation>自动</translation></message>
 <message><source>Small text</source><translation>小字号</translation></message>
 <message><source>Medium text</source><translation>中字号</translation></message>
@@ -429,7 +429,7 @@
 <message><source>Never</source><translation>从不</translation></message>
 <message><source>Detailed</source><translation>详细</translation></message>
 <message><source>Compact</source><translation>紧凑</translation></message>
-<message><source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source><translation>lanmessenger是一款面向 Windows、macOS 和 Linux 的免费开源即时通讯应用。无需中心服务器或互联网连接，即可在局域网内聊天和传输文件。</translation></message>
+<message><source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source><translation>LAN Messenger是一款面向 Windows、macOS 和 Linux 的免费开源即时通讯应用。无需中心服务器或互联网连接，即可在局域网内聊天和传输文件。</translation></message>
 </context>
 <context>
 <name>lmcTransferWindow</name>
