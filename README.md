@@ -17,7 +17,7 @@ local network. No dedicated messaging server or internet connection required.
 - **Message History**: access your previous conversations.
 - **Serverless Operation**: communicate over your local network without setting up a dedicated messaging server.
 - **Offline Network Operation**: keep communicating over your local network when internet access is unavailable.
-- **Multiple Languages**: use the interface in any of the 20 supported languages.
+- **Multiple Languages**: use the interface in any of the 21 supported languages.
 - **Cross-platform Support**: available for Windows, macOS, and Linux.
 
 ## Screenshots

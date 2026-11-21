@@ -79,7 +79,7 @@
     </message>
     <message>
         <source>Sending &apos;%1&apos; to %2.</source>
-        <translation>正在向 %2 发送"%1"。</translation>
+        <translation>正在向 %2 发送“%1”。</translation>
     </message>
     <message>
         <source>Accepted</source>
@@ -141,7 +141,7 @@
     </message>
     <message>
         <source>Sending &apos;%1&apos; to %2.</source>
-        <translation>正在向 %2 发送"%1"。</translation>
+        <translation>正在向 %2 发送“%1”。</translation>
     </message>
     <message>
         <source>%1 sends you a folder:</source>
@@ -161,7 +161,7 @@
     </message>
     <message>
         <source>%1 is typing...</source>
-        <translation>%1 正在输入……</translation>
+        <translation>%1 正在输入…</translation>
     </message>
     <message>
         <source>%1 has entered text</source>
@@ -469,7 +469,7 @@
     </message>
     <message>
         <source>About:</source>
-        <translation>关于：</translation>
+        <translation>个性签名：</translation>
     </message>
     <message>
         <source>Contacts</source>
@@ -477,7 +477,7 @@
     </message>
     <message>
         <source>Refresh contacts list every</source>
-        <translation>每隔以下时间刷新联系人列表：</translation>
+        <translation>联系人列表刷新间隔：</translation>
     </message>
     <message>
         <source>seconds</source>
@@ -521,7 +521,7 @@
     </message>
     <message>
         <source>Allow hyperlinks in instant messages</source>
-        <translation>允许即时消息中的超链接</translation>
+        <translation>允许在即时消息中使用超链接</translation>
     </message>
     <message>
         <source>Convert network paths to links</source>
@@ -537,11 +537,11 @@
     </message>
     <message>
         <source>Change Font...</source>
-        <translation>更改字体……</translation>
+        <translation>更改字体…</translation>
     </message>
     <message>
         <source>Change Color...</source>
-        <translation>更改颜色……</translation>
+        <translation>更改颜色…</translation>
     </message>
     <message>
         <source>Incoming message text size:</source>
@@ -573,7 +573,7 @@
     </message>
     <message>
         <source>...</source>
-        <translation>……</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>File Transfer History</source>
@@ -601,11 +601,11 @@
     </message>
     <message>
         <source>Suspend alerts when my status is Busy</source>
-        <translation>当我的状态为"忙碌"时暂停提醒</translation>
+        <translation>当我的状态为“忙碌”时暂停提醒</translation>
     </message>
     <message>
         <source>Suspend alerts when my status is Do Not Disturb</source>
-        <translation>当我的状态为"请勿打扰"时暂停提醒</translation>
+        <translation>当我的状态为“请勿打扰”时暂停提醒</translation>
     </message>
     <message>
         <source>Sounds</source>
@@ -617,15 +617,15 @@
     </message>
     <message>
         <source>Suspend sounds when my status is Busy</source>
-        <translation>当我的状态为"忙碌"时静音</translation>
+        <translation>当我的状态为“忙碌”时静音</translation>
     </message>
     <message>
         <source>Suspend sound when my status is Do Not Disturb</source>
-        <translation>当我的状态为"请勿打扰"时静音</translation>
+        <translation>当我的状态为“请勿打扰”时静音</translation>
     </message>
     <message>
         <source>Play sounds for these events:</source>
-        <translation>以下事件播放声音：</translation>
+        <translation>为以下事件播放声音：</translation>
     </message>
     <message>
         <source>Network</source>
@@ -669,7 +669,7 @@
     </message>
     <message>
         <source>Incoming File Request</source>
-        <translation>接收文件请求</translation>
+        <translation>收到文件传输请求时</translation>
     </message>
     <message>
         <source>Bring window to foreground</source>
@@ -778,7 +778,7 @@
     </message>
     <message>
         <source>About:</source>
-        <translation>关于：</translation>
+        <translation>个性签名：</translation>
     </message>
     <message>
         <source>System Information</source>
@@ -818,11 +818,11 @@
     </message>
     <message>
         <source>Messenger Version:</source>
-        <translation>Messenger 版本：</translation>
+        <translation>LAN Messenger 版本：</translation>
     </message>
     <message>
         <source>&lt;Messenger Version&gt;</source>
-        <translation>&lt;Messenger 版本&gt;</translation>
+        <translation>&lt;LAN Messenger 版本&gt;</translation>
     </message>
     <message>
         <source>Close</source>
@@ -894,7 +894,7 @@
     </message>
     <message>
         <source>%1 says...</source>
-        <translation>%1 说……</translation>
+        <translation>%1 说…</translation>
     </message>
     <message>
         <source>Select Font</source>
@@ -926,7 +926,7 @@
     </message>
     <message>
         <source>&amp;Save As...</source>
-        <translation>另存为(&amp;S)……</translation>
+        <translation>另存为(&amp;S)…</translation>
     </message>
     <message>
         <source>Save this conversation</source>
@@ -934,7 +934,7 @@
     </message>
     <message>
         <source>Change Font...</source>
-        <translation>更改字体……</translation>
+        <translation>更改字体…</translation>
     </message>
     <message>
         <source>Change message font</source>
@@ -946,7 +946,7 @@
     </message>
     <message>
         <source>Change Color...</source>
-        <translation>更改颜色……</translation>
+        <translation>更改颜色…</translation>
     </message>
     <message>
         <source>Change message text color</source>
@@ -954,7 +954,7 @@
     </message>
     <message>
         <source>&amp;Add Contacts...</source>
-        <translation>添加联系人(&amp;A)……</translation>
+        <translation>添加联系人(&amp;A)…</translation>
     </message>
     <message>
         <source>Add people to this conversation</source>
@@ -985,15 +985,15 @@
     <name>lmcChatWindow</name>
     <message>
         <source>Send A &amp;File...</source>
-        <translation>发送文件(&amp;F)……</translation>
+        <translation>发送文件(&amp;F)…</translation>
     </message>
     <message>
         <source>Send A Fol&amp;der...</source>
-        <translation>发送文件夹(&amp;D)……</translation>
+        <translation>发送文件夹(&amp;D)…</translation>
     </message>
     <message>
         <source>&amp;Save As...</source>
-        <translation>另存为(&amp;S)……</translation>
+        <translation>另存为(&amp;S)…</translation>
     </message>
     <message>
         <source>&amp;History</source>
@@ -1025,7 +1025,7 @@
     </message>
     <message>
         <source>Change Font...</source>
-        <translation>更改字体……</translation>
+        <translation>更改字体…</translation>
     </message>
     <message>
         <source>Change message font</source>
@@ -1037,7 +1037,7 @@
     </message>
     <message>
         <source>Change Color...</source>
-        <translation>更改颜色……</translation>
+        <translation>更改颜色…</translation>
     </message>
     <message>
         <source>Change message text color</source>
@@ -1061,7 +1061,7 @@
     </message>
     <message>
         <source>%1 says...</source>
-        <translation>%1 说……</translation>
+        <translation>%1 说…</translation>
     </message>
     <message>
         <source>Broadcast from %1</source>
@@ -1069,11 +1069,11 @@
     </message>
     <message>
         <source>%1 sends a file...</source>
-        <translation>%1 发送了一个文件……</translation>
+        <translation>%1 发送了一个文件…</translation>
     </message>
     <message>
         <source>%1 sends a folder...</source>
-        <translation>%1 发送了一个文件夹……</translation>
+        <translation>%1 发送了一个文件夹…</translation>
     </message>
     <message>
         <source>You are no longer connected.</source>
@@ -1119,12 +1119,20 @@
         <translation>%1 无法启动，因为另一个应用程序正在占用 %2 配置的端口。</translation>
     </message>
     <message>
-        <source>Your preferences file is corrupt or invalid. %1 is unable to recover your settings.</source>
-        <translation>您的首选项文件已损坏或无效，%1 无法恢复您的设置。</translation>
+        <source>Your preferences file is corrupt or invalid.
+
+%1 is unable to recover your settings.</source>
+        <translation>您的首选项文件已损坏或无效。
+
+%1 无法恢复您的设置。</translation>
     </message>
     <message>
-        <source>Preferences could not be imported from &apos;%1&apos;. File may not exist, or may not be compatible with this version of %2.</source>
-        <translation>无法从"%1"导入首选项。该文件可能不存在，或与当前版本的 %2 不兼容。</translation>
+        <source>Preferences could not be imported from &apos;%1&apos;.
+
+File may not exist, or may not be compatible with this version of %2.</source>
+        <translation>无法从“%1”导入首选项。
+
+该文件可能不存在，或与当前版本的 %2 不兼容。</translation>
     </message>
 </context>
 <context>
@@ -1135,7 +1143,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;Welcome to LAN Messenger Help&lt;/h2&gt;&lt;h3&gt;Documentation&lt;/h3&gt;&lt;p&gt;You can find guides and references in the &lt;a href=&apos;%1&apos;&gt;documentation&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;No peers in the list? Check the &lt;a href=&apos;%2&apos;&gt;network notes for your system&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;Report a problem&lt;/h3&gt;&lt;p&gt;Found a bug on your subnet? Please &lt;a href=&apos;%3&apos;&gt;open an issue&lt;/a&gt; and include your operating system, app version, and network setup.&lt;/p&gt;&lt;h3&gt;Contribute to the project&lt;/h3&gt;&lt;p&gt;You can help the LAN Messenger project giving some of your time to help the community, to translate the application or documentation, and to test the program. And of course, you can &lt;b&gt;promote&lt;/b&gt; LAN Messenger.&lt;/p&gt;&lt;p&gt;If you find LAN Messenger useful, please &lt;a href=&apos;%4&apos;&gt;star us on GitHub&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;欢迎使用LAN Messenger帮助&lt;/h2&gt;&lt;h3&gt;文档&lt;/h3&gt;&lt;p&gt;您可以在&lt;a href=&apos;%1&apos;&gt;文档&lt;/a&gt;中查找指南和参考资料。&lt;/p&gt;&lt;p&gt;列表中没有其他用户？请查看&lt;a href=&apos;%2&apos;&gt;您所用系统的网络说明&lt;/a&gt;。&lt;/p&gt;&lt;h3&gt;报告问题&lt;/h3&gt;&lt;p&gt;在您的子网中发现问题？请&lt;a href=&apos;%3&apos;&gt;反馈问题&lt;/a&gt;，并注明您的操作系统、应用版本和网络配置。&lt;/p&gt;&lt;h3&gt;参与项目&lt;/h3&gt;&lt;p&gt;您可以贡献自己的时间来帮助LAN Messenger项目，例如协助社区、翻译应用或文档、测试程序等。当然，您也可以&lt;b&gt;推广&lt;/b&gt;LAN Messenger。&lt;/p&gt;&lt;p&gt;如果您觉得LAN Messenger好用，请在 &lt;a href=&apos;%4&apos;&gt;GitHub 上为我们加星&lt;/a&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&apos;Content-Type&apos; content=&apos;text/html; charset=utf-8&apos; /&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;欢迎使用 LAN Messenger 帮助&lt;/h2&gt;&lt;h3&gt;文档&lt;/h3&gt;&lt;p&gt;您可以在&lt;a href=&apos;%1&apos;&gt;文档&lt;/a&gt;中查找指南和参考资料。&lt;/p&gt;&lt;p&gt;列表中没有其他用户？请查看&lt;a href=&apos;%2&apos;&gt;您所用系统的网络说明&lt;/a&gt;。&lt;/p&gt;&lt;h3&gt;报告问题&lt;/h3&gt;&lt;p&gt;在您的子网中发现问题？请&lt;a href=&apos;%3&apos;&gt;反馈问题&lt;/a&gt;，并注明您的操作系统、应用版本和网络配置。&lt;/p&gt;&lt;h3&gt;参与项目&lt;/h3&gt;&lt;p&gt;您可以贡献自己的时间来帮助 LAN Messenger 项目，例如协助社区、翻译应用或文档、测试程序等。当然，您也可以&lt;b&gt;推广&lt;/b&gt; LAN Messenger。&lt;/p&gt;&lt;p&gt;如果您觉得 LAN Messenger 好用，请在 &lt;a href=&apos;%4&apos;&gt;GitHub 上为我们加星&lt;/a&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1181,7 +1189,7 @@
     </message>
     <message>
         <source>A group named &apos;%1&apos; already exists. Please enter a different name.</source>
-        <translation>名为"%1"的分组已存在，请输入其他名称。</translation>
+        <translation>名为“%1”的分组已存在，请输入其他名称。</translation>
     </message>
     <message>
         <source>Rename Group</source>
@@ -1193,7 +1201,7 @@
     </message>
     <message>
         <source>&amp;Messenger</source>
-        <translation>消息助手(&amp;M)</translation>
+        <translation>LAN Messenger(&amp;M)</translation>
     </message>
     <message>
         <source>&amp;New Chat Room</source>
@@ -1237,7 +1245,7 @@
     </message>
     <message>
         <source>Check for &amp;Updates...</source>
-        <translation>检查更新(&amp;U)……</translation>
+        <translation>检查更新(&amp;U)…</translation>
     </message>
     <message>
         <source>&amp;About</source>
@@ -1285,7 +1293,7 @@
     </message>
     <message>
         <source>&amp;Browse for more pictures...</source>
-        <translation>浏览更多图片(&amp;B)……</translation>
+        <translation>浏览更多图片(&amp;B)…</translation>
     </message>
     <message>
         <source>%1 will continue to run in the background. Activate this icon to restore the application window.</source>
@@ -1475,14 +1483,14 @@
     </message>
     <message>
         <source>LAN Messenger is a free, open-source instant messaging app for Windows, macOS and Linux. Chat and transfer files over your local network without a central server or internet connection.</source>
-        <translation>LAN Messenger是一款面向 Windows、macOS 和 Linux 的免费开源即时通讯应用。无需中心服务器或互联网连接，即可在局域网内聊天和传输文件。</translation>
+        <translation>LAN Messenger 是一款面向 Windows、macOS 和 Linux 的免费开源即时通讯应用。无需中心服务器或互联网连接，即可在局域网内聊天和传输文件。</translation>
     </message>
 </context>
 <context>
     <name>lmcTransferWindow</name>
     <message>
         <source>&apos;%1&apos; has been sent to %2.</source>
-        <translation>"%1"已发送给 %2。</translation>
+        <translation>“%1”已发送给 %2。</translation>
     </message>
     <message>
         <source>File Transfer Completed</source>
@@ -1490,7 +1498,7 @@
     </message>
     <message>
         <source>&apos;%1&apos; has been received from %2.</source>
-        <translation>已收到来自 %2 的"%1"。</translation>
+        <translation>已收到来自 %2 的“%1”。</translation>
     </message>
     <message>
         <source>File Transfers</source>
@@ -1541,7 +1549,7 @@
     </message>
     <message>
         <source>Launching an update request...</source>
-        <translation>正在发起更新检查……</translation>
+        <translation>正在发起更新检查…</translation>
     </message>
     <message>
         <source>An error occured while checking for updates.</source>
